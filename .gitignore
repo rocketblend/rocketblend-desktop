@@ -41,3 +41,4 @@ frontend.bak
 frontend/*.lock
 frontend/*.md5
 frontend/.npmrc
+frontend/.svelte-kit
