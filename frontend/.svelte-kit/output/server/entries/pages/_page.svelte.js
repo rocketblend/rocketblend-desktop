@@ -1,8 +1,7 @@
-import { c as create_ssr_component, d as add_attribute, e as escape } from "../../chunks/index.js";
-const logo = "/_app/immutable/assets/logo-universal-157a874a.png";
+import { c as create_ssr_component, e as escape, d as add_attribute } from "../../chunks/index.js";
 const _page_svelte_svelte_type_style_lang = "";
 const css = {
-  code: "#logo.svelte-15b5xkl.svelte-15b5xkl{display:block;width:50%;height:50%;margin:auto;padding:10% 0 0;background-position:center;background-repeat:no-repeat;background-size:100% 100%;background-origin:content-box}.result.svelte-15b5xkl.svelte-15b5xkl{height:20px;line-height:20px;margin:1.5rem auto}.input-box.svelte-15b5xkl .btn.svelte-15b5xkl{width:60px;height:30px;line-height:30px;border-radius:3px;border:none;margin:0 0 0 20px;padding:0 8px;cursor:pointer}.input-box.svelte-15b5xkl .btn.svelte-15b5xkl:hover{background-image:linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);color:#333333}.input-box.svelte-15b5xkl .input.svelte-15b5xkl{border:none;border-radius:3px;outline:none;height:30px;line-height:30px;padding:0 10px;background-color:rgba(240, 240, 240, 1);-webkit-font-smoothing:antialiased}.input-box.svelte-15b5xkl .input.svelte-15b5xkl:hover{border:none;background-color:rgba(255, 255, 255, 1)}.input-box.svelte-15b5xkl .input.svelte-15b5xkl:focus{border:none;background-color:rgba(255, 255, 255, 1)}",
+  code: ".result.svelte-19yygje.svelte-19yygje{height:20px;line-height:20px;margin:1.5rem auto}.input-box.svelte-19yygje .btn.svelte-19yygje{width:60px;height:30px;line-height:30px;border-radius:3px;border:none;margin:0 0 0 20px;padding:0 8px;cursor:pointer}.input-box.svelte-19yygje .btn.svelte-19yygje:hover{background-image:linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);color:#333333}.input-box.svelte-19yygje .input.svelte-19yygje{border:none;border-radius:3px;outline:none;height:30px;line-height:30px;padding:0 10px;background-color:rgba(240, 240, 240, 1);-webkit-font-smoothing:antialiased}.input-box.svelte-19yygje .input.svelte-19yygje:hover{border:none;background-color:rgba(255, 255, 255, 1)}.input-box.svelte-19yygje .input.svelte-19yygje:focus{border:none;background-color:rgba(255, 255, 255, 1)}",
   map: null
 };
 const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
@@ -13,10 +12,9 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     <p>Visit <a href="${"https://kit.svelte.dev"}">kit.svelte.dev</a>
         to read the documentation
     </p>
-    <img alt="${"Wails logo"}" id="${"logo"}"${add_attribute("src", logo, 0)} class="${"svelte-15b5xkl"}">
-    <div class="${"result svelte-15b5xkl"}" id="${"result"}">${escape(resultText)}</div>
-    <div class="${"input-box svelte-15b5xkl"}" id="${"input"}"><input autocomplete="${"off"}" class="${"input svelte-15b5xkl"}" id="${"name"}" type="${"text"}"${add_attribute("value", name, 0)}>
-        <button class="${"btn svelte-15b5xkl"}">Greet</button></div>
+    <div class="${"result svelte-19yygje"}" id="${"result"}">${escape(resultText)}</div>
+    <div class="${"input-box svelte-19yygje"}" id="${"input"}"><input autocomplete="${"off"}" class="${"input svelte-19yygje"}" id="${"name"}" type="${"text"}"${add_attribute("value", name, 0)}>
+        <button class="${"btn svelte-19yygje"}">Greet</button></div>
 </main>`;
 });
 export {

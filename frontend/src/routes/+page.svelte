@@ -1,5 +1,4 @@
 <script>
-    import logo from "$lib/assets/images/logo-universal.png";
     import { Greet } from "$lib/wailsjs/go/main/App.js";
 
     let resultText = "Please enter your name below 👇";
@@ -16,7 +15,6 @@
         Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a>
         to read the documentation
     </p>
-    <img alt="Wails logo" id="logo" src={logo} />
     <div class="result" id="result">{resultText}</div>
     <div class="input-box" id="input">
         <input
@@ -31,18 +29,6 @@
 </main>
 
 <style>
-    #logo {
-        display: block;
-        width: 50%;
-        height: 50%;
-        margin: auto;
-        padding: 10% 0 0;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: 100% 100%;
-        background-origin: content-box;
-    }
-
     .result {
         height: 20px;
         line-height: 20px;
