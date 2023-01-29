@@ -10,7 +10,7 @@
 </script>
 
 <main class="container mx-auto p-8 space-y-8">
-    <h1>Welcome to the Unofficial Wails.io SvelteKit Template!</h1>
+    <h1>Welcome To RocketBlend Desktop</h1>
     <p>
         Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a>
         to read the documentation

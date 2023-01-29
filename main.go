@@ -25,9 +25,10 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "wails-sveltekit",
+		Title:  "RocketBlend Desktop",
 		Width:  1024,
 		Height: 768,
+		Menu:   app.menu(),
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
