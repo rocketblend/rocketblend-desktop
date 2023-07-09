@@ -42,3 +42,9 @@ frontend/*.lock
 frontend/*.md5
 frontend/.npmrc
 frontend/.svelte-kit
+frontend/.env
+frontend/.env.*
+frontend/!.env.example
+frontend/.output
+frontend/vite.config.js.timestamp-*
+frontend/vite.config.ts.timestamp-*
