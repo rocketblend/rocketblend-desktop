@@ -1,5 +1,8 @@
 <script>
+    import { t, locale, locales } from '$lib/translations/translations';
     import { Greet } from "$lib/wailsjs/go/application/Driver.js";
+
+    let link = 'https://kit.svelte.dev';
 
     let resultText = "Please enter your name";
     let name = "";
@@ -10,11 +13,8 @@
 </script>
 
 <main class="container mx-auto p-8 space-y-8">
-    <h1>Welcome To RocketBlend Desktop</h1>
-    <p>
-        Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a>
-        to read the documentation
-    </p>
+    <h1>{$t('home.title')}</h1>
+    <p>{@html $t('home.text', { link })}</p>
     <hr />
     <section class="card p-4">
         <div class="input-group input-group-divider grid-cols-[auto_1fr_auto]">
