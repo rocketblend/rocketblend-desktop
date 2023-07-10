@@ -1,5 +1,5 @@
 <script>
-    import { Greet } from "$lib/wailsjs/go/main/App.js";
+    import { Greet } from "$lib/wailsjs/go/application/Driver.js";
 
     let resultText = "Please enter your name";
     let name = "";
