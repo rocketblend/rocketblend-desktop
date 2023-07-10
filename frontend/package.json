@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@fontsource/fira-mono": "^5.0.5",
+    "@iconify-json/material-symbols": "^1.1.50",
     "@neoconfetti/svelte": "^1.0.0",
     "@playwright/test": "^1.28.1",
     "@skeletonlabs/skeleton": "^1.9.0",
@@ -40,6 +41,7 @@
     "tailwindcss": "^3.3.2",
     "tslib": "^2.4.1",
     "typescript": "^5.1.6",
+    "unplugin-icons": "^0.16.3",
     "vite": "^4.3.6",
     "vitest": "^0.32.2"
   },

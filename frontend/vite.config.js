@@ -1,4 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
+import Icons from 'unplugin-icons/vite'
+
 // import path from 'path'
 
 /** @type {import('vite').UserConfig} */
@@ -10,7 +12,13 @@ const config = {
       // allow: ['.'],
     },
   },
-  plugins: [sveltekit()],
+  plugins: [
+    sveltekit(),
+    Icons({
+      compiler: 'svelte',
+      autoInstall: true,
+    }),
+  ],
   test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
