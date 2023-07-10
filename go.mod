@@ -2,7 +2,10 @@ module github.com/rocketblend/rocketblend-desktop
 
 go 1.19
 
-require github.com/wailsapp/wails/v2 v2.5.1
+require (
+	github.com/flowshot-io/x v0.0.0-20230622123052-b262ee884a19
+	github.com/wailsapp/wails/v2 v2.5.1
+)
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect
@@ -19,6 +22,7 @@ require (
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/rs/zerolog v1.29.1 // indirect
 	github.com/samber/lo v1.38.1 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
@@ -29,6 +33,7 @@ require (
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
+	logur.dev/adapter/zerolog v0.6.0 // indirect
 )
 
 // replace github.com/wailsapp/wails/v2 v2.2.0 => /home/plihelix/go/pkg/mod

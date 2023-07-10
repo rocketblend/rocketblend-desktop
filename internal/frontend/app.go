@@ -1,4 +1,4 @@
-package main
+package frontend
 
 import (
 	"context"
@@ -18,7 +18,7 @@ type App struct {
 }
 
 // NewApp creates a new App application struct
-func New() *App {
+func NewApp() *App {
 	return &App{
 		driver: driver.New(),
 	}
@@ -34,11 +34,25 @@ func (a *App) Quit() {
 	runtime.Quit(a.ctx)
 }
 
+// eventEmitter emits an event to the frontend
+func (a *App) eventEmitter(eventName string, optionalData ...interface{}) error {
+	if a.ctx == nil {
+		return fmt.Errorf("context is nil")
+	}
+
+	runtime.EventsEmit(a.ctx, eventName, optionalData...)
+
+	return nil
+}
+
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
+
+// shutdown is called when the app is shutting down
+func (b *App) shutdown(ctx context.Context) {}
 
 // menu returns the application menu
 func (a *App) menu() *menu.Menu {
