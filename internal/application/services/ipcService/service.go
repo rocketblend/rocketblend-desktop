@@ -75,7 +75,13 @@ func (s *InterProcessService) Start() error {
 	defer s.mu.Unlock()
 
 	s.rpcServer = rpc.NewServer()
-	if err := s.rpcServer.Register(s.HandleArgs); err != nil {
+
+	handler := &Handler{
+		logger: s.logger,
+		ch:     s.ch,
+	}
+
+	if err := s.rpcServer.Register(handler); err != nil {
 		return err
 	}
 

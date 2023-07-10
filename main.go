@@ -3,7 +3,7 @@ package main
 import (
 	"embed"
 
-	"github.com/rocketblend/rocketblend-desktop/internal/frontend"
+	"github.com/rocketblend/rocketblend-desktop/internal/application"
 )
 
 // 'wails dev' should properly launch vite to serve the site
@@ -18,9 +18,9 @@ import (
 var assets embed.FS
 
 func main() {
-	frontend := frontend.New(assets)
+	app := application.New(assets)
 
-	err := frontend.Execute()
+	err := app.Execute()
 	if err != nil {
 		println("Error:", err.Error())
 	}
