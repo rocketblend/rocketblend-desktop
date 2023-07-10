@@ -35,32 +35,20 @@ func (a *Driver) Quit() {
 }
 
 // eventEmitter emits an event to the frontend
-func (a *Driver) eventEmitter(eventName string, optionalData ...interface{}) error {
-	if a.ctx == nil {
-		return fmt.Errorf("context is nil")
-	}
+// func (a *Driver) eventEmitter(eventName string, optionalData ...interface{}) error {
+// 	if a.ctx == nil {
+// 		return fmt.Errorf("context is nil")
+// 	}
 
-	runtime.EventsEmit(a.ctx, eventName, optionalData...)
+// 	runtime.EventsEmit(a.ctx, eventName, optionalData...)
 
-	return nil
-}
+// 	return nil
+// }
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *Driver) startup(ctx context.Context) {
 	a.ctx = ctx
-
-	go func() {
-		for {
-			select {
-			case args := <-a.argumentChannel:
-				fmt.Println("Received arguments", args)
-				a.eventEmitter("arguments", args)
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
 }
 
 // shutdown is called when the app is shutting down

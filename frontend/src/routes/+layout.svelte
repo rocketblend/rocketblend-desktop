@@ -2,21 +2,20 @@
   import "../theme.postcss";
   import "@skeletonlabs/skeleton/styles/all.css";
   import "../app.postcss";
+
+  import { AppBar, AppShell } from '@skeletonlabs/skeleton';
 </script>
 
-<svelte:head>
-  <script>
-    if (!window.hasOwnProperty("wailsbindings")) {
-      let wails_ipc = document.createElement("script");
-      wails_ipc.setAttribute("src", "/wails/ipc.js");
-
-      let wails_runtime = document.createElement("script");
-      wails_runtime.setAttribute("src", "/wails/runtime.js");
-
-      document.head.appendChild(wails_ipc);
-      document.head.appendChild(wails_runtime);
-    }
-  </script>
-</svelte:head>
-
-<slot />
+<AppShell regionPage="p-2">
+  <svelte:fragment slot="header">
+    <div style="--wails-draggable:drag">
+      <AppBar background="bg-surface-100-900-token">
+          <svelte:fragment slot="lead">(...)</svelte:fragment>
+          <svelte:fragment slot="trail">_ [] X</svelte:fragment>
+      </AppBar>
+    </div>
+  </svelte:fragment>
+  <div class="shadow-none card p-4 h-full">
+    <slot />
+  </div>
+</AppShell>

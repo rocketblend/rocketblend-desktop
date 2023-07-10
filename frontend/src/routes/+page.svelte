@@ -1,5 +1,5 @@
 <script>
-    import { t, locale, locales } from '$lib/translations/translations';
+    import { t } from '$lib/translations/translations';
     import { Greet } from "$lib/wailsjs/go/application/Driver.js";
 
     let link = 'https://kit.svelte.dev';
@@ -13,7 +13,7 @@
 </script>
 
 <main class="container mx-auto p-8 space-y-8">
-    <h1>{$t('home.title')}</h1>
+    <h2>{$t('home.title')}</h2>
     <p>{@html $t('home.text', { link })}</p>
     <hr />
     <section class="card p-4">
