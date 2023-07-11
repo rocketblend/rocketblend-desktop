@@ -16,6 +16,7 @@
   "devDependencies": {
     "@fontsource/fira-mono": "^5.0.5",
     "@iconify-json/material-symbols": "^1.1.50",
+    "@iconify-json/ri": "^1.1.10",
     "@neoconfetti/svelte": "^1.0.0",
     "@playwright/test": "^1.28.1",
     "@skeletonlabs/skeleton": "^1.9.0",
