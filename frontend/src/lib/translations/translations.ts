@@ -1,7 +1,6 @@
 import i18n from 'sveltekit-i18n';
 import lang from './lang.json';
 import type { Config } from 'sveltekit-i18n';
-import { load } from '../../../.svelte-kit/types/src/routes/proxy+layout';
 
 interface Params {
   link: string;
