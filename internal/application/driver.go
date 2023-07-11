@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application/services/ipcService"
-	"github.com/wailsapp/wails/v2/pkg/menu"
-	"github.com/wailsapp/wails/v2/pkg/menu/keys"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -53,16 +51,3 @@ func (a *Driver) startup(ctx context.Context) {
 
 // shutdown is called when the app is shutting down
 func (b *Driver) shutdown(ctx context.Context) {}
-
-// menu returns the application menu
-func (a *Driver) menu() *menu.Menu {
-	AppMenu := menu.NewMenu()
-	FileMenu := AppMenu.AddSubmenu("File")
-	// FileMenu.AddText("&Open", keys.CmdOrCtrl("o"), openFile)
-	// FileMenu.AddSeparator()
-	FileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
-		a.Quit()
-	})
-
-	return AppMenu
-}

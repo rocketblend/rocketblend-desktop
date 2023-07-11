@@ -10,3 +10,4 @@ export const load: Load = async ({ url }: { url: URL }) => {
 
   return {};
 };
+

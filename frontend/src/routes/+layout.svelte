@@ -9,6 +9,8 @@
   import IconMoreFill from '~icons/ri/more-fill'
   import IconSubtractFill from '~icons/ri/subtract-fill'
   import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
+
+  import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
 </script>
 
 <AppShell>
@@ -21,13 +23,13 @@
             </button>
           </svelte:fragment>
           <svelte:fragment slot="trail">
-            <button type="button" class="btn btn-sm py-2 px-4 hover:bg-stone-700 rounded-none">
+            <button type="button" class="btn btn-sm py-2 px-4 hover:bg-stone-700 rounded-none" on:click={WindowMinimise}>
               <IconSubtractFill/>
             </button>
-            <button type="button" class="btn btn-sm py-2 px-4 hover:bg-stone-700 rounded-none">
+            <button type="button" class="btn btn-sm py-2 px-4 hover:bg-stone-700 rounded-none" on:click={WindowToggleMaximise}>
               <IconCheckboxMultipleBlankLine/>
             </button>
-            <button type="button" class="btn btn-sm py-2 px-4 hover:bg-red-700 rounded-none">
+            <button type="button" class="btn btn-sm py-2 px-4 hover:bg-red-700 rounded-none" on:click={Quit}>
               <IconCloseFill/>
             </button>
           </svelte:fragment>
