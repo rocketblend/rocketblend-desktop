@@ -32,13 +32,15 @@ func (a *application) Execute() error {
 		Title:  "RocketBlend Desktop",
 		Width:  1024,
 		Height: 768,
-		Menu:   a.driver.menu(),
 		AssetServer: &assetserver.Options{
 			Assets: a.assets,
 		},
-		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
+		MinHeight:        580,
+		MinWidth:         764,
+		BackgroundColour: &options.RGBA{R: 00, G: 00, B: 00, A: 1},
 		OnStartup:        a.driver.startup,
 		OnShutdown:       a.driver.shutdown,
+		Frameless:        true,
 		Bind: []interface{}{
 			a.driver,
 		},
