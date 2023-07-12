@@ -40,13 +40,13 @@
       </AppBar>
     </div>
   </svelte:fragment>
-  <div class="h-full p-2 pt-0">
-    <div class="shadow-none card p-4 h-full">
+  <div class="h-full p-2 py-0">
+    <div class="shadow-none card p-6 h-full">
       <slot />
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <section class="grid grid-cols-3 gap-4 p-3 pt-1 pb-3">
+    <section class="grid grid-cols-3 gap-4 p-3 pb-3">
       <div class="flex gap-4 items-center">
         <img class="h-auto max-w-full rounded-lg" src="https://images.unsplash.com/photo-1688025950970-2ffb840b8f64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&h=64&w=64" alt="">
         <div>
