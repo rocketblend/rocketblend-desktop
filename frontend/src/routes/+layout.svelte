@@ -9,6 +9,10 @@
   import IconMoreFill from '~icons/ri/more-fill'
   import IconSubtractFill from '~icons/ri/subtract-fill'
   import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
+  import IconBlenderFill from '~icons/ri/blender-fill'
+  import IconFolderOpenFill from '~icons/ri/folder-open-fill'
+  import IconEyeFill from '~icons/ri/eye-fill'
+  import IconBookmark3Fill from '~icons/ri/bookmark-3-fill'
 
   import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
 </script>
@@ -16,7 +20,7 @@
 <AppShell>
   <svelte:fragment slot="header">
     <div style="--wails-draggable:drag">
-      <AppBar background="bg-surface-100-900-token" padding="p0" slotTrail="space-x-0 -mt-3">
+      <AppBar background="bg-surface-50-900-token" padding="p0" slotTrail="space-x-0 -mt-3">
           <svelte:fragment slot="lead">
             <button type="button" class="btn btn-sm py-2 px-4 rounded-none text-2xl">
               <IconMoreFill/>
@@ -41,4 +45,24 @@
       <slot />
     </div>
   </div>
+  <svelte:fragment slot="footer">
+    <section class="grid grid-cols-3 gap-4 p-3 pt-1 pb-3">
+      <div class="flex gap-4 items-center">
+        <img class="h-auto max-w-full rounded-lg" src="https://images.unsplash.com/photo-1688025950970-2ffb840b8f64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&h=64&w=64" alt="">
+        <div>
+          <div class="text-sm font-medium">Hello World</div>
+          <div class="text-sm text-muted text-surface-300">Offical Stable Blender 3.4.1</div>
+        </div>
+        <button type="button" class="btn btn-lg px-1 text-secondary-300-600-token"><IconBookmark3Fill/></button>
+      </div>
+      <div class="min-w-max items-center justify-center flex gap-2">
+        <!-- <button type="button" class="btn variant-filled text-lg px-9"><IconBlenderFill/></button> -->
+      </div>
+      <div class="justify-end items-center flex gap-2">
+          <button type="button" class="btn text-lg text-surface-700-200-token px-2"><IconEyeFill/></button>
+          <button type="button" class="btn text-lg text-surface-700-200-token px-2"><IconFolderOpenFill/></button>
+          <button type="button" class="btn variant-filled text-lg px-9"><IconBlenderFill/></button>
+      </div>
+    </section>
+  </svelte:fragment>
 </AppShell>
