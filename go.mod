@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/flowshot-io/x v0.0.0-20230622123052-b262ee884a19
+	github.com/fsnotify/fsnotify v1.4.9
 	github.com/wailsapp/wails/v2 v2.5.1
 )
 
