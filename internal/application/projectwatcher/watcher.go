@@ -6,19 +6,19 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rjeczalik/notify"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 )
 
-type (
-	Project struct {
-		BlendFile string
-		YamlFile  string
-	}
+var watchFileExtensions = []string{
+	".blend",
+	".yaml",
+}
 
+type (
 	ProjectWatcher struct {
 		logger   logger.Logger
-		projects map[string]*Project
+		projects map[string]*project.Project
 		events   chan notify.EventInfo
-		updates  chan *Project
 		mu       sync.RWMutex
 	}
 
@@ -46,9 +46,8 @@ func New(opts ...Option) (*ProjectWatcher, error) {
 
 	return &ProjectWatcher{
 		logger:   options.Logger,
-		projects: make(map[string]*Project),
+		projects: make(map[string]*project.Project),
 		events:   make(chan notify.EventInfo, 1),
-		updates:  make(chan *Project),
 	}, nil
 }
 
@@ -76,12 +75,12 @@ func (pw *ProjectWatcher) Close() error {
 	return nil
 }
 
-func (pw *ProjectWatcher) GetProjects() map[string]*Project {
+func (pw *ProjectWatcher) GetProjects() map[string]*project.Project {
 	pw.mu.RLock()
 	defer pw.mu.RUnlock()
 
 	// Return a copy of the map to prevent concurrent modification
-	projects := make(map[string]*Project)
+	projects := make(map[string]*project.Project)
 	for key, value := range pw.projects {
 		projects[key] = value
 	}
@@ -89,52 +88,37 @@ func (pw *ProjectWatcher) GetProjects() map[string]*Project {
 	return projects
 }
 
-func (pw *ProjectWatcher) GetUpdates() <-chan *Project {
-	return pw.updates
-}
-
-func (pw *ProjectWatcher) getOrCreateProject(filename string) *Project {
-	dir := filepath.Dir(filename)
-
-	if project, ok := pw.projects[dir]; ok {
-		return project
-	}
-
-	project := &Project{}
-	pw.projects[dir] = project
-
-	return project
-}
-
-func (pw *ProjectWatcher) updateProjects(filename string) {
+func (pw *ProjectWatcher) updateProject(projectPath string) {
 	pw.mu.Lock()
 	defer pw.mu.Unlock()
 
-	switch filepath.Ext(filename) {
-	case ".blend":
-		project := pw.getOrCreateProject(filename)
-		project.BlendFile = filename
-		pw.updates <- project
-	case ".yaml":
-		project := pw.getOrCreateProject(filename)
-		project.YamlFile = filename
-		pw.updates <- project
+	// Get or create the project
+	project, err := project.Find(projectPath)
+	if err != nil {
+		pw.logger.Error("Error while getting or creating project", map[string]interface{}{
+			"projectPath": projectPath,
+			"err":         err,
+		})
+
+		return
 	}
 
-	pw.logger.Trace("Projects updated", map[string]interface{}{
-		"projects": pw.projects,
+	pw.projects[projectPath] = project
+
+	pw.logger.Trace("Project updated", map[string]interface{}{
+		"projectPath": projectPath,
+		"project":     project,
 	})
 }
 
-func (pw *ProjectWatcher) removeProject(filename string) {
+func (pw *ProjectWatcher) removeProject(projectPath string) {
 	pw.mu.Lock()
 	defer pw.mu.Unlock()
 
-	dir := filepath.Dir(filename)
-	delete(pw.projects, dir)
+	delete(pw.projects, projectPath)
 
 	pw.logger.Trace("Project removed", map[string]interface{}{
-		"project_dir": dir,
+		"projectPath": projectPath,
 	})
 }
 
@@ -146,17 +130,31 @@ func (pw *ProjectWatcher) Run() {
 				"file": event.Path(),
 			})
 
-			pw.updateProjects(event.Path())
+			if isWatchFile(event.Path()) {
+				pw.updateProject(filepath.Dir(event.Path()))
+			}
 		case notify.Remove, notify.Rename:
 			pw.logger.Debug("Removed or renamed file", map[string]interface{}{
 				"file": event.Path(),
 			})
 
-			pw.removeProject(event.Path())
+			if isWatchFile(event.Path()) {
+				pw.removeProject(filepath.Dir(event.Path()))
+			}
 		}
 
 		pw.logger.Info("Filesystem event occurred", map[string]interface{}{
 			"event": event,
 		})
 	}
+}
+
+func isWatchFile(filename string) bool {
+	for _, ext := range watchFileExtensions {
+		if filepath.Ext(filename) == ext {
+			return true
+		}
+	}
+
+	return false
 }
