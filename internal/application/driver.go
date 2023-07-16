@@ -2,9 +2,11 @@ package application
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/rocketblend/rocketblend-desktop/internal/application/services/ipcService"
+	"github.com/flowshot-io/x/pkg/logger"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsearcher"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectwatcher"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -12,42 +14,68 @@ import (
 type Driver struct {
 	ctx context.Context
 
-	argumentChannel chan ipcService.Args
+	projectSearcher projectsearcher.Searcher
+	projectWatcher  projectwatcher.Watcher
 }
 
 // NewApp creates a new App application struct
-func NewDriver() *Driver {
-	return &Driver{
-		argumentChannel: make(chan ipcService.Args),
+func NewDriver() (*Driver, error) {
+	logger := logger.New()
+
+	projectWatcher, err := projectwatcher.New(
+		projectwatcher.WithLogger(logger),
+	)
+	if err != nil {
+		return nil, err
 	}
+
+	projectsearcher, err := projectsearcher.New(
+		projectsearcher.WithLogger(logger),
+		projectsearcher.WithWatcher(projectWatcher),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Move this to a config file
+	watchPaths := []string{
+		"D:\\Creative\\Blender\\Projects\\Testing\\RocketBlend",
+	}
+
+	for _, path := range watchPaths {
+		if err := projectWatcher.AddWatchPath(path); err != nil {
+			return nil, err
+		}
+	}
+
+	return &Driver{
+		projectSearcher: projectsearcher,
+		projectWatcher:  projectWatcher,
+	}, nil
 }
 
-// Greet returns a greeting for the given name
-func (a *Driver) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+func (d *Driver) FindAllProjects() ([]*project.Project, error) {
+	return d.projectSearcher.FindAll()
+}
+
+func (d *Driver) FindProjectByPath(projectPath string) (*project.Project, error) {
+	return d.projectSearcher.FindByPath(projectPath)
 }
 
 // Quit quits the application
-func (a *Driver) Quit() {
-	runtime.Quit(a.ctx)
+func (d *Driver) Quit() {
+	if d.projectWatcher != nil {
+		d.projectWatcher.Close()
+	}
+
+	runtime.Quit(d.ctx)
 }
-
-// eventEmitter emits an event to the frontend
-// func (a *Driver) eventEmitter(eventName string, optionalData ...interface{}) error {
-// 	if a.ctx == nil {
-// 		return fmt.Errorf("context is nil")
-// 	}
-
-// 	runtime.EventsEmit(a.ctx, eventName, optionalData...)
-
-// 	return nil
-// }
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
-func (a *Driver) startup(ctx context.Context) {
-	a.ctx = ctx
+func (d *Driver) startup(ctx context.Context) {
+	d.ctx = ctx
 }
 
 // shutdown is called when the app is shutting down
-func (b *Driver) shutdown(ctx context.Context) {}
+func (d *Driver) shutdown(ctx context.Context) {}

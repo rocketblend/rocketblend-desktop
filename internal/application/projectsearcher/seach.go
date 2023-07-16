@@ -21,12 +21,12 @@ type (
 
 	searcher struct {
 		logger  logger.Logger
-		watcher *projectwatcher.Watcher
+		watcher projectwatcher.Watcher
 	}
 
 	Options struct {
-		Logger    logger.Logger
-		WatchPath string
+		Logger  logger.Logger
+		Watcher projectwatcher.Watcher
 	}
 
 	Option func(*Options)
@@ -38,9 +38,9 @@ func WithLogger(logger logger.Logger) Option {
 	}
 }
 
-func WithWatchPath(watchPath string) Option {
+func WithWatcher(watcher projectwatcher.Watcher) Option {
 	return func(o *Options) {
-		o.WatchPath = watchPath
+		o.Watcher = watcher
 	}
 }
 
@@ -53,25 +53,13 @@ func New(opts ...Option) (Searcher, error) {
 		o(options)
 	}
 
-	if options.WatchPath == "" {
-		return nil, fmt.Errorf("root path is required")
+	if options.Watcher == nil {
+		return nil, fmt.Errorf("watcher is required")
 	}
-
-	watcher, err := projectwatcher.New(projectwatcher.WithLogger(options.Logger))
-	if err != nil {
-		return nil, err
-	}
-
-	if err := watcher.AddWatchPath(options.WatchPath); err != nil {
-		return nil, err
-	}
-
-	go watcher.Run()
-	//defer watcher.Close()
 
 	return &searcher{
 		logger:  options.Logger,
-		watcher: watcher,
+		watcher: options.Watcher,
 	}, nil
 }
 
