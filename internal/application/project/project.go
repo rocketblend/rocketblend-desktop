@@ -9,8 +9,14 @@ import (
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
 )
 
+const (
+	IgnoreFileName = ".rockdeskignore"
+	SettingsFolder = ".rocketdesk"
+)
+
 type (
 	Project struct {
+		Path          string                 `json:"path"`
 		Name          string                 `json:"name"`
 		BlendFileName string                 `json:"blendFileName"`
 		Config        *rocketfile.RocketFile `json:"rocketFile"`
@@ -70,6 +76,7 @@ func Load(projectName string, blendFilePath string, rocketFilePath string) (*Pro
 
 	// Create a new project instance with loaded BlendConfig.
 	return &Project{
+		Path:          filepath.Dir(blendFilePath),
 		Name:          projectName,
 		BlendFileName: blendConfig.BlendFileName,
 		Config:        blendConfig.RocketFile,

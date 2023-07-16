@@ -15,7 +15,7 @@ var watchFileExtensions = []string{
 }
 
 type (
-	ProjectWatcher struct {
+	Watcher struct {
 		logger   logger.Logger
 		projects map[string]*project.Project
 		events   chan notify.EventInfo
@@ -35,7 +35,7 @@ func WithLogger(logger logger.Logger) Option {
 	}
 }
 
-func New(opts ...Option) (*ProjectWatcher, error) {
+func New(opts ...Option) (*Watcher, error) {
 	options := &Options{
 		Logger: logger.NoOp(),
 	}
@@ -44,17 +44,17 @@ func New(opts ...Option) (*ProjectWatcher, error) {
 		o(options)
 	}
 
-	return &ProjectWatcher{
+	return &Watcher{
 		logger:   options.Logger,
 		projects: make(map[string]*project.Project),
 		events:   make(chan notify.EventInfo, 1),
 	}, nil
 }
 
-func (pw *ProjectWatcher) AddWatchPath(path string) error {
-	err := notify.Watch(path+"/...", pw.events, notify.Write|notify.Remove|notify.Rename)
+func (w *Watcher) AddWatchPath(path string) error {
+	err := notify.Watch(path+"/...", w.events, notify.Write|notify.Remove|notify.Rename)
 	if err != nil {
-		pw.logger.Error("Error while adding path to watcher", map[string]interface{}{
+		w.logger.Error("Error while adding path to watcher", map[string]interface{}{
 			"path": path,
 			"err":  err,
 		})
@@ -62,40 +62,47 @@ func (pw *ProjectWatcher) AddWatchPath(path string) error {
 		return err
 	}
 
-	pw.logger.Info("Added new watch path", map[string]interface{}{
+	w.logger.Info("Added new watch path", map[string]interface{}{
 		"path": path,
 	})
 
 	return nil
 }
 
-func (pw *ProjectWatcher) Close() error {
-	notify.Stop(pw.events)
-	pw.logger.Info("Project watcher closed", nil)
+func (w *Watcher) Close() error {
+	notify.Stop(w.events)
+	w.logger.Info("Project watcher closed", nil)
 	return nil
 }
 
-func (pw *ProjectWatcher) GetProjects() map[string]*project.Project {
-	pw.mu.RLock()
-	defer pw.mu.RUnlock()
+func (w *Watcher) GetProjects() []*project.Project {
+	w.mu.RLock()
+	defer w.mu.RUnlock()
 
-	// Return a copy of the map to prevent concurrent modification
-	projects := make(map[string]*project.Project)
-	for key, value := range pw.projects {
-		projects[key] = value
+	projects := make([]*project.Project, len(w.projects))
+	for _, value := range w.projects {
+		projects = append(projects, value)
 	}
 
 	return projects
 }
 
-func (pw *ProjectWatcher) updateProject(projectPath string) {
-	pw.mu.Lock()
-	defer pw.mu.Unlock()
+func (w *Watcher) GetProject(projectPath string) (*project.Project, bool) {
+	w.mu.RLock()
+	defer w.mu.RUnlock()
+
+	project, ok := w.projects[projectPath]
+	return project, ok
+}
+
+func (w *Watcher) updateProject(projectPath string) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
 
 	// Get or create the project
 	project, err := project.Find(projectPath)
 	if err != nil {
-		pw.logger.Error("Error while getting or creating project", map[string]interface{}{
+		w.logger.Error("Error while getting or creating project", map[string]interface{}{
 			"projectPath": projectPath,
 			"err":         err,
 		})
@@ -103,47 +110,47 @@ func (pw *ProjectWatcher) updateProject(projectPath string) {
 		return
 	}
 
-	pw.projects[projectPath] = project
+	w.projects[projectPath] = project
 
-	pw.logger.Trace("Project updated", map[string]interface{}{
+	w.logger.Trace("Project updated", map[string]interface{}{
 		"projectPath": projectPath,
 		"project":     project,
 	})
 }
 
-func (pw *ProjectWatcher) removeProject(projectPath string) {
-	pw.mu.Lock()
-	defer pw.mu.Unlock()
+func (w *Watcher) removeProject(projectPath string) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
 
-	delete(pw.projects, projectPath)
+	delete(w.projects, projectPath)
 
-	pw.logger.Trace("Project removed", map[string]interface{}{
+	w.logger.Trace("Project removed", map[string]interface{}{
 		"projectPath": projectPath,
 	})
 }
 
-func (pw *ProjectWatcher) Run() {
-	for event := range pw.events {
+func (w *Watcher) Run() {
+	for event := range w.events {
 		switch event.Event() {
 		case notify.Write:
-			pw.logger.Debug("Modified file", map[string]interface{}{
+			w.logger.Debug("Modified file", map[string]interface{}{
 				"file": event.Path(),
 			})
 
 			if isWatchFile(event.Path()) {
-				pw.updateProject(filepath.Dir(event.Path()))
+				w.updateProject(filepath.Dir(event.Path()))
 			}
 		case notify.Remove, notify.Rename:
-			pw.logger.Debug("Removed or renamed file", map[string]interface{}{
+			w.logger.Debug("Removed or renamed file", map[string]interface{}{
 				"file": event.Path(),
 			})
 
 			if isWatchFile(event.Path()) {
-				pw.removeProject(filepath.Dir(event.Path()))
+				w.removeProject(filepath.Dir(event.Path()))
 			}
 		}
 
-		pw.logger.Info("Filesystem event occurred", map[string]interface{}{
+		w.logger.Info("Filesystem event occurred", map[string]interface{}{
 			"event": event,
 		})
 	}
