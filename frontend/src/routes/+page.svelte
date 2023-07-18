@@ -1,12 +1,15 @@
-<script>
-    import ProjectList from '$lib/components/project-list/project-list.svelte';
-
+<script lang="ts">
     import { t } from '$lib/translations/translations';
-    import { Greet } from "$lib/wailsjs/go/application/Driver.js";
+    import type { PageData } from './$types';
+
+    // import ProjectList from '$lib/components/project-list/project-list.svelte';
+
+    export let data: PageData;
 </script>
 
 
 <main class="space-y-4"> 
     <h3 class="font-bold">{$t('home.title')}</h3>
-    <ProjectList/>
+    <p>{data.projects}</p>
+    <!-- <ProjectList/> -->
 </main>

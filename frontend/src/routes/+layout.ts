@@ -1,6 +1,8 @@
 import { locale, loadTranslations } from '$lib/translations/translations';
 import type { Load } from '@sveltejs/kit';
 
+export const ssr = false;
+
 export const load: Load = async ({ url }: { url: URL }) => {
   const { pathname } = url;
   const defaultLocale = 'en'; // get from cookie / user session etc...

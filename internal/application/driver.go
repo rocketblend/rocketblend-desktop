@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
@@ -13,6 +14,8 @@ import (
 // Driver struct
 type Driver struct {
 	ctx context.Context
+
+	logger logger.Logger
 
 	projectSearcher projectsearcher.Searcher
 	projectWatcher  projectwatcher.Watcher
@@ -49,17 +52,39 @@ func NewDriver() (*Driver, error) {
 	}
 
 	return &Driver{
+		logger:          logger,
 		projectSearcher: projectsearcher,
 		projectWatcher:  projectWatcher,
 	}, nil
 }
 
-func (d *Driver) FindAllProjects() ([]*project.Project, error) {
-	return d.projectSearcher.FindAll()
+// Greet returns a greeting for the given name
+func (a *Driver) Greet(name string) string {
+	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
 
-func (d *Driver) FindProjectByPath(projectPath string) (*project.Project, error) {
-	return d.projectSearcher.FindByPath(projectPath)
+func (d *Driver) FindAllProjects() []*project.Project {
+	return nil
+
+	// projects, err := d.projectSearcher.FindAll()
+	// if err != nil {
+	// 	d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
+	// 	return nil
+	// }
+
+	// return projects
+}
+
+func (d *Driver) FindProjectByPath(projectPath string) *project.Project {
+	return nil
+
+	// project, err := d.projectSearcher.FindByPath(projectPath)
+	// if err != nil {
+	// 	d.logger.Error("Failed to find project by path", map[string]interface{}{"error": err.Error()})
+	// 	return nil
+	// }
+
+	// return project
 }
 
 // Quit quits the application
