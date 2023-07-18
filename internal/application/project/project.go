@@ -1,9 +1,11 @@
 package project
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/rocketblend/rocketblend/pkg/driver/blendconfig"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
@@ -16,11 +18,11 @@ const (
 
 type (
 	Project struct {
-		Path          string                 `json:"path"`
+		Key           string                 `json:"key"`
 		Name          string                 `json:"name"`
 		BlendFileName string                 `json:"blendFileName"`
 		Config        *rocketfile.RocketFile `json:"rocketFile"`
-		LastUpdated   int64                  `json:"lastUpdated"`
+		LastUpdated   time.Time              `json:"lastUpdated"`
 	}
 )
 
@@ -36,6 +38,10 @@ func Find(projectPath string) (*Project, error) {
 			blendFilePath = filepath.Join(projectPath, file.Name())
 			break
 		}
+	}
+
+	if blendFilePath == "" {
+		return nil, fmt.Errorf("no blend file found in %s", projectPath)
 	}
 
 	// Rocketfiles are always named rocketfile.yaml.
@@ -69,14 +75,14 @@ func Load(projectName string, blendFilePath string, rocketFilePath string) (*Pro
 		return nil, err
 	}
 
-	lastUpdated := blendFileStat.ModTime().Unix()
+	lastUpdated := blendFileStat.ModTime()
 	if rocketFileStat.ModTime().After(blendFileStat.ModTime()) {
-		lastUpdated = rocketFileStat.ModTime().Unix()
+		lastUpdated = rocketFileStat.ModTime()
 	}
 
 	// Create a new project instance with loaded BlendConfig.
 	return &Project{
-		Path:          filepath.Dir(blendFilePath),
+		Key:           filepath.Dir(blendFilePath),
 		Name:          projectName,
 		BlendFileName: blendConfig.BlendFileName,
 		Config:        blendConfig.RocketFile,

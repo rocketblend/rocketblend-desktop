@@ -23,7 +23,9 @@ type Driver struct {
 
 // NewApp creates a new App application struct
 func NewDriver() (*Driver, error) {
-	logger := logger.New()
+	logger := logger.New(
+		logger.WithLogLevel("debug"),
+	)
 
 	projectWatcher, err := projectwatcher.New(
 		projectwatcher.WithLogger(logger),
@@ -64,27 +66,25 @@ func (a *Driver) Greet(name string) string {
 }
 
 func (d *Driver) FindAllProjects() []*project.Project {
-	return nil
+	projects, err := d.projectSearcher.FindAll()
+	if err != nil {
+		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
 
-	// projects, err := d.projectSearcher.FindAll()
-	// if err != nil {
-	// 	d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
-	// 	return nil
-	// }
+	d.logger.Debug("Found projects", map[string]interface{}{"projects": len(projects)})
 
-	// return projects
+	return projects
 }
 
 func (d *Driver) FindProjectByPath(projectPath string) *project.Project {
-	return nil
+	project, err := d.projectSearcher.FindByPath(projectPath)
+	if err != nil {
+		d.logger.Error("Failed to find project by path", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
 
-	// project, err := d.projectSearcher.FindByPath(projectPath)
-	// if err != nil {
-	// 	d.logger.Error("Failed to find project by path", map[string]interface{}{"error": err.Error()})
-	// 	return nil
-	// }
-
-	// return project
+	return project
 }
 
 // Quit quits the application

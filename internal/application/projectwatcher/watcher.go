@@ -2,6 +2,7 @@ package projectwatcher
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"sync"
 
@@ -20,7 +21,7 @@ type (
 		AddWatchPath(path string) error
 		Close() error
 		GetProjects() []*project.Project
-		GetProject(projectPath string) (*project.Project, bool)
+		GetProject(key string) (*project.Project, bool)
 	}
 
 	watcher struct {
@@ -63,6 +64,27 @@ func New(opts ...Option) (Watcher, error) {
 }
 
 func (w *watcher) AddWatchPath(path string) error {
+	// Load all projects initially
+	if err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			w.addProject(path)
+		}
+
+		return nil
+	}); err != nil {
+		w.logger.Error("Error while walking the path", map[string]interface{}{
+			"path": path,
+			"err":  err,
+		})
+
+		return err
+	}
+
+	// Add path to watcher
 	err := notify.Watch(path+"/...", w.events, notify.Write|notify.Remove|notify.Rename)
 	if err != nil {
 		w.logger.Error("Error while adding path to watcher", map[string]interface{}{
@@ -73,6 +95,7 @@ func (w *watcher) AddWatchPath(path string) error {
 		return err
 	}
 
+	// Run event handler if not already running
 	w.mu.Lock()
 	if !w.isRunning {
 		w.ctx, w.cancel = context.WithCancel(context.Background())
@@ -105,7 +128,7 @@ func (w *watcher) GetProjects() []*project.Project {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
 
-	projects := make([]*project.Project, len(w.projects))
+	projects := make([]*project.Project, 0, len(w.projects))
 	for _, value := range w.projects {
 		projects = append(projects, value)
 	}
@@ -113,47 +136,48 @@ func (w *watcher) GetProjects() []*project.Project {
 	return projects
 }
 
-func (w *watcher) GetProject(projectPath string) (*project.Project, bool) {
+func (w *watcher) GetProject(key string) (*project.Project, bool) {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
 
-	project, ok := w.projects[projectPath]
+	project, ok := w.projects[key]
 	return project, ok
 }
 
-func (w *watcher) updateProject(projectPath string) {
+func (w *watcher) addProject(key string) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
 	// Get or create the project
-	project, err := project.Find(projectPath)
+	project, err := project.Find(key)
 	if err != nil {
 		w.logger.Error("Error while getting or creating project", map[string]interface{}{
-			"projectPath": projectPath,
-			"err":         err,
+			"key": key,
+			"err": err,
 		})
 
 		return
 	}
 
-	w.projects[projectPath] = project
+	w.projects[key] = project
 
-	w.logger.Trace("Project updated", map[string]interface{}{
-		"projectPath": projectPath,
-		"project":     project,
+	w.logger.Debug("Project updated", map[string]interface{}{
+		"key":     key,
+		"project": project,
 	})
 }
 
-func (w *watcher) removeProject(projectPath string) {
+func (w *watcher) removeProject(key string) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	delete(w.projects, projectPath)
+	delete(w.projects, key)
 
-	w.logger.Trace("Project removed", map[string]interface{}{
-		"projectPath": projectPath,
+	w.logger.Debug("Project removed", map[string]interface{}{
+		"key": key,
 	})
 }
+
 func (w *watcher) run(ctx context.Context) {
 	for {
 		select {
@@ -165,7 +189,10 @@ func (w *watcher) run(ctx context.Context) {
 				})
 
 				if isWatchFile(event.Path()) {
-					w.updateProject(filepath.Dir(event.Path()))
+					w.logger.Debug("Modified file is a watch file", map[string]interface{}{
+						"file": event.Path(),
+					})
+					w.addProject(filepath.Dir(event.Path()))
 				}
 			case notify.Remove, notify.Rename:
 				w.logger.Debug("Removed or renamed file", map[string]interface{}{

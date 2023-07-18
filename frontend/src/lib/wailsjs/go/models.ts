@@ -1,12 +1,13 @@
 export namespace project {
 	
 	export class Project {
-	    path: string;
+	    key: string;
 	    name: string;
 	    blendFileName: string;
 	    // Go type: rocketfile
 	    rocketFile?: any;
-	    lastUpdated: number;
+	    // Go type: time
+	    lastUpdated: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new Project(source);
@@ -14,11 +15,11 @@ export namespace project {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.path = source["path"];
+	        this.key = source["key"];
 	        this.name = source["name"];
 	        this.blendFileName = source["blendFileName"];
 	        this.rocketFile = this.convertValues(source["rocketFile"], null);
-	        this.lastUpdated = source["lastUpdated"];
+	        this.lastUpdated = this.convertValues(source["lastUpdated"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
