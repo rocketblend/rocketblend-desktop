@@ -6,8 +6,8 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsearcher"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/projectwatcher"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -17,8 +17,8 @@ type Driver struct {
 
 	logger logger.Logger
 
-	projectSearcher projectsearcher.Searcher
-	projectWatcher  projectwatcher.Watcher
+	projectService projectservice.Service
+	projectStore   projectstore.Store
 }
 
 // NewApp creates a new App application struct
@@ -27,16 +27,16 @@ func NewDriver() (*Driver, error) {
 		logger.WithLogLevel("debug"),
 	)
 
-	projectWatcher, err := projectwatcher.New(
-		projectwatcher.WithLogger(logger),
+	projectStore, err := projectstore.New(
+		projectstore.WithLogger(logger),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	projectsearcher, err := projectsearcher.New(
-		projectsearcher.WithLogger(logger),
-		projectsearcher.WithWatcher(projectWatcher),
+	projectservice, err := projectservice.New(
+		projectservice.WithLogger(logger),
+		projectservice.WithStore(projectStore),
 	)
 	if err != nil {
 		return nil, err
@@ -48,15 +48,15 @@ func NewDriver() (*Driver, error) {
 	}
 
 	for _, path := range watchPaths {
-		if err := projectWatcher.AddWatchPath(path); err != nil {
+		if err := projectStore.AddWatchPath(path); err != nil {
 			return nil, err
 		}
 	}
 
 	return &Driver{
-		logger:          logger,
-		projectSearcher: projectsearcher,
-		projectWatcher:  projectWatcher,
+		logger:         logger,
+		projectService: projectservice,
+		projectStore:   projectStore,
 	}, nil
 }
 
@@ -65,8 +65,9 @@ func (a *Driver) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
 
+// FindAllProjects finds all projects
 func (d *Driver) FindAllProjects() []*project.Project {
-	projects, err := d.projectSearcher.FindAll()
+	projects, err := d.projectService.FindAll()
 	if err != nil {
 		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
 		return nil
@@ -77,8 +78,9 @@ func (d *Driver) FindAllProjects() []*project.Project {
 	return projects
 }
 
-func (d *Driver) FindProjectByPath(projectPath string) *project.Project {
-	project, err := d.projectSearcher.FindByPath(projectPath)
+// FindProjectByKey finds a project by its key
+func (d *Driver) FindProjectByKey(key string) *project.Project {
+	project, err := d.projectService.FindByKey(key)
 	if err != nil {
 		d.logger.Error("Failed to find project by path", map[string]interface{}{"error": err.Error()})
 		return nil
@@ -89,8 +91,8 @@ func (d *Driver) FindProjectByPath(projectPath string) *project.Project {
 
 // Quit quits the application
 func (d *Driver) Quit() {
-	if d.projectWatcher != nil {
-		d.projectWatcher.Close()
+	if d.projectStore != nil {
+		d.projectStore.Close()
 	}
 
 	runtime.Quit(d.ctx)
