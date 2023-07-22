@@ -5,28 +5,30 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsettings"
 	"github.com/rocketblend/rocketblend/pkg/driver/blendconfig"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
 )
 
 const (
-	IgnoreFileName = ".rockdeskignore"
-	SettingsFolder = ".rocketdesk"
+	IgnoreFileName = ".rbdesktopignore"
+	ConfigDir      = ".rbdesktop"
 )
 
 type (
 	Project struct {
-		Key           string                 `json:"key"`
-		Name          string                 `json:"name"`
-		BlendFileName string                 `json:"blendFileName"`
-		Config        *rocketfile.RocketFile `json:"rocketFile"`
-		LastUpdated   time.Time              `json:"lastUpdated"`
+		Key       string
+		BlendFile *blendconfig.BlendConfig
+		Settings  *projectsettings.ProjectSettings
 	}
 )
 
-func Find(projectPath string) (*Project, error) {
+func Load(projectPath string) (*Project, error) {
+	if ignoreProject(projectPath) {
+		return nil, fmt.Errorf("project %s is ignored", projectPath)
+	}
+
 	files, err := os.ReadDir(projectPath)
 	if err != nil {
 		return nil, err
@@ -44,48 +46,28 @@ func Find(projectPath string) (*Project, error) {
 		return nil, fmt.Errorf("no blend file found in %s", projectPath)
 	}
 
-	// Rocketfiles are always named rocketfile.yaml.
-	rocketFilePath := filepath.Join(projectPath, rocketfile.FileName)
-
-	// Here the name of the project is assumed to be the base of the projectPath.
-	projectName := filepath.Base(projectPath)
-
-	// Will validate the existence of the blend file and the rocket file.
-	project, err := Load(projectName, blendFilePath, rocketFilePath)
+	blendConfig, err := blendconfig.Load(blendFilePath, filepath.Join(projectPath, rocketfile.FileName))
 	if err != nil {
 		return nil, err
 	}
 
-	return project, nil
+	settings, err := projectsettings.Load(filepath.Join(projectPath, ConfigDir, projectsettings.FileName))
+	if err != nil {
+		return nil, err
+	}
+
+	return &Project{
+		Key:       projectPath,
+		BlendFile: blendConfig,
+		Settings:  settings,
+	}, nil
 }
 
-func Load(projectName string, blendFilePath string, rocketFilePath string) (*Project, error) {
-	blendConfig, err := blendconfig.Load(blendFilePath, rocketFilePath)
-	if err != nil {
-		return nil, err
-	}
+func Save(project *Project) error {
+	return nil
+}
 
-	blendFileStat, err := os.Stat(blendFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	rocketFileStat, err := os.Stat(rocketFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	lastUpdated := blendFileStat.ModTime()
-	if rocketFileStat.ModTime().After(blendFileStat.ModTime()) {
-		lastUpdated = rocketFileStat.ModTime()
-	}
-
-	// Create a new project instance with loaded BlendConfig.
-	return &Project{
-		Key:           filepath.Dir(blendFilePath),
-		Name:          projectName,
-		BlendFileName: blendConfig.BlendFileName,
-		Config:        blendConfig.RocketFile,
-		LastUpdated:   lastUpdated,
-	}, nil
+func ignoreProject(projectPath string) bool {
+	_, err := os.Stat(filepath.Join(projectPath, IgnoreFileName))
+	return !os.IsNotExist(err)
 }

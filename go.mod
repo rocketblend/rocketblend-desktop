@@ -7,6 +7,7 @@ require (
 	github.com/rjeczalik/notify v0.9.3
 	github.com/rocketblend/rocketblend v0.8.0
 	github.com/wailsapp/wails/v2 v2.5.1
+	sigs.k8s.io/yaml v1.3.0
 )
 
 require (
@@ -38,7 +39,6 @@ require (
 	golang.org/x/text v0.11.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	logur.dev/adapter/zerolog v0.6.0 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
 // replace github.com/wailsapp/wails/v2 v2.2.0 => /home/plihelix/go/pkg/mod

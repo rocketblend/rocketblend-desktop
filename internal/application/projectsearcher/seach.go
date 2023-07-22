@@ -64,7 +64,7 @@ func New(opts ...Option) (Searcher, error) {
 }
 
 func (s *searcher) FindAll(opts ...FindOption) ([]*project.Project, error) {
-	return s.watcher.GetProjects(), nil
+	return s.watcher.ListProjects(), nil
 }
 
 func (s *searcher) FindByPath(projectPath string) (*project.Project, error) {

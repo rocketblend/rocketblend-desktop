@@ -20,7 +20,7 @@ type (
 	Watcher interface {
 		AddWatchPath(path string) error
 		Close() error
-		GetProjects() []*project.Project
+		ListProjects() []*project.Project
 		GetProject(key string) (*project.Project, bool)
 	}
 
@@ -124,7 +124,7 @@ func (w *watcher) Close() error {
 	return nil
 }
 
-func (w *watcher) GetProjects() []*project.Project {
+func (w *watcher) ListProjects() []*project.Project {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
 
@@ -149,7 +149,7 @@ func (w *watcher) addProject(key string) {
 	defer w.mu.Unlock()
 
 	// Get or create the project
-	project, err := project.Find(key)
+	project, err := project.Load(key)
 	if err != nil {
 		w.logger.Error("Error while getting or creating project", map[string]interface{}{
 			"key": key,
