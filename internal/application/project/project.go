@@ -18,9 +18,9 @@ const (
 
 type (
 	Project struct {
-		Key       string
-		BlendFile *blendconfig.BlendConfig
-		Settings  *projectsettings.ProjectSettings
+		Key       string                           `json:"key"`
+		BlendFile *blendconfig.BlendConfig         `json:"blendFile"`
+		Settings  *projectsettings.ProjectSettings `json:"settings"`
 	}
 )
 
@@ -51,7 +51,7 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
-	settings, err := projectsettings.Load(filepath.Join(projectPath, ConfigDir, projectsettings.FileName))
+	settings, err := loadOrCreateSettings(filepath.Join(projectPath, ConfigDir, projectsettings.FileName))
 	if err != nil {
 		return nil, err
 	}

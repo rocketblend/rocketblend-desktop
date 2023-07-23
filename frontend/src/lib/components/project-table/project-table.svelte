@@ -7,9 +7,8 @@
     export let sourceData: project.Project[];
 
     const tableSource: TableSource = {
-        head: ['Project', 'Key', 'Last Opened'],
-        body: tableMapperValues(sourceData, ['name', 'key', 'lastUpdated']),
-        meta: tableMapperValues(sourceData, ['name', 'key', 'lastUpdated']),
+        head: ['Project', 'Key'],
+        body: tableMapperValues(sourceData, ['settings', 'key']),
     };
 </script>
 

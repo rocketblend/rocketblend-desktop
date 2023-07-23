@@ -94,6 +94,7 @@ func (s *store) AddWatchPath(path string) error {
 		return err
 	}
 
+	// TODO: Enabled/disable file watching
 	// Start watching the path
 	err := notify.Watch(path+"/...", s.events, notify.Write|notify.Remove|notify.Rename)
 	if err != nil {
@@ -138,6 +139,7 @@ func (s *store) ListProjects() []*project.Project {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
+	// TODO: Indexing, filtering, sorting, etc.
 	projects := make([]*project.Project, 0, len(s.projects))
 	for _, value := range s.projects {
 		projects = append(projects, value)
@@ -181,7 +183,7 @@ func (s *store) removeProject(key string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	//delete(s.projects, key)
+	delete(s.projects, key)
 
 	s.logger.Debug("Project removed", map[string]interface{}{
 		"key": key,
@@ -198,6 +200,7 @@ func (s *store) run(ctx context.Context) {
 					"file": event.Path(),
 				})
 
+				//TODO: If file is in a subdirectory of the project config, then we should reload the project
 				if isWatchFile(event.Path()) {
 					projectPath := filepath.Dir(event.Path())
 
@@ -206,6 +209,7 @@ func (s *store) run(ctx context.Context) {
 						projectPath = filepath.Dir(projectPath)
 					}
 
+					// TODO: Add a debounce here. If the file is modified multiple times in a short period of time, then we should only load the project once.
 					s.loadProject(projectPath)
 				}
 			case notify.Remove, notify.Rename:

@@ -4,7 +4,7 @@ import {project} from '../models';
 
 export function FindAllProjects():Promise<Array<project.Project>>;
 
-export function FindProjectByPath(arg1:string):Promise<project.Project>;
+export function FindProjectByKey(arg1:string):Promise<project.Project>;
 
 export function Greet(arg1:string):Promise<string>;
 

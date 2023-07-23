@@ -33,6 +33,8 @@ dist/
 *.key
 
 # Wails
+.syso
+
 build/
 frontend/dist
 frontend/node_modules
