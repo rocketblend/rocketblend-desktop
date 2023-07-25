@@ -6,9 +6,12 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/blevesearch/bleve/v2"
+	"github.com/blevesearch/bleve/v2/document"
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rjeczalik/notify"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 )
 
 var watchFileExtensions = []string{
@@ -20,12 +23,13 @@ type (
 	Store interface {
 		AddWatchPath(path string) error
 		Close() error
-		ListProjects() []*project.Project
-		GetProject(key string) (*project.Project, bool)
+		List(opts ...listoptions.ListOption) ([]*project.Project, error)
+		Get(key string) (*project.Project, error)
 	}
 
 	store struct {
 		logger   logger.Logger
+		index    bleve.Index
 		projects map[string]*project.Project
 
 		watcherEnabled bool
@@ -65,8 +69,15 @@ func New(opts ...Option) (Store, error) {
 		o(options)
 	}
 
+	indexMapping := bleve.NewIndexMapping()
+	index, err := bleve.NewMemOnly(indexMapping)
+	if err != nil {
+		return nil, err
+	}
+
 	return &store{
 		logger:         options.Logger,
+		index:          index,
 		watcherEnabled: options.WatcherEnabled,
 		projects:       make(map[string]*project.Project),
 		events:         make(chan notify.EventInfo, 1),
@@ -135,27 +146,6 @@ func (s *store) Close() error {
 	return nil
 }
 
-func (s *store) ListProjects() []*project.Project {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	// TODO: Indexing, filtering, sorting, etc.
-	projects := make([]*project.Project, 0, len(s.projects))
-	for _, value := range s.projects {
-		projects = append(projects, value)
-	}
-
-	return projects
-}
-
-func (s *store) GetProject(key string) (*project.Project, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	project, ok := s.projects[key]
-	return project, ok
-}
-
 func (s *store) loadProject(key string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -171,7 +161,18 @@ func (s *store) loadProject(key string) {
 		return
 	}
 
+	// Create a new document to be indexed
+	doc := document.NewDocument(key)
+
+	// Create the numeric field for the LastUpdated timestamp
+	numField := document.NewNumericField("updatedAt", []uint64{}, float64(project.UpdatedAt.Unix()))
+	doc.AddField(numField)
+
+	// Add the project to the store
 	s.projects[key] = project
+
+	// Add the document to the Bleve index
+	s.index.Index(key, doc)
 
 	s.logger.Debug("Project updated", map[string]interface{}{
 		"key":     key,

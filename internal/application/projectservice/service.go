@@ -6,16 +6,12 @@ import (
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 )
 
 type (
-	FindOptions struct {
-	}
-
-	FindOption func(*FindOptions)
-
 	Service interface {
-		FindAll(opts ...FindOption) ([]*project.Project, error)
+		FindAll(opts ...listoptions.ListOption) ([]*project.Project, error)
 		FindByKey(key string) (*project.Project, error)
 	}
 
@@ -63,15 +59,10 @@ func New(opts ...Option) (Service, error) {
 	}, nil
 }
 
-func (s *service) FindAll(opts ...FindOption) ([]*project.Project, error) {
-	return s.store.ListProjects(), nil
+func (s *service) FindAll(opts ...listoptions.ListOption) ([]*project.Project, error) {
+	return s.store.List(opts...)
 }
 
 func (s *service) FindByKey(key string) (*project.Project, error) {
-	project, ok := s.store.GetProject(key)
-	if !ok {
-		return nil, fmt.Errorf("project not found")
-	}
-
-	return project, nil
+	return s.store.Get(key)
 }

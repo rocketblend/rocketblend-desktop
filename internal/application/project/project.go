@@ -5,7 +5,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/mitchellh/copystructure"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsettings"
 	"github.com/rocketblend/rocketblend/pkg/driver/blendconfig"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
@@ -21,8 +23,15 @@ type (
 		Key       string                           `json:"key"`
 		BlendFile *blendconfig.BlendConfig         `json:"blendFile"`
 		Settings  *projectsettings.ProjectSettings `json:"settings"`
+		UpdatedAt time.Time                        `json:"updatedAt"`
 	}
 )
+
+// Copy performs a deep copy of the Project.
+func (p *Project) Copy() *Project {
+	copiedProject, _ := copystructure.Copy(p)
+	return copiedProject.(*Project)
+}
 
 func Load(projectPath string) (*Project, error) {
 	if ignoreProject(projectPath) {
