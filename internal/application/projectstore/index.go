@@ -12,6 +12,7 @@ import (
 type (
 	ProjectIndexMeta struct {
 		Key  string `json:"key,omitempty"`
+		Name string `json:"name,omitempty"`
 		Data string `json:"data,omitempty"`
 	}
 )
@@ -32,6 +33,7 @@ func (s *store) updateIndex(key string, project *project.Project) error {
 
 	return s.index.Index(key, &ProjectIndexMeta{
 		Key:  key,
+		Name: project.Settings.Name,
 		Data: string(data),
 	})
 }
@@ -46,6 +48,8 @@ func (s *store) get(key string) (*project.Project, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	doc.HasComposite()
 
 	doc.VisitFields(func(field index.Field) {
 		s.logger.Debug("found field", map[string]interface{}{
@@ -70,7 +74,7 @@ func (s *store) get(key string) (*project.Project, error) {
 
 func newIndexMapping() mapping.IndexMapping {
 	projectMapping := bleve.NewDocumentMapping()
-	projectMapping.Dynamic = false
+	//projectMapping.Dynamic = false
 
 	// source data store - this is where original doc will be stored
 	dataTextFieldMapping := bleve.NewTextFieldMapping()

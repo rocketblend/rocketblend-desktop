@@ -41,7 +41,8 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 
 	if so.Query != "" {
 		query := bleve.NewQueryStringQuery(so.Query)
-		return bleve.NewSearchRequestOptions(query, so.Size, so.From, false)
+		search := bleve.NewSearchRequestOptions(query, so.Size, so.From, false)
+		return search
 	}
 
 	query := bleve.NewMatchAllQuery()
