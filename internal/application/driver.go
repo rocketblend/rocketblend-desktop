@@ -30,6 +30,9 @@ func NewDriver() (*Driver, error) {
 
 	projectStore, err := projectstore.New(
 		projectstore.WithLogger(logger),
+		projectstore.WithWatcher(),
+		// TODO: Move this to a config file
+		projectstore.WithPaths("D:\\Creative\\Blender\\Projects\\Testing\\RocketBlend"),
 	)
 	if err != nil {
 		return nil, err
@@ -41,17 +44,6 @@ func NewDriver() (*Driver, error) {
 	)
 	if err != nil {
 		return nil, err
-	}
-
-	// TODO: Move this to a config file
-	watchPaths := []string{
-		"D:\\Creative\\Blender\\Projects\\Testing\\RocketBlend",
-	}
-
-	for _, path := range watchPaths {
-		if err := projectStore.AddWatchPath(path); err != nil {
-			return nil, err
-		}
 	}
 
 	return &Driver{

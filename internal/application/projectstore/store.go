@@ -21,15 +21,18 @@ var watchFileExtensions = []string{
 
 type (
 	Store interface {
-		RegisterPath(path string) error
 		Close() error
-		List(opts ...listoptions.ListOption) ([]*project.Project, error)
-		Get(key string) (*project.Project, error)
+		ListProjects(opts ...listoptions.ListOption) ([]*project.Project, error)
+		GetProject(key string) (*project.Project, error)
+		RegisterPaths(path ...string) error
+		//UnregisterPaths(path ...string) error
+		GetRegisteredPaths() []string
 	}
 
 	store struct {
-		logger logger.Logger
-		index  bleve.Index
+		logger          logger.Logger
+		index           bleve.Index
+		registeredPaths []string
 
 		watcherEnabled bool
 		events         chan notify.EventInfo
@@ -41,6 +44,7 @@ type (
 
 	Options struct {
 		Logger         logger.Logger
+		Paths          []string
 		WatcherEnabled bool
 	}
 
@@ -56,6 +60,12 @@ func WithLogger(logger logger.Logger) Option {
 func WithWatcher() Option {
 	return func(o *Options) {
 		o.WatcherEnabled = true
+	}
+}
+
+func WithPaths(paths ...string) Option {
+	return func(o *Options) {
+		o.Paths = paths
 	}
 }
 
@@ -75,10 +85,15 @@ func New(opts ...Option) (Store, error) {
 	}
 
 	s := &store{
-		logger:         options.Logger,
-		index:          index,
-		watcherEnabled: options.WatcherEnabled,
-		events:         make(chan notify.EventInfo, 1),
+		logger:          options.Logger,
+		index:           index,
+		watcherEnabled:  options.WatcherEnabled,
+		events:          make(chan notify.EventInfo, 1),
+		registeredPaths: make([]string, 0),
+	}
+
+	if err := s.RegisterPaths(options.Paths...); err != nil {
+		return nil, err
 	}
 
 	if options.WatcherEnabled {
@@ -90,8 +105,60 @@ func New(opts ...Option) (Store, error) {
 	return s, nil
 }
 
-func (s *store) RegisterPath(path string) error {
-	// Load all projects initially
+func (s *store) RegisterPaths(paths ...string) error {
+	errChan := make(chan error, len(paths))
+	var wg sync.WaitGroup
+	wg.Add(len(paths))
+
+	for _, path := range paths {
+		go func(path string) {
+			defer wg.Done()
+
+			if err := s.registerPath(path); err != nil {
+				errChan <- fmt.Errorf("failed to register path %s: %w", path, err)
+			}
+		}(path)
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	if err := <-errChan; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *store) GetRegisteredPaths() []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	return append([]string(nil), s.registeredPaths...) // return copy of slice
+}
+
+func (s *store) Close() error {
+	notify.Stop(s.events)
+	s.logger.Info("Stopped notification events")
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.isRunning {
+		s.cancel()
+		s.isRunning = false
+		s.logger.Debug("Stopped the watcher and updated the state")
+	} else {
+		s.logger.Debug("The watcher was already stopped")
+	}
+
+	s.logger.Info("Project watcher closed successfully")
+	return nil
+}
+
+func (s *store) registerPath(path string) error {
+	// TODO: Check if the path is already registered
+
 	if err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("error accessing path %s: %w", path, err)
@@ -114,62 +181,46 @@ func (s *store) RegisterPath(path string) error {
 		}
 	}
 
-	s.logger.Info("Added new watch path", map[string]interface{}{
+	s.mu.Lock()
+	s.registeredPaths = append(s.registeredPaths, path)
+	s.mu.Unlock()
+
+	s.logger.Info("Path registered", map[string]interface{}{
 		"path": path,
 	})
 
 	return nil
 }
 
-func (s *store) Close() error {
-	notify.Stop(s.events)
-	s.mu.Lock()
-	if s.isRunning {
-		s.cancel()
-		s.isRunning = false
-	}
-	s.mu.Unlock()
-
-	s.logger.Info("Project watcher closed", nil)
-	return nil
-}
-
-func (s *store) loadProject(key string) {
+func (s *store) loadProject(key string) error {
 	// Get or create the project
 	project, err := project.Load(key)
 	if err != nil {
-		s.logger.Error("Error while getting or creating project", map[string]interface{}{
-			"key": key,
-			"err": err,
-		})
-
-		return
+		return fmt.Errorf("failed to load project %s: %w", key, err)
 	}
 
 	if err := s.updateIndex(key, project); err != nil {
-		s.logger.Error("Error while indexing project", map[string]interface{}{
-			"key": key,
-			"err": err,
-		})
+		return fmt.Errorf("failed to update index for project %s: %w", key, err)
 	}
 
-	s.logger.Debug("Project updated", map[string]interface{}{
+	s.logger.Debug("Project loaded and indexed", map[string]interface{}{
 		"key":     key,
 		"project": project,
 	})
+
+	return nil
 }
 
-func (s *store) removeProject(key string) {
+func (s *store) removeProject(key string) error {
 	if err := s.removeIndex(key); err != nil {
-		s.logger.Error("Error while unindexing project", map[string]interface{}{
-			"key": key,
-			"err": err,
-		})
+		return fmt.Errorf("failed to remove index for project %s: %w", key, err)
 	}
 
-	s.logger.Debug("Project removed", map[string]interface{}{
+	s.logger.Debug("Project removed from index", map[string]interface{}{
 		"key": key,
 	})
+
+	return nil
 }
 
 func (s *store) run(ctx context.Context) {
@@ -200,13 +251,23 @@ func (s *store) handleEvent(event notify.EventInfo) {
 		s.logger.Debug("Modified file", map[string]interface{}{
 			"file": event.Path(),
 		})
-		s.loadProject(projectPath)
+
+		if err := s.loadProject(projectPath); err != nil {
+			s.logger.Error("Error while loading project", map[string]interface{}{
+				"err": err,
+			})
+		}
 
 	case notify.Remove, notify.Rename:
 		s.logger.Debug("Removed or renamed file", map[string]interface{}{
 			"file": event.Path(),
 		})
-		s.removeProject(projectPath)
+
+		if err := s.removeProject(projectPath); err != nil {
+			s.logger.Error("Error while removing project", map[string]interface{}{
+				"err": err,
+			})
+		}
 	}
 }
 

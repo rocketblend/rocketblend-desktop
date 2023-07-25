@@ -60,9 +60,9 @@ func New(opts ...Option) (Service, error) {
 }
 
 func (s *service) FindAll(opts ...listoptions.ListOption) ([]*project.Project, error) {
-	return s.store.List(opts...)
+	return s.store.ListProjects(opts...)
 }
 
 func (s *service) FindByKey(key string) (*project.Project, error) {
-	return s.store.Get(key)
+	return s.store.GetProject(key)
 }

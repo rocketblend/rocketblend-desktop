@@ -5,7 +5,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 )
 
-func (s *store) List(opts ...listoptions.ListOption) ([]*project.Project, error) {
+func (s *store) ListProjects(opts ...listoptions.ListOption) ([]*project.Project, error) {
 	options := &listoptions.ListOptions{
 		Size: 100,
 	}
@@ -38,6 +38,6 @@ func (s *store) List(opts ...listoptions.ListOption) ([]*project.Project, error)
 	return matchingProjects, nil
 }
 
-func (s *store) Get(key string) (*project.Project, error) {
+func (s *store) GetProject(key string) (*project.Project, error) {
 	return s.get(key)
 }
