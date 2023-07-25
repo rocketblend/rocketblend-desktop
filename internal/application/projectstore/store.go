@@ -2,6 +2,7 @@ package projectstore
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -20,7 +21,7 @@ var watchFileExtensions = []string{
 
 type (
 	Store interface {
-		AddWatchPath(path string) error
+		RegisterPath(path string) error
 		Close() error
 		List(opts ...listoptions.ListOption) ([]*project.Project, error)
 		Get(key string) (*project.Project, error)
@@ -73,19 +74,27 @@ func New(opts ...Option) (Store, error) {
 		return nil, err
 	}
 
-	return &store{
+	s := &store{
 		logger:         options.Logger,
 		index:          index,
 		watcherEnabled: options.WatcherEnabled,
 		events:         make(chan notify.EventInfo, 1),
-	}, nil
+	}
+
+	if options.WatcherEnabled {
+		s.ctx, s.cancel = context.WithCancel(context.Background())
+		go s.run(s.ctx)
+		s.isRunning = true
+	}
+
+	return s, nil
 }
 
-func (s *store) AddWatchPath(path string) error {
+func (s *store) RegisterPath(path string) error {
 	// Load all projects initially
 	if err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("error accessing path %s: %w", path, err)
 		}
 
 		if info.IsDir() {
@@ -94,34 +103,16 @@ func (s *store) AddWatchPath(path string) error {
 
 		return nil
 	}); err != nil {
-		s.logger.Error("Error while walking the path", map[string]interface{}{
-			"path": path,
-			"err":  err,
-		})
-
-		return err
+		return fmt.Errorf("error while walking the path %s: %w", path, err)
 	}
 
-	// TODO: Enabled/disable file watching
-	// Start watching the path
-	err := notify.Watch(path+"/...", s.events, notify.Write|notify.Remove|notify.Rename)
-	if err != nil {
-		s.logger.Error("Error while adding path to watcher", map[string]interface{}{
-			"path": path,
-			"err":  err,
-		})
-
-		return err
+	if s.watcherEnabled {
+		// Start watching the path
+		err := notify.Watch(path+"/...", s.events, notify.Write|notify.Remove|notify.Rename)
+		if err != nil {
+			return fmt.Errorf("unable to add path %s to watcher: %w", path, err)
+		}
 	}
-
-	// Run event handler if not already running
-	s.mu.Lock()
-	if !s.isRunning {
-		s.ctx, s.cancel = context.WithCancel(context.Background())
-		go s.run(s.ctx)
-		s.isRunning = true
-	}
-	s.mu.Unlock()
 
 	s.logger.Info("Added new watch path", map[string]interface{}{
 		"path": path,
@@ -185,47 +176,48 @@ func (s *store) run(ctx context.Context) {
 	for {
 		select {
 		case event := <-s.events:
-			switch event.Event() {
-			case notify.Write:
-				s.logger.Debug("Modified file", map[string]interface{}{
-					"file": event.Path(),
-				})
-
-				//TODO: If file is in a subdirectory of the project config, then we should reload the project
-				if isWatchFile(event.Path()) {
-					projectPath := filepath.Dir(event.Path())
-
-					// If the project path is the config dir, then we need to go up one more level
-					if projectPath == project.ConfigDir {
-						projectPath = filepath.Dir(projectPath)
-					}
-
-					// TODO: Add a debounce here. If the file is modified multiple times in a short period of time, then we should only load the project once.
-					s.loadProject(projectPath)
-				}
-			case notify.Remove, notify.Rename:
-				s.logger.Debug("Removed or renamed file", map[string]interface{}{
-					"file": event.Path(),
-				})
-
-				if isWatchFile(event.Path()) {
-					projectPath := filepath.Dir(event.Path())
-
-					if projectPath == project.ConfigDir {
-						projectPath = filepath.Dir(projectPath)
-					}
-
-					s.removeProject(projectPath)
-				}
-			}
-
-			s.logger.Info("Filesystem event occurred", map[string]interface{}{
-				"event": event,
-			})
+			s.handleEvent(event)
 		case <-ctx.Done():
 			return
 		}
 	}
+}
+
+func (s *store) handleEvent(event notify.EventInfo) {
+	// Log the event
+	s.logger.Info("Filesystem event occurred", map[string]interface{}{
+		"event": event,
+	})
+
+	if !isWatchFile(event.Path()) {
+		return
+	}
+
+	projectPath := s.getProjectPath(event.Path())
+
+	switch event.Event() {
+	case notify.Write:
+		s.logger.Debug("Modified file", map[string]interface{}{
+			"file": event.Path(),
+		})
+		s.loadProject(projectPath)
+
+	case notify.Remove, notify.Rename:
+		s.logger.Debug("Removed or renamed file", map[string]interface{}{
+			"file": event.Path(),
+		})
+		s.removeProject(projectPath)
+	}
+}
+
+func (s *store) getProjectPath(path string) string {
+	projectPath := filepath.Dir(path)
+
+	if projectPath == project.ConfigDir {
+		projectPath = filepath.Dir(projectPath)
+	}
+
+	return projectPath
 }
 
 func isWatchFile(filename string) bool {
