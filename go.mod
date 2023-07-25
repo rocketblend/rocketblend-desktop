@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/blevesearch/bleve/v2 v2.3.9
+	github.com/blevesearch/bleve_index_api v1.0.5
 	github.com/flowshot-io/x v0.0.0-20230622123052-b262ee884a19
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/rjeczalik/notify v0.9.3
@@ -16,7 +17,6 @@ require (
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/bits-and-blooms/bitset v1.2.0 // indirect
-	github.com/blevesearch/bleve_index_api v1.0.5 // indirect
 	github.com/blevesearch/geo v0.1.17 // indirect
 	github.com/blevesearch/go-porterstemmer v1.0.3 // indirect
 	github.com/blevesearch/gtreap v0.1.1 // indirect

@@ -20,10 +20,10 @@ const (
 
 type (
 	Project struct {
-		Key       string                           `json:"key"`
-		BlendFile *blendconfig.BlendConfig         `json:"blendFile"`
-		Settings  *projectsettings.ProjectSettings `json:"settings"`
-		UpdatedAt time.Time                        `json:"updatedAt"`
+		Key       string                           `json:"key,omitempty"`
+		BlendFile *blendconfig.BlendConfig         `json:"blendFile,omitempty"`
+		Settings  *projectsettings.ProjectSettings `json:"settings,omitempty"`
+		UpdatedAt time.Time                        `json:"updatedAt,omitempty"`
 	}
 )
 

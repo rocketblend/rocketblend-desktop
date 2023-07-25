@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/document"
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rjeczalik/notify"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
@@ -28,9 +27,8 @@ type (
 	}
 
 	store struct {
-		logger   logger.Logger
-		index    bleve.Index
-		projects map[string]*project.Project
+		logger logger.Logger
+		index  bleve.Index
 
 		watcherEnabled bool
 		events         chan notify.EventInfo
@@ -69,7 +67,7 @@ func New(opts ...Option) (Store, error) {
 		o(options)
 	}
 
-	indexMapping := bleve.NewIndexMapping()
+	indexMapping := newIndexMapping()
 	index, err := bleve.NewMemOnly(indexMapping)
 	if err != nil {
 		return nil, err
@@ -79,7 +77,6 @@ func New(opts ...Option) (Store, error) {
 		logger:         options.Logger,
 		index:          index,
 		watcherEnabled: options.WatcherEnabled,
-		projects:       make(map[string]*project.Project),
 		events:         make(chan notify.EventInfo, 1),
 	}, nil
 }
@@ -147,9 +144,6 @@ func (s *store) Close() error {
 }
 
 func (s *store) loadProject(key string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	// Get or create the project
 	project, err := project.Load(key)
 	if err != nil {
@@ -161,18 +155,12 @@ func (s *store) loadProject(key string) {
 		return
 	}
 
-	// Create a new document to be indexed
-	doc := document.NewDocument(key)
-
-	// Create the numeric field for the LastUpdated timestamp
-	numField := document.NewNumericField("updatedAt", []uint64{}, float64(project.UpdatedAt.Unix()))
-	doc.AddField(numField)
-
-	// Add the project to the store
-	s.projects[key] = project
-
-	// Add the document to the Bleve index
-	s.index.Index(key, doc)
+	if err := s.updateIndex(key, project); err != nil {
+		s.logger.Error("Error while indexing project", map[string]interface{}{
+			"key": key,
+			"err": err,
+		})
+	}
 
 	s.logger.Debug("Project updated", map[string]interface{}{
 		"key":     key,
@@ -181,10 +169,12 @@ func (s *store) loadProject(key string) {
 }
 
 func (s *store) removeProject(key string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	delete(s.projects, key)
+	if err := s.removeIndex(key); err != nil {
+		s.logger.Error("Error while unindexing project", map[string]interface{}{
+			"key": key,
+			"err": err,
+		})
+	}
 
 	s.logger.Debug("Project removed", map[string]interface{}{
 		"key": key,

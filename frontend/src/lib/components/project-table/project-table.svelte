@@ -6,10 +6,18 @@
 
     export let sourceData: project.Project[];
 
+    if (!sourceData) {
+        sourceData = [];
+    }
+
     const tableSource: TableSource = {
         head: ['Project', 'Key'],
         body: tableMapperValues(sourceData, ['settings', 'key']),
     };
 </script>
 
-<Table source={tableSource} interactive={true} />
+{#if sourceData.length > 0}
+    <Table source={tableSource} interactive={true} />
+{:else}
+    <p>No projects found!</p>
+{/if}

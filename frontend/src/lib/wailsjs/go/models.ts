@@ -41,9 +41,11 @@ export namespace blendconfig {
 export namespace project {
 	
 	export class Project {
-	    key: string;
+	    key?: string;
 	    blendFile?: blendconfig.BlendConfig;
 	    settings?: projectsettings.ProjectSettings;
+	    // Go type: time
+	    updatedAt?: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new Project(source);
@@ -54,6 +56,7 @@ export namespace project {
 	        this.key = source["key"];
 	        this.blendFile = this.convertValues(source["blendFile"], blendconfig.BlendConfig);
 	        this.settings = this.convertValues(source["settings"], projectsettings.ProjectSettings);
+	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

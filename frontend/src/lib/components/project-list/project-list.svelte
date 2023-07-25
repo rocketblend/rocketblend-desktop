@@ -7,5 +7,6 @@
     export let projects: project.Project[];
 </script>
 
+
 <ProjectTable sourceData={projects}/>
 <!-- <ProjectGallery/> -->

@@ -8,6 +8,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -66,8 +67,8 @@ func (a *Driver) Greet(name string) string {
 }
 
 // FindAllProjects finds all projects
-func (d *Driver) FindAllProjects() []*project.Project {
-	projects, err := d.projectService.FindAll()
+func (d *Driver) FindAllProjects(query string) []*project.Project {
+	projects, err := d.projectService.FindAll(listoptions.WithQuery(query))
 	if err != nil {
 		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
 		return nil

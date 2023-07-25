@@ -1,8 +1,6 @@
 package projectstore
 
 import (
-	"fmt"
-
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 )
@@ -21,30 +19,27 @@ func (s *store) List(opts ...listoptions.ListOption) ([]*project.Project, error)
 		return nil, err
 	}
 
+	s.logger.Debug("search result", map[string]interface{}{
+		"total":    result.Total,
+		"took":     result.Took,
+		"maxScore": result.MaxScore,
+	})
+
 	var matchingProjects []*project.Project
 	for _, hit := range result.Hits {
-		s.mu.RLock()
-		proj, ok := s.projects[hit.ID]
-		s.mu.RUnlock()
+		s.logger.Debug("search hit", map[string]interface{}{"hit": hit.ID})
 
-		if !ok {
-			continue
+		project, err := s.get(hit.ID)
+		if err != nil {
+			return nil, err
 		}
 
-		matchingProjects = append(matchingProjects, proj.Copy())
+		matchingProjects = append(matchingProjects, project)
 	}
 
 	return matchingProjects, nil
 }
 
 func (s *store) Get(key string) (*project.Project, error) {
-	s.mu.RLock()
-	proj, ok := s.projects[key]
-	s.mu.RUnlock()
-
-	if !ok {
-		return nil, fmt.Errorf("project not found")
-	}
-
-	return proj.Copy(), nil
+	return s.get(key)
 }
