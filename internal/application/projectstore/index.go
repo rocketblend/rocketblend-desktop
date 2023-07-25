@@ -74,7 +74,7 @@ func (s *store) get(key string) (*project.Project, error) {
 
 func newIndexMapping() mapping.IndexMapping {
 	projectMapping := bleve.NewDocumentMapping()
-	//projectMapping.Dynamic = false
+	// projectMapping.Dynamic = false
 
 	// source data store - this is where original doc will be stored
 	dataTextFieldMapping := bleve.NewTextFieldMapping()

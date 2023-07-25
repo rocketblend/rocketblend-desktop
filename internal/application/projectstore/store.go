@@ -68,7 +68,6 @@ func New(opts ...Option) (Store, error) {
 	}
 
 	indexMapping := newIndexMapping()
-	//indexMapping := bleve.NewIndexMapping()
 	index, err := bleve.NewMemOnly(indexMapping)
 	if err != nil {
 		return nil, err

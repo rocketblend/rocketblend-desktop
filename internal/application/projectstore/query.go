@@ -27,8 +27,6 @@ func (s *store) List(opts ...listoptions.ListOption) ([]*project.Project, error)
 
 	var matchingProjects []*project.Project
 	for _, hit := range result.Hits {
-		s.logger.Debug("search hit", map[string]interface{}{"hit": hit.ID})
-
 		project, err := s.get(hit.ID)
 		if err != nil {
 			return nil, err
