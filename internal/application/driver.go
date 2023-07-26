@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
@@ -31,6 +32,7 @@ func NewDriver() (*Driver, error) {
 	projectStore, err := projectstore.New(
 		projectstore.WithLogger(logger),
 		projectstore.WithWatcher(),
+		projectstore.WithDebounceDuration(2*time.Second),
 		// TODO: Move this to a config file
 		projectstore.WithPaths("D:\\Creative\\Blender\\Projects\\Testing\\RocketBlend"),
 	)

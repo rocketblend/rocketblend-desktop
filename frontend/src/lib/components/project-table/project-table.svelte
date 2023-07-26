@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { Table, tableMapperValues } from '@skeletonlabs/skeleton';
     import type { TableSource } from '@skeletonlabs/skeleton';
+    import { Table } from '@skeletonlabs/skeleton';
 
     import type { project } from '$lib/wailsjs/go/models';
+    import { tableMapperValues } from '$lib/components/core';
 
     export let sourceData: project.Project[];
 
@@ -11,8 +12,8 @@
     }
 
     const tableSource: TableSource = {
-        head: ['Project', 'Key'],
-        body: tableMapperValues(sourceData, ['settings', 'key']),
+        head: ['Project', 'file', 'Path', 'Tags'],
+        body: tableMapperValues(sourceData, ['settings.name', 'blendFile.blendFileName', 'key','settings.tags']),
     };
 </script>
 
