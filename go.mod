@@ -6,7 +6,6 @@ require (
 	github.com/blevesearch/bleve/v2 v2.3.9
 	github.com/blevesearch/bleve_index_api v1.0.5
 	github.com/flowshot-io/x v0.0.0-20230622123052-b262ee884a19
-	github.com/mitchellh/copystructure v1.2.0
 	github.com/rjeczalik/notify v0.9.3
 	github.com/rocketblend/rocketblend v0.8.0
 	github.com/wailsapp/wails/v2 v2.5.1
@@ -46,7 +45,6 @@ require (
 	github.com/leaanthony/slicer v1.6.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

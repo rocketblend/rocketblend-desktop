@@ -33,7 +33,7 @@ dist/
 *.key
 
 # Wails
-.syso
+*.syso
 
 build/
 frontend/dist

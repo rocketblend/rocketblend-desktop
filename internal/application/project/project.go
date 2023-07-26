@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mitchellh/copystructure"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsettings"
 	"github.com/rocketblend/rocketblend/pkg/driver/blendconfig"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
@@ -26,12 +25,6 @@ type (
 		UpdatedAt time.Time                        `json:"updatedAt,omitempty"`
 	}
 )
-
-// Copy performs a deep copy of the Project.
-func (p *Project) Copy() *Project {
-	copiedProject, _ := copystructure.Copy(p)
-	return copiedProject.(*Project)
-}
 
 func Load(projectPath string) (*Project, error) {
 	if ignoreProject(projectPath) {

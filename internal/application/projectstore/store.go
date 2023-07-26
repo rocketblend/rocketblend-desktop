@@ -200,7 +200,12 @@ func (s *store) registerPath(path string) error {
 		}
 
 		if info.IsDir() {
-			s.loadProject(path)
+			if err := s.loadProject(path); err != nil {
+				s.logger.Debug("Failed to load project", map[string]interface{}{
+					"err":  err,
+					"path": path,
+				})
+			}
 		}
 
 		return nil
@@ -311,7 +316,7 @@ func (s *store) removeProjectsInPath(path string) {
 func (s *store) getProjectPath(path string) string {
 	projectPath := filepath.Dir(path)
 
-	if projectPath == project.ConfigDir {
+	if strings.HasSuffix(projectPath, project.ConfigDir) {
 		projectPath = filepath.Dir(projectPath)
 	}
 

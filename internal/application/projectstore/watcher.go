@@ -22,9 +22,13 @@ type (
 		Cancel       context.CancelFunc
 	}
 
+	projectEventInfo struct {
+		ProjectPath string
+		EventInfo   notify.EventInfo
+	}
+
 	projectEvent struct {
-		event     notify.EventInfo
-		lastEvent time.Time
+		event     *projectEventInfo
 		timer     *time.Timer
 		eventLock sync.Mutex
 	}
@@ -43,16 +47,17 @@ func (s *store) watchPath(path string) error {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-
 	go s.monitorEvents(eventChannel, ctx)
 
-	s.mu.Lock()
 	s.watchers[path] = &watcher{
 		EventChannel: eventChannel,
 		Ctx:          ctx,
 		Cancel:       cancel,
 	}
-	s.mu.Unlock()
+
+	s.logger.Debug("Watching path", map[string]interface{}{
+		"path": path,
+	})
 
 	return nil
 }
@@ -62,11 +67,13 @@ func (s *store) unwatchPath(path string) error {
 		return nil
 	}
 
-	s.mu.Lock()
 	notify.Stop(s.watchers[path].EventChannel)
 	s.watchers[path].Cancel()
 	delete(s.watchers, path)
-	s.mu.Unlock()
+
+	s.logger.Debug("Unwatching path", map[string]interface{}{
+		"path": path,
+	})
 
 	return nil
 }
@@ -75,29 +82,28 @@ func (s *store) monitorEvents(events chan notify.EventInfo, ctx context.Context)
 	for {
 		select {
 		case event := <-events:
-			s.handleEventDebounced(event)
+			if isWatchFile(event.Path()) {
+				s.handleEventDebounced(&projectEventInfo{
+					ProjectPath: s.getProjectPath(event.Path()),
+					EventInfo:   event,
+				})
+			}
 		case <-ctx.Done():
 			return
 		}
 	}
 }
 
-func (s *store) handleEventDebounced(event notify.EventInfo) {
+func (s *store) handleEventDebounced(event *projectEventInfo) {
 	s.logger.Info("Filesystem event occurred", map[string]interface{}{
 		"event": event,
 	})
 
-	if !isWatchFile(event.Path()) {
-		return
-	}
-
-	projectPath := s.getProjectPath(event.Path())
-
 	s.emu.Lock()
-	pe, ok := s.events[projectPath]
+	pe, ok := s.events[event.ProjectPath]
 	if !ok {
 		pe = &projectEvent{}
-		s.events[projectPath] = pe
+		s.events[event.ProjectPath] = pe
 	}
 	s.emu.Unlock()
 
@@ -111,45 +117,31 @@ func (s *store) handleEventDebounced(event notify.EventInfo) {
 	}
 
 	pe.timer = time.AfterFunc(s.debounceDuration, func() {
-		s.handleEvent(pe.event)
-
 		pe.eventLock.Lock()
-		pe.timer = nil
-		pe.eventLock.Unlock()
-	})
+		defer pe.eventLock.Unlock()
 
-	pe.lastEvent = time.Now()
+		s.handleEvent(pe.event)
+		pe.timer = nil
+	})
 }
 
-func (s *store) handleEvent(event notify.EventInfo) {
+func (s *store) handleEvent(event *projectEventInfo) {
 	s.logger.Info("Filesystem event occurred", map[string]interface{}{
-		"event": event,
+		"event":   event.EventInfo.Event(),
+		"path":    event.EventInfo.Path(),
+		"project": event.ProjectPath,
 	})
 
-	if !isWatchFile(event.Path()) {
-		return
-	}
-
-	projectPath := s.getProjectPath(event.Path())
-
-	switch event.Event() {
+	switch event.EventInfo.Event() {
 	case notify.Write:
-		s.logger.Debug("Modified file", map[string]interface{}{
-			"file": event.Path(),
-		})
-
-		if err := s.loadProject(projectPath); err != nil {
+		if err := s.loadProject(event.ProjectPath); err != nil {
 			s.logger.Error("Error while loading project", map[string]interface{}{
 				"err": err,
 			})
 		}
 
 	case notify.Remove, notify.Rename:
-		s.logger.Debug("Removed or renamed file", map[string]interface{}{
-			"file": event.Path(),
-		})
-
-		if err := s.removeProject(projectPath); err != nil {
+		if err := s.removeProject(event.ProjectPath); err != nil {
 			s.logger.Error("Error while removing project", map[string]interface{}{
 				"err": err,
 			})
