@@ -1,23 +1,17 @@
 package projectstore
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/flowshot-io/x/pkg/logger"
-	"github.com/rjeczalik/notify"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 )
-
-var watchFileExtensions = []string{
-	//".blend",
-	".yaml",
-}
 
 type (
 	Store interface {
@@ -25,7 +19,7 @@ type (
 		ListProjects(opts ...listoptions.ListOption) ([]*project.Project, error)
 		GetProject(key string) (*project.Project, error)
 		RegisterPaths(path ...string) error
-		//UnregisterPaths(path ...string) error
+		UnregisterPaths(path ...string) error
 		GetRegisteredPaths() []string
 	}
 
@@ -35,11 +29,8 @@ type (
 		registeredPaths []string
 
 		watcherEnabled bool
-		events         chan notify.EventInfo
+		watchers       map[string]*Watcher
 		mu             sync.RWMutex
-		ctx            context.Context
-		cancel         context.CancelFunc
-		isRunning      bool
 	}
 
 	Options struct {
@@ -88,18 +79,12 @@ func New(opts ...Option) (Store, error) {
 		logger:          options.Logger,
 		index:           index,
 		watcherEnabled:  options.WatcherEnabled,
-		events:          make(chan notify.EventInfo, 1),
+		watchers:        make(map[string]*Watcher),
 		registeredPaths: make([]string, 0),
 	}
 
 	if err := s.RegisterPaths(options.Paths...); err != nil {
 		return nil, err
-	}
-
-	if options.WatcherEnabled {
-		s.ctx, s.cancel = context.WithCancel(context.Background())
-		go s.run(s.ctx)
-		s.isRunning = true
 	}
 
 	return s, nil
@@ -130,6 +115,31 @@ func (s *store) RegisterPaths(paths ...string) error {
 	return nil
 }
 
+func (s *store) UnregisterPaths(paths ...string) error {
+	errChan := make(chan error, len(paths))
+	var wg sync.WaitGroup
+	wg.Add(len(paths))
+
+	for _, path := range paths {
+		go func(path string) {
+			defer wg.Done()
+
+			if err := s.unregisterPath(path); err != nil {
+				errChan <- fmt.Errorf("failed to unregister path %s: %w", path, err)
+			}
+		}(path)
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	if err := <-errChan; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *store) GetRegisteredPaths() []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -138,18 +148,15 @@ func (s *store) GetRegisteredPaths() []string {
 }
 
 func (s *store) Close() error {
-	notify.Stop(s.events)
-	s.logger.Info("Stopped notification events")
-
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.isRunning {
-		s.cancel()
-		s.isRunning = false
-		s.logger.Debug("Stopped the watcher and updated the state")
-	} else {
-		s.logger.Debug("The watcher was already stopped")
+	paths := s.GetRegisteredPaths()
+	if err := s.UnregisterPaths(paths...); err != nil {
+		s.logger.Error("Failed to unregister paths", map[string]interface{}{
+			"paths": paths,
+			"err":   err,
+		})
 	}
 
 	s.logger.Info("Project watcher closed successfully")
@@ -157,8 +164,20 @@ func (s *store) Close() error {
 }
 
 func (s *store) registerPath(path string) error {
-	// TODO: Check if the path is already registered
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
+	// Check if the path is already registered or it is a subpath of a registered path
+	for _, registeredPath := range s.registeredPaths {
+		rel, err := filepath.Rel(registeredPath, path)
+		if err != nil || strings.HasPrefix(rel, "..") {
+			continue
+		}
+
+		return fmt.Errorf("path %s is already registered or is a subpath of a registered path", path)
+	}
+
+	// Walk the file tree starting at 'path'
 	if err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("error accessing path %s: %w", path, err)
@@ -173,21 +192,43 @@ func (s *store) registerPath(path string) error {
 		return fmt.Errorf("error while walking the path %s: %w", path, err)
 	}
 
-	if s.watcherEnabled {
-		// Start watching the path
-		err := notify.Watch(path+"/...", s.events, notify.Write|notify.Remove|notify.Rename)
-		if err != nil {
-			return fmt.Errorf("unable to add path %s to watcher: %w", path, err)
+	// Watch the path
+	if err := s.watchPath(path); err != nil {
+		return fmt.Errorf("failed to watch path %s: %w", path, err)
+	}
+
+	// Add the path to the registered paths
+	s.registeredPaths = append(s.registeredPaths, path)
+
+	return nil
+}
+
+func (s *store) unregisterPath(path string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	pathIndex := -1
+	for i, registeredPath := range s.registeredPaths {
+		if registeredPath == path {
+			pathIndex = i
+			break
 		}
 	}
 
-	s.mu.Lock()
-	s.registeredPaths = append(s.registeredPaths, path)
-	s.mu.Unlock()
+	if pathIndex == -1 {
+		return fmt.Errorf("path %s not found", path)
+	}
 
-	s.logger.Info("Path registered", map[string]interface{}{
-		"path": path,
-	})
+	// Remove indexed projects within unregistered path.
+	s.removeProjectsInPath(path)
+
+	// Unwatch the path
+	if err := s.unwatchPath(path); err != nil {
+		return fmt.Errorf("failed to unwatch path %s: %w", path, err)
+	}
+
+	// Remove the path from the registered paths
+	s.registeredPaths = append(s.registeredPaths[:pathIndex], s.registeredPaths[pathIndex+1:]...)
 
 	return nil
 }
@@ -223,49 +264,29 @@ func (s *store) removeProject(key string) error {
 	return nil
 }
 
-func (s *store) run(ctx context.Context) {
-	for {
-		select {
-		case event := <-s.events:
-			s.handleEvent(event)
-		case <-ctx.Done():
-			return
-		}
-	}
-}
+func (s *store) removeProjectsInPath(path string) {
+	query := bleve.NewPrefixQuery(path)
+	search := bleve.NewSearchRequest(query)
+	searchResults, err := s.index.Search(search)
+	if err != nil {
+		s.logger.Error("Error searching for projects in path", map[string]interface{}{
+			"err": err,
+		})
 
-func (s *store) handleEvent(event notify.EventInfo) {
-	// Log the event
-	s.logger.Info("Filesystem event occurred", map[string]interface{}{
-		"event": event,
-	})
-
-	if !isWatchFile(event.Path()) {
 		return
 	}
 
-	projectPath := s.getProjectPath(event.Path())
-
-	switch event.Event() {
-	case notify.Write:
-		s.logger.Debug("Modified file", map[string]interface{}{
-			"file": event.Path(),
-		})
-
-		if err := s.loadProject(projectPath); err != nil {
-			s.logger.Error("Error while loading project", map[string]interface{}{
-				"err": err,
+	for _, hit := range searchResults.Hits {
+		if err := s.index.Delete(hit.ID); err != nil {
+			s.logger.Error("Error deleting project from index", map[string]interface{}{
+				"err":  err,
+				"key":  hit.ID,
+				"path": path,
 			})
-		}
-
-	case notify.Remove, notify.Rename:
-		s.logger.Debug("Removed or renamed file", map[string]interface{}{
-			"file": event.Path(),
-		})
-
-		if err := s.removeProject(projectPath); err != nil {
-			s.logger.Error("Error while removing project", map[string]interface{}{
-				"err": err,
+		} else {
+			s.logger.Info("Deleted project from index", map[string]interface{}{
+				"key":  hit.ID,
+				"path": path,
 			})
 		}
 	}
@@ -279,14 +300,4 @@ func (s *store) getProjectPath(path string) string {
 	}
 
 	return projectPath
-}
-
-func isWatchFile(filename string) bool {
-	for _, ext := range watchFileExtensions {
-		if filepath.Ext(filename) == ext {
-			return true
-		}
-	}
-
-	return false
 }
