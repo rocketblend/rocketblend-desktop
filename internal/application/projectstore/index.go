@@ -49,17 +49,8 @@ func (s *store) get(key string) (*project.Project, error) {
 		return nil, err
 	}
 
-	doc.HasComposite()
-
 	doc.VisitFields(func(field index.Field) {
-		s.logger.Debug("found field", map[string]interface{}{
-			"key": field.Name(),
-		})
-
 		if field.Name() == "data" {
-			s.logger.Debug("found data field", map[string]interface{}{
-				"key": key,
-			})
 			err := json.Unmarshal(field.Value(), &project)
 			if err != nil {
 				s.logger.Error("failed to unmarshal the document field", map[string]interface{}{

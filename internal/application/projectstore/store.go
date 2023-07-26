@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/flowshot-io/x/pkg/logger"
@@ -28,15 +29,21 @@ type (
 		index           bleve.Index
 		registeredPaths []string
 
-		watcherEnabled bool
-		watchers       map[string]*Watcher
-		mu             sync.RWMutex
+		watcherEnabled   bool
+		debounceDuration time.Duration
+
+		watchers map[string]*watcher
+		events   map[string]*projectEvent
+
+		mu  sync.RWMutex
+		emu sync.RWMutex
 	}
 
 	Options struct {
-		Logger         logger.Logger
-		Paths          []string
-		WatcherEnabled bool
+		Logger           logger.Logger
+		Paths            []string
+		WatcherEnabled   bool
+		DebounceDuration time.Duration
 	}
 
 	Option func(*Options)
@@ -60,9 +67,16 @@ func WithPaths(paths ...string) Option {
 	}
 }
 
+func WithDebounceDuration(duration time.Duration) Option {
+	return func(o *Options) {
+		o.DebounceDuration = duration
+	}
+}
+
 func New(opts ...Option) (Store, error) {
 	options := &Options{
-		Logger: logger.NoOp(),
+		Logger:           logger.NoOp(),
+		DebounceDuration: 500 * time.Millisecond,
 	}
 
 	for _, o := range opts {
@@ -76,11 +90,13 @@ func New(opts ...Option) (Store, error) {
 	}
 
 	s := &store{
-		logger:          options.Logger,
-		index:           index,
-		watcherEnabled:  options.WatcherEnabled,
-		watchers:        make(map[string]*Watcher),
-		registeredPaths: make([]string, 0),
+		logger:           options.Logger,
+		index:            index,
+		watcherEnabled:   options.WatcherEnabled,
+		debounceDuration: options.DebounceDuration,
+		watchers:         make(map[string]*watcher),
+		events:           make(map[string]*projectEvent),
+		registeredPaths:  make([]string, 0),
 	}
 
 	if err := s.RegisterPaths(options.Paths...); err != nil {

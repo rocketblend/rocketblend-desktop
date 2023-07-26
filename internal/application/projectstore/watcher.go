@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"sync"
+	"time"
 
 	"github.com/rjeczalik/notify"
 )
@@ -14,10 +16,17 @@ var watchFileExtensions = []string{
 }
 
 type (
-	Watcher struct {
+	watcher struct {
 		EventChannel chan notify.EventInfo
 		Ctx          context.Context
 		Cancel       context.CancelFunc
+	}
+
+	projectEvent struct {
+		event     notify.EventInfo
+		lastEvent time.Time
+		timer     *time.Timer
+		eventLock sync.Mutex
 	}
 )
 
@@ -38,7 +47,7 @@ func (s *store) watchPath(path string) error {
 	go s.monitorEvents(eventChannel, ctx)
 
 	s.mu.Lock()
-	s.watchers[path] = &Watcher{
+	s.watchers[path] = &watcher{
 		EventChannel: eventChannel,
 		Ctx:          ctx,
 		Cancel:       cancel,
@@ -66,11 +75,50 @@ func (s *store) monitorEvents(events chan notify.EventInfo, ctx context.Context)
 	for {
 		select {
 		case event := <-events:
-			s.handleEvent(event)
+			s.handleEventDebounced(event)
 		case <-ctx.Done():
 			return
 		}
 	}
+}
+
+func (s *store) handleEventDebounced(event notify.EventInfo) {
+	s.logger.Info("Filesystem event occurred", map[string]interface{}{
+		"event": event,
+	})
+
+	if !isWatchFile(event.Path()) {
+		return
+	}
+
+	projectPath := s.getProjectPath(event.Path())
+
+	s.emu.Lock()
+	pe, ok := s.events[projectPath]
+	if !ok {
+		pe = &projectEvent{}
+		s.events[projectPath] = pe
+	}
+	s.emu.Unlock()
+
+	pe.eventLock.Lock()
+	defer pe.eventLock.Unlock()
+
+	pe.event = event
+
+	if pe.timer != nil {
+		return
+	}
+
+	pe.timer = time.AfterFunc(s.debounceDuration, func() {
+		s.handleEvent(pe.event)
+
+		pe.eventLock.Lock()
+		pe.timer = nil
+		pe.eventLock.Unlock()
+	})
+
+	pe.lastEvent = time.Now()
 }
 
 func (s *store) handleEvent(event notify.EventInfo) {
