@@ -5,6 +5,8 @@
 
   import { AppBar, AppShell } from '@skeletonlabs/skeleton';
 
+  import logo from '$lib/assets/images/logo.png';
+
   import IconCloseFill from '~icons/ri/close-fill'
   import IconMoreFill from '~icons/ri/more-fill'
   import IconSubtractFill from '~icons/ri/subtract-fill'
@@ -48,7 +50,7 @@
   <svelte:fragment slot="footer">
     <section class="grid grid-cols-3 gap-4 p-3 pb-3">
       <div class="flex gap-4 items-center">
-        <img class="h-auto max-w-full rounded-lg" src="https://images.unsplash.com/photo-1688025950970-2ffb840b8f64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&h=64&w=64" alt="">
+        <img class="h-auto max-w-full rounded-lg" src={logo} alt="" height="64" width="64">
         <div>
           <div class="text-sm font-medium">Hello World</div>
           <div class="text-sm text-muted text-surface-300">Offical Stable Blender 3.4.1</div>
