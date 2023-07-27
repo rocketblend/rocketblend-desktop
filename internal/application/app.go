@@ -19,11 +19,16 @@ type (
 	}
 )
 
-func New(assets fs.FS) Application {
+func New(assets fs.FS) (Application, error) {
+	driver, err := NewDriver()
+	if err != nil {
+		return nil, err
+	}
+
 	return &application{
 		assets: assets,
-		driver: NewDriver(),
-	}
+		driver: driver,
+	}, nil
 }
 
 func (a *application) Execute() error {

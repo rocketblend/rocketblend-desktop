@@ -3,8 +3,13 @@ package application
 import (
 	"context"
 	"fmt"
+	"time"
 
-	"github.com/rocketblend/rocketblend-desktop/internal/application/services/ipcService"
+	"github.com/flowshot-io/x/pkg/logger"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -12,14 +17,42 @@ import (
 type Driver struct {
 	ctx context.Context
 
-	argumentChannel chan ipcService.Args
+	logger logger.Logger
+
+	projectService projectservice.Service
+	projectStore   projectstore.Store
 }
 
 // NewApp creates a new App application struct
-func NewDriver() *Driver {
-	return &Driver{
-		argumentChannel: make(chan ipcService.Args),
+func NewDriver() (*Driver, error) {
+	logger := logger.New(
+		logger.WithLogLevel("debug"),
+	)
+
+	projectStore, err := projectstore.New(
+		projectstore.WithLogger(logger),
+		projectstore.WithWatcher(),
+		projectstore.WithDebounceDuration(2*time.Second),
+		// TODO: Move this to a config file
+		projectstore.WithPaths("D:\\Creative\\Blender\\Projects\\Testing\\RocketBlend"),
+	)
+	if err != nil {
+		return nil, err
 	}
+
+	projectservice, err := projectservice.New(
+		projectservice.WithLogger(logger),
+		projectservice.WithStore(projectStore),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Driver{
+		logger:         logger,
+		projectService: projectservice,
+		projectStore:   projectStore,
+	}, nil
 }
 
 // Greet returns a greeting for the given name
@@ -27,27 +60,44 @@ func (a *Driver) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
 
-// Quit quits the application
-func (a *Driver) Quit() {
-	runtime.Quit(a.ctx)
+// FindAllProjects finds all projects
+func (d *Driver) FindAllProjects(query string) []*project.Project {
+	projects, err := d.projectService.FindAll(listoptions.WithQuery(query))
+	if err != nil {
+		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	d.logger.Debug("Found projects", map[string]interface{}{"projects": len(projects)})
+
+	return projects
 }
 
-// eventEmitter emits an event to the frontend
-// func (a *Driver) eventEmitter(eventName string, optionalData ...interface{}) error {
-// 	if a.ctx == nil {
-// 		return fmt.Errorf("context is nil")
-// 	}
+// FindProjectByKey finds a project by its key
+func (d *Driver) FindProjectByKey(key string) *project.Project {
+	project, err := d.projectService.FindByKey(key)
+	if err != nil {
+		d.logger.Error("Failed to find project by path", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
 
-// 	runtime.EventsEmit(a.ctx, eventName, optionalData...)
+	return project
+}
 
-// 	return nil
-// }
+// Quit quits the application
+func (d *Driver) Quit() {
+	if d.projectStore != nil {
+		d.projectStore.Close()
+	}
+
+	runtime.Quit(d.ctx)
+}
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
-func (a *Driver) startup(ctx context.Context) {
-	a.ctx = ctx
+func (d *Driver) startup(ctx context.Context) {
+	d.ctx = ctx
 }
 
 // shutdown is called when the app is shutting down
-func (b *Driver) shutdown(ctx context.Context) {}
+func (d *Driver) shutdown(ctx context.Context) {}

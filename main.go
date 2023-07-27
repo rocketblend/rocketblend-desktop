@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application"
 )
@@ -18,10 +19,20 @@ import (
 var assets embed.FS
 
 func main() {
-	app := application.New(assets)
-
-	err := app.Execute()
-	if err != nil {
-		println("Error:", err.Error())
+	if err := run(); err != nil {
+		fmt.Println("Error:", err)
 	}
+}
+
+func run() error {
+	app, err := application.New(assets)
+	if err != nil {
+		return err
+	}
+
+	if err := app.Execute(); err != nil {
+		return err
+	}
+
+	return nil
 }
