@@ -40,7 +40,8 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	// }
 
 	if so.Query != "" {
-		query := bleve.NewQueryStringQuery(so.Query)
+		query := bleve.NewFuzzyQuery(so.Query)
+		query.SetFuzziness(2) // Levenshtein distance
 		search := bleve.NewSearchRequestOptions(query, so.Size, so.From, false)
 		return search
 	}
