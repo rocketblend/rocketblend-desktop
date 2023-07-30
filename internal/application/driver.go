@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
@@ -61,7 +60,7 @@ func (a *Driver) Greet(name string) string {
 }
 
 // FindAllProjects finds all projects
-func (d *Driver) FindAllProjects(query string) []*project.Project {
+func (d *Driver) FindAllProjects(query string) []*projectservice.Project {
 	projects, err := d.projectService.FindAll(listoptions.WithQuery(query))
 	if err != nil {
 		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
@@ -74,7 +73,7 @@ func (d *Driver) FindAllProjects(query string) []*project.Project {
 }
 
 // FindProjectByKey finds a project by its key
-func (d *Driver) FindProjectByKey(key string) *project.Project {
+func (d *Driver) FindProjectByKey(key string) *projectservice.Project {
 	project, err := d.projectService.FindByKey(key)
 	if err != nil {
 		d.logger.Error("Failed to find project by path", map[string]interface{}{"error": err.Error()})

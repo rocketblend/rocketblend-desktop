@@ -6,9 +6,11 @@ require (
 	github.com/blevesearch/bleve/v2 v2.3.9
 	github.com/blevesearch/bleve_index_api v1.0.5
 	github.com/flowshot-io/x v0.0.0-20230622123052-b262ee884a19
+	github.com/google/uuid v1.3.0
 	github.com/rjeczalik/notify v0.9.3
 	github.com/rocketblend/rocketblend v0.8.0
 	github.com/wailsapp/wails/v2 v2.5.1
+	golang.org/x/text v0.11.0
 	sigs.k8s.io/yaml v1.3.0
 )
 
@@ -34,7 +36,6 @@ require (
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551 // indirect
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/json-iterator/go v0.0.0-20171115153421-f7279a603ede // indirect
 	github.com/kr/text v0.2.0 // indirect
@@ -60,7 +61,6 @@ require (
 	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	logur.dev/adapter/zerolog v0.6.0 // indirect
 )

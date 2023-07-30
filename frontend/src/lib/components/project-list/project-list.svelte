@@ -7,10 +7,10 @@
     import ProjectTable from '../project-table/project-table.svelte';
     import SearchInput from '../core/search-input/search-input.svelte';
 
-    import type { project } from '$lib/wailsjs/go/models';
+    import type { projectservice } from '$lib/wailsjs/go/models';
     import { FindAllProjects } from '$lib/wailsjs/go/application/Driver';
 
-    let projects: project.Project[] = [];
+    let projects: projectservice.Project[] = [];
     let searchTerm: string = '';
     let displayType: number = 0;
 

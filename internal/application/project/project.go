@@ -19,7 +19,6 @@ const (
 
 type (
 	Project struct {
-		Key       string                           `json:"key,omitempty"`
 		BlendFile *blendconfig.BlendConfig         `json:"blendFile,omitempty"`
 		Settings  *projectsettings.ProjectSettings `json:"settings,omitempty"`
 		UpdatedAt time.Time                        `json:"updatedAt,omitempty"`
@@ -59,7 +58,6 @@ func Load(projectPath string) (*Project, error) {
 	}
 
 	return &Project{
-		Key:       projectPath,
 		BlendFile: blendConfig,
 		Settings:  settings,
 	}, nil
