@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
+	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
@@ -72,11 +73,11 @@ func (d *Driver) FindAllProjects(query string) []*projectservice.Project {
 	return projects
 }
 
-// FindProjectByKey finds a project by its key
-func (d *Driver) FindProjectByKey(key string) *projectservice.Project {
-	project, err := d.projectService.FindByKey(key)
+// FindProjectByID finds a project by its id
+func (d *Driver) FindProjectByID(id uuid.UUID) *projectservice.Project {
+	project, err := d.projectService.FindByID(id)
 	if err != nil {
-		d.logger.Error("Failed to find project by path", map[string]interface{}{"error": err.Error()})
+		d.logger.Error("Failed to find project by id", map[string]interface{}{"error": err.Error()})
 		return nil
 	}
 

@@ -1,6 +1,7 @@
 package projectstore
 
 import (
+	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 )
@@ -27,7 +28,12 @@ func (s *store) ListProjects(opts ...listoptions.ListOption) ([]*project.Project
 
 	var matchingProjects []*project.Project
 	for _, hit := range result.Hits {
-		project, err := s.get(hit.ID)
+		id, err := uuid.Parse(hit.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		project, err := s.get(id)
 		if err != nil {
 			return nil, err
 		}
@@ -38,6 +44,6 @@ func (s *store) ListProjects(opts ...listoptions.ListOption) ([]*project.Project
 	return matchingProjects, nil
 }
 
-func (s *store) GetProject(key string) (*project.Project, error) {
-	return s.get(key)
+func (s *store) GetProject(id uuid.UUID) (*project.Project, error) {
+	return s.get(id)
 }
