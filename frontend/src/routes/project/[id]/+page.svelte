@@ -4,4 +4,4 @@
     export let data: PageData;
 </script>
 
-<h1>{data.project}</h1>
+<h2>{data.project.name}</h2>

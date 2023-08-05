@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
 
     import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
     
@@ -17,6 +18,11 @@
     async function loadProjects(query: string): Promise<void> {
         const result = await FindAllProjects(query);
         projects = result || [];
+    }
+
+    function handleSelected(event: CustomEvent<string>): void {
+        const projectId = event.detail;
+        goto(`project/${projectId}`);
     }
 
     function handleSearch(event: CustomEvent<string>): void {
@@ -47,7 +53,7 @@
         </div>
     {:else}
         {#if displayType === 0}
-            <ProjectTable sourceData={projects}/>
+            <ProjectTable sourceData={projects} on:selected={handleSelected} />
         {:else if displayType === 1}
             <ProjectGallery />
         {/if}
