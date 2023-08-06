@@ -1,7 +1,7 @@
 export namespace projectservice {
 	
 	export class Project {
-	    id?: number[];
+	    id?: string;
 	    name?: string;
 	    tags?: string[];
 	    path?: string;

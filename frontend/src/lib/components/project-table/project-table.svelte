@@ -11,10 +11,11 @@
   
     let tableSource: TableSource;
 
-    const dispatch = createEventDispatcher<{ selected: string  }>();
+    const dispatch = createEventDispatcher<{ selected: projectservice.Project | null }>();
 
     function handleSelected(event: CustomEvent<string[]>) {
-      dispatch('selected', event.detail[0]);
+      var project = sourceData.find((p) => p.id === event.detail[0]);
+      dispatch('selected', project);
     }
   
     $: {

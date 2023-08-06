@@ -3,14 +3,13 @@ package projectservice
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 )
 
 type (
 	Project struct {
-		ID        uuid.UUID             `json:"id,omitempty"`
+		ID        string                `json:"id,omitempty"`
 		Name      string                `json:"name,omitempty"`
 		Tags      []string              `json:"tags,omitempty"`
 		Path      string                `json:"path,omitempty"`
@@ -28,7 +27,7 @@ func mapProjects(projects ...*project.Project) []*Project {
 
 	for _, p := range projects {
 		newProject := &Project{
-			ID:        p.Settings.ID,
+			ID:        p.Settings.ID.String(),
 			Name:      p.Settings.Name,
 			Tags:      p.Settings.Tags,
 			Path:      p.BlendFile.ProjectPath,

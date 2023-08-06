@@ -11,6 +11,8 @@
     import type { projectservice } from '$lib/wailsjs/go/models';
     import { FindAllProjects } from '$lib/wailsjs/go/application/Driver';
 
+    import { selectedProject } from '../../store';
+
     let projects: projectservice.Project[] = [];
     let searchTerm: string = '';
     let displayType: number = 0;
@@ -20,9 +22,10 @@
         projects = result || [];
     }
 
-    function handleSelected(event: CustomEvent<string>): void {
-        const projectId = event.detail;
-        goto(`project/${projectId}`);
+    function handleSelected(event: CustomEvent<projectservice.Project | null>): void {
+        const project = event.detail;
+        selectedProject.set(project);
+        //goto(`project/${projectId}`);
     }
 
     function handleSearch(event: CustomEvent<string>): void {
