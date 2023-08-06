@@ -1,10 +1,63 @@
 <script lang="ts">
     import { t } from '$lib/translations/translations';
-    import ProjectList from '$lib/components/project-list/project-list.svelte';
+    import { goto } from '$app/navigation';
+
+    import type { PageData } from './$types';
+    import { page } from '$app/stores'
+
+    import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
+    
+	import ProjectGallery from '$lib/components/project-gallery/project-gallery.svelte';
+    import ProjectTable from '$lib/components/project-table/project-table.svelte';
+    import SearchInput from '$lib/components/core/search-input/search-input.svelte';
+
+    import type { projectservice } from '$lib/wailsjs/go/models';
+
+    import { selectedProject } from '$lib/store';
+
+    export let data: PageData;
+
+    let displayType: number = 0;
+    let form : HTMLFormElement;
+
+    function handleSelected(event: CustomEvent<projectservice.Project | null>): void {
+        const project = event.detail;
+        selectedProject.set(project);
+    }
+
+    function handleInputChange(event: Event): void {
+        form.requestSubmit();
+    }
+
 </script>
 
 
 <main class="space-y-4"> 
     <h3 class="font-bold">{$t('home.title')}</h3>
-    <ProjectList />
+    <div class="space-y-4">
+        <div class="flex items-center justify-between space-x-4">
+            <div class="w-full">
+                <form bind:this={form} data-sveltekit-keepfocus>
+                    <SearchInput name="query" value={$page.url.searchParams.get('query') || ''} on:input={handleInputChange} placeholder="Search" debounceDelay={500}/>
+                    <button type="submit" class="hidden">Search</button>
+                </form>
+            </div>
+            <RadioGroup>
+                <RadioItem bind:group={displayType} name="justify" value={0}>Table</RadioItem>
+                <RadioItem bind:group={displayType} name="justify" value={1}>Gallery</RadioItem>
+            </RadioGroup>
+        </div>
+        
+        {#if data.projects.length === 0}
+            <div class="flex items-center justify-center h-64">
+                <h4>No projects found.</h4>
+            </div>
+        {:else}
+            {#if displayType === 0}
+                <ProjectTable sourceData={data.projects} on:selected={handleSelected} />
+            {:else if displayType === 1}
+                <ProjectGallery />
+            {/if}
+        {/if}
+    </div>
 </main>

@@ -11,7 +11,7 @@
     import { selectedProject } from '$lib/store';
 
     function handleViewProject(): void {
-        goto(`project/${$selectedProject?.id}`);
+        goto(`projects/${$selectedProject?.id}`);
     }
 </script>
 
@@ -21,7 +21,7 @@
             <img class="h-auto max-w-full rounded-lg" src={logo} alt="" height="64" width="64">
             <div>
                 <div class="text-sm font-medium">{$selectedProject.name}</div>
-                <div class="text-sm text-muted text-surface-300">{$selectedProject.fileName}</div>
+                <div class="text-sm text-surface-300">{$selectedProject.fileName}</div>
             </div>
             <button type="button" class="btn btn-lg px-1 text-secondary-300-600-token"><IconBookmark3Fill/></button>
         </div>
@@ -32,7 +32,6 @@
             <button type="button" class="btn variant-filled text-lg px-9"><IconBlenderFill/></button>
         </div>
     {:else}
-        <!-- Skeleton layout when no project is selected -->
         <div class="flex gap-4 items-center">
             <div class="rounded-lg placeholder animate-pulse h-16 w-16"></div>
             <div>
