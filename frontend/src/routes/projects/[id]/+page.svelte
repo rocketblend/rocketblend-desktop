@@ -1,9 +1,10 @@
 <script lang="ts">
     import type { PageData } from './$types';
+    import { FxReveal as Img } from '@zerodevx/svelte-img'
 
     import { selectedProject } from '$lib/store';
 
-    import logo from '$lib/assets/images/logo.png';
+    import logo from '$lib/assets/images/logo.png?run';
 
     export let data: PageData;
 
@@ -12,7 +13,7 @@
 
 <main class="space-y-4"> 
     <div class="flex gap-4">
-        <img class="h-auto max-w-full rounded-lg" src={logo} alt="" height="128" width="128">
+        <Img class="h-auto max-w-full rounded-lg h-32 w-32 image-fade-in" src={logo} alt="" loading="lazy" />
         <div class="relative w-full">
             <div class="absolute inset-x-0 bottom-0 space-y-4">
                 <h1 class="font-bold">{data.project.name}</h1>

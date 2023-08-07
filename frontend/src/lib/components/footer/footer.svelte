@@ -6,19 +6,21 @@
     import IconEyeFill from '~icons/ri/eye-fill'
     import IconBookmark3Fill from '~icons/ri/bookmark-3-fill'
 
-    import logo from '$lib/assets/images/logo.png';
+    import { FxReveal as Img } from '@zerodevx/svelte-img'
+
+    import logo from '$lib/assets/images/logo.png?run';
 
     import { selectedProject } from '$lib/store';
 
     function handleViewProject(): void {
-        goto(`projects/${$selectedProject?.id}`);
+        goto(`/projects/${$selectedProject?.id}`);
     }
 </script>
 
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">
     {#if $selectedProject}
         <div class="flex gap-4 items-center">
-            <img class="h-auto max-w-full rounded-lg" src={logo} alt="" height="64" width="64">
+            <Img class="h-auto max-w-full rounded-lg w-16 image-fade-in" src={logo} alt="" />
             <div>
                 <div class="text-sm font-medium">{$selectedProject.name}</div>
                 <div class="text-sm text-surface-300">{$selectedProject.fileName}</div>
