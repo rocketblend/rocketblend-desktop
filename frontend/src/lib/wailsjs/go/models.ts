@@ -9,7 +9,6 @@ export namespace projectservice {
 	    build?: string;
 	    addons?: string[];
 	    version?: string;
-	    args?: string;
 	    // Go type: time
 	    updatedAt?: any;
 	
@@ -27,7 +26,6 @@ export namespace projectservice {
 	        this.build = source["build"];
 	        this.addons = source["addons"];
 	        this.version = source["version"];
-	        this.args = source["args"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }
 	

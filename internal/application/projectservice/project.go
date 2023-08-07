@@ -17,7 +17,6 @@ type (
 		Build     reference.Reference   `json:"build,omitempty"`
 		Addons    []reference.Reference `json:"addons,omitempty"`
 		Version   string                `json:"version,omitempty"`
-		ARGS      string                `json:"args,omitempty"`
 		UpdatedAt time.Time             `json:"updatedAt,omitempty"`
 	}
 )
@@ -35,7 +34,6 @@ func mapProjects(projects ...*project.Project) []*Project {
 			Build:     p.BlendFile.RocketFile.GetBuild(),
 			Addons:    p.BlendFile.RocketFile.GetAddons(),
 			Version:   p.BlendFile.RocketFile.GetVersion(),
-			ARGS:      p.BlendFile.RocketFile.GetArgs(),
 			UpdatedAt: p.UpdatedAt,
 		}
 
