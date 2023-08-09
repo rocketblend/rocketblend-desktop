@@ -1,23 +1,33 @@
 package projectservice
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
+	"github.com/rocketblend/rocketblend/pkg/rocketblend/factory"
 )
 
 type (
 	Service interface {
-		FindAll(opts ...listoptions.ListOption) ([]*Project, error)
-		FindByID(id uuid.UUID) (*Project, error)
+		Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error)
+		List(ctx context.Context, opts ...listoptions.ListOption) (*ListProjectsResponse, error)
+
+		Create(ctx context.Context, request *CreateProjectRequest) error
+		Update(ctx context.Context, request *UpdateProjectRequest) error
+
+		Render(ctx context.Context, id uuid.UUID) error
+		Run(ctx context.Context, id uuid.UUID) error
 	}
 
 	service struct {
 		logger logger.Logger
-		store  projectstore.Store
+
+		store   projectstore.Store
+		factory factory.Factory
 	}
 
 	Options struct {
@@ -50,29 +60,51 @@ func New(opts ...Option) (Service, error) {
 	}
 
 	if options.Store == nil {
-		return nil, fmt.Errorf("watcher is required")
+		return nil, fmt.Errorf("store is required")
 	}
 
-	return &service{
-		logger: options.Logger,
-		store:  options.Store,
-	}, nil
-}
-
-func (s *service) FindAll(opts ...listoptions.ListOption) ([]*Project, error) {
-	projects, err := s.store.ListProjects(opts...)
+	factory, err := factory.New()
 	if err != nil {
 		return nil, err
 	}
 
-	return mapProjects(projects...), nil
+	if err := factory.SetLogger(options.Logger); err != nil {
+		return nil, err
+	}
+
+	return &service{
+		logger:  options.Logger,
+		store:   options.Store,
+		factory: factory,
+	}, nil
 }
 
-func (s *service) FindByID(id uuid.UUID) (*Project, error) {
+func (s *service) Create(ctx context.Context, request *CreateProjectRequest) error {
+	return nil
+}
+
+func (s *service) Update(ctx context.Context, request *UpdateProjectRequest) error {
+	return nil
+}
+
+func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error) {
 	project, err := s.store.GetProject(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return mapProjects(project)[0], nil
+	return &GetProjectResponse{
+		Project: mapProjects(project)[0],
+	}, nil
+}
+
+func (s *service) List(ctx context.Context, opts ...listoptions.ListOption) (*ListProjectsResponse, error) {
+	projects, err := s.store.ListProjects(opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ListProjectsResponse{
+		mapProjects(projects...),
+	}, nil
 }

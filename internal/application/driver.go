@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
@@ -55,33 +54,32 @@ func NewDriver() (*Driver, error) {
 	}, nil
 }
 
-// Greet returns a greeting for the given name
-func (a *Driver) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
+// GetProject gets a project by id
+func (d *Driver) GetProject(id uuid.UUID) *projectservice.GetProjectResponse {
+	ctx := context.Background()
 
-// FindAllProjects finds all projects
-func (d *Driver) FindAllProjects(query string) []*projectservice.Project {
-	projects, err := d.projectService.FindAll(listoptions.WithQuery(query))
-	if err != nil {
-		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
-		return nil
-	}
-
-	d.logger.Debug("Found projects", map[string]interface{}{"projects": len(projects)})
-
-	return projects
-}
-
-// FindProjectByID finds a project by its id
-func (d *Driver) FindProjectByID(id uuid.UUID) *projectservice.Project {
-	project, err := d.projectService.FindByID(id)
+	project, err := d.projectService.Get(ctx, id)
 	if err != nil {
 		d.logger.Error("Failed to find project by id", map[string]interface{}{"error": err.Error()})
 		return nil
 	}
 
 	return project
+}
+
+// ListProjects lists all projects
+func (d *Driver) ListProjects(query string) *projectservice.ListProjectsResponse {
+	ctx := context.Background()
+
+	response, err := d.projectService.List(ctx, listoptions.WithQuery(query))
+	if err != nil {
+		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	d.logger.Debug("Found projects", map[string]interface{}{"projects": len(response.Projects)})
+
+	return response
 }
 
 // Quit quits the application

@@ -12,6 +12,8 @@ import (
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
 )
 
+// TODO: store data as in project projectservice. Add GetBlendFile() and GetSettings() methods.
+
 const (
 	IgnoreFileName = ".rbdesktopignore"
 	ConfigDir      = ".rbdesktop"

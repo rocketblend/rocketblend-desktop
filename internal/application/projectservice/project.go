@@ -19,6 +19,33 @@ type (
 		Version   string                `json:"version,omitempty"`
 		UpdatedAt time.Time             `json:"updatedAt,omitempty"`
 	}
+
+	GetProjectResponse struct {
+		Project *Project `json:"project,omitempty"`
+	}
+
+	ListProjectsResponse struct {
+		Projects []*Project `json:"projects,omitempty"`
+	}
+
+	CreateProjectRequest struct {
+		Name     string                `json:"name,omitempty"`
+		Tags     []string              `json:"tags,omitempty"`
+		Path     string                `json:"path,omitempty"`
+		FileName string                `json:"fileName,omitempty"`
+		Build    reference.Reference   `json:"build,omitempty"`
+		Addons   []reference.Reference `json:"addons,omitempty"`
+	}
+
+	UpdateProjectRequest struct {
+		ID       string                `json:"id,omitempty"`
+		Name     string                `json:"name,omitempty"`
+		Tags     []string              `json:"tags,omitempty"`
+		Path     string                `json:"path,omitempty"`
+		FileName string                `json:"fileName,omitempty"`
+		Build    reference.Reference   `json:"build,omitempty"`
+		Addons   []reference.Reference `json:"addons,omitempty"`
+	}
 )
 
 func mapProjects(projects ...*project.Project) []*Project {
