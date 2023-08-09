@@ -94,7 +94,7 @@ func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, e
 	}
 
 	return &GetProjectResponse{
-		Project: mapProjects(project)[0],
+		Project: project,
 	}, nil
 }
 
@@ -105,6 +105,6 @@ func (s *service) List(ctx context.Context, opts ...listoptions.ListOption) (*Li
 	}
 
 	return &ListProjectsResponse{
-		mapProjects(projects...),
+		projects,
 	}, nil
 }

@@ -65,6 +65,6 @@ func (s *service) createDriver(project *project.Project) (driver.Driver, error) 
 		driver.WithRocketPackService(rocketPackService),
 		driver.WithInstallationService(installationService),
 		driver.WithBlendFileService(blendFileService),
-		driver.WithBlendConfig(project.BlendFile),
+		driver.WithBlendConfig(project.GetBlendFile()),
 	)
 }

@@ -4,14 +4,14 @@
     import type { TableSource } from '@skeletonlabs/skeleton';
     import { Table } from '@skeletonlabs/skeleton';
   
-    import type { projectservice } from '$lib/wailsjs/go/models';
+    import type { project } from '$lib/wailsjs/go/models';
     import { tableMapperValues } from '$lib/components/core'
   
-    export let sourceData: projectservice.Project[];
+    export let sourceData: project.Project[];
   
     let tableSource: TableSource;
 
-    const dispatch = createEventDispatcher<{ selected: projectservice.Project | null }>();
+    const dispatch = createEventDispatcher<{ selected: project.Project | null }>();
 
     function handleSelected(event: CustomEvent<string[]>) {
       var project = sourceData.find((p) => p.id === event.detail[0]);
