@@ -6,14 +6,16 @@ import (
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
 	index "github.com/blevesearch/bleve_index_api"
+	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 )
 
 type (
 	ProjectIndexMeta struct {
-		Key  string `json:"key,omitempty"`
-		Name string `json:"name,omitempty"`
-		Data string `json:"data,omitempty"`
+		ID   uuid.UUID `json:"id,omitempty"`
+		Path string    `json:"path,omitempty"`
+		Name string    `json:"name,omitempty"`
+		Data string    `json:"data,omitempty"`
 	}
 )
 
@@ -25,26 +27,27 @@ func (v *ProjectIndexMeta) BleveType() string {
 	return "project"
 }
 
-func (s *store) updateIndex(key string, project *project.Project) error {
+func (s *store) updateIndex(id uuid.UUID, project *project.Project) error {
 	data, err := json.Marshal(project)
 	if err != nil {
 		return err
 	}
 
-	return s.index.Index(key, &ProjectIndexMeta{
-		Key:  key,
+	return s.index.Index(id.String(), &ProjectIndexMeta{
+		ID:   id,
+		Path: project.BlendFile.ProjectPath,
 		Name: project.Settings.Name,
 		Data: string(data),
 	})
 }
 
-func (s *store) removeIndex(key string) error {
-	return s.index.Delete(key)
+func (s *store) removeIndex(id uuid.UUID) error {
+	return s.index.Delete(id.String())
 }
 
-func (s *store) get(key string) (*project.Project, error) {
+func (s *store) get(id uuid.UUID) (*project.Project, error) {
 	var project project.Project
-	doc, err := s.index.Document(key)
+	doc, err := s.index.Document(id.String())
 	if err != nil {
 		return nil, err
 	}

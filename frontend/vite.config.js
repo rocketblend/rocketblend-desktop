@@ -1,4 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite';
+import { imagetools } from '@zerodevx/svelte-img/vite'
 import Icons from 'unplugin-icons/vite'
 
 // import path from 'path'
@@ -14,6 +15,9 @@ const config = {
   },
   plugins: [
     sveltekit(),
+    imagetools({
+      defaultDirectives: () => new URLSearchParams('?width=128;480;1024;1920&format=avif;webp;jpg')
+    }),
     Icons({
       compiler: 'svelte',
       autoInstall: true,

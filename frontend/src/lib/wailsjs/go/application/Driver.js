@@ -6,8 +6,8 @@ export function FindAllProjects(arg1) {
   return window['go']['application']['Driver']['FindAllProjects'](arg1);
 }
 
-export function FindProjectByKey(arg1) {
-  return window['go']['application']['Driver']['FindProjectByKey'](arg1);
+export function FindProjectByID(arg1) {
+  return window['go']['application']['Driver']['FindProjectByID'](arg1);
 }
 
 export function Greet(arg1) {

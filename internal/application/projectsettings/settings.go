@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend/pkg/driver/helpers"
 	"sigs.k8s.io/yaml"
 )
@@ -23,6 +24,7 @@ type (
 	}
 
 	ProjectSettings struct {
+		ID                uuid.UUID          `json:"id,omitempty"`
 		Name              string             `json:"name,omitempty"`
 		Tags              []string           `json:"tags,omitempty"`
 		ThumbnailSettings *ThumbnailSettings `json:"thumbnailSettings,omitempty"`

@@ -4,15 +4,15 @@ import (
 	"fmt"
 
 	"github.com/flowshot-io/x/pkg/logger"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
+	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 )
 
 type (
 	Service interface {
-		FindAll(opts ...listoptions.ListOption) ([]*project.Project, error)
-		FindByKey(key string) (*project.Project, error)
+		FindAll(opts ...listoptions.ListOption) ([]*Project, error)
+		FindByID(id uuid.UUID) (*Project, error)
 	}
 
 	service struct {
@@ -59,10 +59,20 @@ func New(opts ...Option) (Service, error) {
 	}, nil
 }
 
-func (s *service) FindAll(opts ...listoptions.ListOption) ([]*project.Project, error) {
-	return s.store.ListProjects(opts...)
+func (s *service) FindAll(opts ...listoptions.ListOption) ([]*Project, error) {
+	projects, err := s.store.ListProjects(opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapProjects(projects...), nil
 }
 
-func (s *service) FindByKey(key string) (*project.Project, error) {
-	return s.store.GetProject(key)
+func (s *service) FindByID(id uuid.UUID) (*Project, error) {
+	project, err := s.store.GetProject(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapProjects(project)[0], nil
 }

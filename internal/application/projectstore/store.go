@@ -10,6 +10,7 @@ import (
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/flowshot-io/x/pkg/logger"
+	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 )
@@ -18,7 +19,7 @@ type (
 	Store interface {
 		Close() error
 		ListProjects(opts ...listoptions.ListOption) ([]*project.Project, error)
-		GetProject(key string) (*project.Project, error)
+		GetProject(id uuid.UUID) (*project.Project, error)
 		RegisterPaths(path ...string) error
 		UnregisterPaths(path ...string) error
 		GetRegisteredPaths() []string
@@ -241,7 +242,9 @@ func (s *store) unregisterPath(path string) error {
 	}
 
 	// Remove indexed projects within unregistered path.
-	s.removeProjectsInPath(path)
+	if err := s.removeProjectsInPath(path); err != nil {
+		return fmt.Errorf("failed to remove projects in path %s: %w", path, err)
+	}
 
 	// Unwatch the path
 	if err := s.unwatchPath(path); err != nil {
@@ -254,38 +257,27 @@ func (s *store) unregisterPath(path string) error {
 	return nil
 }
 
-func (s *store) loadProject(key string) error {
+func (s *store) loadProject(path string) error {
 	// Get or create the project
-	project, err := project.Load(key)
+	project, err := project.Load(path)
 	if err != nil {
-		return fmt.Errorf("failed to load project %s: %w", key, err)
+		return fmt.Errorf("failed to load project %s: %w", path, err)
 	}
 
-	if err := s.updateIndex(key, project); err != nil {
-		return fmt.Errorf("failed to update index for project %s: %w", key, err)
+	if err := s.updateIndex(project.Settings.ID, project); err != nil {
+		return fmt.Errorf("failed to update index for project %s: %w", path, err)
 	}
 
 	s.logger.Debug("Project loaded and indexed", map[string]interface{}{
-		"key":     key,
+		"path":    path,
+		"id":      project.Settings.ID,
 		"project": project,
 	})
 
 	return nil
 }
 
-func (s *store) removeProject(key string) error {
-	if err := s.removeIndex(key); err != nil {
-		return fmt.Errorf("failed to remove index for project %s: %w", key, err)
-	}
-
-	s.logger.Debug("Project removed from index", map[string]interface{}{
-		"key": key,
-	})
-
-	return nil
-}
-
-func (s *store) removeProjectsInPath(path string) {
+func (s *store) removeProjectsInPath(path string) error {
 	query := bleve.NewPrefixQuery(path)
 	search := bleve.NewSearchRequest(query)
 	searchResults, err := s.index.Search(search)
@@ -294,7 +286,7 @@ func (s *store) removeProjectsInPath(path string) {
 			"err": err,
 		})
 
-		return
+		return err
 	}
 
 	for _, hit := range searchResults.Hits {
@@ -311,6 +303,8 @@ func (s *store) removeProjectsInPath(path string) {
 			})
 		}
 	}
+
+	return nil
 }
 
 func (s *store) getProjectPath(path string) string {

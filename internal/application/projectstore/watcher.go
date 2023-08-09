@@ -141,7 +141,7 @@ func (s *store) handleEvent(event *projectEventInfo) {
 		}
 
 	case notify.Remove, notify.Rename:
-		if err := s.removeProject(event.ProjectPath); err != nil {
+		if err := s.removeProjectsInPath(event.ProjectPath); err != nil {
 			s.logger.Error("Error while removing project", map[string]interface{}{
 				"err": err,
 			})
