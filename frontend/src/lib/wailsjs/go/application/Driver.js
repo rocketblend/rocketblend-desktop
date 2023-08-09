@@ -10,6 +10,10 @@ export function DeleteProject(arg1) {
   return window['go']['application']['Driver']['DeleteProject'](arg1);
 }
 
+export function ExploreProject(arg1) {
+  return window['go']['application']['Driver']['ExploreProject'](arg1);
+}
+
 export function GetProject(arg1) {
   return window['go']['application']['Driver']['GetProject'](arg1);
 }

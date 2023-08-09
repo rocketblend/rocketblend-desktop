@@ -84,16 +84,21 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
+	modTime, err := getFolderModTime(projectPath)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Project{
-		ID:       settings.ID,
-		Name:     settings.Name,
-		Tags:     settings.Tags,
-		Path:     blendFile.ProjectPath,
-		FileName: blendFile.BlendFileName,
-		Build:    blendFile.RocketFile.GetBuild(),
-		Addons:   blendFile.RocketFile.GetAddons(),
-		Version:  blendFile.RocketFile.GetVersion(),
-		//UpdatedAt: p.UpdatedAt,
+		ID:        settings.ID,
+		Name:      settings.Name,
+		Tags:      settings.Tags,
+		Path:      blendFile.ProjectPath,
+		FileName:  blendFile.BlendFileName,
+		Build:     blendFile.RocketFile.GetBuild(),
+		Addons:    blendFile.RocketFile.GetAddons(),
+		Version:   blendFile.RocketFile.GetVersion(),
+		UpdatedAt: modTime,
 	}, nil
 }
 
@@ -104,4 +109,20 @@ func Save(project *Project) error {
 func ignoreProject(projectPath string) bool {
 	_, err := os.Stat(filepath.Join(projectPath, IgnoreFileName))
 	return !os.IsNotExist(err)
+}
+
+func getFolderModTime(folderPath string) (time.Time, error) {
+	// Get file/folder information
+	info, err := os.Stat(folderPath)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	// Check if it's a directory
+	if !info.IsDir() {
+		return time.Time{}, fmt.Errorf("%s is not a directory", folderPath)
+	}
+
+	// Return the last modification time
+	return info.ModTime(), nil
 }

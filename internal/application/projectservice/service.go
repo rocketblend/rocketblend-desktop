@@ -21,6 +21,8 @@ type (
 
 		Render(ctx context.Context, id uuid.UUID) error
 		Run(ctx context.Context, id uuid.UUID) error
+
+		Explore(ctx context.Context, id uuid.UUID) error
 	}
 
 	service struct {

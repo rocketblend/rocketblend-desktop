@@ -7,6 +7,8 @@ export function CreateProject(arg1:projectservice.CreateProjectRequest):Promise<
 
 export function DeleteProject(arg1:uuid.UUID):Promise<void>;
 
+export function ExploreProject(arg1:uuid.UUID):Promise<void>;
+
 export function GetProject(arg1:uuid.UUID):Promise<projectservice.GetProjectResponse>;
 
 export function ListProjects(arg1:string):Promise<projectservice.ListProjectsResponse>;

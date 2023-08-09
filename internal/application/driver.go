@@ -135,6 +135,18 @@ func (d *Driver) RenderProject(id uuid.UUID) {
 	d.logger.Debug("Project rendered", map[string]interface{}{"id": id})
 }
 
+// ExploreProject explores a project
+func (d *Driver) ExploreProject(id uuid.UUID) {
+	ctx := context.Background()
+
+	if err := d.projectService.Explore(ctx, id); err != nil {
+		d.logger.Error("Failed to explore project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project explored", map[string]interface{}{"id": id})
+}
+
 // Quit quits the application
 func (d *Driver) Quit() {
 	if d.projectStore != nil {
