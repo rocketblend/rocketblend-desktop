@@ -31,7 +31,7 @@ func NewDriver() (*Driver, error) {
 	projectStore, err := projectstore.New(
 		projectstore.WithLogger(logger),
 		projectstore.WithWatcher(),
-		projectstore.WithDebounceDuration(2*time.Second),
+		projectstore.WithEventDebounceDuration(2*time.Second),
 		// TODO: Move this to a config file
 		projectstore.WithPaths("D:\\Creative\\Blender\\Projects\\Testing\\RocketBlend"),
 	)
@@ -80,6 +80,59 @@ func (d *Driver) ListProjects(query string) *projectservice.ListProjectsResponse
 	d.logger.Debug("Found projects", map[string]interface{}{"projects": len(response.Projects)})
 
 	return response
+}
+
+// CreateProject creates a new project
+func (d *Driver) CreateProject(request *projectservice.CreateProjectRequest) {
+	ctx := context.Background()
+
+	if err := d.projectService.Create(ctx, request); err != nil {
+		d.logger.Error("Failed to create project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project created")
+}
+
+// UpdateProject updates a project
+func (d *Driver) UpdateProject(request *projectservice.UpdateProjectRequest) {
+	ctx := context.Background()
+
+	if err := d.projectService.Update(ctx, request); err != nil {
+		d.logger.Error("Failed to update project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project updated", map[string]interface{}{"id": request.ID})
+}
+
+// DeleteProject deletes a project
+func (d *Driver) DeleteProject(id uuid.UUID) {
+	d.logger.Debug("Deleting project", map[string]interface{}{"id": id})
+}
+
+// RunProject runs a project
+func (d *Driver) RunProject(id uuid.UUID) {
+	ctx := context.Background()
+
+	if err := d.projectService.Run(ctx, id); err != nil {
+		d.logger.Error("Failed to run project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project started", map[string]interface{}{"id": id})
+}
+
+// RenderProject renders a project
+func (d *Driver) RenderProject(id uuid.UUID) {
+	ctx := context.Background()
+
+	if err := d.projectService.Render(ctx, id); err != nil {
+		d.logger.Error("Failed to render project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project rendered", map[string]interface{}{"id": id})
 }
 
 // Quit quits the application

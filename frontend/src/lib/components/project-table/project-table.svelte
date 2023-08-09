@@ -14,7 +14,7 @@
     const dispatch = createEventDispatcher<{ selected: project.Project | null }>();
 
     function handleSelected(event: CustomEvent<string[]>) {
-      var project = sourceData.find((p) => p.id === event.detail[0]);
+      var project = sourceData.find((p) => p.id?.toString() === event.detail[0]);
       dispatch('selected', project);
     }
   

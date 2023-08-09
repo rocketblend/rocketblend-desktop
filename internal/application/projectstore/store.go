@@ -68,7 +68,7 @@ func WithPaths(paths ...string) Option {
 	}
 }
 
-func WithDebounceDuration(duration time.Duration) Option {
+func WithEventDebounceDuration(duration time.Duration) Option {
 	return func(o *Options) {
 		o.DebounceDuration = duration
 	}
