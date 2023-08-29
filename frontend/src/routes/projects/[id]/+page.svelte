@@ -28,7 +28,7 @@
         <li>File Name: {data.project.fileName}</li>
         <li>Build: {data.project.build}</li>
         <li>Addons: {data.project.addons}</li>
-        <li>Tags {data.project.tags}</li>
+        <li>Tags: {data.project.tags}</li>
         <li>Version: {data.project.version}</li>
     </ul>
 </main>
