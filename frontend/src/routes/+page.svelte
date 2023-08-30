@@ -11,7 +11,7 @@
     import ProjectTable from '$lib/components/project-table/project-table.svelte';
     import SearchInput from '$lib/components/core/search-input/search-input.svelte';
 
-    import type { projectservice } from '$lib/wailsjs/go/models';
+    import type { project } from '$lib/wailsjs/go/models';
 
     import { selectedProject } from '$lib/store';
 
@@ -20,7 +20,7 @@
     let displayType: number = 0;
     let form : HTMLFormElement;
 
-    function handleSelected(event: CustomEvent<projectservice.Project | null>): void {
+    function handleSelected(event: CustomEvent<project.Project | null>): void {
         const project = event.detail;
         selectedProject.set(project);
     }
@@ -48,7 +48,7 @@
             </RadioGroup>
         </div>
         
-        {#if data.projects.length === 0}
+        {#if data.projects === undefined || data.projects.length === 0}
             <div class="flex items-center justify-center h-64">
                 <h4>No projects found.</h4>
             </div>

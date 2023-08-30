@@ -68,7 +68,7 @@ func WithPaths(paths ...string) Option {
 	}
 }
 
-func WithDebounceDuration(duration time.Duration) Option {
+func WithEventDebounceDuration(duration time.Duration) Option {
 	return func(o *Options) {
 		o.DebounceDuration = duration
 	}
@@ -258,19 +258,18 @@ func (s *store) unregisterPath(path string) error {
 }
 
 func (s *store) loadProject(path string) error {
-	// Get or create the project
 	project, err := project.Load(path)
 	if err != nil {
 		return fmt.Errorf("failed to load project %s: %w", path, err)
 	}
 
-	if err := s.updateIndex(project.Settings.ID, project); err != nil {
+	if err := s.updateIndex(project.ID, project); err != nil {
 		return fmt.Errorf("failed to update index for project %s: %w", path, err)
 	}
 
 	s.logger.Debug("Project loaded and indexed", map[string]interface{}{
 		"path":    path,
-		"id":      project.Settings.ID,
+		"id":      project.ID,
 		"project": project,
 	})
 

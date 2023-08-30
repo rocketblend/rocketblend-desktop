@@ -35,14 +35,10 @@ func (s *store) updateIndex(id uuid.UUID, project *project.Project) error {
 
 	return s.index.Index(id.String(), &ProjectIndexMeta{
 		ID:   id,
-		Path: project.BlendFile.ProjectPath,
-		Name: project.Settings.Name,
+		Path: project.Path,
+		Name: project.Name,
 		Data: string(data),
 	})
-}
-
-func (s *store) removeIndex(id uuid.UUID) error {
-	return s.index.Delete(id.String())
 }
 
 func (s *store) get(id uuid.UUID) (*project.Project, error) {

@@ -10,11 +10,21 @@
 
     import logo from '$lib/assets/images/logo.png?run';
 
+    import { ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
     import { selectedProject } from '$lib/store';
 
     function handleViewProject(): void {
         goto(`/projects/${$selectedProject?.id}`);
     }
+
+    async function handleRunProject(): Promise<void> {
+        return await RunProject($selectedProject?.id);
+    }
+
+    async function handleExploreProject(): Promise<void> {
+        return await ExploreProject($selectedProject?.id);
+    }
+
 </script>
 
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">
@@ -30,8 +40,8 @@
         <div class="min-w-max items-center justify-center flex gap-2"></div>
         <div class="justify-end items-center flex gap-2">
             <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleViewProject}><IconEyeFill/></button>
-            <button type="button" class="btn text-lg text-surface-700-200-token px-2"><IconFolderOpenFill/></button>
-            <button type="button" class="btn variant-filled text-lg px-9"><IconBlenderFill/></button>
+            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleExploreProject}><IconFolderOpenFill /></button>
+            <button type="button" class="btn variant-filled text-lg px-9" on:click={handleRunProject}><IconBlenderFill/></button>
         </div>
     {:else}
         <div class="flex gap-4 items-center">

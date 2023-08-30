@@ -3,10 +3,20 @@
 import {projectservice} from '../models';
 import {uuid} from '../models';
 
-export function FindAllProjects(arg1:string):Promise<Array<projectservice.Project>>;
+export function CreateProject(arg1:projectservice.CreateProjectRequest):Promise<void>;
 
-export function FindProjectByID(arg1:uuid.UUID):Promise<projectservice.Project>;
+export function DeleteProject(arg1:uuid.UUID):Promise<void>;
 
-export function Greet(arg1:string):Promise<string>;
+export function ExploreProject(arg1:uuid.UUID):Promise<void>;
+
+export function GetProject(arg1:uuid.UUID):Promise<projectservice.GetProjectResponse>;
+
+export function ListProjects(arg1:string):Promise<projectservice.ListProjectsResponse>;
 
 export function Quit():Promise<void>;
+
+export function RenderProject(arg1:uuid.UUID):Promise<void>;
+
+export function RunProject(arg1:uuid.UUID):Promise<void>;
+
+export function UpdateProject(arg1:projectservice.UpdateProjectRequest):Promise<void>;

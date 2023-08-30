@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
@@ -32,7 +31,7 @@ func NewDriver() (*Driver, error) {
 	projectStore, err := projectstore.New(
 		projectstore.WithLogger(logger),
 		projectstore.WithWatcher(),
-		projectstore.WithDebounceDuration(2*time.Second),
+		projectstore.WithEventDebounceDuration(2*time.Second),
 		// TODO: Move this to a config file
 		projectstore.WithPaths("D:\\Creative\\Blender\\Projects\\Testing\\RocketBlend"),
 	)
@@ -55,33 +54,97 @@ func NewDriver() (*Driver, error) {
 	}, nil
 }
 
-// Greet returns a greeting for the given name
-func (a *Driver) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
+// GetProject gets a project by id
+func (d *Driver) GetProject(id uuid.UUID) *projectservice.GetProjectResponse {
+	ctx := context.Background()
 
-// FindAllProjects finds all projects
-func (d *Driver) FindAllProjects(query string) []*projectservice.Project {
-	projects, err := d.projectService.FindAll(listoptions.WithQuery(query))
-	if err != nil {
-		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
-		return nil
-	}
-
-	d.logger.Debug("Found projects", map[string]interface{}{"projects": len(projects)})
-
-	return projects
-}
-
-// FindProjectByID finds a project by its id
-func (d *Driver) FindProjectByID(id uuid.UUID) *projectservice.Project {
-	project, err := d.projectService.FindByID(id)
+	project, err := d.projectService.Get(ctx, id)
 	if err != nil {
 		d.logger.Error("Failed to find project by id", map[string]interface{}{"error": err.Error()})
 		return nil
 	}
 
 	return project
+}
+
+// ListProjects lists all projects
+func (d *Driver) ListProjects(query string) *projectservice.ListProjectsResponse {
+	ctx := context.Background()
+
+	response, err := d.projectService.List(ctx, listoptions.WithQuery(query))
+	if err != nil {
+		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	d.logger.Debug("Found projects", map[string]interface{}{"projects": len(response.Projects)})
+
+	return response
+}
+
+// CreateProject creates a new project
+func (d *Driver) CreateProject(request *projectservice.CreateProjectRequest) {
+	ctx := context.Background()
+
+	if err := d.projectService.Create(ctx, request); err != nil {
+		d.logger.Error("Failed to create project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project created")
+}
+
+// UpdateProject updates a project
+func (d *Driver) UpdateProject(request *projectservice.UpdateProjectRequest) {
+	ctx := context.Background()
+
+	if err := d.projectService.Update(ctx, request); err != nil {
+		d.logger.Error("Failed to update project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project updated", map[string]interface{}{"id": request.ID})
+}
+
+// DeleteProject deletes a project
+func (d *Driver) DeleteProject(id uuid.UUID) {
+	d.logger.Debug("Deleting project", map[string]interface{}{"id": id})
+}
+
+// RunProject runs a project
+func (d *Driver) RunProject(id uuid.UUID) {
+	ctx := context.Background()
+
+	if err := d.projectService.Run(ctx, id); err != nil {
+		d.logger.Error("Failed to run project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project started", map[string]interface{}{"id": id})
+}
+
+// RenderProject renders a project
+func (d *Driver) RenderProject(id uuid.UUID) {
+	ctx := context.Background()
+
+	if err := d.projectService.Render(ctx, id); err != nil {
+		d.logger.Error("Failed to render project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project rendered", map[string]interface{}{"id": id})
+}
+
+// ExploreProject explores a project
+func (d *Driver) ExploreProject(id uuid.UUID) {
+	ctx := context.Background()
+
+	if err := d.projectService.Explore(ctx, id); err != nil {
+		d.logger.Error("Failed to explore project", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Project explored", map[string]interface{}{"id": id})
 }
 
 // Quit quits the application

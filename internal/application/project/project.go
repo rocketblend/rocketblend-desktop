@@ -7,8 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsettings"
 	"github.com/rocketblend/rocketblend/pkg/driver/blendconfig"
+	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
 )
 
@@ -19,11 +21,36 @@ const (
 
 type (
 	Project struct {
-		BlendFile *blendconfig.BlendConfig         `json:"blendFile,omitempty"`
-		Settings  *projectsettings.ProjectSettings `json:"settings,omitempty"`
-		UpdatedAt time.Time                        `json:"updatedAt,omitempty"`
+		ID        uuid.UUID             `json:"id,omitempty"`
+		Name      string                `json:"name,omitempty"`
+		Tags      []string              `json:"tags,omitempty"`
+		Path      string                `json:"path,omitempty"`
+		FileName  string                `json:"fileName,omitempty"`
+		Build     reference.Reference   `json:"build,omitempty"`
+		Addons    []reference.Reference `json:"addons,omitempty"`
+		Version   string                `json:"version,omitempty"`
+		UpdatedAt time.Time             `json:"updatedAt,omitempty"`
 	}
 )
+
+func (p *Project) GetBlendFile() *blendconfig.BlendConfig {
+	return &blendconfig.BlendConfig{
+		ProjectPath:   p.Path,
+		BlendFileName: p.FileName,
+		RocketFile: rocketfile.New(
+			p.Build,
+			p.Addons...,
+		),
+	}
+}
+
+func (p *Project) GetSettings() *projectsettings.ProjectSettings {
+	return &projectsettings.ProjectSettings{
+		ID:   p.ID,
+		Name: p.Name,
+		Tags: p.Tags,
+	}
+}
 
 func Load(projectPath string) (*Project, error) {
 	if ignoreProject(projectPath) {
@@ -47,7 +74,7 @@ func Load(projectPath string) (*Project, error) {
 		return nil, fmt.Errorf("no blend file found in %s", projectPath)
 	}
 
-	blendConfig, err := blendconfig.Load(blendFilePath, filepath.Join(projectPath, rocketfile.FileName))
+	blendFile, err := blendconfig.Load(blendFilePath, filepath.Join(projectPath, rocketfile.FileName))
 	if err != nil {
 		return nil, err
 	}
@@ -57,9 +84,21 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
+	modTime, err := getFolderModTime(projectPath)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Project{
-		BlendFile: blendConfig,
-		Settings:  settings,
+		ID:        settings.ID,
+		Name:      settings.Name,
+		Tags:      settings.Tags,
+		Path:      blendFile.ProjectPath,
+		FileName:  blendFile.BlendFileName,
+		Build:     blendFile.RocketFile.GetBuild(),
+		Addons:    blendFile.RocketFile.GetAddons(),
+		Version:   blendFile.RocketFile.GetVersion(),
+		UpdatedAt: modTime,
 	}, nil
 }
 
@@ -70,4 +109,20 @@ func Save(project *Project) error {
 func ignoreProject(projectPath string) bool {
 	_, err := os.Stat(filepath.Join(projectPath, IgnoreFileName))
 	return !os.IsNotExist(err)
+}
+
+func getFolderModTime(folderPath string) (time.Time, error) {
+	// Get file/folder information
+	info, err := os.Stat(folderPath)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	// Check if it's a directory
+	if !info.IsDir() {
+		return time.Time{}, fmt.Errorf("%s is not a directory", folderPath)
+	}
+
+	// Return the last modification time
+	return info.ModTime(), nil
 }
