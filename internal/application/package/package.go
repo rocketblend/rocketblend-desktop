@@ -31,7 +31,7 @@ type (
 	}
 )
 
-func Load(packagePath string, platform runtime.Platform) (*Package, error) {
+func Load(packagePath string, installationRootPath string) (*Package, error) {
 	pack, err := rocketpack.Load(packagePath)
 	if err != nil {
 		return nil, fmt.Errorf("error loading package: %w", err)
@@ -64,20 +64,21 @@ func Load(packagePath string, platform runtime.Platform) (*Package, error) {
 	}
 
 	return &Package{
-		ID:           uuid.New(),
-		Type:         packType,
-		Name:         name,
-		Reference:    reference,
-		Path:         packagePath,
-		Sources:      sources,
-		Dependencies: pack.GetDependencies(),
-		Version:      *version,
-		UpdatedAt:    modTime,
+		ID:               uuid.New(),
+		Type:             packType,
+		Name:             name,
+		Reference:        reference,
+		Path:             packagePath,
+		InstallationPath: filepath.Join(installationRootPath, reference.String()),
+		Sources:          sources,
+		Dependencies:     pack.GetDependencies(),
+		Version:          *version,
+		UpdatedAt:        modTime,
 	}, nil
 }
 
 func pathToReference(path string) (reference.Reference, error) {
-	strippedPath := stripPathToFolder(path, packageFolderName)
+	strippedPath := strings.ToLower(stripPathToFolder(path, packageFolderName))
 	dir := filepath.Dir(strippedPath)
 	if dir == "." {
 		return "", fmt.Errorf("invalid path: %s", path)
