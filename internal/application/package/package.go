@@ -14,8 +14,6 @@ import (
 	"github.com/rocketblend/rocketblend/pkg/semver"
 )
 
-const packageFolderName = "packages" // TODO: This isn't currently guaranteed to be the name of the folder!
-
 type (
 	Package struct {
 		ID               uuid.UUID             `json:"id,omitempty"`
@@ -31,13 +29,13 @@ type (
 	}
 )
 
-func Load(packagePath string, installationRootPath string) (*Package, error) {
+func Load(packageRootPath string, installationRootPath string, packagePath string) (*Package, error) {
 	pack, err := rocketpack.Load(packagePath)
 	if err != nil {
 		return nil, fmt.Errorf("error loading package: %w", err)
 	}
 
-	reference, err := pathToReference(packagePath)
+	reference, err := pathToReference(packageRootPath, packagePath)
 	if err != nil {
 		return nil, fmt.Errorf("error getting path reference for package: %w", err)
 	}
@@ -77,8 +75,8 @@ func Load(packagePath string, installationRootPath string) (*Package, error) {
 	}, nil
 }
 
-func pathToReference(path string) (reference.Reference, error) {
-	strippedPath := strings.ToLower(stripPathToFolder(path, packageFolderName))
+func pathToReference(packageRootPath string, path string) (reference.Reference, error) {
+	strippedPath := strings.ToLower(stripPathToFolder(path, filepath.Dir(packageRootPath)))
 	dir := filepath.Dir(strippedPath)
 	if dir == "." {
 		return "", fmt.Errorf("invalid path: %s", path)

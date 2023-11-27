@@ -32,9 +32,10 @@ type (
 	}
 
 	Options struct {
-		Logger logger.Logger
-		Config *config.Service
-		Store  searchstore.Store
+		Logger                  logger.Logger
+		Config                  *config.Service
+		Store                   searchstore.Store
+		WatcherDebounceDuration time.Duration
 	}
 
 	Option func(*Options)
@@ -55,6 +56,12 @@ func WithConfig(config *config.Service) Option {
 func WithStore(store searchstore.Store) Option {
 	return func(o *Options) {
 		o.Store = store
+	}
+}
+
+func WithWatcherDebounceDuration(duration time.Duration) Option {
+	return func(o *Options) {
+		o.WatcherDebounceDuration = duration
 	}
 }
 
@@ -82,13 +89,13 @@ func New(opts ...Option) (Service, error) {
 
 	watcher, err := watcher.New(
 		watcher.WithLogger(options.Logger),
-		watcher.WithEventDebounceDuration(500*time.Millisecond),
+		watcher.WithEventDebounceDuration(options.WatcherDebounceDuration),
 		watcher.WithPaths(config.PackagesPath),
 		watcher.WithIsWatchableFileFunc(func(path string) bool {
 			return filepath.Base(path) == rocketfile.FileName
 		}),
 		watcher.WithUpdateObjectFunc(func(path string) error {
-			project, err := pack.Load(path, config.InstallationsPath)
+			project, err := pack.Load(config.PackagesPath, config.InstallationsPath, path)
 			if err != nil {
 				return fmt.Errorf("failed to load project %s: %w", path, err)
 			}
