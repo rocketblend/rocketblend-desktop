@@ -33,7 +33,7 @@ func NewDriver() (*Driver, error) {
 		projectstore.WithWatcher(),
 		projectstore.WithEventDebounceDuration(2*time.Second),
 		// TODO: Move this to a config file
-		projectstore.WithPaths("D:\\Creative\\Blender\\Projects\\Testing\\RocketBlend"),
+		projectstore.WithPaths("E:\\Blender\\Projects\\Testing\\RocketBlend"),
 	)
 	if err != nil {
 		return nil, err
