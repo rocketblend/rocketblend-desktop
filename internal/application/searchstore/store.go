@@ -4,12 +4,12 @@ import (
 	"github.com/blevesearch/bleve/v2"
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoptions"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 )
 
 type (
 	Store interface {
-		List(opts ...listoptions.ListOption) ([]*Index, error)
+		List(opts ...listoption.ListOption) ([]*Index, error)
 		Get(id uuid.UUID) (*Index, error)
 		Insert(index *Index) error
 		Remove(id uuid.UUID) error

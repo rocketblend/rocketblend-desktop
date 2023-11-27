@@ -6,11 +6,11 @@ import (
 	"github.com/blevesearch/bleve/v2/document"
 	index "github.com/blevesearch/bleve_index_api"
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoptions"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 )
 
-func (s *store) List(opts ...listoptions.ListOption) ([]*Index, error) {
-	options := &listoptions.ListOptions{
+func (s *store) List(opts ...listoption.ListOption) ([]*Index, error) {
+	options := &listoption.ListOptions{
 		Size: 100,
 	}
 

@@ -6,9 +6,14 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+	"github.com/rocketblend/rocketblend/pkg/rocketblend/config"
+	"github.com/rocketblend/rocketblend/pkg/rocketblend/factory"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -20,6 +25,10 @@ type Driver struct {
 
 	projectService projectservice.Service
 	projectStore   projectstore.Store
+
+	configService *config.Service
+
+	packageService packageservice.Service
 }
 
 // NewApp creates a new App application struct
@@ -47,10 +56,43 @@ func NewDriver() (*Driver, error) {
 		return nil, err
 	}
 
+	factory, err := factory.New()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := factory.SetLogger(logger); err != nil {
+		return nil, err
+	}
+
+	storeService, err := searchstore.New(
+		searchstore.WithLogger(logger),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	configService, err := factory.GetConfigService()
+	if err != nil {
+		return nil, err
+	}
+
+	packageservice, err := packageservice.New(
+		packageservice.WithLogger(logger),
+		packageservice.WithStore(storeService),
+		packageservice.WithConfig(configService),
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Driver{
 		logger:         logger,
 		projectService: projectservice,
 		projectStore:   projectStore,
+
+		configService:  configService,
+		packageService: packageservice,
 	}, nil
 }
 
@@ -145,6 +187,32 @@ func (d *Driver) ExploreProject(id uuid.UUID) {
 	}
 
 	d.logger.Debug("Project explored", map[string]interface{}{"id": id})
+}
+
+func (d *Driver) GetPackage(id uuid.UUID) *packageservice.GetPackageResponse {
+	ctx := context.Background()
+
+	pack, err := d.packageService.Get(ctx, id)
+	if err != nil {
+		d.logger.Error("Failed to find package by id", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	return pack
+}
+
+func (d *Driver) ListPackages(query string) *packageservice.ListPackagesResponse {
+	ctx := context.Background()
+
+	response, err := d.packageService.List(ctx, listoption.WithQuery(query))
+	if err != nil {
+		d.logger.Error("Failed to find all packages", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	d.logger.Debug("Found packages", map[string]interface{}{"packages": len(response.Packages)})
+
+	return response
 }
 
 // Quit quits the application

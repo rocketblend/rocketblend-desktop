@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoptions"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
 	"github.com/rocketblend/rocketblend/pkg/rocketblend/config"
@@ -20,7 +20,7 @@ import (
 type (
 	Service interface {
 		Get(ctx context.Context, id uuid.UUID) (*GetPackageResponse, error)
-		List(ctx context.Context, opts ...listoptions.ListOption) (*ListPackagesResponse, error)
+		List(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error)
 	}
 
 	service struct {
@@ -67,7 +67,8 @@ func WithWatcherDebounceDuration(duration time.Duration) Option {
 
 func New(opts ...Option) (Service, error) {
 	options := &Options{
-		Logger: logger.NoOp(),
+		Logger:                  logger.NoOp(),
+		WatcherDebounceDuration: 2 * time.Second,
 	}
 
 	for _, o := range opts {
@@ -144,7 +145,7 @@ func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetPackageResponse, e
 	}, nil
 }
 
-func (s *service) List(ctx context.Context, opts ...listoptions.ListOption) (*ListPackagesResponse, error) {
+func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error) {
 	indexes, err := s.store.List(opts...)
 	if err != nil {
 		return nil, err

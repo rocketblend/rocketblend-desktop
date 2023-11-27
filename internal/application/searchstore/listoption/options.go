@@ -1,4 +1,4 @@
-package listoptions
+package listoption
 
 import "github.com/blevesearch/bleve/v2"
 
