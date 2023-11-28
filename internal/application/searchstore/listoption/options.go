@@ -1,6 +1,8 @@
 package listoption
 
 import (
+	"strconv"
+
 	"github.com/blevesearch/bleve/v2"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 )
@@ -41,12 +43,10 @@ func WithFrom(from int) ListOption {
 }
 
 func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
-	// // Create a new query builder
 	query := bleve.NewConjunctionQuery()
 
-	// // Build the query based on the provided parameters
 	if so.Type != indextype.Unknown {
-		query.AddQuery(bleve.NewQueryStringQuery("type:" + so.Type.String()))
+		query.AddQuery(bleve.NewQueryStringQuery("type:" + strconv.Itoa(int(so.Type))))
 	}
 
 	if so.Query != "" {

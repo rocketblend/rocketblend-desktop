@@ -148,6 +148,7 @@ func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetPackageResponse, e
 }
 
 func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error) {
+	opts = append(opts, listoption.WithType(indextype.Package))
 	indexes, err := s.store.List(opts...)
 	if err != nil {
 		return nil, err

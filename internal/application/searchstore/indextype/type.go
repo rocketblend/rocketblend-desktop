@@ -14,6 +14,10 @@ func (p IndexType) String() string {
 	return [...]string{"unknown", "project", "package"}[p]
 }
 
+func (p IndexType) Int() int {
+	return int(p)
+}
+
 func (p IndexType) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p.String())
 }
