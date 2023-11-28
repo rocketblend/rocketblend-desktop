@@ -108,6 +108,7 @@ func New(opts ...Option) (Service, error) {
 
 			return options.Store.Insert(&searchstore.Index{
 				ID:   pack.ID,
+				Name: pack.Name,
 				Type: searchstore.Package,
 				Path: path,
 				Data: string(data),
