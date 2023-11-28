@@ -4,15 +4,16 @@ import (
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 )
 
 type (
 	Index struct {
-		ID   uuid.UUID `json:"id,omitempty"`
-		Type IndexType `json:"type,omitempty"`
-		Path string    `json:"path,omitempty"`
-		Name string    `json:"name,omitempty"`
-		Data string    `json:"data,omitempty"`
+		ID   uuid.UUID           `json:"id,omitempty"`
+		Type indextype.IndexType `json:"type,omitempty"`
+		Path string              `json:"path,omitempty"`
+		Name string              `json:"name,omitempty"`
+		Data string              `json:"data,omitempty"`
 	}
 )
 

@@ -1,4 +1,4 @@
-package searchstore
+package indextype
 
 import "encoding/json"
 

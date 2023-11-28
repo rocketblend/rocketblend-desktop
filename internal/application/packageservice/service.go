@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
@@ -109,7 +110,7 @@ func New(opts ...Option) (Service, error) {
 			return options.Store.Insert(&searchstore.Index{
 				ID:   pack.ID,
 				Name: pack.Name,
-				Type: searchstore.Package,
+				Type: indextype.Package,
 				Path: path,
 				Data: string(data),
 			})
