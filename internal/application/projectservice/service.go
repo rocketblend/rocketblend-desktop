@@ -185,20 +185,24 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 		return nil, err
 	}
 
-	response := &ListProjectsResponse{
-		Projects: make([]*project.Project, 0),
-	}
-
+	projects := make([]*project.Project, 0, len(indexes))
 	for _, index := range indexes {
 		pack, err := s.convert(index)
 		if err != nil {
 			return nil, err
 		}
 
-		response.Projects = append(response.Projects, pack)
+		projects = append(projects, pack)
 	}
 
-	return response, nil
+	s.logger.Debug("Found projects", map[string]interface{}{
+		"projects": len(projects),
+		"indexes":  len(indexes),
+	})
+
+	return &ListProjectsResponse{
+		Projects: projects,
+	}, nil
 }
 
 func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, error) {
@@ -217,9 +221,13 @@ func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, erro
 
 func (s *service) convert(index *searchstore.Index) (*project.Project, error) {
 	var result project.Project
-	if err := json.Unmarshal([]byte(index.Data), &result); err == nil {
+	if err := json.Unmarshal([]byte(index.Data), &result); err != nil {
 		return nil, err
 	}
+
+	s.logger.Debug("convert document index", map[string]interface{}{
+		"doc": result,
+	})
 
 	return &result, nil
 }

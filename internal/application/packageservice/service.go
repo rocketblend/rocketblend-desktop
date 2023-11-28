@@ -160,25 +160,23 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 		return nil, err
 	}
 
-	response := &ListPackagesResponse{
-		Packages: make([]*pack.Package, 0),
-	}
-
+	packs := make([]*pack.Package, 0, len(indexes))
 	for _, index := range indexes {
 		pack, err := s.convert(index)
 		if err != nil {
 			return nil, err
 		}
-
-		response.Packages = append(response.Packages, pack)
+		packs = append(packs, pack)
 	}
 
-	return response, nil
+	return &ListPackagesResponse{
+		Packages: packs,
+	}, nil
 }
 
 func (s *service) convert(index *searchstore.Index) (*pack.Package, error) {
 	var result pack.Package
-	if err := json.Unmarshal([]byte(index.Data), &result); err == nil {
+	if err := json.Unmarshal([]byte(index.Data), &result); err != nil {
 		return nil, err
 	}
 
