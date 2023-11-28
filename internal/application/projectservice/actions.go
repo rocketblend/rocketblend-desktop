@@ -9,7 +9,7 @@ import (
 )
 
 func (s *service) Render(ctx context.Context, id uuid.UUID) error {
-	project, err := s.store.GetProject(id)
+	project, err := s.get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func (s *service) Render(ctx context.Context, id uuid.UUID) error {
 }
 
 func (s *service) Run(ctx context.Context, id uuid.UUID) error {
-	project, err := s.store.GetProject(id)
+	project, err := s.get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func (s *service) Run(ctx context.Context, id uuid.UUID) error {
 }
 
 func (s *service) Explore(ctx context.Context, id uuid.UUID) error {
-	project, err := s.store.GetProject(id)
+	project, err := s.get(ctx, id)
 	if err != nil {
 		return err
 	}

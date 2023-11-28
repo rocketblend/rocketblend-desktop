@@ -1,19 +1,13 @@
-package projectstore
+package watcher
 
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 	"sync"
 	"time"
 
 	"github.com/rjeczalik/notify"
 )
-
-var watchFileExtensions = []string{
-	//".blend",
-	".yaml",
-}
 
 type (
 	watcher struct {
@@ -22,23 +16,38 @@ type (
 		Cancel       context.CancelFunc
 	}
 
-	projectEventInfo struct {
-		ProjectPath string
-		EventInfo   notify.EventInfo
+	objectEventInfo struct {
+		ObjectPath string
+		EventInfo  notify.EventInfo
 	}
 
 	projectEvent struct {
-		event     *projectEventInfo
+		event     *objectEventInfo
 		timer     *time.Timer
 		eventLock sync.Mutex
 	}
+
+	// Create a fake notify.EventInfo to trigger initial load.
+	eventInfo struct {
+		event notify.Event
+		path  string
+		sys   interface{}
+	}
 )
 
-func (s *store) watchPath(path string) error {
-	if !s.watcherEnabled {
-		return nil
-	}
+func (m eventInfo) Event() notify.Event {
+	return m.event
+}
 
+func (m eventInfo) Path() string {
+	return m.path
+}
+
+func (m eventInfo) Sys() interface{} {
+	return m.sys
+}
+
+func (s *service) watchPath(path string) error {
 	eventChannel := make(chan notify.EventInfo, 1)
 
 	err := notify.Watch(path+"/...", eventChannel, notify.Write|notify.Remove|notify.Rename)
@@ -62,11 +71,7 @@ func (s *store) watchPath(path string) error {
 	return nil
 }
 
-func (s *store) unwatchPath(path string) error {
-	if !s.watcherEnabled {
-		return nil
-	}
-
+func (s *service) unwatchPath(path string) error {
 	notify.Stop(s.watchers[path].EventChannel)
 	s.watchers[path].Cancel()
 	delete(s.watchers, path)
@@ -78,14 +83,15 @@ func (s *store) unwatchPath(path string) error {
 	return nil
 }
 
-func (s *store) monitorEvents(events chan notify.EventInfo, ctx context.Context) {
+func (s *service) monitorEvents(events chan notify.EventInfo, ctx context.Context) {
 	for {
 		select {
 		case event := <-events:
-			if isWatchFile(event.Path()) {
-				s.handleEventDebounced(&projectEventInfo{
-					ProjectPath: s.getProjectPath(event.Path()),
-					EventInfo:   event,
+			// Only handle events for files we care about. Change to function set in options.
+			if s.isWatchableFile(event.Path()) {
+				s.handleEventDebounced(&objectEventInfo{
+					ObjectPath: s.resolveObjectPath(event.Path()),
+					EventInfo:  event,
 				})
 			}
 		case <-ctx.Done():
@@ -94,16 +100,16 @@ func (s *store) monitorEvents(events chan notify.EventInfo, ctx context.Context)
 	}
 }
 
-func (s *store) handleEventDebounced(event *projectEventInfo) {
+func (s *service) handleEventDebounced(event *objectEventInfo) {
 	s.logger.Info("Filesystem event occurred", map[string]interface{}{
 		"event": event,
 	})
 
 	s.emu.Lock()
-	pe, ok := s.events[event.ProjectPath]
+	pe, ok := s.events[event.ObjectPath]
 	if !ok {
 		pe = &projectEvent{}
-		s.events[event.ProjectPath] = pe
+		s.events[event.ObjectPath] = pe
 	}
 	s.emu.Unlock()
 
@@ -125,23 +131,25 @@ func (s *store) handleEventDebounced(event *projectEventInfo) {
 	})
 }
 
-func (s *store) handleEvent(event *projectEventInfo) {
+func (s *service) handleEvent(event *objectEventInfo) {
 	s.logger.Info("Filesystem event occurred", map[string]interface{}{
-		"event":   event.EventInfo.Event(),
-		"path":    event.EventInfo.Path(),
-		"project": event.ProjectPath,
+		"event":      event.EventInfo.Event(),
+		"path":       event.EventInfo.Path(),
+		"objectPath": event.ObjectPath,
 	})
 
 	switch event.EventInfo.Event() {
-	case notify.Write:
-		if err := s.loadProject(event.ProjectPath); err != nil {
+	case notify.Create, notify.Write:
+		// Export event.
+		if err := s.updateObject(event.ObjectPath); err != nil {
 			s.logger.Error("Error while loading project", map[string]interface{}{
 				"err": err,
 			})
 		}
 
 	case notify.Remove, notify.Rename:
-		if err := s.removeProjectsInPath(event.ProjectPath); err != nil {
+		// Export event.
+		if err := s.removeObject(event.ObjectPath); err != nil {
 			s.logger.Error("Error while removing project", map[string]interface{}{
 				"err": err,
 			})
@@ -149,12 +157,10 @@ func (s *store) handleEvent(event *projectEventInfo) {
 	}
 }
 
-func isWatchFile(filename string) bool {
-	for _, ext := range watchFileExtensions {
-		if filepath.Ext(filename) == ext {
-			return true
-		}
+func (s *service) isWatchableFile(filename string) bool {
+	if s.isWatchableFileFunc != nil {
+		return s.isWatchableFileFunc(filename)
 	}
 
-	return false
+	return true
 }

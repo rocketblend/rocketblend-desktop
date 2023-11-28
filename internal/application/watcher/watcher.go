@@ -1,4 +1,4 @@
-package projectstore
+package watcher
 
 import (
 	"fmt"
@@ -8,29 +8,32 @@ import (
 	"sync"
 	"time"
 
-	"github.com/blevesearch/bleve/v2"
 	"github.com/flowshot-io/x/pkg/logger"
-	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
+	"github.com/rjeczalik/notify"
 )
 
 type (
-	Store interface {
+	Watcher interface {
 		Close() error
-		ListProjects(opts ...listoptions.ListOption) ([]*project.Project, error)
-		GetProject(id uuid.UUID) (*project.Project, error)
 		RegisterPaths(path ...string) error
 		UnregisterPaths(path ...string) error
 		GetRegisteredPaths() []string
 	}
 
-	store struct {
+	UpdateObjectFunc      func(path string) error
+	RemoveObjectFunc      func(path string) error
+	ResolveObjectPathFunc func(path string) string
+	IsWatchableFileFunc   func(path string) bool
+
+	service struct {
 		logger          logger.Logger
-		index           bleve.Index
 		registeredPaths []string
 
-		watcherEnabled   bool
+		updateObjectFunc      UpdateObjectFunc
+		removeObjectFunc      RemoveObjectFunc
+		resolveObjectPathFunc ResolveObjectPathFunc
+		isWatchableFileFunc   IsWatchableFileFunc
+
 		debounceDuration time.Duration
 
 		watchers map[string]*watcher
@@ -43,8 +46,12 @@ type (
 	Options struct {
 		Logger           logger.Logger
 		Paths            []string
-		WatcherEnabled   bool
 		DebounceDuration time.Duration
+
+		UpdateObjectFunc      UpdateObjectFunc
+		RemoveObjectFunc      RemoveObjectFunc
+		ResolveObjectPathFunc ResolveObjectPathFunc
+		IsWatchableFileFunc   IsWatchableFileFunc
 	}
 
 	Option func(*Options)
@@ -53,12 +60,6 @@ type (
 func WithLogger(logger logger.Logger) Option {
 	return func(o *Options) {
 		o.Logger = logger
-	}
-}
-
-func WithWatcher() Option {
-	return func(o *Options) {
-		o.WatcherEnabled = true
 	}
 }
 
@@ -74,7 +75,23 @@ func WithEventDebounceDuration(duration time.Duration) Option {
 	}
 }
 
-func New(opts ...Option) (Store, error) {
+func WithUpdateObjectFunc(f UpdateObjectFunc) Option {
+	return func(o *Options) { o.UpdateObjectFunc = f }
+}
+
+func WithRemoveObjectFunc(f RemoveObjectFunc) Option {
+	return func(o *Options) { o.RemoveObjectFunc = f }
+}
+
+func WithResolveObjectPathFunc(f ResolveObjectPathFunc) Option {
+	return func(o *Options) { o.ResolveObjectPathFunc = f }
+}
+
+func WithIsWatchableFileFunc(f IsWatchableFileFunc) Option {
+	return func(o *Options) { o.IsWatchableFileFunc = f }
+}
+
+func New(opts ...Option) (Watcher, error) {
 	options := &Options{
 		Logger:           logger.NoOp(),
 		DebounceDuration: 500 * time.Millisecond,
@@ -84,20 +101,16 @@ func New(opts ...Option) (Store, error) {
 		o(options)
 	}
 
-	indexMapping := newIndexMapping()
-	index, err := bleve.NewMemOnly(indexMapping)
-	if err != nil {
-		return nil, err
-	}
-
-	s := &store{
-		logger:           options.Logger,
-		index:            index,
-		watcherEnabled:   options.WatcherEnabled,
-		debounceDuration: options.DebounceDuration,
-		watchers:         make(map[string]*watcher),
-		events:           make(map[string]*projectEvent),
-		registeredPaths:  make([]string, 0),
+	s := &service{
+		logger:                options.Logger,
+		debounceDuration:      options.DebounceDuration,
+		watchers:              make(map[string]*watcher),
+		events:                make(map[string]*projectEvent),
+		registeredPaths:       make([]string, 0),
+		updateObjectFunc:      options.UpdateObjectFunc,
+		removeObjectFunc:      options.RemoveObjectFunc,
+		resolveObjectPathFunc: options.ResolveObjectPathFunc,
+		isWatchableFileFunc:   options.IsWatchableFileFunc,
 	}
 
 	if err := s.RegisterPaths(options.Paths...); err != nil {
@@ -107,7 +120,7 @@ func New(opts ...Option) (Store, error) {
 	return s, nil
 }
 
-func (s *store) RegisterPaths(paths ...string) error {
+func (s *service) RegisterPaths(paths ...string) error {
 	errChan := make(chan error, len(paths))
 	var wg sync.WaitGroup
 	wg.Add(len(paths))
@@ -132,7 +145,7 @@ func (s *store) RegisterPaths(paths ...string) error {
 	return nil
 }
 
-func (s *store) UnregisterPaths(paths ...string) error {
+func (s *service) UnregisterPaths(paths ...string) error {
 	errChan := make(chan error, len(paths))
 	var wg sync.WaitGroup
 	wg.Add(len(paths))
@@ -157,14 +170,14 @@ func (s *store) UnregisterPaths(paths ...string) error {
 	return nil
 }
 
-func (s *store) GetRegisteredPaths() []string {
+func (s *service) GetRegisteredPaths() []string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	return append([]string(nil), s.registeredPaths...) // return copy of slice
 }
 
-func (s *store) Close() error {
+func (s *service) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -176,11 +189,11 @@ func (s *store) Close() error {
 		})
 	}
 
-	s.logger.Info("Project watcher closed successfully")
+	s.logger.Info("Watcher closed successfully")
 	return nil
 }
 
-func (s *store) registerPath(path string) error {
+func (s *service) registerPath(path string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -200,9 +213,20 @@ func (s *store) registerPath(path string) error {
 			return fmt.Errorf("error accessing path %s: %w", path, err)
 		}
 
-		if info.IsDir() {
-			if err := s.loadProject(path); err != nil {
-				s.logger.Debug("Failed to load project", map[string]interface{}{
+		if s.isWatchableFile(path) {
+			s.handleEventDebounced(&objectEventInfo{
+				ObjectPath: s.resolveObjectPath(path),
+				EventInfo: eventInfo{
+					path:  path,
+					event: notify.Write,
+				},
+			})
+
+			objectPath := s.resolveObjectPath(path)
+
+			// Trigger initial update
+			if err := s.updateObject(objectPath); err != nil {
+				s.logger.Debug("Failed to load object", map[string]interface{}{
 					"err":  err,
 					"path": path,
 				})
@@ -225,7 +249,7 @@ func (s *store) registerPath(path string) error {
 	return nil
 }
 
-func (s *store) unregisterPath(path string) error {
+func (s *service) unregisterPath(path string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -242,7 +266,7 @@ func (s *store) unregisterPath(path string) error {
 	}
 
 	// Remove indexed projects within unregistered path.
-	if err := s.removeProjectsInPath(path); err != nil {
+	if err := s.removeObject(path); err != nil {
 		return fmt.Errorf("failed to remove projects in path %s: %w", path, err)
 	}
 
@@ -257,61 +281,26 @@ func (s *store) unregisterPath(path string) error {
 	return nil
 }
 
-func (s *store) loadProject(path string) error {
-	project, err := project.Load(path)
-	if err != nil {
-		return fmt.Errorf("failed to load project %s: %w", path, err)
-	}
-
-	if err := s.updateIndex(project.ID, project); err != nil {
-		return fmt.Errorf("failed to update index for project %s: %w", path, err)
-	}
-
-	s.logger.Debug("Project loaded and indexed", map[string]interface{}{
-		"path":    path,
-		"id":      project.ID,
-		"project": project,
-	})
-
-	return nil
-}
-
-func (s *store) removeProjectsInPath(path string) error {
-	query := bleve.NewPrefixQuery(path)
-	search := bleve.NewSearchRequest(query)
-	searchResults, err := s.index.Search(search)
-	if err != nil {
-		s.logger.Error("Error searching for projects in path", map[string]interface{}{
-			"err": err,
-		})
-
-		return err
-	}
-
-	for _, hit := range searchResults.Hits {
-		if err := s.index.Delete(hit.ID); err != nil {
-			s.logger.Error("Error deleting project from index", map[string]interface{}{
-				"err":  err,
-				"key":  hit.ID,
-				"path": path,
-			})
-		} else {
-			s.logger.Info("Deleted project from index", map[string]interface{}{
-				"key":  hit.ID,
-				"path": path,
-			})
-		}
+func (s *service) updateObject(path string) error {
+	if s.updateObjectFunc != nil {
+		return s.updateObjectFunc(path)
 	}
 
 	return nil
 }
 
-func (s *store) getProjectPath(path string) string {
-	projectPath := filepath.Dir(path)
-
-	if strings.HasSuffix(projectPath, project.ConfigDir) {
-		projectPath = filepath.Dir(projectPath)
+func (s *service) removeObject(path string) error {
+	if s.removeObjectFunc != nil {
+		return s.removeObjectFunc(path)
 	}
 
-	return projectPath
+	return nil
+}
+
+func (s *service) resolveObjectPath(path string) string {
+	if s.resolveObjectPathFunc != nil {
+		return s.resolveObjectPathFunc(path)
+	}
+
+	return path
 }

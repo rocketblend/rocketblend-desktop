@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsettings"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
 	"github.com/rocketblend/rocketblend/pkg/driver/blendconfig"
 	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
@@ -84,7 +85,7 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
-	modTime, err := getFolderModTime(projectPath)
+	modTime, err := util.GetModTime(projectPath)
 	if err != nil {
 		return nil, err
 	}
@@ -109,20 +110,4 @@ func Save(project *Project) error {
 func ignoreProject(projectPath string) bool {
 	_, err := os.Stat(filepath.Join(projectPath, IgnoreFileName))
 	return !os.IsNotExist(err)
-}
-
-func getFolderModTime(folderPath string) (time.Time, error) {
-	// Get file/folder information
-	info, err := os.Stat(folderPath)
-	if err != nil {
-		return time.Time{}, err
-	}
-
-	// Check if it's a directory
-	if !info.IsDir() {
-		return time.Time{}, fmt.Errorf("%s is not a directory", folderPath)
-	}
-
-	// Return the last modification time
-	return info.ModTime(), nil
 }

@@ -14,8 +14,16 @@ export function ExploreProject(arg1) {
   return window['go']['application']['Driver']['ExploreProject'](arg1);
 }
 
+export function GetPackage(arg1) {
+  return window['go']['application']['Driver']['GetPackage'](arg1);
+}
+
 export function GetProject(arg1) {
   return window['go']['application']['Driver']['GetProject'](arg1);
+}
+
+export function ListPackages(arg1) {
+  return window['go']['application']['Driver']['ListPackages'](arg1);
 }
 
 export function ListProjects(arg1) {

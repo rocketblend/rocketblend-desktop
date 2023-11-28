@@ -6,6 +6,6 @@ export const load : PageLoad = (async ({ url }) => {
 
     return {
         query: query,
-        projects: (await ListProjects(query)).projects
+        projects: (await ListProjects(query)).projects,
     };
 })
