@@ -2,14 +2,11 @@ package application
 
 import (
 	"context"
-	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/projectstore/listoptions"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend/pkg/rocketblend/config"
@@ -23,11 +20,9 @@ type Driver struct {
 
 	logger logger.Logger
 
-	projectService projectservice.Service
-	projectStore   projectstore.Store
-
 	configService *config.Service
 
+	projectService projectservice.Service
 	packageService packageservice.Service
 }
 
@@ -36,25 +31,6 @@ func NewDriver() (*Driver, error) {
 	logger := logger.New(
 		logger.WithLogLevel("debug"),
 	)
-
-	projectStore, err := projectstore.New(
-		projectstore.WithLogger(logger),
-		projectstore.WithWatcher(),
-		projectstore.WithEventDebounceDuration(2*time.Second),
-		// TODO: Move this to a config file
-		projectstore.WithPaths("E:\\Blender\\Projects\\Testing\\RocketBlend"),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	projectservice, err := projectservice.New(
-		projectservice.WithLogger(logger),
-		projectservice.WithStore(projectStore),
-	)
-	if err != nil {
-		return nil, err
-	}
 
 	factory, err := factory.New()
 	if err != nil {
@@ -77,6 +53,15 @@ func NewDriver() (*Driver, error) {
 		return nil, err
 	}
 
+	projectservice, err := projectservice.New(
+		projectservice.WithLogger(logger),
+		projectservice.WithFactory(factory),
+		projectservice.WithStore(storeService),
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	packageservice, err := packageservice.New(
 		packageservice.WithLogger(logger),
 		packageservice.WithStore(storeService),
@@ -87,11 +72,11 @@ func NewDriver() (*Driver, error) {
 	}
 
 	return &Driver{
-		logger:         logger,
-		projectService: projectservice,
-		projectStore:   projectStore,
+		logger: logger,
 
-		configService:  configService,
+		configService: configService,
+
+		projectService: projectservice,
 		packageService: packageservice,
 	}, nil
 }
@@ -113,7 +98,7 @@ func (d *Driver) GetProject(id uuid.UUID) *projectservice.GetProjectResponse {
 func (d *Driver) ListProjects(query string) *projectservice.ListProjectsResponse {
 	ctx := context.Background()
 
-	response, err := d.projectService.List(ctx, listoptions.WithQuery(query))
+	response, err := d.projectService.List(ctx, listoption.WithQuery(query))
 	if err != nil {
 		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
 		return nil
@@ -217,8 +202,12 @@ func (d *Driver) ListPackages(query string) *packageservice.ListPackagesResponse
 
 // Quit quits the application
 func (d *Driver) Quit() {
-	if d.projectStore != nil {
-		d.projectStore.Close()
+	if d.projectService != nil {
+		d.projectService.Close()
+	}
+
+	if d.packageService != nil {
+		d.packageService.Close()
 	}
 
 	runtime.Quit(d.ctx)

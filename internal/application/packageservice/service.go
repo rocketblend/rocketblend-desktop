@@ -22,6 +22,8 @@ type (
 	Service interface {
 		Get(ctx context.Context, id uuid.UUID) (*GetPackageResponse, error)
 		List(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error)
+
+		Close() error
 	}
 
 	service struct {
@@ -129,6 +131,10 @@ func New(opts ...Option) (Service, error) {
 		store:   options.Store,
 		watcher: watcher,
 	}, nil
+}
+
+func (s *service) Close() error {
+	return s.watcher.Close()
 }
 
 func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetPackageResponse, error) {

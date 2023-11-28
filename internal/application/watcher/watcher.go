@@ -189,7 +189,7 @@ func (s *service) Close() error {
 		})
 	}
 
-	s.logger.Info("Project watcher closed successfully")
+	s.logger.Info("Watcher closed successfully")
 	return nil
 }
 
