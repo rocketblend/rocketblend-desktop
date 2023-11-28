@@ -85,7 +85,7 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
-	modTime, err := util.GetDirModTime(projectPath)
+	modTime, err := util.GetModTime(projectPath)
 	if err != nil {
 		return nil, err
 	}

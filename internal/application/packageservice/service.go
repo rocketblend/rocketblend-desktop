@@ -13,7 +13,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
-	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
+	"github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
 	"github.com/rocketblend/rocketblend/pkg/rocketblend/config"
 )
 
@@ -93,21 +93,21 @@ func New(opts ...Option) (Service, error) {
 		watcher.WithEventDebounceDuration(options.WatcherDebounceDuration),
 		watcher.WithPaths(config.PackagesPath),
 		watcher.WithIsWatchableFileFunc(func(path string) bool {
-			return filepath.Base(path) == rocketfile.FileName
+			return filepath.Base(path) == rocketpack.FileName
 		}),
 		watcher.WithUpdateObjectFunc(func(path string) error {
-			project, err := pack.Load(config.PackagesPath, config.InstallationsPath, path)
+			pack, err := pack.Load(config.PackagesPath, config.InstallationsPath, path)
 			if err != nil {
-				return fmt.Errorf("failed to load project %s: %w", path, err)
+				return fmt.Errorf("failed to load package %s: %w", path, err)
 			}
 
-			data, err := json.Marshal(project)
+			data, err := json.Marshal(pack)
 			if err != nil {
 				return err
 			}
 
 			return options.Store.Insert(&searchstore.Index{
-				ID:   project.ID,
+				ID:   pack.ID,
 				Type: searchstore.Package,
 				Path: path,
 				Data: string(data),

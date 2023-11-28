@@ -36,11 +36,10 @@ func (s *store) List(opts ...listoption.ListOption) ([]*Index, error) {
 			return nil, err
 		}
 
-		s.logger.Debug("search hit", map[string]interface{}{
-			"id":     id,
-			"score":  hit.Score,
-			"fields": hit.Fields,
-		})
+		// s.logger.Debug("search hit", map[string]interface{}{
+		// 	"id":    id,
+		// 	"score": hit.Score,
+		// })
 
 		index, err := s.get(id)
 		if err != nil {

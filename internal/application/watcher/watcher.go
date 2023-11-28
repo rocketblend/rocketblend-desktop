@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
+	"github.com/rjeczalik/notify"
 )
 
 type (
@@ -212,9 +213,20 @@ func (s *service) registerPath(path string) error {
 			return fmt.Errorf("error accessing path %s: %w", path, err)
 		}
 
-		if info.IsDir() {
-			if err := s.updateObject(path); err != nil {
-				s.logger.Debug("Failed to load project", map[string]interface{}{
+		if s.isWatchableFile(path) {
+			s.handleEventDebounced(&objectEventInfo{
+				ObjectPath: s.resolveObjectPath(path),
+				EventInfo: eventInfo{
+					path:  path,
+					event: notify.Write,
+				},
+			})
+
+			objectPath := s.resolveObjectPath(path)
+
+			// Trigger initial update
+			if err := s.updateObject(objectPath); err != nil {
+				s.logger.Debug("Failed to load object", map[string]interface{}{
 					"err":  err,
 					"path": path,
 				})

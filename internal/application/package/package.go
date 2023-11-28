@@ -2,6 +2,7 @@ package pack
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -35,30 +36,48 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		return nil, fmt.Errorf("error loading package: %w", err)
 	}
 
-	reference, err := pathToReference(packageRootPath, packagePath)
+	reference, err := filePathToReference(packageRootPath, packagePath)
 	if err != nil {
 		return nil, fmt.Errorf("error getting path reference for package: %w", err)
 	}
 
-	modTime, err := util.GetDirModTime(packagePath)
+	modTime, err := util.GetModTime(packagePath)
 	if err != nil {
 		return nil, fmt.Errorf("error getting package modification time: %w", err)
 	}
 
-	packType := Addon
-	name := pack.Addon.Name
-	version := pack.Addon.Version
+	packType := Unknown
+	name := filepath.Base(packagePath)
+	version := semver.Version{}
 	sources := make(rocketpack.Sources)
-	sources[runtime.Undefined] = &rocketpack.Source{
-		Resource: pack.Addon.Source.Resource,
-		URI:      pack.Addon.Source.URI,
+
+	if pack.IsAddon() {
+		packType = Addon
+		name = pack.Addon.Name
+
+		if pack.Addon.Version != nil {
+			version = *pack.Addon.Version
+		}
+
+		if pack.Addon.Source != nil {
+			sources[runtime.Undefined] = &rocketpack.Source{
+				Resource: pack.Addon.Source.Resource,
+				URI:      pack.Addon.Source.URI,
+			}
+		}
 	}
 
 	if pack.IsBuild() {
 		packType = Build
-		version = pack.Build.Version
-		sources = pack.Build.Sources
 		name = reference.String()
+
+		if pack.Build.Version != nil {
+			version = *pack.Build.Version
+		}
+
+		if pack.Build.Sources != nil {
+			sources = pack.Build.Sources
+		}
 	}
 
 	return &Package{
@@ -70,19 +89,14 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		InstallationPath: filepath.Join(installationRootPath, reference.String()),
 		Sources:          sources,
 		Dependencies:     pack.GetDependencies(),
-		Version:          *version,
+		Version:          version,
 		UpdatedAt:        modTime,
 	}, nil
 }
 
-func pathToReference(packageRootPath string, path string) (reference.Reference, error) {
-	strippedPath := strings.ToLower(stripPathToFolder(path, filepath.Dir(packageRootPath)))
-	dir := filepath.Dir(strippedPath)
-	if dir == "." {
-		return "", fmt.Errorf("invalid path: %s", path)
-	}
-
-	return reference.Parse(dir)
+func filePathToReference(packageRootPath string, filePath string) (reference.Reference, error) {
+	strippedFilePath := stripPathToFolder(filePath, filepath.Base(packageRootPath))
+	return reference.Parse(path.Dir(path.Clean(strippedFilePath)))
 }
 
 func stripPathToFolder(path, folderName string) string {
@@ -91,8 +105,8 @@ func stripPathToFolder(path, folderName string) string {
 
 	index := strings.Index(normPath, normFolderName)
 	if index == -1 {
-		return path
+		return normPath
 	}
 
-	return path[index+len(normFolderName):]
+	return normPath[index+len(normFolderName):]
 }

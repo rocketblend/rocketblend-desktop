@@ -26,7 +26,26 @@ type (
 		timer     *time.Timer
 		eventLock sync.Mutex
 	}
+
+	// Create a fake notify.EventInfo to trigger initial load.
+	eventInfo struct {
+		event notify.Event
+		path  string
+		sys   interface{}
+	}
 )
+
+func (m eventInfo) Event() notify.Event {
+	return m.event
+}
+
+func (m eventInfo) Path() string {
+	return m.path
+}
+
+func (m eventInfo) Sys() interface{} {
+	return m.sys
+}
 
 func (s *service) watchPath(path string) error {
 	eventChannel := make(chan notify.EventInfo, 1)
@@ -120,7 +139,7 @@ func (s *service) handleEvent(event *objectEventInfo) {
 	})
 
 	switch event.EventInfo.Event() {
-	case notify.Write:
+	case notify.Create, notify.Write:
 		// Export event.
 		if err := s.updateObject(event.ObjectPath); err != nil {
 			s.logger.Error("Error while loading project", map[string]interface{}{
