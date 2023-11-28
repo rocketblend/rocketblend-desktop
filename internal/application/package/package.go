@@ -96,7 +96,7 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 
 func filePathToReference(packageRootPath string, filePath string) (reference.Reference, error) {
 	strippedFilePath := stripPathToFolder(filePath, filepath.Base(packageRootPath))
-	return reference.Parse(path.Dir(path.Clean(strippedFilePath)))
+	return reference.Parse(path.Dir(path.Clean(strings.TrimPrefix(strippedFilePath, "/"))))
 }
 
 func stripPathToFolder(path, folderName string) string {

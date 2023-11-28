@@ -12,6 +12,7 @@
     import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
 
     import Footer from '$lib/components/footer/footer.svelte';
+	import PackageSidebar from "$lib/components/package-sidebar/package-sidebar.svelte";
 </script>
 
 <AppShell>
@@ -36,6 +37,13 @@
           </svelte:fragment>
       </AppBar>
     </div>
+  </svelte:fragment>
+  <svelte:fragment slot="sidebarLeft">
+    <div class="h-full p-2 pr-0 py-0 w-80">
+      <div class="shadow-none card p-3 pt-6 h-full overflow-y-auto overflow-x-hidden">
+        <PackageSidebar/>
+      </div>
+  </div>
   </svelte:fragment>
   <div class="h-full p-2 py-0">
     <div class="shadow-none card p-6 h-full">
