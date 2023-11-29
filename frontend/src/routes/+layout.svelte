@@ -51,7 +51,7 @@
     <div class="card flex-shrink-0 p-4 shadow-none">
         <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" on:click={handleViewHome}>
           <IconHomeFill/>
-          <span class="font-bold">{$t('home.navigation.home')}</span>
+          <span class="font-bold">{$t('home.navigation.root')}</span>
         </button>
     </div>
     <div class="card flex-grow shadow-none p-4 overflow-hidden">

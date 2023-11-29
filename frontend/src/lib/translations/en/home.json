@@ -1,7 +1,7 @@
 {
     "title": "Welcome!",
     "navigation": {
-        "home": "Home"
+        "root": "Projects"
     },
     "sidebar": {
         "title": "Local Packages",
