@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { t } from '$lib/translations/translations';
 
+    import { t } from '$lib/translations/translations';
     import SearchInput from '$lib/components/core/search-input/search-input.svelte';
 
     import type { packageservice } from '$lib/wailsjs/go/models';
@@ -26,13 +26,12 @@
     function handleInputChange(event: Event): void {
         fetchPackagesPromise = fetchPackages(query);
     }
-
 </script>
 
-<div class="space-y-4">
+<div class="flex flex-col h-full space-y-4">
     <h5 class="font-bold text-surface-200">{$t('home.sidebar.title')}</h5>
     <SearchInput bind:value={query} placeholder={$t('home.sidebar.search')} debounceDelay={500} on:input={handleInputChange}/>
-    <div>
+    <div class="overflow-y-auto h-full">
         {#await fetchPackagesPromise}
             <div class="flex-auto space-y-4 p-2">
                 {#each Array(10) as _}
@@ -41,20 +40,20 @@
             </div>
         {:then response}
             {#if response && response.packages}
-            <dl class="list-dl">
-                {#each response.packages || [] as pack }
-                    <div>
-                        <span class="flex-auto text-ellipsis overflow-hidden">
-                            <dt class="font-bold text-sm">{pack.name}</dt>
-                            <dd class="text-surface-300 text-xs">{pack.reference}</dd>
-                        </span>
-                    </div>
-                {/each}
-            </dl>
+                <dl class="flex-auto list-dl p-1">
+                    {#each response.packages || [] as pack }
+                        <div>
+                            <span class="flex-auto text-ellipsis overflow-hidden">
+                                <dt class="font-bold text-sm">{pack.name}</dt>
+                                <dd class="text-surface-300 text-xs">{pack.reference}</dd>
+                            </span>
+                        </div>
+                    {/each}
+                </dl>
             {:else}
-            <div class="flex-auto p-2">
-                <p class="font-bold text-sm text-surface-200 text-center">No packages found!</p>
-            </div>
+                <div class="flex-auto p-2">
+                    <p class="font-bold text-sm text-surface-200 text-center">No packages found!</p>
+                </div>
             {/if}
         {:catch error}
             <p>An error occurred while fetching packages!</p>

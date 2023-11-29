@@ -1,5 +1,8 @@
 {
     "title": "Welcome!",
+    "navigation": {
+        "home": "Home"
+    },
     "sidebar": {
         "title": "Local Packages",
         "search": "Search your packages..."
