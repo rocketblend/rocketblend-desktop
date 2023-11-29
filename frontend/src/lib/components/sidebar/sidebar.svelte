@@ -1,14 +1,29 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    import { t } from '$lib/translations/translations';
-    import SearchInput from '$lib/components/core/search-input/search-input.svelte';
+    import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 
+    import IconBox2Fill from '~icons/ri/box-2-fill'
+
+    import { t } from '$lib/translations/translations';
     import type { packageservice } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver'
+    import SearchInput from '$lib/components/core/search-input/search-input.svelte';
 
+    let filterType: number;
     let query: string = "";
     let fetchPackagesPromise : Promise<packageservice.ListPackagesResponse| undefined> ;
+
+    type RadioOption = {
+        value: number;
+        label: string;
+    };
+
+    const radioOptions: RadioOption[] = [
+        { value: 0, label: 'All' },
+        { value: 1, label: 'Builds' },
+        { value: 2, label: 'Addons' },
+    ];
 
     async function fetchPackages(query:string): Promise<packageservice.ListPackagesResponse | undefined> {
         try {
@@ -19,18 +34,26 @@
         }
     }
 
-    onMount(() => {
-        fetchPackagesPromise = fetchPackages(query);
-    });
-
     function handleInputChange(event: Event): void {
         fetchPackagesPromise = fetchPackages(query);
     }
+
+    onMount(() => {
+        fetchPackagesPromise = fetchPackages(query);
+    });
 </script>
 
 <div class="flex flex-col h-full space-y-4">
-    <h5 class="font-bold text-surface-200">{$t('home.sidebar.title')}</h5>
-    <SearchInput bind:value={query} placeholder={$t('home.sidebar.search')} debounceDelay={500} on:input={handleInputChange}/>
+    <div class="inline-flex items-center space-x-2 text-surface-200">
+        <IconBox2Fill/>
+        <h5 class="font-bold">{$t('home.sidebar.title')}</h5>
+    </div>
+    <RadioGroup display="inline-flex">
+        {#each radioOptions as option}
+          <RadioItem bind:group={filterType} name="justify" value={option.value} class="text-sm">{option.label}</RadioItem>
+        {/each}
+    </RadioGroup>
+    <SearchInput bind:value={query} placeholder={$t('home.sidebar.search')} debounceDelay={500} on:input={handleInputChange} class="text-sm"/>
     <div class="overflow-y-auto h-full">
         {#await fetchPackagesPromise}
             <div class="flex-auto space-y-4 p-2">
@@ -40,7 +63,7 @@
             </div>
         {:then response}
             {#if response && response.packages}
-                <dl class="flex-auto list-dl p-1">
+                <dl class="flex-auto list-dl">
                     {#each response.packages || [] as pack }
                         <div>
                             <span class="flex-auto text-ellipsis overflow-hidden">

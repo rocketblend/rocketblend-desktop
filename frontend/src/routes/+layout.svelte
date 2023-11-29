@@ -11,7 +11,7 @@
     import IconMoreFill from '~icons/ri/more-fill'
     import IconSubtractFill from '~icons/ri/subtract-fill'
     import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
-    import IconHomeLine from '~icons/ri/home-line'
+    import IconHomeFill from '~icons/ri/home-fill'
 
     import { t } from '$lib/translations/translations';
     import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
@@ -49,9 +49,9 @@
   </svelte:fragment>
   <svelte:fragment slot="sidebarLeft" >
     <div class="card flex-shrink-0 p-4 shadow-none">
-        <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-base" on:click={handleViewHome}>
-          <IconHomeLine/>
-          <span class="font-bold text-surface-200">{$t('home.navigation.home')}</span>
+        <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" on:click={handleViewHome}>
+          <IconHomeFill/>
+          <span class="font-bold">{$t('home.navigation.home')}</span>
         </button>
     </div>
     <div class="card flex-grow shadow-none p-4 overflow-hidden">

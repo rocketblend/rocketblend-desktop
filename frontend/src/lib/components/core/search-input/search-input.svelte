@@ -2,11 +2,14 @@
   import { createEventDispatcher } from 'svelte';
   import { debounce } from '$lib/components/utils';
   
+  let clazz: string = '';
+  export { clazz as class };
+
   export let placeholder: string = '';
   export let value: string = '';
   export let name: string = 'search';
   export let debounceDelay: number = 250;
-  
+
   const dispatch = createEventDispatcher();
 
   const processInput = debounce((event: Event) => {
@@ -22,7 +25,7 @@
     on:input={processInput}
     id="search"
     type="text"
-    class="input"
+    class="input {clazz}"
     autocomplete="off"
     {placeholder}
     {name}

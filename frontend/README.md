@@ -1,3 +1,3 @@
 # Frontend
 
-- [Icons](https://icon-sets.iconify.design/material-symbols/)
+- [Icons](https://icon-sets.iconify.design/ri/)

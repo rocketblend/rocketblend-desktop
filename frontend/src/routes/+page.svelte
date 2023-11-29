@@ -1,6 +1,5 @@
 <script lang="ts">
     import { t } from '$lib/translations/translations';
-    import { goto } from '$app/navigation';
 
     import type { PageData } from './$types';
     import { page } from '$app/stores'
