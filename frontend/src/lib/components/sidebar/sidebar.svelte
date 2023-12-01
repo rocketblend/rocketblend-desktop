@@ -10,24 +10,30 @@
     import { ListPackages } from '$lib/wailsjs/go/application/Driver'
     import SearchInput from '$lib/components/core/search-input/search-input.svelte';
 
-    let filterType: number;
+    let filterType: number = 0;
     let query: string = "";
+    let filerInstalled: boolean = false;
     let fetchPackagesPromise : Promise<packageservice.ListPackagesResponse| undefined> ;
 
     type RadioOption = {
         value: number;
-        label: string;
+        key: string;
     };
 
     const radioOptions: RadioOption[] = [
-        { value: 0, label: 'All' },
-        { value: 1, label: 'Builds' },
-        { value: 2, label: 'Addons' },
+        { value: 0, key: 'all' },
+        { value: 1, key: 'build' },
+        { value: 2, key: 'addon' },
     ];
 
     async function fetchPackages(query:string): Promise<packageservice.ListPackagesResponse | undefined> {
         try {
-            return await ListPackages(query);
+            var category = radioOptions[filterType].key;
+            if (category == 'all') {
+                category = '';
+            }
+
+            return await ListPackages(query, category, filerInstalled);
         } catch (error) {
             console.error('Error fetching packages:', error);
             return undefined;
@@ -50,11 +56,13 @@
     </div>
     <RadioGroup display="inline-flex">
         {#each radioOptions as option}
-          <RadioItem bind:group={filterType} name="justify" value={option.value} class="text-sm">{option.label}</RadioItem>
+        <RadioItem bind:group={filterType} name="justify" value={option.value} class="text-sm" on:change={handleInputChange}>
+            {$t(`home.sidebar.filter.option.${option.key}`)}
+          </RadioItem>
         {/each}
     </RadioGroup>
-    <SearchInput bind:value={query} placeholder={$t('home.sidebar.search')} debounceDelay={500} on:input={handleInputChange} class="text-sm"/>
-    <SlideToggle name="slider-label" size="sm" active="bg-surface-200" class="text-sm">{$t('home.sidebar.installed')}</SlideToggle>
+    <SearchInput bind:value={query} placeholder={$t('home.sidebar.filter.search')} debounceDelay={500} on:input={handleInputChange} class="text-sm"/>
+    <SlideToggle name="slider-label" size="sm" active="bg-surface-200" class="text-sm" bind:checked={filerInstalled} on:change={handleInputChange}>{$t('home.sidebar.filter.installed')}</SlideToggle>
     <div class="overflow-y-auto h-full">
         {#await fetchPackagesPromise}
             <div class="flex-auto space-y-4 p-2">
@@ -76,7 +84,7 @@
                 </dl>
             {:else}
                 <div class="flex-auto p-2">
-                    <p class="font-bold text-sm text-surface-200 text-center">No packages found!</p>
+                    <p class="font-bold text-sm text-surface-200 text-center">{$t('home.sidebar.noresults')}</p>
                 </div>
             {/if}
         {:catch error}

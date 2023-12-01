@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
@@ -110,11 +111,13 @@ func New(opts ...Option) (Service, error) {
 			}
 
 			return options.Store.Insert(&searchstore.Index{
-				ID:   pack.ID,
-				Name: pack.Name,
-				Type: indextype.Package,
-				Path: path,
-				Data: string(data),
+				ID:       pack.ID,
+				Name:     pack.Name,
+				Type:     indextype.Package,
+				Category: strings.ToLower(pack.Type.String()),
+				Ready:    pack.InstallationPath != "",
+				Path:     path,
+				Data:     string(data),
 			})
 		}),
 		watcher.WithRemoveObjectFunc(func(path string) error {

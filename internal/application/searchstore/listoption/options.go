@@ -9,10 +9,12 @@ import (
 
 type (
 	ListOptions struct {
-		Query string
-		Type  indextype.IndexType
-		Size  int
-		From  int
+		Query    string
+		Type     indextype.IndexType
+		Category string
+		Ready    bool
+		Size     int
+		From     int
 	}
 
 	ListOption func(*ListOptions)
@@ -27,6 +29,18 @@ func WithQuery(query string) ListOption {
 func WithType(indexType indextype.IndexType) ListOption {
 	return func(o *ListOptions) {
 		o.Type = indexType
+	}
+}
+
+func WithCategory(category string) ListOption {
+	return func(o *ListOptions) {
+		o.Category = category
+	}
+}
+
+func WithReady(ready bool) ListOption {
+	return func(o *ListOptions) {
+		o.Ready = ready
 	}
 }
 
@@ -47,6 +61,16 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 
 	if so.Type != indextype.Unknown {
 		query.AddQuery(bleve.NewQueryStringQuery("type:" + strconv.Itoa(int(so.Type))))
+	}
+
+	if so.Category != "" {
+		query.AddQuery(bleve.NewQueryStringQuery("category:" + so.Category))
+	}
+
+	if so.Ready {
+		readyQuery := bleve.NewBoolFieldQuery(true)
+		readyQuery.SetField("ready")
+		query.AddQuery(readyQuery)
 	}
 
 	if so.Query != "" {

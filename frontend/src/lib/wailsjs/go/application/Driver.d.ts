@@ -14,7 +14,7 @@ export function GetPackage(arg1:uuid.UUID):Promise<packageservice.GetPackageResp
 
 export function GetProject(arg1:uuid.UUID):Promise<projectservice.GetProjectResponse>;
 
-export function ListPackages(arg1:string):Promise<packageservice.ListPackagesResponse>;
+export function ListPackages(arg1:string,arg2:string,arg3:boolean):Promise<packageservice.ListPackagesResponse>;
 
 export function ListProjects(arg1:string):Promise<projectservice.ListProjectsResponse>;
 

@@ -22,8 +22,8 @@ export function GetProject(arg1) {
   return window['go']['application']['Driver']['GetProject'](arg1);
 }
 
-export function ListPackages(arg1) {
-  return window['go']['application']['Driver']['ListPackages'](arg1);
+export function ListPackages(arg1, arg2, arg3) {
+  return window['go']['application']['Driver']['ListPackages'](arg1, arg2, arg3);
 }
 
 export function ListProjects(arg1) {
