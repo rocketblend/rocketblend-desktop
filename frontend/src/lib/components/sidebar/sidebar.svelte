@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
+    import { RadioGroup, RadioItem, SlideToggle, ProgressBar } from '@skeletonlabs/skeleton';
 
     import IconBox2Fill from '~icons/ri/box-2-fill'
     import IconLoopRightFill from '~icons/ri/loop-right-fill'
@@ -62,6 +62,9 @@
             <IconAddBoxFill class="text-xl mt-1"/>
         </button>
     </div>
+    <!-- <div>
+        <ProgressBar meter="bg-primary-400-500-token" height="h-1"/>
+    </div> -->
     <RadioGroup display="inline-flex">
         {#each radioOptions as option}
         <RadioItem bind:group={filterType} name="justify" value={option.value} class="text-sm" on:change={handleInputChange}>
