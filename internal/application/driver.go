@@ -186,10 +186,14 @@ func (d *Driver) GetPackage(id uuid.UUID) *packageservice.GetPackageResponse {
 	return pack
 }
 
-func (d *Driver) ListPackages(query string) *packageservice.ListPackagesResponse {
+func (d *Driver) ListPackages(query string, category string, installed bool) *packageservice.ListPackagesResponse {
 	ctx := context.Background()
 
-	response, err := d.packageService.List(ctx, listoption.WithQuery(query))
+	response, err := d.packageService.List(ctx, []listoption.ListOption{
+		listoption.WithQuery(query),
+		listoption.WithCategory(category),
+		listoption.WithReady(installed),
+	}...)
 	if err != nil {
 		d.logger.Error("Failed to find all packages", map[string]interface{}{"error": err.Error()})
 		return nil

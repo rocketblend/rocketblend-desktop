@@ -2,6 +2,7 @@ package pack
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -80,13 +81,28 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		}
 	}
 
+	// TODO: Improve this check. Use check for if package is installed from InstallationService in CLI.
+	installationPath := filepath.Join(installationRootPath, reference.String())
+	installed, err := CheckIfDirectoryHasFiles(installationPath)
+	if err != nil {
+		return nil, fmt.Errorf("error checking if package is installed: %w", err)
+	}
+
+	if pack.IsBuild() {
+		fmt.Println("INSTALLED:", installationPath, installed)
+	}
+
+	if !installed {
+		installationPath = ""
+	}
+
 	return &Package{
 		ID:               uuid.New(),
 		Type:             packType,
 		Name:             name,
 		Reference:        reference,
 		Path:             packagePath,
-		InstallationPath: filepath.Join(installationRootPath, reference.String()),
+		InstallationPath: installationPath,
 		Sources:          sources,
 		Dependencies:     pack.GetDependencies(),
 		Version:          version,
@@ -109,4 +125,25 @@ func stripPathToFolder(path, folderName string) string {
 	}
 
 	return normPath[index+len(normFolderName):]
+}
+
+func CheckIfDirectoryHasFiles(folderPath string) (bool, error) {
+	info, err := os.Stat(folderPath)
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+
+	if !info.IsDir() {
+		return false, fmt.Errorf("%s is not a directory", folderPath)
+	}
+
+	files, err := os.ReadDir(folderPath)
+	if err != nil {
+		return false, err
+	}
+
+	return len(files) > 0, nil
 }

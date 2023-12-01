@@ -17,3 +17,11 @@ html, body { @apply h-full overflow-hidden; }
     @apply rounded-lg;
     @apply overflow-hidden;
 }
+
+.gradient-heading {
+	@apply bg-clip-text text-transparent box-decoration-clone;
+	/* Direction */
+	@apply bg-gradient-to-br;
+	/* Color Stops */
+	@apply from-primary-400 to-secondary-400;
+}

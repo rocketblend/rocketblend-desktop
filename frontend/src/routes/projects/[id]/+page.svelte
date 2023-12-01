@@ -16,7 +16,7 @@
         <Img class="h-auto max-w-full rounded-lg h-32 w-32 image-fade-in" src={logo} alt="" loading="lazy" />
         <div class="relative w-full">
             <div class="absolute inset-x-0 bottom-0 space-y-4">
-                <h1 class="font-bold">{data.project.name}</h1>
+                <h2 class="font-bold">{data.project.name}</h2>
                 <p class="text-sm text-surface-300">Last updated: {data.project.updatedAt}</p>
             </div>
         </div>

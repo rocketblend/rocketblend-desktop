@@ -1,7 +1,19 @@
 {
     "title": "Welcome!",
+    "navigation": {
+        "root": "Projects"
+    },
     "sidebar": {
         "title": "Local Packages",
-        "search": "Search your packages..."
+        "filter": {
+            "option": {
+                "all": "All",
+                "build": "Builds",
+                "addon": "Addons"
+            },
+            "installed": "Installed Only",
+            "search": "Search your packages..."
+        },
+        "noresults": "No results found."
     }
 }

@@ -1,6 +1,5 @@
 <script lang="ts">
     import { t } from '$lib/translations/translations';
-    import { goto } from '$app/navigation';
 
     import type { PageData } from './$types';
     import { page } from '$app/stores'
@@ -28,12 +27,10 @@
     function handleInputChange(event: Event): void {
         form.requestSubmit();
     }
-
 </script>
 
-
 <main class="space-y-4"> 
-    <h3 class="font-bold">{$t('home.title')}</h3>
+    <h2 class="font-bold">{$t('home.title')}</h2>
     <div class="space-y-4">
         <div class="flex items-center justify-between space-x-4">
             <div class="w-full">
