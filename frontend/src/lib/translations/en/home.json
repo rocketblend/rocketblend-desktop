@@ -5,6 +5,7 @@
     },
     "sidebar": {
         "title": "Local Packages",
+        "installed": "Installed Only",
         "search": "Search your packages..."
     }
 }

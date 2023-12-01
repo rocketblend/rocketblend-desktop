@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
+    import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
 
     import IconBox2Fill from '~icons/ri/box-2-fill'
 
@@ -54,6 +54,7 @@
         {/each}
     </RadioGroup>
     <SearchInput bind:value={query} placeholder={$t('home.sidebar.search')} debounceDelay={500} on:input={handleInputChange} class="text-sm"/>
+    <SlideToggle name="slider-label" size="sm" active="bg-surface-200" class="text-sm">{$t('home.sidebar.installed')}</SlideToggle>
     <div class="overflow-y-auto h-full">
         {#await fetchPackagesPromise}
             <div class="flex-auto space-y-4 p-2">
