@@ -4,6 +4,8 @@
     import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
 
     import IconBox2Fill from '~icons/ri/box-2-fill'
+    import IconLoopRightFill from '~icons/ri/loop-right-fill'
+    import IconAddBoxFill from '~icons/ri/add-box-fill'
 
     import { t } from '$lib/translations/translations';
     import type { packageservice } from '$lib/wailsjs/go/models';
@@ -50,9 +52,15 @@
 </script>
 
 <div class="flex flex-col h-full space-y-4">
-    <div class="inline-flex items-center space-x-2 text-surface-200">
+    <div class="inline-flex items-center align-center space-x-2 text-surface-200">
         <IconBox2Fill/>
-        <h5 class="font-bold">{$t('home.sidebar.title')}</h5>
+        <h5 class="font-bold flex-grow">{$t('home.sidebar.title')}</h5>
+        <button type="button" class="btn p-0 text-surface-200" >
+            <IconLoopRightFill class="text-md mt-1"/>
+        </button>
+        <button type="button" class="btn p-0 text-surface-200" >
+            <IconAddBoxFill class="text-xl mt-1"/>
+        </button>
     </div>
     <RadioGroup display="inline-flex">
         {#each radioOptions as option}
@@ -62,7 +70,7 @@
         {/each}
     </RadioGroup>
     <SearchInput bind:value={query} placeholder={$t('home.sidebar.filter.search')} debounceDelay={500} on:input={handleInputChange} class="text-sm"/>
-    <SlideToggle name="slider-label" size="sm" active="bg-surface-200" class="text-sm" bind:checked={filerInstalled} on:change={handleInputChange}>{$t('home.sidebar.filter.installed')}</SlideToggle>
+    <SlideToggle name="slider-label" size="sm" active="bg-surface-200" class="text-sm" border="ring-outline-token" bind:checked={filerInstalled} on:change={handleInputChange}>{$t('home.sidebar.filter.installed')}</SlideToggle>
     <div class="overflow-y-auto h-full">
         {#await fetchPackagesPromise}
             <div class="flex-auto space-y-4 p-2">

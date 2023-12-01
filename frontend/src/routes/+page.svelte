@@ -27,9 +27,7 @@
     function handleInputChange(event: Event): void {
         form.requestSubmit();
     }
-
 </script>
-
 
 <main class="space-y-4"> 
     <h2 class="font-bold">{$t('home.title')}</h2>
