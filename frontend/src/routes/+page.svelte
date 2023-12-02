@@ -6,9 +6,9 @@
 
     import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
     
-	import ProjectGallery from '$lib/components/project-gallery/project-gallery.svelte';
-    import ProjectTable from '$lib/components/project-table/project-table.svelte';
-    import SearchInput from '$lib/components/core/search-input/search-input.svelte';
+    import SearchInput from '$lib/components/core/input/SearchInput.svelte';
+	import ProjectGallery from '$lib/components/project/ProjectGallery.svelte';
+    import ProjectTable from '$lib/components/project/ProjectTable.svelte';
 
     import type { project } from '$lib/wailsjs/go/models';
 

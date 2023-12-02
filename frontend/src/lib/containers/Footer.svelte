@@ -1,8 +1,9 @@
 <script lang="ts">
-    import Footer from '$lib/components/footer/footer.svelte';
     import { selectedProject } from '$lib/store';
     import { goto } from '$app/navigation';
     import { ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
+
+    import FooterContent from '$lib/components/footer/FooterContent.svelte';
   
     function handleViewProject() {
         goto(`/projects/${$selectedProject?.id}`);
@@ -17,7 +18,7 @@
     }
 </script>
   
-<Footer
+<FooterContent
     {selectedProject}
     onViewProject={handleViewProject}
     onRunProject={handleRunProject}

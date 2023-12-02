@@ -1,12 +1,13 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import SidebarHeader from '$lib/components/sidebar-header/sidebar-header.svelte';
-    import SidebarFilters from '$lib/components/sidebar-filters/sidebar-filters.svelte';
-    import PackageList from '$lib/components/package-list/package-list.svelte';
-    import type { pack, packageservice } from '$lib/wailsjs/go/models';
+    import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
+    import SidebarFilter from '$lib/components/sidebar/SidebarFilter.svelte';
+    import PackageListBox from '$lib/components/package/PackageListBox.svelte';
+
+    import type { packageservice } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
     import { t } from '$lib/translations/translations';
-    import type { RadioOption } from '$lib/types/radio-option';
+    import type { RadioOption } from '$lib/types/radioOption';
   
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
@@ -56,7 +57,7 @@
         onAdd={handleAddPackage}
         onRefresh={handleRefreshPackages}
     />
-    <SidebarFilters
+    <SidebarFilter
         bind:selectedFilterType={selectedFilterType}
         bind:searchQuery={searchQuery}
         bind:filterInstalled={filterInstalled}
@@ -72,7 +73,7 @@
             </div>
         {:then response}
             {#if response && response.packages}
-                <PackageList packages={response.packages} bind:selectedPackageIds={selectedPackageIds} />
+                <PackageListBox packages={response.packages} bind:selectedPackageIds={selectedPackageIds} />
             {:else}
                 <div class="p-2">
                     <p class="font-bold text-sm text-surface-200 text-center">{$t('home.sidebar.noresults')}</p>
