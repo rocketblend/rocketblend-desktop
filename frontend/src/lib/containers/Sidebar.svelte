@@ -7,7 +7,7 @@
     import type { packageservice } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
     import { t } from '$lib/translations/translations';
-    import type { RadioOption } from '$lib/types/radioOption';
+    import type { RadioOption } from '$lib/types';
   
     let selectedFilterType: number = 0;
     let searchQuery: string = "";

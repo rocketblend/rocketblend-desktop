@@ -1,0 +1,23 @@
+<script lang="ts">
+    import type { ImgType } from '$lib/types';
+    import { twMerge } from 'tailwind-merge';
+
+    export let items: ImgType[] = [];
+    export let imgClass: string = 'h-auto max-w-full rounded-container-token';
+
+    $: divClass = twMerge('grid', $$props.class);
+
+    function init(node: HTMLElement) {
+        if (getComputedStyle(node).gap === 'normal') node.style.gap = 'inherit';
+    }
+  </script>
+  
+<div {...$$restProps} class={divClass} use:init>
+    {#each items as item}
+        <slot {item}>
+        <div><img src={item.src} alt={item.alt} class={twMerge(imgClass, $$props.classImg)} /></div>
+        </slot>
+    {:else}
+        <slot item={items[0]} />
+    {/each}
+</div>
