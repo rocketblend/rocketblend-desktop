@@ -19,6 +19,7 @@
     import Footer from '$lib/components/footer/footer.svelte';
 	  import Sidebar from "$lib/components/sidebar/sidebar.svelte";
 	import FooterContainer from "$lib/containers/footer-container.svelte";
+	import SidebarContainer from "$lib/containers/sidebar-container.svelte";
 
     function handleViewHome(): void {
         goto(`/`);
@@ -56,7 +57,7 @@
         </button>
     </div>
     <div class="card flex-grow shadow-none p-4 overflow-hidden">
-      <Sidebar/>
+      <SidebarContainer/>
     </div>
   </svelte:fragment>
   <div class="h-full p-2 py-0">
