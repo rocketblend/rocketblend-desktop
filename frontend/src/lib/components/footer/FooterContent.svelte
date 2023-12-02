@@ -1,31 +1,16 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
-
-    import IconBlenderFill from '~icons/ri/blender-fill'
-    import IconFolderOpenFill from '~icons/ri/folder-open-fill'
-    import IconEyeFill from '~icons/ri/eye-fill'
-    import IconBookmark3Fill from '~icons/ri/bookmark-3-fill'
-
-    import { FxReveal as Img } from '@zerodevx/svelte-img'
-
+    export let selectedProject;
+    export let onViewProject: () => void;
+    export let onRunProject: () => Promise<void>;
+    export let onExploreProject: () => Promise<void>;
+  
+    import IconBlenderFill from '~icons/ri/blender-fill';
+    import IconFolderOpenFill from '~icons/ri/folder-open-fill';
+    import IconEyeFill from '~icons/ri/eye-fill';
+    import IconBookmark3Fill from '~icons/ri/bookmark-3-fill';
+    import { FxReveal as Img } from '@zerodevx/svelte-img';
     import logo from '$lib/assets/images/logo.png?run';
-
-    import { ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
-    import { selectedProject } from '$lib/store';
-
-    function handleViewProject(): void {
-        goto(`/projects/${$selectedProject?.id}`);
-    }
-
-    async function handleRunProject(): Promise<void> {
-        return await RunProject($selectedProject?.id);
-    }
-
-    async function handleExploreProject(): Promise<void> {
-        return await ExploreProject($selectedProject?.id);
-    }
-
-</script>
+  </script>
 
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">
     {#if $selectedProject}
@@ -39,9 +24,9 @@
         </div>
         <div class="min-w-max items-center justify-center flex gap-2"></div>
         <div class="justify-end items-center flex gap-2">
-            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleViewProject}><IconEyeFill/></button>
-            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleExploreProject}><IconFolderOpenFill /></button>
-            <button type="button" class="btn variant-filled text-lg px-9" on:click={handleRunProject}><IconBlenderFill/></button>
+            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={onViewProject}><IconEyeFill/></button>
+            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={onExploreProject}><IconFolderOpenFill /></button>
+            <button type="button" class="btn variant-filled text-lg px-9" on:click={onRunProject}><IconBlenderFill/></button>
         </div>
     {:else}
         <div class="flex gap-4 items-center">

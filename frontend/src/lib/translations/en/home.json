@@ -14,6 +14,7 @@
             "installed": "Installed Only",
             "search": "Search your packages..."
         },
-        "noresults": "No results found."
+        "noresults": "No results found.",
+        "error": "An error occurred while fetching packages."
     }
 }
