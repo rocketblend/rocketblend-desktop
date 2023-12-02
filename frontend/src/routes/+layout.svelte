@@ -18,6 +18,7 @@
 
     import Footer from '$lib/components/footer/footer.svelte';
 	  import Sidebar from "$lib/components/sidebar/sidebar.svelte";
+	import FooterContainer from "$lib/containers/footer-container.svelte";
 
     function handleViewHome(): void {
         goto(`/`);
@@ -64,6 +65,6 @@
     </div>
   </div>
   <svelte:fragment slot="footer">
-    <Footer/>
+    <FooterContainer/>
   </svelte:fragment>
 </AppShell>
