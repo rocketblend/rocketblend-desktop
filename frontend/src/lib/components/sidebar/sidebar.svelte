@@ -1,14 +1,16 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    import { RadioGroup, RadioItem, SlideToggle, ProgressBar } from '@skeletonlabs/skeleton';
+    import { RadioGroup, RadioItem, SlideToggle, ListBox, ListBoxItem } from '@skeletonlabs/skeleton';
 
     import IconBox2Fill from '~icons/ri/box-2-fill'
     import IconLoopRightFill from '~icons/ri/loop-right-fill'
     import IconAddBoxFill from '~icons/ri/add-box-fill'
+    import IconCheckboxBlankCircleLine from '~icons/ri/checkbox-blank-circle-line'
+    import IconCheckboxBlankLine from '~icons/ri/checkbox-blank-line'
 
     import { t } from '$lib/translations/translations';
-    import type { packageservice } from '$lib/wailsjs/go/models';
+    import type { pack, packageservice } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver'
     import SearchInput from '$lib/components/core/search-input/search-input.svelte';
 
@@ -16,6 +18,8 @@
     let query: string = "";
     let filerInstalled: boolean = false;
     let fetchPackagesPromise : Promise<packageservice.ListPackagesResponse| undefined> ;
+
+    let selectedPackageIds: string[] = [];
 
     type RadioOption = {
         value: number;
@@ -78,21 +82,30 @@
         {#await fetchPackagesPromise}
             <div class="flex-auto space-y-4 p-2">
                 {#each Array(10) as _}
-                    <div class="placeholder animate-pulse p-5" />
+                    <div class="placeholder animate-pulse p-5 h-10" />
                 {/each}
             </div>
         {:then response}
             {#if response && response.packages}
-                <dl class="flex-auto list-dl">
-                    {#each response.packages || [] as pack }
-                        <div>
-                            <span class="flex-auto text-ellipsis overflow-hidden">
-                                <dt class="font-bold text-sm">{pack.name}</dt>
-                                <dd class="text-surface-300 text-xs">{pack.reference}</dd>
-                            </span>
+            <ListBox class="flex-auto" multiple>
+                {#each response.packages || [] as pack }
+                    <ListBoxItem bind:group={selectedPackageIds} name="packages" value={pack.id} active="variant-glass-primary" hover="hover:variant-filled-surface" rounded="rounded" class="truncate overflow-hidden">
+                        <div class="flex gap-2">
+                            <!-- <div class="flex-shrink-0 inline-flex items-center">
+                                {#if pack.type == 'build'}
+                                    <IconCheckboxBlankCircleLine />
+                                {:else}
+                                    <IconCheckboxBlankLine />
+                                {/if}
+                            </div> -->
+                            <div class="flex-grow w-2">
+                                <div class="text-sm font-medium">{pack.name}</div>
+                                <div class="text-sm">{pack.reference}</div>
+                            </div>
                         </div>
-                    {/each}
-                </dl>
+                    </ListBoxItem>
+                {/each}
+            </ListBox>
             {:else}
                 <div class="flex-auto p-2">
                     <p class="font-bold text-sm text-surface-200 text-center">{$t('home.sidebar.noresults')}</p>
