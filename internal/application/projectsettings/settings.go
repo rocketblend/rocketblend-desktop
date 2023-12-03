@@ -24,11 +24,11 @@ type (
 	}
 
 	ProjectSettings struct {
-		ID                uuid.UUID          `json:"id,omitempty"`
-		Name              string             `json:"name,omitempty"`
-		Tags              []string           `json:"tags,omitempty"`
-		ThumbnailSettings *ThumbnailSettings `json:"thumbnailSettings,omitempty"`
-		ThumbnailFilePath string             `json:"thumbnailFilePath,omitempty"`
+		ID   uuid.UUID `json:"id,omitempty"`
+		Name string    `json:"name,omitempty"`
+		Tags []string  `json:"tags,omitempty"`
+		//ThumbnailSettings *ThumbnailSettings `json:"thumbnailSettings,omitempty"`
+		ThumbnailFilePath string `json:"thumbnailFilePath,omitempty"`
 	}
 )
 
@@ -84,6 +84,14 @@ func Save(settings *ProjectSettings, filePath string) error {
 }
 
 func Validate(settings *ProjectSettings) error {
+	if settings.ID == uuid.Nil {
+		return fmt.Errorf("project settings must have an id")
+	}
+
+	if filepath.IsAbs(settings.ThumbnailFilePath) {
+		return fmt.Errorf("thumbnail file path must be relative: %s", settings.ThumbnailFilePath)
+	}
+
 	return nil
 }
 

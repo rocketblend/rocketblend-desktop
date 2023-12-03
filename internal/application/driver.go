@@ -7,10 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend/pkg/rocketblend/config"
-	"github.com/rocketblend/rocketblend/pkg/rocketblend/factory"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -27,57 +25,18 @@ type Driver struct {
 }
 
 // NewApp creates a new App application struct
-func NewDriver() (*Driver, error) {
-	logger := logger.New(
-		logger.WithLogLevel("debug"),
-	)
-
-	factory, err := factory.New()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := factory.SetLogger(logger); err != nil {
-		return nil, err
-	}
-
-	storeService, err := searchstore.New(
-		searchstore.WithLogger(logger),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	configService, err := factory.GetConfigService()
-	if err != nil {
-		return nil, err
-	}
-
-	projectservice, err := projectservice.New(
-		projectservice.WithLogger(logger),
-		projectservice.WithFactory(factory),
-		projectservice.WithStore(storeService),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	packageservice, err := packageservice.New(
-		packageservice.WithLogger(logger),
-		packageservice.WithStore(storeService),
-		packageservice.WithConfig(configService),
-	)
-	if err != nil {
-		return nil, err
-	}
-
+func NewDriver(
+	logger logger.Logger,
+	configService *config.Service,
+	projectService projectservice.Service,
+	packageService packageservice.Service) (*Driver, error) {
 	return &Driver{
 		logger: logger,
 
 		configService: configService,
 
-		projectService: projectservice,
-		packageService: packageservice,
+		projectService: projectService,
+		packageService: packageService,
 	}, nil
 }
 

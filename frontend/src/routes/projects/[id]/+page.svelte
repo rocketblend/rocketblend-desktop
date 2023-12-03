@@ -8,6 +8,8 @@
 
     export let data: PageData;
 
+    let imageSrc = `/image/${data.project.id}`
+
     selectedProject.set(data.project);
 </script>
 
@@ -26,9 +28,14 @@
         <li>ID: {data.project.id}</li>
         <li>Path: {data.project.path}</li>
         <li>File Name: {data.project.fileName}</li>
+        <li>Image: {data.project.imagePath}</li>
         <li>Build: {data.project.build}</li>
         <li>Addons: {data.project.addons}</li>
         <li>Tags: {data.project.tags}</li>
         <li>Version: {data.project.version}</li>
     </ul>
+    <hr>
+    {#if data.project.imagePath}
+        <img src={imageSrc} alt=""/>
+    {/if}
 </main>
