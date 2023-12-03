@@ -8,7 +8,7 @@
 
     export let data: PageData;
 
-    let imageSrc = `/image/${data.project.id}`
+    let imageSrc = `/images/${data.project.id}`
 
     selectedProject.set(data.project);
 </script>

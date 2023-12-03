@@ -42,7 +42,7 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	path := strings.TrimPrefix(req.URL.Path, "/")
 	pathParts := strings.Split(path, "/")
 
-	if len(pathParts) != 2 || pathParts[0] != "image" {
+	if len(pathParts) != 2 || pathParts[0] != "images" {
 		h.respondWithError(res, http.StatusBadRequest, "Invalid path", nil)
 		return
 	}
