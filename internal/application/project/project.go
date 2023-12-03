@@ -3,6 +3,7 @@ package project
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -15,22 +16,21 @@ import (
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
 )
 
-const (
-	IgnoreFileName = ".rocketignore"
-)
+const IgnoreFileName = ".rocketignore"
 
 type (
 	Project struct {
-		ID        uuid.UUID             `json:"id,omitempty"`
-		Name      string                `json:"name,omitempty"`
-		Tags      []string              `json:"tags,omitempty"`
-		Path      string                `json:"path,omitempty"`
-		FileName  string                `json:"fileName,omitempty"`
-		Build     reference.Reference   `json:"build,omitempty"`
-		Addons    []reference.Reference `json:"addons,omitempty"`
-		ImagePath string                `json:"imagePath,omitempty"`
-		Version   string                `json:"version,omitempty"`
-		UpdatedAt time.Time             `json:"updatedAt,omitempty"`
+		ID          uuid.UUID             `json:"id,omitempty"`
+		Name        string                `json:"name,omitempty"`
+		Tags        []string              `json:"tags,omitempty"`
+		Path        string                `json:"path,omitempty"`
+		FileName    string                `json:"fileName,omitempty"`
+		Build       reference.Reference   `json:"build,omitempty"`
+		Addons      []reference.Reference `json:"addons,omitempty"`
+		ImagePath   string                `json:"imagePath,omitempty"`
+		ImageSource string                `json:"imageSource,omitempty"`
+		Version     string                `json:"version,omitempty"`
+		UpdatedAt   time.Time             `json:"updatedAt,omitempty"`
 	}
 )
 
@@ -90,21 +90,27 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
-	if filepath.IsAbs(settings.ThumbnailFilePath) {
-		return nil, fmt.Errorf("thumbnail file path must be relative: %s", settings.ThumbnailFilePath)
+	imageSource := ""
+	if settings.ThumbnailFilePath != "" {
+		if filepath.IsAbs(settings.ThumbnailFilePath) {
+			return nil, fmt.Errorf("thumbnail file path must be relative: %s", settings.ThumbnailFilePath)
+		}
+
+		imageSource = path.Join("/images", settings.ID.String())
 	}
 
 	return &Project{
-		ID:        settings.ID,
-		Name:      settings.Name,
-		Tags:      settings.Tags,
-		Path:      blendFile.ProjectPath,
-		FileName:  blendFile.BlendFileName,
-		ImagePath: settings.ThumbnailFilePath,
-		Build:     blendFile.RocketFile.GetBuild(),
-		Addons:    blendFile.RocketFile.GetAddons(),
-		Version:   blendFile.RocketFile.GetVersion(),
-		UpdatedAt: modTime,
+		ID:          settings.ID,
+		Name:        settings.Name,
+		Tags:        settings.Tags,
+		Path:        blendFile.ProjectPath,
+		FileName:    blendFile.BlendFileName,
+		ImagePath:   settings.ThumbnailFilePath,
+		ImageSource: imageSource,
+		Build:       blendFile.RocketFile.GetBuild(),
+		Addons:      blendFile.RocketFile.GetAddons(),
+		Version:     blendFile.RocketFile.GetVersion(),
+		UpdatedAt:   modTime,
 	}, nil
 }
 

@@ -127,6 +127,7 @@ export namespace project {
 	    build?: string;
 	    addons?: string[];
 	    imagePath?: string;
+	    imageSource?: string;
 	    version?: string;
 	    // Go type: time
 	    updatedAt?: any;
@@ -145,6 +146,7 @@ export namespace project {
 	        this.build = source["build"];
 	        this.addons = source["addons"];
 	        this.imagePath = source["imagePath"];
+	        this.imageSource = source["imageSource"];
 	        this.version = source["version"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }
