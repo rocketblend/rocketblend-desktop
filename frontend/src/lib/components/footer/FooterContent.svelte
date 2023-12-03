@@ -9,7 +9,7 @@
     import IconEyeFill from '~icons/ri/eye-fill';
     import IconBookmark3Fill from '~icons/ri/bookmark-3-fill';
     import { FxReveal as Img } from '@zerodevx/svelte-img';
-    import logo from '$lib/assets/images/logo.png?run';
+    import logo from '$lib/assets/images/logo.png?as=run';
   </script>
 
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">

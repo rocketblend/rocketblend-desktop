@@ -4,7 +4,7 @@
 
     import { selectedProject } from '$lib/store';
 
-    import logo from '$lib/assets/images/logo.png?run';
+    import logo from '$lib/assets/images/logo.png?as=run';
 
     export let data: PageData;
 
