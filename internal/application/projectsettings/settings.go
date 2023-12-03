@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	FileName = "settings.yaml"
+	FileName = "rocketdesk.yaml"
 )
 
 type (

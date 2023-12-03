@@ -20,7 +20,7 @@ func loadOrCreateSettings(filePath string) (*projectsettings.ProjectSettings, er
 	// Create a default settings if loading failed
 	defaultSettings := &projectsettings.ProjectSettings{
 		ID:   uuid.New(),
-		Name: filenameToDisplayName(filepath.Dir(filepath.Dir(filePath))),
+		Name: filenameToDisplayName(filepath.Dir(filePath)),
 	}
 
 	if err := projectsettings.Save(defaultSettings, filePath); err != nil {

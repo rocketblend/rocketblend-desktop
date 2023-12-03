@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
@@ -113,12 +112,7 @@ func New(opts ...Option) (Service, error) {
 			return false
 		}),
 		watcher.WithResolveObjectPathFunc(func(path string) string {
-			projectPath := filepath.Dir(path)
-			if strings.HasSuffix(projectPath, project.ConfigDir) {
-				projectPath = filepath.Dir(projectPath)
-			}
-
-			return projectPath
+			return filepath.Dir(path)
 		}),
 		watcher.WithUpdateObjectFunc(func(path string) error {
 			project, err := project.Load(path)

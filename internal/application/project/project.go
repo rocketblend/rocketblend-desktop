@@ -16,8 +16,7 @@ import (
 )
 
 const (
-	IgnoreFileName = ".rbdesktopignore"
-	ConfigDir      = ".rbdesktop"
+	IgnoreFileName = ".rocketignore"
 )
 
 type (
@@ -81,7 +80,7 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
-	settings, err := loadOrCreateSettings(filepath.Join(projectPath, ConfigDir, projectsettings.FileName))
+	settings, err := loadOrCreateSettings(filepath.Join(projectPath, projectsettings.FileName))
 	if err != nil {
 		return nil, err
 	}
