@@ -49,7 +49,7 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 
 	resourcePath := pathParts[1]
-	result, err := h.store.List(listoption.WithResource(resourcePath))
+	result, err := h.store.List(listoption.WithResource(resourcePath), listoption.WithSize(1))
 	if err != nil {
 		h.respondWithError(res, http.StatusInternalServerError, "Could not list resources", err)
 		return
