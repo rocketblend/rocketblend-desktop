@@ -63,7 +63,7 @@ func (s *store) Insert(index *Index) error {
 		return err
 	}
 
-	s.logger.Debug("Indexed succusful", map[string]interface{}{
+	s.logger.Debug("Indexed successful", map[string]interface{}{
 		"id":   index.ID,
 		"type": index.Type,
 	})
@@ -77,7 +77,7 @@ func (s *store) Remove(id uuid.UUID) error {
 		return err
 	}
 
-	s.logger.Debug("Removed succusful", map[string]interface{}{
+	s.logger.Debug("Removed successful", map[string]interface{}{
 		"id": id,
 	})
 
