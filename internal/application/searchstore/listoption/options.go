@@ -12,6 +12,7 @@ type (
 		Query    string
 		Type     indextype.IndexType
 		Category string
+		Resource string
 		Ready    bool
 		Size     int
 		From     int
@@ -35,6 +36,12 @@ func WithType(indexType indextype.IndexType) ListOption {
 func WithCategory(category string) ListOption {
 	return func(o *ListOptions) {
 		o.Category = category
+	}
+}
+
+func WithResource(resource string) ListOption {
+	return func(o *ListOptions) {
+		o.Resource = resource
 	}
 }
 
@@ -65,6 +72,10 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 
 	if so.Category != "" {
 		query.AddQuery(bleve.NewQueryStringQuery("category:" + so.Category))
+	}
+
+	if so.Resource != "" {
+		query.AddQuery(bleve.NewQueryStringQuery("resources:" + so.Resource))
 	}
 
 	if so.Ready {

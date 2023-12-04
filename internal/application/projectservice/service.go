@@ -130,6 +130,9 @@ func New(opts ...Option) (Service, error) {
 				Name: project.Name,
 				Type: indextype.Project,
 				Path: path,
+				Resources: []string{
+					project.ImagePath,
+				},
 				Data: string(data),
 			})
 		}),

@@ -9,13 +9,14 @@ import (
 
 type (
 	Index struct {
-		ID       uuid.UUID           `json:"id,omitempty"`
-		Type     indextype.IndexType `json:"type,omitempty"`
-		Path     string              `json:"path,omitempty"`
-		Name     string              `json:"name,omitempty"`
-		Category string              `json:"category,omitempty"`
-		Ready    bool                `json:"ready,omitempty"`
-		Data     string              `json:"data,omitempty"`
+		ID        uuid.UUID           `json:"id,omitempty"`
+		Type      indextype.IndexType `json:"type,omitempty"`
+		Path      string              `json:"path,omitempty"`
+		Name      string              `json:"name,omitempty"`
+		Category  string              `json:"category,omitempty"`
+		Ready     bool                `json:"ready,omitempty"`
+		Resources []string            `json:"assets,omitempty"`
+		Data      string              `json:"data,omitempty"`
 	}
 )
 
@@ -25,7 +26,7 @@ func (v *Index) BleveType() string {
 
 func newIndexMapping() mapping.IndexMapping {
 	mapping := bleve.NewDocumentMapping()
-	// projectMapping.Dynamic = false
+	// mapping.Dynamic = false
 
 	// source data store - this is where original doc will be stored
 	dataTextFieldMapping := bleve.NewTextFieldMapping()
@@ -37,7 +38,7 @@ func newIndexMapping() mapping.IndexMapping {
 
 	// create
 	indexMapping := bleve.NewIndexMapping()
-	indexMapping.AddDocumentMapping("item", mapping)
+	indexMapping.AddDocumentMapping("index", mapping)
 	indexMapping.TypeField = "type"
 	indexMapping.DefaultAnalyzer = "en"
 

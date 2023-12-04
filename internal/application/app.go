@@ -75,7 +75,7 @@ func New(assets fs.FS) (Application, error) {
 		return nil, err
 	}
 
-	handler, err := NewFileLoader(logger, projectService)
+	handler, err := NewFileLoader(logger, storeService)
 	if err != nil {
 		return nil, err
 	}

@@ -85,9 +85,9 @@ func (s *store) Remove(id uuid.UUID) error {
 }
 
 func (s *store) RemoveByPath(path string) error {
-	query := bleve.NewPrefixQuery(path)
-	search := bleve.NewSearchRequest(query)
-	searchResults, err := s.index.Search(search)
+	query := bleve.NewMatchQuery(path)
+	query.SetField("path")
+	searchResults, err := s.index.Search(bleve.NewSearchRequest(query))
 	if err != nil {
 		s.logger.Error("Error searching for projects in path", map[string]interface{}{
 			"err": err,

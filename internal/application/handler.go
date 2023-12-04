@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/flowshot-io/x/pkg/logger"
-	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 )
 
 var validExtensions = map[string]bool{
@@ -22,14 +22,15 @@ var validExtensions = map[string]bool{
 }
 
 type FileLoader struct {
-	logger         logger.Logger
-	projectService projectservice.Service
+	logger logger.Logger
+
+	store searchstore.Store
 }
 
-func NewFileLoader(logger logger.Logger, projectService projectservice.Service) (*FileLoader, error) {
+func NewFileLoader(logger logger.Logger, store searchstore.Store) (*FileLoader, error) {
 	return &FileLoader{
-		logger:         logger,
-		projectService: projectService,
+		logger: logger,
+		store:  store,
 	}, nil
 }
 
@@ -42,44 +43,37 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	path := strings.TrimPrefix(req.URL.Path, "/")
 	pathParts := strings.Split(path, "/")
 
-	if len(pathParts) != 2 || pathParts[0] != "images" {
+	if len(pathParts) != 2 || pathParts[0] != "system" {
 		h.respondWithError(res, http.StatusBadRequest, "Invalid path", nil)
 		return
 	}
 
-	id, err := uuid.Parse(pathParts[1])
+	resourcePath := pathParts[1]
+	result, err := h.store.List(listoption.WithResource(resourcePath))
 	if err != nil {
-		h.respondWithError(res, http.StatusBadRequest, "Could not parse project id", err)
+		h.respondWithError(res, http.StatusInternalServerError, "Could not list resources", err)
 		return
 	}
 
-	result, err := h.projectService.Get(req.Context(), id)
-	if err != nil {
-		h.respondWithError(res, http.StatusNotFound, "Could not find project", err)
+	if len(result) == 0 {
+		h.respondWithError(res, http.StatusNotFound, "Resource not found", nil)
 		return
 	}
 
-	if result == nil || result.Project == nil {
-		h.respondWithError(res, http.StatusNotFound, "No project found", nil)
+	if !isValidWebImage(resourcePath) {
+		h.respondWithError(res, http.StatusBadRequest, "Invalid resource file type", fmt.Errorf("invalid file path: %s", resourcePath))
 		return
 	}
 
-	if !isValidWebImage(result.Project.ImagePath) {
-		h.respondWithError(res, http.StatusBadRequest, "Invalid image file", fmt.Errorf("invalid file path: %s", result.Project.ImagePath))
-		return
-	}
-
-	absolutePath := filepath.Join(result.Project.Path, result.Project.ImagePath)
 	h.logger.Debug("Requested file:", map[string]interface{}{
-		"id":           id,
-		"relativePath": result.Project.ImagePath,
-		"absolutePath": absolutePath,
+		"hitIndexes":   len(result),
+		"resourcePath": resourcePath,
 		"method":       req.Method,
 		"remoteAddr":   req.RemoteAddr,
 		"userAgent":    req.UserAgent(),
 	})
 
-	http.ServeFile(res, req, absolutePath)
+	http.ServeFile(res, req, resourcePath)
 }
 
 func (h *FileLoader) respondWithError(w http.ResponseWriter, statusCode int, message string, err error) {
