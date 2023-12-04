@@ -75,7 +75,9 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	}
 
 	if so.Resource != "" {
-		query.AddQuery(bleve.NewQueryStringQuery("resources:" + so.Resource))
+		resourceQuery := bleve.NewMatchQuery(so.Resource)
+		resourceQuery.SetField("resources")
+		query.AddQuery(resourceQuery)
 	}
 
 	if so.Ready {

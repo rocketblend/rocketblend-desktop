@@ -15,7 +15,7 @@ type (
 		Name      string              `json:"name,omitempty"`
 		Category  string              `json:"category,omitempty"`
 		Ready     bool                `json:"ready,omitempty"`
-		Resources []string            `json:"assets,omitempty"`
+		Resources []string            `json:"resources,omitempty"`
 		Data      string              `json:"data,omitempty"`
 	}
 )

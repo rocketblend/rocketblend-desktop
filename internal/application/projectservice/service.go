@@ -125,15 +125,18 @@ func New(opts ...Option) (Service, error) {
 				return err
 			}
 
+			resources := []string{}
+			if project.ImagePath != "" {
+				resources = append(resources, project.ImagePath)
+			}
+
 			return options.Store.Insert(&searchstore.Index{
-				ID:   project.ID,
-				Name: project.Name,
-				Type: indextype.Project,
-				Path: path,
-				Resources: []string{
-					project.ImagePath,
-				},
-				Data: string(data),
+				ID:        project.ID,
+				Name:      project.Name,
+				Type:      indextype.Project,
+				Path:      path,
+				Resources: resources,
+				Data:      string(data),
 			})
 		}),
 		watcher.WithRemoveObjectFunc(func(path string) error {
@@ -221,10 +224,6 @@ func (s *service) convert(index *searchstore.Index) (*project.Project, error) {
 	if err := json.Unmarshal([]byte(index.Data), &result); err != nil {
 		return nil, err
 	}
-
-	s.logger.Debug("convert document index", map[string]interface{}{
-		"doc": result,
-	})
 
 	return &result, nil
 }

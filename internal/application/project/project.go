@@ -88,8 +88,13 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
-	if settings.ThumbnailFilePath != "" && filepath.IsAbs(settings.ThumbnailFilePath) {
-		return nil, fmt.Errorf("thumbnail file path must be relative: %s", settings.ThumbnailFilePath)
+	imagePath := ""
+	if settings.ThumbnailFilePath != "" {
+		if filepath.IsAbs(settings.ThumbnailFilePath) {
+			return nil, fmt.Errorf("thumbnail file path must be relative: %s", settings.ThumbnailFilePath)
+		}
+
+		imagePath = filepath.Join(projectPath, settings.ThumbnailFilePath)
 	}
 
 	return &Project{
@@ -98,7 +103,7 @@ func Load(projectPath string) (*Project, error) {
 		Tags:      settings.Tags,
 		Path:      blendFile.ProjectPath,
 		FileName:  blendFile.BlendFileName, //TODO: Use full path.
-		ImagePath: filepath.Join(blendFile.ProjectPath, settings.ThumbnailFilePath),
+		ImagePath: imagePath,
 		Build:     blendFile.RocketFile.GetBuild(),
 		Addons:    blendFile.RocketFile.GetAddons(),
 		Version:   blendFile.RocketFile.GetVersion(),

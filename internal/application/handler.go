@@ -11,6 +11,8 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 )
 
+const DynamicResourcePath = "system/"
+
 var validExtensions = map[string]bool{
 	".jpg":  true,
 	".jpeg": true,
@@ -41,15 +43,25 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 
 	path := strings.TrimPrefix(req.URL.Path, "/")
-	pathParts := strings.Split(path, "/")
-
-	if len(pathParts) != 2 || pathParts[0] != "system" {
+	if !strings.HasPrefix(path, DynamicResourcePath) {
 		h.respondWithError(res, http.StatusBadRequest, "Invalid path", nil)
 		return
 	}
 
-	resourcePath := pathParts[1]
-	result, err := h.store.List(listoption.WithResource(resourcePath), listoption.WithSize(1))
+	path = filepath.FromSlash(strings.TrimPrefix(path, DynamicResourcePath))
+	if !isValidWebImage(path) {
+		h.respondWithError(res, http.StatusBadRequest, "Invalid resource file type", fmt.Errorf("invalid file type: %s", path))
+		return
+	}
+
+	h.logger.Debug("Requested file:", map[string]interface{}{
+		"resource":   path,
+		"method":     req.Method,
+		"remoteAddr": req.RemoteAddr,
+		"userAgent":  req.UserAgent(),
+	})
+
+	result, err := h.store.List(listoption.WithResource(path), listoption.WithSize(1))
 	if err != nil {
 		h.respondWithError(res, http.StatusInternalServerError, "Could not list resources", err)
 		return
@@ -60,20 +72,7 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !isValidWebImage(resourcePath) {
-		h.respondWithError(res, http.StatusBadRequest, "Invalid resource file type", fmt.Errorf("invalid file path: %s", resourcePath))
-		return
-	}
-
-	h.logger.Debug("Requested file:", map[string]interface{}{
-		"hitIndexes":   len(result),
-		"resourcePath": resourcePath,
-		"method":       req.Method,
-		"remoteAddr":   req.RemoteAddr,
-		"userAgent":    req.UserAgent(),
-	})
-
-	http.ServeFile(res, req, resourcePath)
+	http.ServeFile(res, req, path)
 }
 
 func (h *FileLoader) respondWithError(w http.ResponseWriter, statusCode int, message string, err error) {
@@ -81,6 +80,8 @@ func (h *FileLoader) respondWithError(w http.ResponseWriter, statusCode int, mes
 		h.logger.Error(message, map[string]interface{}{
 			"error": err.Error(),
 		})
+	} else {
+		h.logger.Warn(message)
 	}
 
 	w.WriteHeader(statusCode)

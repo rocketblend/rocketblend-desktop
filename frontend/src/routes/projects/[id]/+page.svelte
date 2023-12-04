@@ -27,14 +27,13 @@
         <li>Path: {data.project.path}</li>
         <li>File Name: {data.project.fileName}</li>
         <li>Image Path: {data.project.imagePath}</li>
-        <li>Image Source: {data.project.imageSource}</li>
         <li>Build: {data.project.build}</li>
         <li>Addons: {data.project.addons}</li>
         <li>Tags: {data.project.tags}</li>
         <li>Version: {data.project.version}</li>
     </ul>
-    {#if data.project.imageSource}
+    {#if data.project.imagePath}
         <hr>
-        <img src={data.project.imageSource} alt=""/>
+        <img src=/system/{data.project.imagePath} alt=""/>
     {/if}
 </main>
