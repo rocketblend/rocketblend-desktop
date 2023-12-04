@@ -94,7 +94,7 @@ func Load(projectPath string) (*Project, error) {
 			return nil, fmt.Errorf("thumbnail file path must be relative: %s", settings.ThumbnailFilePath)
 		}
 
-		imagePath = filepath.Join(projectPath, settings.ThumbnailFilePath)
+		imagePath = filepath.ToSlash(filepath.Join(projectPath, settings.ThumbnailFilePath))
 	}
 
 	return &Project{

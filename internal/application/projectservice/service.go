@@ -127,7 +127,10 @@ func New(opts ...Option) (Service, error) {
 
 			resources := []string{}
 			if project.ImagePath != "" {
-				resources = append(resources, project.ImagePath)
+				resources = append(resources, filepath.ToSlash(project.ImagePath))
+				options.Logger.Debug("Added resource", map[string]interface{}{
+					"resource": resources,
+				})
 			}
 
 			return options.Store.Insert(&searchstore.Index{

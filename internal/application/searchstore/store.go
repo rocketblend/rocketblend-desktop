@@ -64,8 +64,9 @@ func (s *store) Insert(index *Index) error {
 	}
 
 	s.logger.Debug("Indexed successful", map[string]interface{}{
-		"id":   index.ID,
-		"type": index.Type,
+		"id":       index.ID,
+		"type":     index.Type,
+		"resource": index.Resources,
 	})
 
 	return nil

@@ -75,7 +75,7 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	}
 
 	if so.Resource != "" {
-		resourceQuery := bleve.NewMatchQuery(so.Resource)
+		resourceQuery := bleve.NewMatchPhraseQuery(so.Resource)
 		resourceQuery.SetField("resources")
 		query.AddQuery(resourceQuery)
 	}
@@ -90,8 +90,6 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 		fuzzy := bleve.NewFuzzyQuery(so.Query)
 		fuzzy.SetFuzziness(2) // Levenshtein distance
 		query.AddQuery(fuzzy)
-	} else {
-		query.AddQuery(bleve.NewMatchAllQuery())
 	}
 
 	return bleve.NewSearchRequestOptions(query, so.Size, so.From, false)

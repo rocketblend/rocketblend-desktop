@@ -48,7 +48,7 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	path = filepath.FromSlash(strings.TrimPrefix(path, DynamicResourcePath))
+	path = filepath.ToSlash(strings.TrimPrefix(path, DynamicResourcePath))
 	if !isValidWebImage(path) {
 		h.respondWithError(res, http.StatusBadRequest, "Invalid resource file type", fmt.Errorf("invalid file type: %s", path))
 		return
