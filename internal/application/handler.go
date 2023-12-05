@@ -21,6 +21,7 @@ var validExtensions = map[string]bool{
 	".bmp":  true,
 	".svg":  true,
 	".webp": true,
+	".webm": true,
 }
 
 type FileLoader struct {

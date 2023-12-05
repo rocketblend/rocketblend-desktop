@@ -126,8 +126,9 @@ func New(opts ...Option) (Service, error) {
 			}
 
 			resources := []string{}
-			if project.ImagePath != "" {
-				resources = append(resources, filepath.ToSlash(project.ImagePath))
+			if project.ThumbnailPath != "" {
+				resources = append(resources, filepath.ToSlash(project.ThumbnailPath))
+				resources = append(resources, filepath.ToSlash(project.SplashPath))
 				options.Logger.Debug("Added resource", map[string]interface{}{
 					"resource": resources,
 				})

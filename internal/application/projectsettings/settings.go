@@ -28,7 +28,8 @@ type (
 		Name string    `json:"name,omitempty"`
 		Tags []string  `json:"tags,omitempty"`
 		//ThumbnailSettings *ThumbnailSettings `json:"thumbnailSettings,omitempty"`
-		ThumbnailFilePath string `json:"thumbnailFilePath,omitempty"`
+		ThumbnailPath string `json:"thumbnailPath,omitempty"`
+		SplashPath    string `json:"splashPath,omitempty"`
 	}
 )
 
@@ -88,8 +89,12 @@ func Validate(settings *ProjectSettings) error {
 		return fmt.Errorf("project settings must have an id")
 	}
 
-	if filepath.IsAbs(settings.ThumbnailFilePath) {
-		return fmt.Errorf("thumbnail file path must be relative: %s", settings.ThumbnailFilePath)
+	if filepath.IsAbs(settings.ThumbnailPath) {
+		return fmt.Errorf("thumbnail path must be relative: %s", settings.ThumbnailPath)
+	}
+
+	if filepath.IsAbs(settings.SplashPath) {
+		return fmt.Errorf("splash path must be relative: %s", settings.SplashPath)
 	}
 
 	return nil

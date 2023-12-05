@@ -13,13 +13,14 @@
         if (getComputedStyle(node).gap === 'normal') node.style.gap = 'inherit';
     }
     
-  </script>
+</script>
   
 <div {...$$restProps} class={divClass} use:init>
     {#each items as item}
         <slot {item}>
         <div>
-            <Img class={twMerge(imgClass, $$props.classImg)} src={item.src} alt={item.alt} />
+            <img class={twMerge(imgClass, $$props.classImg)} src={item.src.img.src} alt={item.alt} />
+            <!-- <Img class={twMerge(imgClass, $$props.classImg)} src={item.src} alt={item.alt} /> -->
         </div>
         </slot>
     {:else}
