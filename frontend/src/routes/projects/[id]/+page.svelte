@@ -38,12 +38,6 @@
         <li>Tags: {data.project.tags}</li>
         <li>Version: {data.project.version}</li>
     </ul>
-
-    {#if data.project.thumbnailPath}
-        <hr>
-        <Media mediaClass="h-auto max-w-full rounded-lg" src="/system/{data.project.thumbnailPath}" alt="" />
-    {/if}
-
     {#if data.project.splashPath}
         <hr>
         <Media mediaClass="h-auto max-w-full rounded-lg" src="/system/{data.project.splashPath}" alt="" />
