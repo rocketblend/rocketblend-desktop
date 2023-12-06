@@ -17,7 +17,6 @@
     {#if $selectedProject}
         <div class="flex gap-4 items-center">
             <Media width=16 height=16 src="{resourcePath($selectedProject.thumbnailPath)}" alt="" />
-            <!-- <Img class="h-auto max-w-full rounded-lg w-16 image-fade-in" src={logo} alt="" /> -->
             <div>
                 <div class="text-sm font-medium">{$selectedProject.name}</div>
                 <div class="text-sm text-surface-300">{$selectedProject.fileName}</div>

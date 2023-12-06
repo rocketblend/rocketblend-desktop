@@ -33,6 +33,6 @@
     </ul>
     <hr>
     <div class="grid grid-cols-4 gap-4">
-        <Media height="auto" width="full" src="{resourcePath(data.project.splashPath)}" alt="" />
+        <Media height="80" width="full" src="{resourcePath(data.project.splashPath)}" alt="" />
       </div>
 </main>

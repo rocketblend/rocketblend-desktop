@@ -16,9 +16,7 @@
 <div {...$$restProps} class={divClass} use:init>
     {#each items as item}
         <slot {item}>
-        <div>
-            <Media src={item.src.img.src} alt={item.alt} width="full" height="64"/>
-        </div>
+        <Media src={item.src.img.src} alt={item.alt} width="full" height="64"/>
         </slot>
     {:else}
         <slot item={items[0]} />

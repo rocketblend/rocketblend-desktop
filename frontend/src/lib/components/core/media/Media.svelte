@@ -37,15 +37,15 @@
     $: heightClass = `h-${height}`;
     $: widthClass = `w-${width}`;
 
-    $: mediaClass = twMerge(containerClass, heightClass, widthClass, $$props.class);
+    $: mediaClass = twMerge(containerClass, heightClass, widthClass);
     $: holderClass = twMerge(mediaClass, placeholderClass, src !== "" && !mediaLoaded ? loadingClass : '');
 
     function onMediaLoad() {
-        setTimeout(() => {
-            mediaLoaded = true;
-        }, Math.floor(Math.random() * 3000));
+        // setTimeout(() => {
+        //     mediaLoaded = true;
+        // }, Math.floor(Math.random() * 3000));
         
-        //mediaLoaded = true;
+        mediaLoaded = true;
     }
 </script>
 
@@ -53,7 +53,6 @@
 
 {#if isWebm(src)}
     <video 
-        {...$$restProps} 
         class={mediaClass} 
         class:hidden={!mediaLoaded}
         src={src} 
@@ -62,7 +61,6 @@
     ></video>
 {:else if src != ""}
     <img 
-        {...$$restProps} 
         class={mediaClass} 
         class:hidden={!mediaLoaded}
         src={src} 

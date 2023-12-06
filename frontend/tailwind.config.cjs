@@ -3,6 +3,14 @@ const config = {
     "./src/**/*.{html,js,svelte,ts}",
     require('path').join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}')
   ],
+  safelist: [
+    {
+      pattern: /h-\d+/,
+    },
+    {
+      pattern: /w-\d+/,
+    },
+  ],
   darkMode: 'class',
 
   theme: {
