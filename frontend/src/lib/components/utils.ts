@@ -6,3 +6,11 @@ export function debounce(fn: Function, delay: number) {
         timer = setTimeout(() => fn(...args), delay);
     };
 }
+
+export function resourcePath(path: string | undefined) {
+    if (path && path != "") {
+        return `/system/${path}`;
+    }
+
+    return "";
+};

@@ -6,6 +6,7 @@
 
     export let containerClass: string = "rounded-container-token";
     export let placeholderClass: string = "placeholder";
+    export let loadingClass: string = "animate-pulse";
 
     export let height: string = "32";
     export let width: string = "32";
@@ -14,37 +15,37 @@
 
     const isWebm = (path: string) => path.endsWith(".webm");
     
-    const gradients = [
-        "variant-gradient-primary-secondary",
-        "variant-gradient-secondary-tertiary",
-        "variant-gradient-tertiary-primary",
-        "variant-gradient-secondary-primary",
-        "variant-gradient-tertiary-secondary",
-        "variant-gradient-primary-tertiary",
-        "variant-gradient-success-warning",
-        "variant-gradient-warning-error",
-        "variant-gradient-error-success",
-        "variant-gradient-warning-success",
-        "variant-gradient-error-warning",
-        "variant-gradient-success-error",
-    ];
+    // const gradients = [
+    //     "variant-gradient-primary-secondary",
+    //     "variant-gradient-secondary-tertiary",
+    //     "variant-gradient-tertiary-primary",
+    //     "variant-gradient-secondary-primary",
+    //     "variant-gradient-tertiary-secondary",
+    //     "variant-gradient-primary-tertiary",
+    //     "variant-gradient-success-warning",
+    //     "variant-gradient-warning-error",
+    //     "variant-gradient-error-success",
+    //     "variant-gradient-warning-success",
+    //     "variant-gradient-error-warning",
+    //     "variant-gradient-success-error",
+    // ];
+    // const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+    // $: placeholderGradientClass = src === "" ? `bg-gradient-to-b ${randomGradient}` : "animate-pulse";
 
-    const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
-
-    $: placeholderGradientClass = src === "" ? `bg-gradient-to-b ${randomGradient}` : "animate-pulse";
+    $: if (src || src == "") {mediaLoaded = false;}
 
     $: heightClass = `h-${height}`;
     $: widthClass = `w-${width}`;
 
     $: mediaClass = twMerge(containerClass, heightClass, widthClass, $$props.class);
-    $: holderClass = twMerge(mediaClass, placeholderClass, placeholderGradientClass);
+    $: holderClass = twMerge(mediaClass, placeholderClass, src !== "" && !mediaLoaded ? loadingClass : '');
 
     function onMediaLoad() {
-        setTimeout(() => {
-            mediaLoaded = true;
-        }, 3000);
-
-        //mediaLoaded = true;
+        // setTimeout(() => {
+        //     mediaLoaded = true;
+        // }, 3000);
+        
+        mediaLoaded = true;
     }
 </script>
 

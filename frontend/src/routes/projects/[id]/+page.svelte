@@ -1,25 +1,19 @@
 <script lang="ts">
     import type { PageData } from './$types';
+
+    import { resourcePath } from '$lib/components/utils';
     import { selectedProject } from '$lib/store';
 
 	import Media from '$lib/components/media/Media.svelte';
 
     export let data: PageData;
 
-    const cleanPath = (path: string | undefined) => {
-        if (path && path != "") {
-            return `/system/${path}`;
-        }
-
-        return "";
-    };
-
     selectedProject.set(data.project);
 </script>
 
 <main class="space-y-4"> 
     <div class="flex gap-4">
-        <Media src={cleanPath(data.project.thumbnailPath)} alt="" />
+        <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
         <div class="space-y-4">
             <h2 class="font-bold">{data.project.name}</h2>
             <p class="text-sm text-surface-300">Last updated: {data.project.updatedAt}</p>
@@ -39,6 +33,6 @@
     </ul>
     <hr>
     <div class="grid grid-cols-4 gap-4">
-        <Media height="64" width="full" src="/system/{data.project.splashPath}" alt="" />
+        <Media height="auto" width="full" src="{resourcePath(data.project.splashPath)}" alt="" />
       </div>
 </main>
