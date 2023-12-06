@@ -5,6 +5,7 @@ export type RadioOption = {
 
 export type MediaInfo = {
     id: string;
+    title: string;
     src: string;
     alt?: string;
 };

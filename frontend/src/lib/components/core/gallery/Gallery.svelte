@@ -41,6 +41,7 @@
                 OnKeyDown={(e) => handleKeyDown(e, item.id)}
                 src={item.src}
                 alt={item.alt}
+                title={item.title}
                 width="full"
                 height="80" />
         </slot>
