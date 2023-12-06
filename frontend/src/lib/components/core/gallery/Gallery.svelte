@@ -4,8 +4,8 @@
     import { twMerge } from 'tailwind-merge';
 
     export let items: MediaInfo[] = [];
-    export let group: string[] = []; // Exported array of selected item IDs
-    export let multiple: boolean = false; // Prop to enable/disable multiple selection
+    export let group: string[] = [];
+    export let multiple: boolean = false;
 
     $: divClass = twMerge('grid', $$props.class);
 
