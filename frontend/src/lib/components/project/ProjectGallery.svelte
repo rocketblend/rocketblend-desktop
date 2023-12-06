@@ -23,6 +23,8 @@
     });
 </script>
 
+<p>{selectedIds}</p>
+
 <Gallery class="gap-2 grid-cols-2 lg:grid-cols-4">
     {#each galleries as galleryItems}
         <Gallery items={galleryItems} bind:group={selectedIds}/>

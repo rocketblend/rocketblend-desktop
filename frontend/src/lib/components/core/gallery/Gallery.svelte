@@ -35,19 +35,15 @@
 
 <div {...$$restProps} class={divClass} use:init>
     {#each items as item}
-        <div>
-            <div 
-                role="button" 
-                tabindex="0" 
-                on:click={() => toggleSelection(item.id)}
-                on:keydown={(e) => handleKeyDown(e, item.id)}
-                class="rounded-container-token focus:outline focus:ring-outline-token focus:ring-outline-primary"
-            >
-                <slot {item}>
-                    <Media src={item.src} alt={item.alt} width="full" height="80" />
-                </slot>
-            </div>
-        </div>
+        <slot {item}>
+            <Media 
+                OnClick={() => toggleSelection(item.id)}
+                OnKeyDown={(e) => handleKeyDown(e, item.id)}
+                src={item.src}
+                alt={item.alt}
+                width="full"
+                height="80" />
+        </slot>
     {:else}
         <slot item={items[0]} />
     {/each}

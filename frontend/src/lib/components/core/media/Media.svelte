@@ -3,6 +3,7 @@
 
     export let src: string = "";
     export let alt: string = "";
+    export let title: string = "";
 
     export let containerClass: string = "rounded-container-token";
     export let placeholderClass: string = "placeholder";
@@ -11,26 +12,12 @@
     export let height: string = "32";
     export let width: string = "32";
 
+    export let OnClick: (event: MouseEvent) => void = () => {};
+    export let OnKeyDown: (event: KeyboardEvent) => void = () => {};
+
     let mediaLoaded = false;
 
     const isWebm = (path: string) => path.endsWith(".webm");
-    
-    // const gradients = [
-    //     "variant-gradient-primary-secondary",
-    //     "variant-gradient-secondary-tertiary",
-    //     "variant-gradient-tertiary-primary",
-    //     "variant-gradient-secondary-primary",
-    //     "variant-gradient-tertiary-secondary",
-    //     "variant-gradient-primary-tertiary",
-    //     "variant-gradient-success-warning",
-    //     "variant-gradient-warning-error",
-    //     "variant-gradient-error-success",
-    //     "variant-gradient-warning-success",
-    //     "variant-gradient-error-warning",
-    //     "variant-gradient-success-error",
-    // ];
-    // const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
-    // $: placeholderGradientClass = src === "" ? `bg-gradient-to-b ${randomGradient}` : "animate-pulse";
 
     $: if (src || src == "") {mediaLoaded = false;}
 
@@ -49,22 +36,33 @@
     }
 </script>
 
-<div class="{holderClass}" class:hidden={mediaLoaded}></div>
 
-{#if isWebm(src)}
-    <video 
-        class={mediaClass} 
-        class:hidden={!mediaLoaded}
-        src={src} 
-        autoplay loop muted playsinline 
-        on:loadeddata={onMediaLoad}
-    ></video>
-{:else if src != ""}
-    <img 
-        class={mediaClass} 
-        class:hidden={!mediaLoaded}
-        src={src} 
-        alt={alt} 
-        on:load={onMediaLoad}
-    />
-{/if}
+<div 
+    class="focus:ring-2 focus:ring-surface-50 {holderClass}" 
+    on:click={OnClick}
+    on:keydown={OnKeyDown}
+    role="button" 
+    tabindex="0"
+>
+    {#if src}
+        {#if isWebm(src)}
+            <video
+                class={mediaClass}
+                class:hidden={!mediaLoaded}
+                src={src} 
+                autoplay loop muted playsinline 
+                on:loadeddata={onMediaLoad}
+            ></video>
+        {:else}
+            <img 
+                class={mediaClass}
+                class:hidden={!mediaLoaded}
+                src={src} 
+                alt={alt} 
+                on:load={onMediaLoad}
+            />
+        {/if}
+    {:else}
+        <div class="{holderClass}"></div>
+    {/if}
+</div>
