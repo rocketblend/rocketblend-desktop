@@ -6,6 +6,8 @@
     export let alt: string = "";
     export let title: string = "";
 
+    export let selected: boolean = false;
+
     export let containerClass: string = "rounded-container-token";
     export let placeholderClass: string = "placeholder";
     export let loadingClass: string = "animate-pulse";
@@ -18,9 +20,6 @@
 
     let mediaLoaded = false;
 
-    let mediaElement: HTMLElement | null = null;
-    let mediaHeight: string = 'full';
-
     const isWebm = (path: string) => path.endsWith(".webm");
 
     $: if (src || src == "") {mediaLoaded = false;}
@@ -28,29 +27,36 @@
     $: heightClass = `h-${height}`;
     $: widthClass = `w-${width}`;
 
+    let mediaElement: HTMLElement | null = null;
+    let mediaHeight: string = '';
+
     $: mediaClass = twMerge(containerClass, heightClass, widthClass, mediaLoaded ? 'h-auto' : '');
     $: holderClass = twMerge(mediaClass, placeholderClass, src !== "" && !mediaLoaded ? loadingClass : '');
+
+    $: focusClass = selected ? "ring-2 ring-surface-50" : "";
+    $: containerStyle = mediaHeight !== '' ? `height: ${mediaHeight};` : '';
 
     function onMediaLoad(event: Event) {
         mediaElement = event.target as HTMLElement;
 
-        setTimeout(() => {
-            mediaLoaded = true;
-            updateHeight();
-        }, Math.floor(Math.random() * 3000));
+        // setTimeout(() => {
+        //     mediaLoaded = true;
+        //     updateHeight();
+        // }, Math.floor(Math.random() * 3000));
 
-        // mediaLoaded = true;
-        // updateHeight();
+        mediaLoaded = true;
+        updateHeight();
     }
 
     function updateHeight() {
         if (mediaElement) {
-            mediaHeight = `${mediaElement.offsetHeight}px`;
+            if (mediaElement.offsetHeight != 0) {
+                mediaHeight = `${mediaElement.offsetHeight}px`;
+                return;
+            }
 
             // If the height is 0, the image is not loaded yet, so we wait a bit and try again.
-            if (mediaHeight === '0px') {
-                setTimeout(updateHeight, 10);
-            }
+            setTimeout(updateHeight, 10);
         }
     }
 
@@ -80,12 +86,12 @@
 </style>
 
 <div 
-    class="focus:ring-2 focus:ring-surface-50 {holderClass} relative inline-block overflow-hidden hover-container" 
+    class="hover-container {focusClass} {holderClass} relative inline-block overflow-hidden" 
     on:click={OnClick}
     on:keydown={OnKeyDown}
     role="button" 
     tabindex="0"
-    style="height: {mediaHeight};"
+    style={containerStyle}
 >
     {#if src}
         {#if isWebm(src)}

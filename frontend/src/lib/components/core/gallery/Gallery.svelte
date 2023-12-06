@@ -42,6 +42,7 @@
                 src={item.src}
                 alt={item.alt}
                 title={item.title}
+                selected={group.includes(item.id)}
                 width="full"
                 height="80" />
         </slot>

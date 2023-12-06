@@ -17,7 +17,7 @@
         galleries[index % columns].push({
                 id: proj.id?.toString() || "",
                 title: proj.name || "",
-                alt: `{proj.name} splash`,
+                alt: `${proj.name || ""} splash`,
                 src: resourcePath(proj.splashPath)
             }
         );
