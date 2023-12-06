@@ -12,7 +12,7 @@
 
     import type { project } from '$lib/wailsjs/go/models';
 
-    import { selectedProject } from '$lib/store';
+    import { selectedProjectIds } from '$lib/store';
 
     export let data: PageData;
 
@@ -21,7 +21,11 @@
 
     function handleSelected(event: CustomEvent<project.Project | null>): void {
         const project = event.detail;
-        selectedProject.set(project);
+        if (!project || !project.id) {
+            return;
+        }
+
+        selectedProjectIds.set([project.id.toString()]);
     }
 
     function handleInputChange(event: Event): void {
@@ -53,7 +57,7 @@
             {#if displayType === 0}
                 <ProjectTable sourceData={data.projects} on:selected={handleSelected} />
             {:else if displayType === 1}
-                <ProjectGallery sourceData={data.projects}/>
+                <ProjectGallery sourceData={data.projects} bind:selectedIds={$selectedProjectIds}/>
             {/if}
         {/if}
     </div>

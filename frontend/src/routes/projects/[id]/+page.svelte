@@ -2,13 +2,15 @@
     import type { PageData } from './$types';
 
     import { resourcePath } from '$lib/components/utils';
-    import { selectedProject } from '$lib/store';
+    import { selectedProjectIds } from '$lib/store';
 
 	import Media from '$lib/components/core/media/Media.svelte';
 
     export let data: PageData;
 
-    selectedProject.set(data.project);
+    if (data.project.id) {
+        selectedProjectIds.set([data.project.id.toString()]);
+    }
 </script>
 
 <main class="space-y-4"> 
