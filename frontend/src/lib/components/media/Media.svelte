@@ -1,17 +1,71 @@
 <script lang="ts">
     import { twMerge } from 'tailwind-merge';
 
-    export let src: string;
-    export let alt: string = '';
-    export let mediaClass: string = 'rounded-container-token';
+    export let src: string = "";
+    export let alt: string = "";
 
-    $: tagClass = twMerge(mediaClass, $$props.class);
+    export let containerClass: string = "rounded-container-token";
+    export let placeholderClass: string = "placeholder";
 
-    const isWebm = (path: string) => path.endsWith('.webm');
+    export let height: string = "32";
+    export let width: string = "32";
+
+    let mediaLoaded = false;
+
+    const isWebm = (path: string) => path.endsWith(".webm");
+    
+    const gradients = [
+        "variant-gradient-primary-secondary",
+        "variant-gradient-secondary-tertiary",
+        "variant-gradient-tertiary-primary",
+        "variant-gradient-secondary-primary",
+        "variant-gradient-tertiary-secondary",
+        "variant-gradient-primary-tertiary",
+        "variant-gradient-success-warning",
+        "variant-gradient-warning-error",
+        "variant-gradient-error-success",
+        "variant-gradient-warning-success",
+        "variant-gradient-error-warning",
+        "variant-gradient-success-error",
+    ];
+
+    const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+
+    $: placeholderGradientClass = src === "" ? `bg-gradient-to-b ${randomGradient}` : "animate-pulse";
+
+    $: heightClass = `h-${height}`;
+    $: widthClass = `w-${width}`;
+
+    $: mediaClass = twMerge(containerClass, heightClass, widthClass, $$props.class);
+    $: holderClass = twMerge(mediaClass, placeholderClass, placeholderGradientClass);
+
+    function onMediaLoad() {
+        setTimeout(() => {
+            mediaLoaded = true;
+        }, 3000);
+
+        //mediaLoaded = true;
+    }
 </script>
 
+<div class="{holderClass}" class:hidden={mediaLoaded}></div>
+
 {#if isWebm(src)}
-    <video {...$$restProps} class={tagClass} src={src} autoplay loop muted playsinline></video>
-{:else}
-    <img {...$$restProps} class={tagClass} src={src} alt={alt} />
+    <video 
+        {...$$restProps} 
+        class={mediaClass} 
+        class:hidden={!mediaLoaded}
+        src={src} 
+        autoplay loop muted playsinline 
+        on:loadeddata={onMediaLoad}
+    ></video>
+{:else if src != ""}
+    <img 
+        {...$$restProps} 
+        class={mediaClass} 
+        class:hidden={!mediaLoaded}
+        src={src} 
+        alt={alt} 
+        on:load={onMediaLoad}
+    />
 {/if}
