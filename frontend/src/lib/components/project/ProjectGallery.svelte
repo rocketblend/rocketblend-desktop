@@ -35,7 +35,7 @@
     ];
 </script>
 
-<Gallery class="gap-2 grid-cols-2 md:grid-cols-4">
+<Gallery class="gap-2 grid-cols-2 lg:grid-cols-4">
     <Gallery items={images1} />
     <Gallery items={images2} />
     <Gallery items={images3} />

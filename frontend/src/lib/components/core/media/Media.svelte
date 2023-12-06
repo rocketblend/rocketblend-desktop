@@ -37,7 +37,7 @@
     $: heightClass = `h-${height}`;
     $: widthClass = `w-${width}`;
 
-    $: mediaClass = twMerge(containerClass, heightClass, widthClass);
+    $: mediaClass = twMerge(containerClass, heightClass, widthClass, mediaLoaded ? 'h-auto' : '');
     $: holderClass = twMerge(mediaClass, placeholderClass, src !== "" && !mediaLoaded ? loadingClass : '');
 
     function onMediaLoad() {
