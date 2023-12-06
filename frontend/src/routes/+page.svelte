@@ -53,7 +53,7 @@
             {#if displayType === 0}
                 <ProjectTable sourceData={data.projects} on:selected={handleSelected} />
             {:else if displayType === 1}
-                <ProjectGallery />
+                <ProjectGallery sourceData={data.projects}/>
             {/if}
         {/if}
     </div>

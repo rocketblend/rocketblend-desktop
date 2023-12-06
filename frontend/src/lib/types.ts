@@ -3,22 +3,8 @@ export type RadioOption = {
     key: string;
 };
 
-export type ImageSourceFormat = {
+export type MediaInfo = {
+    id: string;
     src: string;
-    w: number;
-    h?: number;
-};
-  
-export type ImageSources = {
-    [key: string]: ImageSourceFormat[];
-};
-  
-export type ImageSrc = {
-    img: ImageSourceFormat;
-    sources?: ImageSources;
-};
-  
-export type ImgType = {
-    src: ImageSrc;
     alt?: string;
 };
