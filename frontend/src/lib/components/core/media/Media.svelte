@@ -41,11 +41,11 @@
     $: holderClass = twMerge(mediaClass, placeholderClass, src !== "" && !mediaLoaded ? loadingClass : '');
 
     function onMediaLoad() {
-        // setTimeout(() => {
-        //     mediaLoaded = true;
-        // }, 3000);
+        setTimeout(() => {
+            mediaLoaded = true;
+        }, Math.floor(Math.random() * 3000));
         
-        mediaLoaded = true;
+        //mediaLoaded = true;
     }
 </script>
 

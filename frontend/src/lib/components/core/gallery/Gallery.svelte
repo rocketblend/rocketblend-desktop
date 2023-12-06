@@ -1,11 +1,9 @@
 <script lang="ts">
+	import Media from '$lib/components/core/media/Media.svelte';
     import type { ImgType } from '$lib/types';
     import { twMerge } from 'tailwind-merge';
 
-    import Img from '@zerodevx/svelte-img';
-
     export let items: ImgType[] = [];
-    export let imgClass: string = 'h-auto max-w-full rounded-container-token image-fade-in';
 
     $: divClass = twMerge('grid', $$props.class);
 
@@ -19,8 +17,7 @@
     {#each items as item}
         <slot {item}>
         <div>
-            <img class={twMerge(imgClass, $$props.classImg)} src={item.src.img.src} alt={item.alt} />
-            <!-- <Img class={twMerge(imgClass, $$props.classImg)} src={item.src} alt={item.alt} /> -->
+            <Media src={item.src.img.src} alt={item.alt} width="full" height="64"/>
         </div>
         </slot>
     {:else}

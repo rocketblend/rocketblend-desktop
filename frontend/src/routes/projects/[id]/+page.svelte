@@ -4,7 +4,7 @@
     import { resourcePath } from '$lib/components/utils';
     import { selectedProject } from '$lib/store';
 
-	import Media from '$lib/components/media/Media.svelte';
+	import Media from '$lib/components/core/media/Media.svelte';
 
     export let data: PageData;
 

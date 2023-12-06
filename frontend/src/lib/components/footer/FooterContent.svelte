@@ -3,7 +3,7 @@
     import IconFolderOpenFill from '~icons/ri/folder-open-fill';
     import IconEyeFill from '~icons/ri/eye-fill';
     import IconBookmark3Fill from '~icons/ri/bookmark-3-fill';
-	import Media from '../media/Media.svelte';
+	import Media from '../core/media/Media.svelte';
 
     import { resourcePath } from '$lib/components/utils';
 
