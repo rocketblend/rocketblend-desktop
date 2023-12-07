@@ -40,18 +40,17 @@
 <main class="space-y-4"> 
     <h2 class="font-bold">{$t('home.title')}</h2>
     <div class="space-y-4">
-        <div class="flex items-center justify-between space-x-4">
-            <div class="w-full">
-                <form bind:this={form} data-sveltekit-keepfocus>
-                    <SearchInput name="query" value={searchQuery} on:input={handleFormSubmit} placeholder="Search" debounceDelay={500}/>
-                    <RadioGroup>
-                        <RadioItem name="display" group={displayType} value={"table"} on:change={handleFormSubmit}>Table</RadioItem>
-                        <RadioItem name="display" group={displayType} value={"gallery"} on:change={handleFormSubmit}>Gallery</RadioItem>
-                    </RadioGroup>
-                    <button type="submit" class="hidden">Search</button>
-                </form>
+        <form bind:this={form} data-sveltekit-keepfocus class="inline-flex space-x-4 w-full">
+            <div class="flex-grow">
+                <SearchInput name="query" value={searchQuery} on:input={handleFormSubmit} placeholder="Search" debounceDelay={500} />
             </div>
-        </div>
+
+            <RadioGroup>
+                <RadioItem name="display" group={displayType} value={"table"} on:change={handleFormSubmit}>Table</RadioItem>
+                <RadioItem name="display" group={displayType} value={"gallery"} on:change={handleFormSubmit}>Gallery</RadioItem>
+            </RadioGroup>
+            <button type="submit" class="hidden">Search</button>
+        </form>
         
         {#if data.projects === undefined || data.projects.length === 0}
             <div class="flex items-center justify-center h-64">
