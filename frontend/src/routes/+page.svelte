@@ -16,8 +16,12 @@
 
     export let data: PageData;
 
-    let displayType: number = 0;
+    let searchQuery = '';
+    let displayType = 'table';
     let form : HTMLFormElement;
+
+    $: searchQuery = $page.url.searchParams.get('query') || '';
+    $: displayType = $page.url.searchParams.get('display') || 'table';
 
     function handleSelected(event: CustomEvent<project.Project | null>): void {
         const project = event.detail;
@@ -28,7 +32,7 @@
         selectedProjectIds.set([project.id.toString()]);
     }
 
-    function handleInputChange(event: Event): void {
+    function handleFormSubmit(event: Event): void {
         form.requestSubmit();
     }
 </script>
@@ -39,14 +43,14 @@
         <div class="flex items-center justify-between space-x-4">
             <div class="w-full">
                 <form bind:this={form} data-sveltekit-keepfocus>
-                    <SearchInput name="query" value={$page.url.searchParams.get('query') || ''} on:input={handleInputChange} placeholder="Search" debounceDelay={500}/>
+                    <SearchInput name="query" value={searchQuery} on:input={handleFormSubmit} placeholder="Search" debounceDelay={500}/>
+                    <RadioGroup>
+                        <RadioItem name="display" group={displayType} value={"table"} on:change={handleFormSubmit}>Table</RadioItem>
+                        <RadioItem name="display" group={displayType} value={"gallery"} on:change={handleFormSubmit}>Gallery</RadioItem>
+                    </RadioGroup>
                     <button type="submit" class="hidden">Search</button>
                 </form>
             </div>
-            <RadioGroup>
-                <RadioItem bind:group={displayType} name="justify" value={0}>Table</RadioItem>
-                <RadioItem bind:group={displayType} name="justify" value={1}>Gallery</RadioItem>
-            </RadioGroup>
         </div>
         
         {#if data.projects === undefined || data.projects.length === 0}
@@ -54,10 +58,10 @@
                 <h4>No projects found.</h4>
             </div>
         {:else}
-            {#if displayType === 0}
-                <ProjectTable sourceData={data.projects} on:selected={handleSelected} />
-            {:else if displayType === 1}
-                <ProjectGallery sourceData={data.projects} bind:selectedIds={$selectedProjectIds}/>
+            {#if displayType === "gallery"}
+                <ProjectGallery bind:sourceData={data.projects} bind:selectedIds={$selectedProjectIds}/>
+            {:else }
+                <ProjectTable bind:sourceData={data.projects} on:selected={handleSelected} />
             {/if}
         {/if}
     </div>

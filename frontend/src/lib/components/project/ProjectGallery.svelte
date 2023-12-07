@@ -13,15 +13,17 @@
 
     export let selectedIds: string[] = [];
 
-    sourceData.forEach((proj, index) => {
-        galleries[index % columns].push({
+    $: {
+        galleries = Array.from({ length: columns }, () => []);
+        sourceData.forEach((proj, index) => {
+            galleries[index % columns].push({
                 id: proj.id?.toString() || "",
                 title: proj.name || "",
                 alt: `${proj.name || ""} splash`,
                 src: resourcePath(proj.splashPath)
-            }
-        );
-    });
+            });
+        });
+    }
 </script>
 
 <Gallery class="gap-2 grid-cols-2 lg:grid-cols-4">
