@@ -56,7 +56,7 @@
             }
 
             // If the height is 0, the image is not loaded yet, so we wait a bit and try again.
-            setTimeout(updateHeight, 10);
+            setTimeout(updateHeight, 25);
         }
     }
 
