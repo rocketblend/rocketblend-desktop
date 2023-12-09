@@ -25,15 +25,17 @@ var validExtensions = map[string]bool{
 }
 
 type FileLoader struct {
-	logger logger.Logger
+	cacheTimeout int
 
-	store searchstore.Store
+	logger logger.Logger
+	store  searchstore.Store
 }
 
-func NewFileLoader(logger logger.Logger, store searchstore.Store) (*FileLoader, error) {
+func NewFileLoader(logger logger.Logger, store searchstore.Store, cacheTimeout int) (*FileLoader, error) {
 	return &FileLoader{
-		logger: logger,
-		store:  store,
+		logger:       logger,
+		store:        store,
+		cacheTimeout: cacheTimeout,
 	}, nil
 }
 
@@ -72,6 +74,8 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		h.respondWithError(res, http.StatusNotFound, "Resource not found", nil)
 		return
 	}
+
+	res.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", h.cacheTimeout))
 
 	http.ServeFile(res, req, path)
 }

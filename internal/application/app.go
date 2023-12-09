@@ -75,7 +75,8 @@ func New(assets fs.FS) (Application, error) {
 		return nil, err
 	}
 
-	handler, err := NewFileLoader(logger, storeService)
+	cacheTimeout := 3600 // 1 hour
+	handler, err := NewFileLoader(logger, storeService, cacheTimeout)
 	if err != nil {
 		return nil, err
 	}
