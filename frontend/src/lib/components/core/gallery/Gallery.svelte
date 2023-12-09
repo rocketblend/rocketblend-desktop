@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
+
     import Media from '$lib/components/core/media/Media.svelte';
     import type { MediaInfo } from '$lib/types';
     import { twMerge } from 'tailwind-merge';
@@ -7,28 +9,51 @@
     export let group: string[] = [];
     export let multiple: boolean = false;
 
+    let clickTimeout: NodeJS.Timeout;
+
     $: divClass = twMerge('grid', $$props.class);
+
+    const dispatch = createEventDispatcher();
 
     function init(node: HTMLElement) {
         if (getComputedStyle(node).gap === 'normal') node.style.gap = 'inherit';
     }
 
-    function toggleSelection(itemId: string) {
-        if (multiple) {
-            const index = group.indexOf(itemId);
-            if (index === -1) {
-                group = [...group, itemId];
-            } else {
-                group = group.filter(id => id !== itemId);
-            }
-        } else {
-            group = group[0] === itemId ? [] : [itemId];
-        }
+    function handleClick(itemId: string) {
+        clearTimeout(clickTimeout);
+
+        clickTimeout = setTimeout(() => {
+            toggleSelection(itemId);
+        }, 50)
+    }
+
+    function handleDoubleClick(itemId: string) {
+        clearTimeout(clickTimeout);
+        toggleSelection(itemId, true);
+
+        dispatch('itemDoubleClicked', { itemId });
     }
 
     function handleKeyDown(event: KeyboardEvent, itemId: string) {
         if (event.key === 'Enter' || event.key === ' ') {
             toggleSelection(itemId);
+        }
+    }
+
+    function toggleSelection(itemId: string, isDoubleClick: boolean = false) {
+        if (multiple) {
+            const index = group.indexOf(itemId);
+            if (index === -1) {
+                group = [...group, itemId];
+            } else {
+                if (!isDoubleClick) {
+                    group = group.filter(id => id !== itemId);
+                }
+            }
+        } else {
+            if (!isDoubleClick || group[0] !== itemId) {
+                group = group[0] === itemId ? [] : [itemId];
+            }
         }
     }
 </script>
@@ -37,8 +62,9 @@
     {#each items as item}
         <slot {item}>
             <Media 
-                OnClick={() => toggleSelection(item.id)}
-                OnKeyDown={(e) => handleKeyDown(e, item.id)}
+                on:click={() => handleClick(item.id)}
+                on:dblclick={() => handleDoubleClick(item.id)}
+                on:keydown={(e) => handleKeyDown(e, item.id)}
                 src={item.src}
                 alt={item.alt}
                 title={item.title}

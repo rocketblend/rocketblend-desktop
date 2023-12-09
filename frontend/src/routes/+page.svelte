@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+
     import { t } from '$lib/translations/translations';
 
     import type { PageData } from './$types';
@@ -35,6 +37,14 @@
     function handleFormSubmit(event: Event): void {
         form.requestSubmit();
     }
+
+    
+    function handleProjectDoubleClick(event: CustomEvent<{ itemId: string }>) {
+        const itemId = event.detail.itemId;
+        console.log(`Double clicked item with ID: ${itemId}`);
+
+        goto(`/projects/${itemId}`);
+    }
 </script>
 
 <main class="space-y-4"> 
@@ -58,7 +68,7 @@
             </div>
         {:else}
             {#if displayType === "gallery"}
-                <ProjectGallery bind:sourceData={data.projects} bind:selectedIds={$selectedProjectIds}/>
+                <ProjectGallery bind:sourceData={data.projects} bind:selectedIds={$selectedProjectIds} on:itemDoubleClicked={handleProjectDoubleClick}/>
             {:else }
                 <ProjectTable bind:sourceData={data.projects} on:selected={handleSelected} />
             {/if}

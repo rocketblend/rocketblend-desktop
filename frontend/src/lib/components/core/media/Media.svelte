@@ -1,6 +1,5 @@
 <script lang="ts">
     import { twMerge } from 'tailwind-merge';
-    import { onMount, onDestroy } from 'svelte';
 
     export let src: string = "";
     export let alt: string = "";
@@ -14,9 +13,6 @@
 
     export let height: string = "32";
     export let width: string = "32";
-
-    export let OnClick: (event: MouseEvent) => void = () => {};
-    export let OnKeyDown: (event: KeyboardEvent) => void = () => {};
 
     let mediaLoaded = false;
 
@@ -56,8 +52,9 @@
 
 <div 
     class="hover-container {focusClass} {holderClass} relative inline-block overflow-hidden" 
-    on:click={OnClick}
-    on:keydown={OnKeyDown}
+    on:click
+    on:dblclick
+    on:keydown
     role="button" 
     tabindex="0"
 >

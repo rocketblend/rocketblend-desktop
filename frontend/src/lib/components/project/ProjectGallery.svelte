@@ -24,10 +24,15 @@
             });
         });
     }
+
+    // function handleItemDoubleClick(event: CustomEvent<{ itemId: string }>) {
+    //     const itemId = event.detail.itemId;
+    //     console.log(`Double clicked item with ID: ${itemId}`);
+    // }
 </script>
 
-<Gallery class="gap-2 grid-cols-2 lg:grid-cols-4">
+<Gallery class="gap-2 grid-cols-2 lg:grid-cols-4" >
     {#each galleries as galleryItems}
-        <Gallery items={galleryItems} bind:group={selectedIds}/>
+        <Gallery items={galleryItems} bind:group={selectedIds} on:itemDoubleClicked/>
     {/each}
 </Gallery>
