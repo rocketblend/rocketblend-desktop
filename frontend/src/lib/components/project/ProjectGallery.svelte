@@ -25,10 +25,6 @@
         });
     }
 
-    // function handleItemDoubleClick(event: CustomEvent<{ itemId: string }>) {
-    //     const itemId = event.detail.itemId;
-    //     console.log(`Double clicked item with ID: ${itemId}`);
-    // }
 </script>
 
 <Gallery class="gap-2 grid-cols-2 lg:grid-cols-4" >
