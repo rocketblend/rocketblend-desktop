@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
 
+    import { RunProject } from '$lib/wailsjs/go/application/Driver';
     import { t } from '$lib/translations/translations';
 
     import type { PageData } from './$types';
@@ -45,6 +46,11 @@
 
         goto(`/projects/${itemId}`);
     }
+
+    function handleProjectActionDoubleClick(event: CustomEvent<{ itemId: string }>) {
+        const itemId = event.detail.itemId;
+        RunProject(itemId)
+    }
 </script>
 
 <main class="space-y-4"> 
@@ -68,7 +74,11 @@
             </div>
         {:else}
             {#if displayType === "gallery"}
-                <ProjectGallery bind:sourceData={data.projects} bind:selectedIds={$selectedProjectIds} on:itemDoubleClicked={handleProjectDoubleClick}/>
+                <ProjectGallery
+                    on:itemDoubleClicked={handleProjectDoubleClick}
+                    on:ctrlItemDoubleClicked={handleProjectActionDoubleClick}
+                    bind:sourceData={data.projects}
+                    bind:selectedIds={$selectedProjectIds}/>
             {:else }
                 <ProjectTable bind:sourceData={data.projects} on:selected={handleSelected} />
             {/if}

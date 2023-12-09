@@ -27,9 +27,14 @@
         }, 50)
     }
 
-    function handleDoubleClick(itemId: string) {
+    function handleDoubleClick(event: MouseEvent, itemId: string) {
         clearTimeout(clickTimeout);
         toggleSelection(itemId, true);
+
+        if (event.ctrlKey) {
+            dispatch('ctrlItemDoubleClicked', { itemId });
+            return;
+        }
 
         dispatch('itemDoubleClicked', { itemId });
     }
@@ -63,7 +68,7 @@
         <slot {item}>
             <Media 
                 on:click={() => handleClick(item.id)}
-                on:dblclick={() => handleDoubleClick(item.id)}
+                on:dblclick={(e) => handleDoubleClick(e, item.id)}
                 on:keydown={(e) => handleKeyDown(e, item.id)}
                 src={item.src}
                 alt={item.alt}
