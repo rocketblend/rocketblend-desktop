@@ -27,50 +27,19 @@
     $: heightClass = `h-${height}`;
     $: widthClass = `w-${width}`;
 
-    let mediaElement: HTMLElement | null = null;
-    let mediaHeight: string = '';
-
-    $: mediaClass = twMerge(containerClass, heightClass, widthClass, mediaLoaded ? 'h-auto' : '');
+    $: mediaClass = twMerge(containerClass, heightClass, widthClass, mediaLoaded ? 'h-fit' : '');
     $: holderClass = twMerge(mediaClass, placeholderClass, src !== "" && !mediaLoaded ? loadingClass : '');
 
     $: focusClass = selected ? "ring-2 ring-surface-50" : "";
-    $: containerStyle = mediaHeight !== '' ? `height: ${mediaHeight};` : '';
 
     function onMediaLoad(event: Event) {
-        mediaElement = event.target as HTMLElement;
-
         // setTimeout(() => {
         //     mediaLoaded = true;
-        //     updateHeight();
-        // }, Math.floor(Math.random() * 3000));
+        // }, Math.floor(Math.random() * 5000));
 
         mediaLoaded = true;
-        updateHeight();
     }
 
-    function updateHeight() {
-        if (mediaElement) {
-            if (mediaElement.offsetHeight != 0) {
-                mediaHeight = `${mediaElement.offsetHeight}px`;
-                return;
-            }
-
-            // If the height is 0, the image is not loaded yet, so we wait a bit and try again.
-            setTimeout(updateHeight, 25);
-        }
-    }
-
-    function onResize() {
-        updateHeight();
-    }
-
-    onMount(() => {
-        window.addEventListener('resize', onResize);
-    });
-
-    onDestroy(() => {
-        window.removeEventListener('resize', onResize);
-    });
 </script>
 
 <style>
@@ -91,7 +60,6 @@
     on:keydown={OnKeyDown}
     role="button" 
     tabindex="0"
-    style={containerStyle}
 >
     {#if src}
         {#if isWebm(src)}
