@@ -1,43 +1,23 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-
-    import { RunProject } from '$lib/wailsjs/go/application/Driver';
-    import { t } from '$lib/translations/translations';
-
-    import type { MediaInfo } from '$lib/types';
-
-    import type { PageData } from './$types';
-    import { page } from '$app/stores'
-
+    import { page } from '$app/stores';
     import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
-    
+    import { t } from '$lib/translations/translations';
     import SearchInput from '$lib/components/core/input/SearchInput.svelte';
     import ProjectTable from '$lib/components/project/ProjectTable.svelte';
-
+    import GalleryGrid from '$lib/components/core/gallery/GalleryGrid.svelte';
     import { resourcePath } from '$lib/components/utils';
-
-    import type { project } from '$lib/wailsjs/go/models';
-
     import { selectedProjectIds } from '$lib/store';
-	import GalleryGrid from '$lib/components/core/gallery/GalleryGrid.svelte';
+    import { RunProject } from '$lib/wailsjs/go/application/Driver';
+    import type { project } from '$lib/wailsjs/go/models';
+    import type { MediaInfo } from '$lib/types';
+    import type { PageData } from './$types';
 
     export let data: PageData;
 
     let searchQuery = '';
     let displayType = 'table';
     let form : HTMLFormElement;
-
-    $: searchQuery = $page.url.searchParams.get('query') || '';
-    $: displayType = $page.url.searchParams.get('display') || 'table';
-
-    function convertProjectsToGalleryItems(projects: project.Project[]): MediaInfo[] {
-        return projects.map((project) => ({
-            id: project.id?.toString() || "",
-            title: project.name || "Untitled Project",
-            alt: `${project.name || "Untitled Project"} splash`,
-            src: resourcePath(project.splashPath)
-        }));
-    }
 
     function handleSelected(event: CustomEvent<project.Project | null>): void {
         const project = event.detail;
@@ -48,23 +28,29 @@
         selectedProjectIds.set([project.id.toString()]);
     }
 
+    function handleProjectDoubleClick(event: CustomEvent<{ itemId: string }>) {
+        goto(`/projects/${event.detail.itemId}`);
+    }
+
+    function handleProjectActionDoubleClick(event: CustomEvent<{ itemId: string }>) {
+        RunProject(event.detail.itemId)
+    }
+
     function handleFormSubmit(event: Event): void {
         form.requestSubmit();
     }
 
-    
-    function handleProjectDoubleClick(event: CustomEvent<{ itemId: string }>) {
-        const itemId = event.detail.itemId;
-        console.log(`Double clicked item with ID: ${itemId}`);
-
-        goto(`/projects/${itemId}`);
+    function convertProjectsToGalleryItems(projects: project.Project[]): MediaInfo[] {
+        return projects.map((project) => ({
+            id: project.id?.toString() || "",
+            title: project.name || "Untitled Project",
+            alt: `${project.name || "Untitled Project"} splash`,
+            src: resourcePath(project.splashPath)
+        }));
     }
 
-    function handleProjectActionDoubleClick(event: CustomEvent<{ itemId: string }>) {
-        const itemId = event.detail.itemId;
-        RunProject(itemId)
-    }
-
+    $: searchQuery = $page.url.searchParams.get('query') || '';
+    $: displayType = $page.url.searchParams.get('display') || 'table';
     $: galleryItems = convertProjectsToGalleryItems(data.projects || []);
 </script>
 
