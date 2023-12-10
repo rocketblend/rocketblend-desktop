@@ -6,9 +6,9 @@
     import { RunProject } from '$lib/wailsjs/go/application/Driver';
     import type { project } from '$lib/wailsjs/go/models';
     import type { PageData } from './$types';
-    import SearchFilter from '$lib/components/project/ProjectSearchFilter.svelte';
-    import ProjectDisplay from '$lib/components/project/ProjectDisplay.svelte';
-
+	import ProjectListView from '$lib/components/project/ProjectListView.svelte';
+	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
+    
     export let data: PageData;
 
     let searchQuery = "";
@@ -43,12 +43,12 @@
 <main class="space-y-4"> 
     <h2 class="font-bold">{$t('home.title')}</h2>
     <div class="space-y-4">
-        <SearchFilter
+        <ProjectFilter
             bind:form={form}
             bind:searchQuery={searchQuery}
             bind:displayType={displayType}
             on:change={handleFilterChangeEvent} />
-        <ProjectDisplay
+        <ProjectListView
             bind:projects={data.projects}
             bind:displayType={displayType}
             bind:selectedProjectIds={$selectedProjectIds}

@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import SidebarFilter from '$lib/components/sidebar/SidebarFilter.svelte';
-    import PackageListBox from '$lib/components/package/PackageListBox.svelte';
+    import PackageListView from '$lib/components/package/PackageListView.svelte';
 
     import type { packageservice } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
@@ -76,7 +76,7 @@
             </div>
         {:then response}
             {#if response && response.packages}
-                <PackageListBox packages={response.packages} selectedPackageIds={selectedPackageIds} />
+                <PackageListView packages={response.packages} selectedPackageIds={selectedPackageIds} />
             {:else}
                 <div class="p-2">
                     <p class="font-bold text-sm text-surface-200 text-center">{$t('home.sidebar.noresults')}</p>
