@@ -54,8 +54,8 @@
 <div class="flex flex-col h-full space-y-4">
     <SidebarHeader 
         title={$t('home.sidebar.title')}
-        onAdd={handleAddPackage}
-        onRefresh={handleRefreshPackages}
+        on:add={handleAddPackage}
+        on:refresh={handleRefreshPackages}
     />
     <SidebarFilter
         bind:selectedFilterType={selectedFilterType}
