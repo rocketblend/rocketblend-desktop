@@ -4,6 +4,7 @@
     import { ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
     import { GetProject } from '$lib/wailsjs/go/application/Driver'
     import type { project } from '$lib/wailsjs/go/models';
+    import { resourcePath } from '$lib/components/utils';
     import FooterContent from '$lib/components/footer/FooterContent.svelte';
 
     let selectedProject: project.Project | undefined = undefined;
@@ -42,8 +43,11 @@
 </script>
 
 <FooterContent
-    {selectedProject}
-    onViewProject={handleViewProject}
-    onRunProject={handleRunProject}
-    onExploreProject={handleExploreProject}
+    name={selectedProject?.name}
+    fileName={selectedProject?.fileName}
+    imagePath={resourcePath(selectedProject?.thumbnailPath)}
+    isLoading={!selectedProject}
+    on:viewProject={handleViewProject}
+    on:runProject={handleRunProject}
+    on:exploreProject={handleExploreProject}
 />
