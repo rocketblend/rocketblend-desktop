@@ -4,18 +4,22 @@
     import { RunProject } from '$lib/wailsjs/go/application/Driver';
     import { t } from '$lib/translations/translations';
 
+    import type { MediaInfo } from '$lib/types';
+
     import type { PageData } from './$types';
     import { page } from '$app/stores'
 
     import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
     
     import SearchInput from '$lib/components/core/input/SearchInput.svelte';
-	import ProjectGallery from '$lib/components/project/ProjectGallery.svelte';
     import ProjectTable from '$lib/components/project/ProjectTable.svelte';
+
+    import { resourcePath } from '$lib/components/utils';
 
     import type { project } from '$lib/wailsjs/go/models';
 
     import { selectedProjectIds } from '$lib/store';
+	import GalleryGrid from '$lib/components/core/gallery/GalleryGrid.svelte';
 
     export let data: PageData;
 
@@ -25,6 +29,15 @@
 
     $: searchQuery = $page.url.searchParams.get('query') || '';
     $: displayType = $page.url.searchParams.get('display') || 'table';
+
+    function convertProjectsToGalleryItems(projects: project.Project[]): MediaInfo[] {
+        return projects.map((project) => ({
+            id: project.id?.toString() || "",
+            title: project.name || "Untitled Project",
+            alt: `${project.name || "Untitled Project"} splash`,
+            src: resourcePath(project.splashPath)
+        }));
+    }
 
     function handleSelected(event: CustomEvent<project.Project | null>): void {
         const project = event.detail;
@@ -51,6 +64,8 @@
         const itemId = event.detail.itemId;
         RunProject(itemId)
     }
+
+    $: galleryItems = convertProjectsToGalleryItems(data.projects || []);
 </script>
 
 <main class="space-y-4"> 
@@ -74,10 +89,10 @@
             </div>
         {:else}
             {#if displayType === "gallery"}
-                <ProjectGallery
+                <GalleryGrid
                     on:itemDoubleClicked={handleProjectDoubleClick}
                     on:ctrlItemDoubleClicked={handleProjectActionDoubleClick}
-                    bind:sourceData={data.projects}
+                    bind:items={galleryItems}
                     bind:selectedIds={$selectedProjectIds}/>
             {:else }
                 <ProjectTable bind:sourceData={data.projects} on:selected={handleSelected} />
