@@ -13,9 +13,9 @@
     let searchQuery: string = "";
     let filterInstalled: boolean = false;
     const filterRadioOptions: RadioOption[] = [
-        { value: 0, key: 'all' },
-        { value: 1, key: 'build' },
-        { value: 2, key: 'addon' },
+        { value: 0, key: 'all', display: $t('home.sidebar.filter.option.all') },
+        { value: 1, key: 'build', display: $t('home.sidebar.filter.option.build') },
+        { value: 2, key: 'addon', display: $t('home.sidebar.filter.option.addon') },
     ];
 
     let fetchPackagesPromise: Promise<packageservice.ListPackagesResponse | undefined>;
@@ -27,6 +27,7 @@
             if (category === 'all') {
                 category = '';
             }
+
             return await ListPackages(query, category, filterInstalled);
         } catch (error) {
             console.error('Error fetching packages:', error);
@@ -58,11 +59,13 @@
         on:refresh={handleRefreshPackages}
     />
     <SidebarFilter
+        searchPlaceholder={$t('home.sidebar.filter.search')}
+        installedLabel={$t('home.sidebar.filter.installed')}
+        filterRadioOptions={filterRadioOptions}
         bind:selectedFilterType={selectedFilterType}
         bind:searchQuery={searchQuery}
         bind:filterInstalled={filterInstalled}
-        filterRadioOptions={filterRadioOptions}
-        onFilterChange={handleInputChange}
+        on:filterChange={handleInputChange}
     />
     <div class="overflow-y-auto h-full">
         {#await fetchPackagesPromise}
