@@ -1,14 +1,14 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
-    import SidebarFilter from '$lib/components/sidebar/SidebarFilter.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';
+    import PackageFilter from '$lib/components/package/PackageFilter.svelte';
 
     import type { packageservice } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
     import { t } from '$lib/translations/translations';
     import type { RadioOption } from '$lib/types';
-  
+
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
     let filterInstalled: boolean = false;
@@ -58,7 +58,7 @@
         on:add={handleAddPackage}
         on:refresh={handleRefreshPackages}
     />
-    <SidebarFilter
+    <PackageFilter
         searchPlaceholder={$t('home.sidebar.filter.search')}
         installedLabel={$t('home.sidebar.filter.installed')}
         filterRadioOptions={filterRadioOptions}
