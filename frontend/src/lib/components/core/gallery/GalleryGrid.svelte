@@ -5,6 +5,7 @@
     export let items: MediaInfo[] = [];
     export let columnCount: number = 4;
     export let selectedIds: string[] = [];
+    export let multiple: boolean = false;
 
     function distributeItems(items: MediaInfo[], columnCount: number): MediaInfo[][] {
         let columns: MediaInfo[][] = Array.from({ length: columnCount }, () => []);
@@ -21,6 +22,6 @@
 
 <Gallery class="gap-2 grid-cols-2 lg:grid-cols-4">
     {#each galleries as gallery}
-        <Gallery items={gallery} bind:group={selectedIds} on:itemDoubleClicked on:ctrlItemDoubleClicked/>
+        <Gallery multiple={multiple} items={gallery} bind:group={selectedIds} on:itemDoubleClicked on:ctrlItemDoubleClicked />
     {/each}
 </Gallery>
