@@ -126,6 +126,8 @@ export namespace project {
 	    fileName?: string;
 	    build?: string;
 	    addons?: string[];
+	    splashPath?: string;
+	    thumbnailPath?: string;
 	    version?: string;
 	    // Go type: time
 	    updatedAt?: any;
@@ -143,6 +145,8 @@ export namespace project {
 	        this.fileName = source["fileName"];
 	        this.build = source["build"];
 	        this.addons = source["addons"];
+	        this.splashPath = source["splashPath"];
+	        this.thumbnailPath = source["thumbnailPath"];
 	        this.version = source["version"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }

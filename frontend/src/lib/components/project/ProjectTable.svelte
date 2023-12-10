@@ -20,8 +20,8 @@
   
     $: {
       tableSource = {
-        head: ['Project', 'id', 'File', 'Build', 'Tags'],
-        body: tableMapperValues(sourceData, ['name', 'id', 'fileName', 'build', 'tags']),
+        head: ['Project', 'File', 'Build', 'Tags'],
+        body: tableMapperValues(sourceData, ['name', 'fileName', 'build', 'tags']),
         meta: tableMapperValues(sourceData, ['id']),
       };
     }

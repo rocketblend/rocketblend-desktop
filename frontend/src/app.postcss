@@ -8,9 +8,9 @@ html, body { @apply h-full overflow-hidden; }
 .shadow-none { box-shadow: none!important; }
 
 .image-fade-in {
-    --reveal-scale: 1.01;
-    --reveal-opacity-duration: .4s;
-    --reveal-transform-duration: 0.2s;
+    --reveal-transform: scale(1.01);
+    --reveal-transition: opacity .1s ease-in, transform 0.1s ease-out;
+    --reveal-filter: blur(20px);
 }
 
 .lqip {

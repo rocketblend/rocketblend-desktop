@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
@@ -113,12 +112,7 @@ func New(opts ...Option) (Service, error) {
 			return false
 		}),
 		watcher.WithResolveObjectPathFunc(func(path string) string {
-			projectPath := filepath.Dir(path)
-			if strings.HasSuffix(projectPath, project.ConfigDir) {
-				projectPath = filepath.Dir(projectPath)
-			}
-
-			return projectPath
+			return filepath.Dir(path)
 		}),
 		watcher.WithUpdateObjectFunc(func(path string) error {
 			project, err := project.Load(path)
@@ -131,12 +125,22 @@ func New(opts ...Option) (Service, error) {
 				return err
 			}
 
+			resources := []string{}
+			if project.ThumbnailPath != "" {
+				resources = append(resources, filepath.ToSlash(project.ThumbnailPath))
+				resources = append(resources, filepath.ToSlash(project.SplashPath))
+				options.Logger.Debug("Added resource", map[string]interface{}{
+					"resource": resources,
+				})
+			}
+
 			return options.Store.Insert(&searchstore.Index{
-				ID:   project.ID,
-				Name: project.Name,
-				Type: indextype.Project,
-				Path: path,
-				Data: string(data),
+				ID:        project.ID,
+				Name:      project.Name,
+				Type:      indextype.Project,
+				Path:      path,
+				Resources: resources,
+				Data:      string(data),
 			})
 		}),
 		watcher.WithRemoveObjectFunc(func(path string) error {
@@ -224,10 +228,6 @@ func (s *service) convert(index *searchstore.Index) (*project.Project, error) {
 	if err := json.Unmarshal([]byte(index.Data), &result); err != nil {
 		return nil, err
 	}
-
-	s.logger.Debug("convert document index", map[string]interface{}{
-		"doc": result,
-	})
 
 	return &result, nil
 }

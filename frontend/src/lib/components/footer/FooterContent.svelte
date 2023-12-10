@@ -1,24 +1,26 @@
 <script lang="ts">
-    export let selectedProject;
-    export let onViewProject: () => void;
-    export let onRunProject: () => Promise<void>;
-    export let onExploreProject: () => Promise<void>;
-  
     import IconBlenderFill from '~icons/ri/blender-fill';
     import IconFolderOpenFill from '~icons/ri/folder-open-fill';
     import IconEyeFill from '~icons/ri/eye-fill';
     import IconBookmark3Fill from '~icons/ri/bookmark-3-fill';
-    import { FxReveal as Img } from '@zerodevx/svelte-img';
-    import logo from '$lib/assets/images/logo.png?run';
-  </script>
+	import Media from '../core/media/Media.svelte';
+
+    import { resourcePath } from '$lib/components/utils';
+	import type { project } from '$lib/wailsjs/go/models';
+
+    export let selectedProject: project.Project | undefined = undefined;
+    export let onViewProject: () => void;
+    export let onRunProject: () => Promise<void>;
+    export let onExploreProject: () => Promise<void>;
+</script>
 
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">
-    {#if $selectedProject}
+    {#if selectedProject}
         <div class="flex gap-4 items-center">
-            <Img class="h-auto max-w-full rounded-lg w-16 image-fade-in" src={logo} alt="" />
+            <Media width=16 height=16 src="{resourcePath(selectedProject.thumbnailPath)}" alt="" />
             <div>
-                <div class="text-sm font-medium">{$selectedProject.name}</div>
-                <div class="text-sm text-surface-300">{$selectedProject.fileName}</div>
+                <div class="text-sm font-medium">{selectedProject.name}</div>
+                <div class="text-sm text-surface-300">{selectedProject.fileName}</div>
             </div>
             <button type="button" class="btn btn-lg px-1 text-secondary-300-600-token"><IconBookmark3Fill/></button>
         </div>

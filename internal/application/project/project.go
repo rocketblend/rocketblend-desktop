@@ -15,22 +15,21 @@ import (
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
 )
 
-const (
-	IgnoreFileName = ".rbdesktopignore"
-	ConfigDir      = ".rbdesktop"
-)
+const IgnoreFileName = ".rocketignore"
 
 type (
 	Project struct {
-		ID        uuid.UUID             `json:"id,omitempty"`
-		Name      string                `json:"name,omitempty"`
-		Tags      []string              `json:"tags,omitempty"`
-		Path      string                `json:"path,omitempty"`
-		FileName  string                `json:"fileName,omitempty"`
-		Build     reference.Reference   `json:"build,omitempty"`
-		Addons    []reference.Reference `json:"addons,omitempty"`
-		Version   string                `json:"version,omitempty"`
-		UpdatedAt time.Time             `json:"updatedAt,omitempty"`
+		ID            uuid.UUID             `json:"id,omitempty"`
+		Name          string                `json:"name,omitempty"`
+		Tags          []string              `json:"tags,omitempty"`
+		Path          string                `json:"path,omitempty"`
+		FileName      string                `json:"fileName,omitempty"`
+		Build         reference.Reference   `json:"build,omitempty"`
+		Addons        []reference.Reference `json:"addons,omitempty"`
+		SplashPath    string                `json:"splashPath,omitempty"`
+		ThumbnailPath string                `json:"thumbnailPath,omitempty"`
+		Version       string                `json:"version,omitempty"`
+		UpdatedAt     time.Time             `json:"updatedAt,omitempty"`
 	}
 )
 
@@ -80,7 +79,7 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
-	settings, err := loadOrCreateSettings(filepath.Join(projectPath, ConfigDir, projectsettings.FileName))
+	settings, err := loadOrCreateSettings(filepath.Join(projectPath, projectsettings.FileName))
 	if err != nil {
 		return nil, err
 	}
@@ -90,16 +89,36 @@ func Load(projectPath string) (*Project, error) {
 		return nil, err
 	}
 
+	thumbnailPath := ""
+	if settings.ThumbnailPath != "" {
+		if filepath.IsAbs(settings.ThumbnailPath) {
+			return nil, fmt.Errorf("thumbnail file path must be relative: %s", settings.ThumbnailPath)
+		}
+
+		thumbnailPath = filepath.ToSlash(filepath.Join(projectPath, settings.ThumbnailPath))
+	}
+
+	splashPath := ""
+	if settings.SplashPath != "" {
+		if filepath.IsAbs(settings.SplashPath) {
+			return nil, fmt.Errorf("splash file path must be relative: %s", settings.SplashPath)
+		}
+
+		splashPath = filepath.ToSlash(filepath.Join(projectPath, settings.SplashPath))
+	}
+
 	return &Project{
-		ID:        settings.ID,
-		Name:      settings.Name,
-		Tags:      settings.Tags,
-		Path:      blendFile.ProjectPath,
-		FileName:  blendFile.BlendFileName,
-		Build:     blendFile.RocketFile.GetBuild(),
-		Addons:    blendFile.RocketFile.GetAddons(),
-		Version:   blendFile.RocketFile.GetVersion(),
-		UpdatedAt: modTime,
+		ID:            settings.ID,
+		Name:          settings.Name,
+		Tags:          settings.Tags,
+		Path:          blendFile.ProjectPath,
+		FileName:      blendFile.BlendFileName, //TODO: Use full path.
+		ThumbnailPath: thumbnailPath,
+		SplashPath:    splashPath,
+		Build:         blendFile.RocketFile.GetBuild(),
+		Addons:        blendFile.RocketFile.GetAddons(),
+		Version:       blendFile.RocketFile.GetVersion(),
+		UpdatedAt:     modTime,
 	}, nil
 }
 

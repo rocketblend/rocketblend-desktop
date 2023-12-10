@@ -3,7 +3,7 @@
 
     import { t } from '$lib/translations/translations';
 
-    import type { RadioOption } from '$lib/types/radioOption';
+    import type { RadioOption } from '$lib/types';
 
     import SearchInput from '$lib/components/core/input/SearchInput.svelte';
 

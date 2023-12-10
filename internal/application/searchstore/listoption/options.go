@@ -12,6 +12,7 @@ type (
 		Query    string
 		Type     indextype.IndexType
 		Category string
+		Resource string
 		Ready    bool
 		Size     int
 		From     int
@@ -38,6 +39,12 @@ func WithCategory(category string) ListOption {
 	}
 }
 
+func WithResource(resource string) ListOption {
+	return func(o *ListOptions) {
+		o.Resource = resource
+	}
+}
+
 func WithReady(ready bool) ListOption {
 	return func(o *ListOptions) {
 		o.Ready = ready
@@ -60,11 +67,20 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	query := bleve.NewConjunctionQuery()
 
 	if so.Type != indextype.Unknown {
-		query.AddQuery(bleve.NewQueryStringQuery("type:" + strconv.Itoa(int(so.Type))))
+		typeQuery := bleve.NewQueryStringQuery("type:" + strconv.Itoa(int(so.Type)))
+		query.AddQuery(typeQuery)
 	}
 
 	if so.Category != "" {
-		query.AddQuery(bleve.NewQueryStringQuery("category:" + so.Category))
+		categoryQuery := bleve.NewMatchPhraseQuery(so.Category)
+		categoryQuery.SetField("category")
+		query.AddQuery(categoryQuery)
+	}
+
+	if so.Resource != "" {
+		resourceQuery := bleve.NewMatchPhraseQuery(so.Resource)
+		resourceQuery.SetField("resources")
+		query.AddQuery(resourceQuery)
 	}
 
 	if so.Ready {
@@ -74,11 +90,13 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	}
 
 	if so.Query != "" {
-		fuzzy := bleve.NewFuzzyQuery(so.Query)
-		fuzzy.SetFuzziness(2) // Levenshtein distance
-		query.AddQuery(fuzzy)
+		textQuery := bleve.NewMatchPhraseQuery(so.Query)
+		// textQuery.Fuzziness = 1
+
+		query.AddQuery(textQuery)
 	} else {
-		query.AddQuery(bleve.NewMatchAllQuery())
+		matchAllQuery := bleve.NewMatchAllQuery()
+		query.AddQuery(matchAllQuery)
 	}
 
 	return bleve.NewSearchRequestOptions(query, so.Size, so.From, false)

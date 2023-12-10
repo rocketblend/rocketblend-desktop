@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	FileName = "settings.yaml"
+	FileName = "rocketdesk.yaml"
 )
 
 type (
@@ -24,11 +24,12 @@ type (
 	}
 
 	ProjectSettings struct {
-		ID                uuid.UUID          `json:"id,omitempty"`
-		Name              string             `json:"name,omitempty"`
-		Tags              []string           `json:"tags,omitempty"`
-		ThumbnailSettings *ThumbnailSettings `json:"thumbnailSettings,omitempty"`
-		ThumbnailFilePath string             `json:"thumbnailFilePath,omitempty"`
+		ID   uuid.UUID `json:"id,omitempty"`
+		Name string    `json:"name,omitempty"`
+		Tags []string  `json:"tags,omitempty"`
+		//ThumbnailSettings *ThumbnailSettings `json:"thumbnailSettings,omitempty"`
+		ThumbnailPath string `json:"thumbnailPath,omitempty"`
+		SplashPath    string `json:"splashPath,omitempty"`
 	}
 )
 
@@ -84,6 +85,18 @@ func Save(settings *ProjectSettings, filePath string) error {
 }
 
 func Validate(settings *ProjectSettings) error {
+	if settings.ID == uuid.Nil {
+		return fmt.Errorf("project settings must have an id")
+	}
+
+	if filepath.IsAbs(settings.ThumbnailPath) {
+		return fmt.Errorf("thumbnail path must be relative: %s", settings.ThumbnailPath)
+	}
+
+	if filepath.IsAbs(settings.SplashPath) {
+		return fmt.Errorf("splash path must be relative: %s", settings.SplashPath)
+	}
+
 	return nil
 }
 
