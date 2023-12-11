@@ -4,6 +4,8 @@
     import PackageListView from '$lib/components/package/PackageListView.svelte';
     import PackageFilter from '$lib/components/package/PackageFilter.svelte';
 
+    import { GetProject } from '$lib/wailsjs/go/application/Driver'
+    import { selectedProjectIds } from '$lib/store';
     import type { packageservice } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
     import { t } from '$lib/translations/translations';
@@ -19,7 +21,22 @@
     ];
 
     let fetchPackagesPromise: Promise<packageservice.ListPackagesResponse | undefined>;
-    let selectedPackageIds: string[] = [];
+    let dependencies: string[] = [];
+
+    $: if ($selectedProjectIds) {
+        loadDependencies();
+    }
+
+    async function loadDependencies() {
+        var id = selectedProjectIds.latest();
+        if (!id) {
+            return;
+        }
+
+        var result = await GetProject(id);
+        dependencies = result.project?.addons || [];
+        dependencies.push(result.project?.build || '');
+    }
 
     async function fetchPackages(query: string): Promise<packageservice.ListPackagesResponse | undefined> {
         try {
@@ -67,6 +84,7 @@
         bind:filterInstalled={filterInstalled}
         on:filterChange={handleInputChange}
     />
+
     <div class="overflow-y-auto h-full">
         {#await fetchPackagesPromise}
             <div class="space-y-4 p-2">
@@ -76,7 +94,7 @@
             </div>
         {:then response}
             {#if response && response.packages}
-                <PackageListView packages={response.packages} selectedPackageIds={selectedPackageIds} />
+                <PackageListView packages={response.packages} bind:dependencies={dependencies} />
             {:else}
                 <div class="p-2">
                     <p class="font-bold text-sm text-surface-200 text-center">{$t('home.sidebar.noresults')}</p>

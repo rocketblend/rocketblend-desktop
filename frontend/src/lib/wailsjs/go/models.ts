@@ -12,7 +12,6 @@ export namespace pack {
 	    // Go type: semver
 	    version?: any;
 	    addons?: string[];
-	    sources?: {[key: number]: Source};
 	    verified?: boolean;
 	    // Go type: time
 	    updatedAt?: any;
@@ -33,7 +32,6 @@ export namespace pack {
 	        this.installationPath = source["installationPath"];
 	        this.version = this.convertValues(source["version"], null);
 	        this.addons = source["addons"];
-	        this.sources = source["sources"];
 	        this.verified = source["verified"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }

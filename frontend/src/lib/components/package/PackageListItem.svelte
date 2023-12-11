@@ -4,7 +4,7 @@
 
     import IconDownload2Fill from '~icons/ri/download-2-fill';
     import IconStopFill from '~icons/ri/stop-mini-fill';
-    import IconCheckFill from '~icons/ri/check-fill';
+    import IconSubtractFill from '~icons/ri/subtract-fill';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
 
     import IconAddFill from '~icons/ri/add-fill';
@@ -21,8 +21,10 @@
     export let downloadHost: string = "";
     export let state: string = "";
 
+    export let selected: boolean = false;
+
+    let selectedClass: string;
     let active = false;
-    let selected = false;
 
     const dispatch = createEventDispatcher();
 
@@ -38,7 +40,11 @@
         } else if (progress > 0 && progress < 100) {
             dispatch('stop');
         } else if (progress === 100) {
-            dispatch('add');
+            if (selected) {
+                dispatch('remove');
+            } else {
+                dispatch('add');
+            }
         }
     }
 
@@ -54,9 +60,10 @@
         }
     }
 
+    $: selectedClass = selected ? "variant-ghost-primary" : "hover:variant-filled-surface";
 </script>
 
-<div class="flex gap-2"
+<div class="flex gap-2 rounded p-2 {selectedClass}"
     on:mouseenter|stopPropagation={() => active = true}
     on:mouseleave|stopPropagation={() => active = false}
     role="button" 
@@ -77,13 +84,23 @@
                     {:else if progress < 100}
                         <IconStopFill />
                     {:else}
-                        <IconAddFill />
+                        {#if selected}
+                            <IconSubtractFill />
+                        {:else}
+                            <IconAddFill />
+                        {/if}
                     {/if}
                 </div>
             {/if}
         </div>
     </div>
-    <div class="flex-col gap-2 overflow-hidden">
+    <div
+        class="flex-col gap-2 overflow-hidden"
+        on:click
+        on:keydown
+        role="button"       
+        tabindex="0"
+    >
         <!-- Render package details -->
         <div class="inline-flex items-center gap-2 w-full">
             <span class="font-medium truncate">{name}</span>
@@ -101,7 +118,7 @@
         <div class="text-sm text-surface-800-100-token truncate">{reference}</div>
         <div class="flex-wrap gap-2 space-y-1 w-full">
             <div class="badge variant-soft-success rounded">{downloadHost}</div>
-            <div class="badge variant-ghost rounded">{platform}</div>
+            <div class="badge variant-ghost">{platform}</div>
             <div class="badge variant-ghost rounded">{version}</div>
             <div class="badge variant-ghost rounded">{author}</div>
             <div class="badge variant-ghost rounded">{type}</div>

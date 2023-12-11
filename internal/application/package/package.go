@@ -28,9 +28,9 @@ type (
 		InstallationPath string                `json:"installationPath,omitempty"`
 		Version          semver.Version        `json:"version,omitempty"`
 		Dependencies     []reference.Reference `json:"addons,omitempty"`
-		Sources          rocketpack.Sources    `json:"sources,omitempty"`
-		Verified         bool                  `json:"verified,omitempty"`
-		UpdatedAt        time.Time             `json:"updatedAt,omitempty"`
+		Sources          rocketpack.Sources
+		Verified         bool      `json:"verified,omitempty"`
+		UpdatedAt        time.Time `json:"updatedAt,omitempty"`
 	}
 )
 
