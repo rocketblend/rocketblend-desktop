@@ -1,10 +1,13 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
     import { ProgressBar } from '@skeletonlabs/skeleton';
 
     import IconDownload2Fill from '~icons/ri/download-2-fill';
     import IconStopFill from '~icons/ri/stop-mini-fill';
     import IconCheckFill from '~icons/ri/check-fill';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
+
+    import IconAddFill from '~icons/ri/add-fill';
 
     export let name: string = "";
     export let tag: string = "";
@@ -19,6 +22,9 @@
     export let state: string = "";
 
     let active = false;
+    let selected = false;
+
+    const dispatch = createEventDispatcher();
 
     const bageBackground: Record<string, string> = {
         build: "variant-gradient-primary-secondary",
@@ -27,11 +33,25 @@
     }
 
     function HandleClick() {
-        console.log("click");
+        if (progress === 0) {
+            dispatch('download');
+        } else if (progress > 0 && progress < 100) {
+            dispatch('stop');
+        } else if (progress === 100) {
+            dispatch('add');
+        }
     }
 
-    function handleKeyDown() {
-        console.log("key down");
+    function handleKeyDown(event: KeyboardEvent) {
+        if (event.key === 'Enter') {
+            if (progress === 0) {
+                dispatch('download');
+            } else if (progress > 0 && progress < 100) {
+                dispatch('stop');
+            } else if (progress === 100) {
+                dispatch('add');
+            }
+        }
     }
 
 </script>
@@ -57,7 +77,7 @@
                     {:else if progress < 100}
                         <IconStopFill />
                     {:else}
-                        <IconCheckFill />
+                        <IconAddFill />
                     {/if}
                 </div>
             {/if}
@@ -74,7 +94,7 @@
         </div>
         {#if progress && progress != 100 }
             <div class="flex items-center gap-2">
-                <ProgressBar rounded="rounded"/>
+                <ProgressBar value={progress} rounded="rounded"/>
                 <div class="text-surface-800-100-token text-sm">{progress}%</div>
             </div>
         {/if}
