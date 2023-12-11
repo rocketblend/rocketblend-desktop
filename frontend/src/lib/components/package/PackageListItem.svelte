@@ -2,12 +2,14 @@
     import { createEventDispatcher } from 'svelte';
     import { ProgressBar } from '@skeletonlabs/skeleton';
 
-    import IconDownload2Fill from '~icons/ri/download-2-fill';
+    import IconDownload2Fill from '~icons/ri/file-download-fill';
     import IconStopFill from '~icons/ri/stop-mini-fill';
     import IconSubtractFill from '~icons/ri/subtract-fill';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
 
     import IconAddFill from '~icons/ri/add-fill';
+
+    import IconMoreFill from '~icons/ri/delete-bin-7-fill';
 
     export let name: string = "";
     export let tag: string = "";
@@ -40,11 +42,7 @@
         } else if (progress > 0 && progress < 100) {
             dispatch('stop');
         } else if (progress === 100) {
-            if (selected) {
-                dispatch('remove');
-            } else {
-                dispatch('add');
-            }
+            dispatch('delete');
         }
     }
 
@@ -55,7 +53,7 @@
             } else if (progress > 0 && progress < 100) {
                 dispatch('stop');
             } else if (progress === 100) {
-                dispatch('add');
+                dispatch('delete');
             }
         }
     }
@@ -64,6 +62,9 @@
 </script>
 
 <div class="flex gap-2 rounded p-2 {selectedClass}"
+    on:click|stopPropagation
+    on:dblclick|stopPropagation
+    on:keydown|stopPropagation
     on:mouseenter|stopPropagation={() => active = true}
     on:mouseleave|stopPropagation={() => active = false}
     role="button" 
@@ -72,8 +73,8 @@
     <div class="flex-shrink-0">
         <div 
             class="flex items-center h-full bg-gradient-to-br {bageBackground[type || 'unknown']} rounded p-1 text-token"
-            on:click={HandleClick}
-            on:keydown={handleKeyDown}
+            on:click|stopPropagation={HandleClick}
+            on:keydown|stopPropagation={handleKeyDown}
             role="button" 
             tabindex="0"
         >
@@ -84,11 +85,12 @@
                     {:else if progress < 100}
                         <IconStopFill />
                     {:else}
-                        {#if selected}
+                        <!-- {#if selected}
                             <IconSubtractFill />
                         {:else}
                             <IconAddFill />
-                        {/if}
+                        {/if} -->
+                        <IconMoreFill />
                     {/if}
                 </div>
             {/if}
@@ -96,10 +98,6 @@
     </div>
     <div
         class="flex-col gap-2 overflow-hidden"
-        on:click
-        on:keydown
-        role="button"       
-        tabindex="0"
     >
         <!-- Render package details -->
         <div class="inline-flex items-center gap-2 w-full">
