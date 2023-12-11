@@ -96,8 +96,13 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		installationPath = ""
 	}
 
+	id, err := util.StringToUUID(reference.String())
+	if err != nil {
+		return nil, fmt.Errorf("error generating package id: %w", err)
+	}
+
 	return &Package{
-		ID:               uuid.New(),
+		ID:               id,
 		Type:             packType,
 		Name:             getName(reference),
 		Tag:              getTag(reference),
