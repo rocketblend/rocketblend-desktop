@@ -4,31 +4,43 @@
     import IconEyeFill from '~icons/ri/eye-fill';
     import IconBookmark3Fill from '~icons/ri/bookmark-3-fill';
 	import Media from '../core/media/Media.svelte';
+    import { createEventDispatcher } from 'svelte';
 
-    import { resourcePath } from '$lib/components/utils';
-	import type { project } from '$lib/wailsjs/go/models';
+    const dispatch = createEventDispatcher();
 
-    export let selectedProject: project.Project | undefined = undefined;
-    export let onViewProject: () => void;
-    export let onRunProject: () => Promise<void>;
-    export let onExploreProject: () => Promise<void>;
+    export let name: string = '';
+    export let fileName: string = '';
+    export let imagePath: string = '';
+    export let isLoading: boolean = true;
+
+    function handleViewProject() {
+        dispatch('viewProject');
+    }
+
+    function handleRunProject() {
+        dispatch('runProject');
+    }
+
+    function handleExploreProject() {
+        dispatch('exploreProject');
+    }
 </script>
 
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">
-    {#if selectedProject}
+    {#if !isLoading}
         <div class="flex gap-4 items-center">
-            <Media width=16 height=16 src="{resourcePath(selectedProject.thumbnailPath)}" alt="" />
+            <Media width=16 height=16 src={imagePath} alt="" />
             <div>
-                <div class="text-sm font-medium">{selectedProject.name}</div>
-                <div class="text-sm text-surface-300">{selectedProject.fileName}</div>
+                <div class="text-sm font-medium">{name}</div>
+                <div class="text-sm text-surface-300">{fileName}</div>
             </div>
             <button type="button" class="btn btn-lg px-1 text-secondary-300-600-token"><IconBookmark3Fill/></button>
         </div>
         <div class="min-w-max items-center justify-center flex gap-2"></div>
         <div class="justify-end items-center flex gap-2">
-            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={onViewProject}><IconEyeFill/></button>
-            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={onExploreProject}><IconFolderOpenFill /></button>
-            <button type="button" class="btn variant-filled text-lg px-9" on:click={onRunProject}><IconBlenderFill/></button>
+            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleViewProject}><IconEyeFill/></button>
+            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleExploreProject}><IconFolderOpenFill /></button>
+            <button type="button" class="btn variant-filled text-lg px-9" on:click={handleRunProject}><IconBlenderFill/></button>
         </div>
     {:else}
         <div class="flex gap-4 items-center">

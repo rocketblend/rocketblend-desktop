@@ -1,30 +1,19 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-
-    import { RunProject } from '$lib/wailsjs/go/application/Driver';
+    import { page } from '$app/stores';
     import { t } from '$lib/translations/translations';
-
-    import type { PageData } from './$types';
-    import { page } from '$app/stores'
-
-    import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
-    
-    import SearchInput from '$lib/components/core/input/SearchInput.svelte';
-	import ProjectGallery from '$lib/components/project/ProjectGallery.svelte';
-    import ProjectTable from '$lib/components/project/ProjectTable.svelte';
-
-    import type { project } from '$lib/wailsjs/go/models';
-
     import { selectedProjectIds } from '$lib/store';
-
+    import { RunProject } from '$lib/wailsjs/go/application/Driver';
+    import type { project } from '$lib/wailsjs/go/models';
+    import type { PageData } from './$types';
+	import ProjectListView from '$lib/components/project/ProjectListView.svelte';
+	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
+    
     export let data: PageData;
 
-    let searchQuery = '';
-    let displayType = 'table';
+    let searchQuery = "";
+    let displayType = "table";
     let form : HTMLFormElement;
-
-    $: searchQuery = $page.url.searchParams.get('query') || '';
-    $: displayType = $page.url.searchParams.get('display') || 'table';
 
     function handleSelected(event: CustomEvent<project.Project | null>): void {
         const project = event.detail;
@@ -35,53 +24,36 @@
         selectedProjectIds.set([project.id.toString()]);
     }
 
-    function handleFormSubmit(event: Event): void {
-        form.requestSubmit();
-    }
-
-    
     function handleProjectDoubleClick(event: CustomEvent<{ itemId: string }>) {
-        const itemId = event.detail.itemId;
-        console.log(`Double clicked item with ID: ${itemId}`);
-
-        goto(`/projects/${itemId}`);
+        goto(`/projects/${event.detail.itemId}`);
     }
 
     function handleProjectActionDoubleClick(event: CustomEvent<{ itemId: string }>) {
-        const itemId = event.detail.itemId;
-        RunProject(itemId)
+        RunProject(event.detail.itemId)
     }
+
+    function handleFilterChangeEvent(event: Event): void {
+        form.requestSubmit();
+    }
+
+    $: searchQuery = $page.url.searchParams.get('query') || '';
+    $: displayType = $page.url.searchParams.get('display') || 'table';
 </script>
 
 <main class="space-y-4"> 
     <h2 class="font-bold">{$t('home.title')}</h2>
     <div class="space-y-4">
-        <form bind:this={form} data-sveltekit-keepfocus class="inline-flex space-x-4 w-full">
-            <div class="flex-grow">
-                <SearchInput name="query" value={searchQuery} on:input={handleFormSubmit} placeholder="Search" debounceDelay={500} />
-            </div>
-
-            <RadioGroup>
-                <RadioItem name="display" group={displayType} value={"table"} on:change={handleFormSubmit}>Table</RadioItem>
-                <RadioItem name="display" group={displayType} value={"gallery"} on:change={handleFormSubmit}>Gallery</RadioItem>
-            </RadioGroup>
-            <button type="submit" class="hidden">Search</button>
-        </form>
-        
-        {#if data.projects === undefined || data.projects.length === 0}
-            <div class="flex items-center justify-center h-64">
-                <h4>No projects found.</h4>
-            </div>
-        {:else}
-            {#if displayType === "gallery"}
-                <ProjectGallery
-                    on:itemDoubleClicked={handleProjectDoubleClick}
-                    on:ctrlItemDoubleClicked={handleProjectActionDoubleClick}
-                    bind:sourceData={data.projects}
-                    bind:selectedIds={$selectedProjectIds}/>
-            {:else }
-                <ProjectTable bind:sourceData={data.projects} on:selected={handleSelected} />
-            {/if}
-        {/if}
+        <ProjectFilter
+            bind:form={form}
+            bind:searchQuery={searchQuery}
+            bind:displayType={displayType}
+            on:change={handleFilterChangeEvent} />
+        <ProjectListView
+            bind:projects={data.projects}
+            bind:displayType={displayType}
+            bind:selectedProjectIds={$selectedProjectIds}
+            on:ctrlItemDoubleClicked={handleProjectActionDoubleClick}
+            on:itemDoubleClicked={handleProjectDoubleClick}
+            on:selected={handleSelected}/>
     </div>
 </main>
