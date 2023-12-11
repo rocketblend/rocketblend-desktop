@@ -4,11 +4,7 @@
 
     import IconDownload2Fill from '~icons/ri/file-download-fill';
     import IconStopFill from '~icons/ri/stop-mini-fill';
-    import IconSubtractFill from '~icons/ri/subtract-fill';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
-
-    import IconAddFill from '~icons/ri/add-fill';
-
     import IconMoreFill from '~icons/ri/delete-bin-7-fill';
 
     export let name: string = "";
@@ -85,11 +81,6 @@
                     {:else if progress < 100}
                         <IconStopFill />
                     {:else}
-                        <!-- {#if selected}
-                            <IconSubtractFill />
-                        {:else}
-                            <IconAddFill />
-                        {/if} -->
                         <IconMoreFill />
                     {/if}
                 </div>
