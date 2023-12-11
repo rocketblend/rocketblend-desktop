@@ -15,6 +15,7 @@
 
     let mediaLoaded = false;
 
+    $: if (src || src == "") {mediaLoaded = false;}
     $: heightClass = `h-${height}`;
     $: widthClass = `w-${width}`;
     $: mediaClass = twMerge(containerClass, heightClass, widthClass, mediaLoaded ? 'h-fit' : '');
