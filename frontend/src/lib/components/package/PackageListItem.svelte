@@ -84,6 +84,7 @@
             <div class="badge variant-ghost rounded">{platform}</div>
             <div class="badge variant-ghost rounded">{version}</div>
             <div class="badge variant-ghost rounded">{author}</div>
+            <div class="badge variant-ghost rounded">{type}</div>
             <div class="badge variant-ghost rounded">{state}</div>
         </div>
     </div>
