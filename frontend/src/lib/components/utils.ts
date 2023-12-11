@@ -14,3 +14,8 @@ export function resourcePath(path: string | undefined) {
 
     return "";
 };
+
+export const videoExtensions = ['.webm', '.mp4', '.ogg'];
+export function isVideo(path: string) {
+    return videoExtensions.some(ext => path.endsWith(ext));
+}
