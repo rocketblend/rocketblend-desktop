@@ -22,12 +22,15 @@ type (
 		Type             Type                  `json:"type,omitempty"`
 		Reference        reference.Reference   `json:"reference,omitempty"`
 		Name             string                `json:"name,omitempty"`
+		Author           string                `json:"author,omitempty"`
+		Tag              string                `json:"tag,omitempty"`
 		Path             string                `json:"path,omitempty"`
 		InstallationPath string                `json:"installationPath,omitempty"`
 		Version          semver.Version        `json:"version,omitempty"`
 		Dependencies     []reference.Reference `json:"addons,omitempty"`
-		Sources          rocketpack.Sources
-		UpdatedAt        time.Time `json:"updatedAt,omitempty"`
+		Sources          rocketpack.Sources    `json:"sources,omitempty"`
+		Verified         bool                  `json:"verified,omitempty"`
+		UpdatedAt        time.Time             `json:"updatedAt,omitempty"`
 	}
 )
 
@@ -48,13 +51,11 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 	}
 
 	packType := Unknown
-	name := filepath.Base(packagePath)
 	version := semver.Version{}
 	sources := make(rocketpack.Sources)
 
 	if pack.IsAddon() {
 		packType = Addon
-		name = pack.Addon.Name
 
 		if pack.Addon.Version != nil {
 			version = *pack.Addon.Version
@@ -70,7 +71,6 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 
 	if pack.IsBuild() {
 		packType = Build
-		name = reference.String()
 
 		if pack.Build.Version != nil {
 			version = *pack.Build.Version
@@ -99,12 +99,15 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 	return &Package{
 		ID:               uuid.New(),
 		Type:             packType,
-		Name:             name,
+		Name:             getName(reference),
+		Tag:              getTag(reference),
+		Author:           getAuthor(reference),
 		Reference:        reference,
 		Path:             packagePath,
 		InstallationPath: installationPath,
 		Sources:          sources,
 		Dependencies:     pack.GetDependencies(),
+		Verified:         getVerification(reference),
 		Version:          version,
 		UpdatedAt:        modTime,
 	}, nil
@@ -146,4 +149,42 @@ func CheckIfDirectoryHasFiles(folderPath string) (bool, error) {
 	}
 
 	return len(files) > 0, nil
+}
+
+// TODO: Move these to reference package
+func getName(ref reference.Reference) string {
+	parts := strings.Split(string(ref), "/")
+	if len(parts) < 2 {
+		return ""
+	}
+
+	return parts[len(parts)-2]
+}
+
+func getTag(ref reference.Reference) string {
+	parts := strings.Split(string(ref), "/")
+	if len(parts) < 1 {
+		return ""
+	}
+
+	return parts[len(parts)-1]
+}
+
+func getAuthor(ref reference.Reference) string {
+	author, err := ref.GetRepo()
+	if err != nil {
+		return ""
+	}
+
+	return author
+}
+
+// TODO: Move safe list into rocketblend config.
+func getVerification(ref reference.Reference) bool {
+	repo, err := ref.GetRepo()
+	if err != nil {
+		return false
+	}
+
+	return repo == "github.com/rocketblend/official-library"
 }

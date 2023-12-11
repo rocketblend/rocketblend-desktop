@@ -24,7 +24,7 @@
     }
 </script>
 
-<AppShell slotSidebarLeft="flex flex-col overflow-y-hidden space-y-2 pl-2 w-80 h-full">
+<AppShell slotSidebarLeft="flex flex-col overflow-y-hidden space-y-2 pl-2 w-96 h-full">
     <svelte:fragment slot="header">
         <div style="--wails-draggable:drag">
             <AppBar background="bg-surface-50-900-token" padding="p0" slotTrail="space-x-0 -mt-3">

@@ -92,14 +92,14 @@ func (a *application) Execute() error {
 	// Create application with options
 	return wails.Run(&options.App{
 		Title:  "RocketBlend Desktop",
-		Width:  1024,
+		Width:  1148,
 		Height: 768,
 		AssetServer: &assetserver.Options{
 			Assets:  a.assets,
 			Handler: a.handler,
 		},
 		MinHeight:        580,
-		MinWidth:         764,
+		MinWidth:         800,
 		BackgroundColour: &options.RGBA{R: 00, G: 00, B: 00, A: 1},
 		OnStartup:        a.driver.startup,
 		OnShutdown:       a.driver.shutdown,
