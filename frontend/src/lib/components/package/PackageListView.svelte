@@ -8,6 +8,7 @@
 
     export let packages: pack.Package[] = [];
     export let dependencies: string[] = [];
+    export let platform: string = "windows";
 
     function handleItemClick(reference: string = "") {
         console.log("click", reference);
@@ -69,7 +70,7 @@
             reference={pack.reference}
             progress={pack.installationPath ? 100 : 0}
             verified={pack.verified}
-            platform="windows"
+            platform={platform}
             downloadHost="download.blender.org"
         />
     {/each}
