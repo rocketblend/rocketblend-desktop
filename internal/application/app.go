@@ -92,8 +92,8 @@ func (a *application) Execute() error {
 	// Create application with options
 	return wails.Run(&options.App{
 		Title:  "RocketBlend Desktop",
-		Width:  1148,
-		Height: 768,
+		Width:  1150,
+		Height: 780,
 		AssetServer: &assetserver.Options{
 			Assets:  a.assets,
 			Handler: a.handler,
