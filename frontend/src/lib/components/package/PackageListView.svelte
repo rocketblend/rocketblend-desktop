@@ -1,7 +1,10 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
     import { PackageState, PackageType } from './types';
     import PackageListItem from './PackageListItem.svelte';
     import type { pack } from '$lib/wailsjs/go/models';
+
+    const dispatch = createEventDispatcher();
 
     export let packages: pack.Package[] = [];
     export let dependencies: string[] = [];
@@ -18,15 +21,15 @@
     }
 
     function handleItemDownload(packageId: string = "") {
-        console.log("download", packageId);
+        dispatch('download', { packageId });
     }
 
-    function handleItemStop(packageId: string = "") {
-        console.log("stop", packageId);
+    function handleItemCancel(packageId: string = "") {
+        dispatch('cancel', { packageId });
     }
 
-    function handleItemDelete(pacakgeId: string = "") {
-        console.log("delete", pacakgeId);
+    function handleItemDelete(packageId: string = "") {
+        dispatch('delete', { packageId });
     }
 
     function getPackageType(typeStr: string = ""): PackageType {
@@ -39,7 +42,7 @@
                 return PackageType.Unknown;
         }
     }
-    
+
     function getPackageState(installationPath: string = ""): PackageState {
         if (installationPath) {
             return PackageState.Installed;
@@ -54,8 +57,8 @@
         <PackageListItem
             on:click={() => handleItemClick(pack.reference?.toString())}
             on:download={() => handleItemDownload(pack.id?.toString())}
+            on:cancel={() => handleItemCancel(pack.id?.toString())}
             on:delete={() => handleItemDelete(pack.id?.toString())}
-            on:stop={() => handleItemStop(pack.id?.toString())}
             selected={dependencies.includes(pack.reference?.toString() || "")}
             name={pack.name}
             type={getPackageType(pack.type?.toString())}

@@ -21,7 +21,7 @@
                 dispatch('download');
                 break;
             case PackageState.Downloading:
-                dispatch('stop');
+                dispatch('cancel');
                 break;
             case PackageState.Installed:
                 dispatch('delete');

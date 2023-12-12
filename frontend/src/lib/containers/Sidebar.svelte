@@ -63,6 +63,18 @@
     function handleRefreshPackages(): void {
         console.log('Refresh packages');
     }
+
+    function handlePackageDownload(event: CustomEvent<{ packageId: string }>) {
+        console.log('Download package', event.detail.packageId);
+    }
+
+    function handlePackageCancel(event: CustomEvent<{ packageId: string }>) {
+        console.log('Cancel package', event.detail.packageId);
+    }
+
+    function handlePackageDelete(event: CustomEvent<{ packageId: string }>) {
+        console.log('Delete package', event.detail.packageId);
+    }
   
     onMount(() => {
         fetchPackagesPromise = fetchPackages(searchQuery);
@@ -94,7 +106,13 @@
             </div>
         {:then response}
             {#if response && response.packages}
-                <PackageListView packages={response.packages} bind:dependencies={dependencies} />
+                <PackageListView
+                    on:download={handlePackageDownload}
+                    on:cancel={handlePackageCancel}
+                    on:delete={handlePackageDelete}
+                    packages={response.packages}
+                    bind:dependencies={dependencies}    
+                />
             {:else}
                 <div class="p-2">
                     <p class="font-bold text-sm text-surface-200 text-center">{$t('home.sidebar.noresults')}</p>

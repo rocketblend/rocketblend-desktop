@@ -48,9 +48,9 @@
 >
     <div class="flex-shrink-0">
         <PackageActionButton 
-            on:delete
             on:download
-            on:stop
+            on:cancel
+            on:delete
             state={state}
             isOpen={active}
             variantFrom={variant.variantFrom}
