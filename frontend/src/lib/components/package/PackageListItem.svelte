@@ -1,58 +1,37 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import { ProgressBar } from '@skeletonlabs/skeleton';
-
-    import IconDownload2Fill from '~icons/ri/file-download-fill';
-    import IconStopFill from '~icons/ri/stop-mini-fill';
+    import { PackageState, PackageType } from './types';
+    import ProgressBar from '$lib/components/core/progress/ProgressBar.svelte';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
-    import IconMoreFill from '~icons/ri/delete-bin-7-fill';
+	import PackageBadge from './PackageBadge.svelte';
+	import PackageActionButton from './PackageActionButton.svelte';
 
-    export let name: string = "";
-    export let tag: string = "";
-    export let version: string = "";
-    export let author: string = "";
-    export let platform: string = "";
-    export let reference: string = "";
-    export let type: number | undefined;
-    export let verified: boolean = false;
-    export let progress: number = 0;
-    export let downloadHost: string = "";
-    export let state: string = "";
+    export let name = "";
+    export let tag = "";
+    export let version = "";
+    export let author = "";
+    export let platform = "";
+    export let reference = "";
+    export let type: PackageType = PackageType.Unknown;
+    export let state: PackageState = PackageState.Available;
+    export let verified = false;
+    export let progress = 0;
+    export let downloadHost = "";
+    export let selected = false;
 
-    export let selected: boolean = false;
-
-    let selectedClass: string;
     let active = false;
 
-    const dispatch = createEventDispatcher();
-
-    const bageBackground: Record<string, string> = {
-        build: "variant-gradient-primary-secondary",
-        addon: "variant-gradient-tertiary-primary",
-        unknown: "variant-gradient-secondary-tertiary",
-    }
-
-    function HandleClick() {
-        if (progress === 0) {
-            dispatch('download');
-        } else if (progress > 0 && progress < 100) {
-            dispatch('stop');
-        } else if (progress === 100) {
-            dispatch('delete');
+    function getBackgroundVariants(type: PackageType) {
+        switch (type) {
+            case PackageType.Build:
+                return { variantFrom: 'primary', variantTo: 'secondary' };
+            case PackageType.Addon:
+                return { variantFrom: 'tertiary', variantTo: 'primary' };
+            default:
+                return { variantFrom: 'secondary', variantTo: 'tertiary' };
         }
     }
 
-    function handleKeyDown(event: KeyboardEvent) {
-        if (event.key === 'Enter') {
-            if (progress === 0) {
-                dispatch('download');
-            } else if (progress > 0 && progress < 100) {
-                dispatch('stop');
-            } else if (progress === 100) {
-                dispatch('delete');
-            }
-        }
-    }
+    const variant = getBackgroundVariants(type);
 
     $: selectedClass = selected ? "variant-ghost-primary" : "hover:variant-filled-surface";
 </script>
@@ -65,32 +44,22 @@
     on:mouseleave|stopPropagation={() => active = false}
     role="button" 
     tabindex="0"
+    aria-label="Interactive element"
 >
     <div class="flex-shrink-0">
-        <div 
-            class="flex items-center h-full bg-gradient-to-br {bageBackground[type || 'unknown']} rounded p-1 text-token"
-            on:click|stopPropagation={HandleClick}
-            on:keydown|stopPropagation={handleKeyDown}
-            role="button" 
-            tabindex="0"
-        >
-            {#if active}
-                <div>
-                    {#if progress == 0}
-                        <IconDownload2Fill />
-                    {:else if progress < 100}
-                        <IconStopFill />
-                    {:else}
-                        <IconMoreFill />
-                    {/if}
-                </div>
-            {/if}
-        </div>
+        <PackageActionButton 
+            on:delete
+            on:download
+            on:stop
+            state={state}
+            isOpen={active}
+            variantFrom={variant.variantFrom}
+            variantTo={variant.variantTo}
+        />
     </div>
     <div
         class="flex-col gap-2 overflow-hidden"
     >
-        <!-- Render package details -->
         <div class="inline-flex items-center gap-2 w-full">
             <span class="font-medium truncate">{name}</span>
             <span class="text-sm truncate">{tag}</span>
@@ -98,20 +67,17 @@
                 <IconVerifiedBadgeFill class="text-sm text-primary-500" />
             {/if}
         </div>
-        {#if progress && progress != 100 }
-            <div class="flex items-center gap-2">
-                <ProgressBar value={progress} rounded="rounded"/>
-                <div class="text-surface-800-100-token text-sm">{progress}%</div>
-            </div>
+        {#if state === PackageState.Downloading }
+            <ProgressBar value={progress} rounded={true} />
         {/if}
         <div class="text-sm text-surface-800-100-token truncate">{reference}</div>
         <div class="flex-wrap gap-2 space-y-1 w-full">
-            <div class="badge variant-soft-success rounded">{downloadHost}</div>
-            <div class="badge variant-ghost">{platform}</div>
-            <div class="badge variant-ghost rounded">{version}</div>
-            <div class="badge variant-ghost rounded">{author}</div>
-            <div class="badge variant-ghost rounded">{type}</div>
-            <div class="badge variant-ghost rounded">{state}</div>
+            <PackageBadge label={downloadHost} variant="soft-success"/>
+            <PackageBadge label={platform}/>
+            <PackageBadge label={version}/>
+            <PackageBadge label={author}/>
+            <PackageBadge label={PackageType[type].toLocaleLowerCase()}/>
+            <PackageBadge label={PackageState[state].toLocaleLowerCase()}/>
         </div>
     </div>
 </div>
