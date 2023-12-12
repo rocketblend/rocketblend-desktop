@@ -1,4 +1,3 @@
-<!-- Badge.svelte -->
 <script lang="ts">
     export let label = '';
     export let variant = 'ghost';
