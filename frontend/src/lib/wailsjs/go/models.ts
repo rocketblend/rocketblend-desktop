@@ -5,11 +5,14 @@ export namespace pack {
 	    type?: number;
 	    reference?: string;
 	    name?: string;
+	    author?: string;
+	    tag?: string;
 	    path?: string;
 	    installationPath?: string;
 	    // Go type: semver
 	    version?: any;
 	    addons?: string[];
+	    verified?: boolean;
 	    // Go type: time
 	    updatedAt?: any;
 	
@@ -23,10 +26,13 @@ export namespace pack {
 	        this.type = source["type"];
 	        this.reference = source["reference"];
 	        this.name = source["name"];
+	        this.author = source["author"];
+	        this.tag = source["tag"];
 	        this.path = source["path"];
 	        this.installationPath = source["installationPath"];
 	        this.version = this.convertValues(source["version"], null);
 	        this.addons = source["addons"];
+	        this.verified = source["verified"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }
 	

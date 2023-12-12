@@ -8,6 +8,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/rocketblend/rocketblend/pkg/rocketblend/config"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -38,6 +39,16 @@ func NewDriver(
 		projectService: projectService,
 		packageService: packageService,
 	}, nil
+}
+
+func (d *Driver) GetPlatform() *rbruntime.Platform {
+	config, err := d.configService.Get()
+	if err != nil {
+		d.logger.Error("Failed to get config", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	return &config.Platform
 }
 
 // GetProject gets a project by id

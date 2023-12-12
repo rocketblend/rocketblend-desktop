@@ -4,6 +4,8 @@
     import PackageListView from '$lib/components/package/PackageListView.svelte';
     import PackageFilter from '$lib/components/package/PackageFilter.svelte';
 
+    import { GetProject } from '$lib/wailsjs/go/application/Driver'
+    import { selectedProjectIds } from '$lib/store';
     import type { packageservice } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
     import { t } from '$lib/translations/translations';
@@ -19,7 +21,22 @@
     ];
 
     let fetchPackagesPromise: Promise<packageservice.ListPackagesResponse | undefined>;
-    let selectedPackageIds: string[] = [];
+    let dependencies: string[] = [];
+
+    $: if ($selectedProjectIds) {
+        loadDependencies();
+    }
+
+    async function loadDependencies() {
+        var id = selectedProjectIds.latest();
+        if (!id) {
+            return;
+        }
+
+        var result = await GetProject(id);
+        dependencies = result.project?.addons || [];
+        dependencies.push(result.project?.build || '');
+    }
 
     async function fetchPackages(query: string): Promise<packageservice.ListPackagesResponse | undefined> {
         try {
@@ -46,6 +63,18 @@
     function handleRefreshPackages(): void {
         console.log('Refresh packages');
     }
+
+    function handlePackageDownload(event: CustomEvent<{ packageId: string }>) {
+        console.log('Download package', event.detail.packageId);
+    }
+
+    function handlePackageCancel(event: CustomEvent<{ packageId: string }>) {
+        console.log('Cancel package', event.detail.packageId);
+    }
+
+    function handlePackageDelete(event: CustomEvent<{ packageId: string }>) {
+        console.log('Delete package', event.detail.packageId);
+    }
   
     onMount(() => {
         fetchPackagesPromise = fetchPackages(searchQuery);
@@ -67,6 +96,7 @@
         bind:filterInstalled={filterInstalled}
         on:filterChange={handleInputChange}
     />
+
     <div class="overflow-y-auto h-full">
         {#await fetchPackagesPromise}
             <div class="space-y-4 p-2">
@@ -76,7 +106,13 @@
             </div>
         {:then response}
             {#if response && response.packages}
-                <PackageListView packages={response.packages} selectedPackageIds={selectedPackageIds} />
+                <PackageListView
+                    on:download={handlePackageDownload}
+                    on:cancel={handlePackageCancel}
+                    on:delete={handlePackageDelete}
+                    packages={response.packages}
+                    bind:dependencies={dependencies}    
+                />
             {:else}
                 <div class="p-2">
                     <p class="font-bold text-sm text-surface-200 text-center">{$t('home.sidebar.noresults')}</p>

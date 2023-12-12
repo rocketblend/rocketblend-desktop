@@ -3,6 +3,7 @@
 import {projectservice} from '../models';
 import {uuid} from '../models';
 import {packageservice} from '../models';
+import {runtime} from '../models';
 
 export function CreateProject(arg1:projectservice.CreateProjectRequest):Promise<void>;
 
@@ -11,6 +12,8 @@ export function DeleteProject(arg1:uuid.UUID):Promise<void>;
 export function ExploreProject(arg1:uuid.UUID):Promise<void>;
 
 export function GetPackage(arg1:uuid.UUID):Promise<packageservice.GetPackageResponse>;
+
+export function GetPlatform():Promise<runtime.Platform>;
 
 export function GetProject(arg1:uuid.UUID):Promise<projectservice.GetProjectResponse>;
 

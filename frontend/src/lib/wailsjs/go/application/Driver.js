@@ -18,6 +18,10 @@ export function GetPackage(arg1) {
   return window['go']['application']['Driver']['GetPackage'](arg1);
 }
 
+export function GetPlatform() {
+  return window['go']['application']['Driver']['GetPlatform']();
+}
+
 export function GetProject(arg1) {
   return window['go']['application']['Driver']['GetProject'](arg1);
 }
