@@ -10,6 +10,9 @@ const config = {
     {
       pattern: /w-\d+/,
     },
+    {
+      pattern: /variant-gradient-.*/,
+    },
   ],
   darkMode: 'class',
 
