@@ -3,7 +3,9 @@
     import "@skeletonlabs/skeleton/styles/all.css";
     import "../app.postcss";
 
-    import { AppBar, AppShell } from '@skeletonlabs/skeleton';
+    import { onMount, onDestroy } from 'svelte';
+    import { toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+    import { Toast, AppBar, AppShell } from '@skeletonlabs/skeleton';
 
     import { goto } from '$app/navigation';
 
@@ -14,7 +16,7 @@
     import IconHomeFill from '~icons/ri/home-fill'
 
     import { t } from '$lib/translations/translations';
-    import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
+    import { EventsEmit, EventsOff, EventsOn, Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
 
     import Footer from "$lib/containers/Footer.svelte";
     import Sidebar from "$lib/containers/Sidebar.svelte";
@@ -22,7 +24,41 @@
     function handleViewHome(): void {
         goto(`/`);
     }
+
+    onMount(() => {     
+        EventsOn('launchArgs', (data: { args: string[], messages: string[]}) => {
+            if (data.args && data.args.length !== 0) {
+                    var launchToast: ToastSettings = {
+                    message: `launchArgs: ${data.args.join(', ')}`,
+                    autohide: false,
+                };
+
+                toastStore.trigger(launchToast);
+            }
+            
+            if (data.messages && data.messages.length !== 0) {
+                for (var message of data.messages) {
+                    var messageToast: ToastSettings = {
+                        message: `Message: ${message}`,
+                        autohide: false,
+                        background: 'variant-filled-error',
+                    };
+
+                    toastStore.trigger(messageToast);
+                }
+            }
+
+        });
+
+        EventsEmit('ready'); // Notify Wails that the frontend is ready for events
+    });
+
+    onDestroy(() => {
+        EventsOff('launchArgs');
+    });
 </script>
+
+<Toast />
 
 <AppShell slotSidebarLeft="flex flex-col overflow-y-hidden space-y-2 pl-2 w-96 h-full">
     <svelte:fragment slot="header">

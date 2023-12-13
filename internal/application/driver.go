@@ -211,7 +211,14 @@ func (d *Driver) onDomReady(ctx context.Context) {
 		args = os.Args[1:]
 	}
 
-	go runtime.EventsEmit(ctx, "launchArgs", args, d.messages)
+	// Wait for main layout to be ready.
+	runtime.EventsOnce(ctx, "ready", func(optionalData ...interface{}) {
+		d.logger.Info("application is ready", map[string]interface{}{"args": args})
+		d.eventEmitLaunchArgs(ctx, LaunchEvent{
+			Args:     args,
+			Messages: d.messages,
+		})
+	})
 }
 
 // onSecondInstanceLaunch is called when the user opens a second instance of the application
@@ -225,5 +232,17 @@ func (d *Driver) onSecondInstanceLaunch(secondInstanceData options.SecondInstanc
 
 	runtime.WindowUnminimise(d.ctx)
 	runtime.Show(d.ctx)
-	go runtime.EventsEmit(d.ctx, "launchArgs", secondInstanceArgs, d.messages)
+
+	d.eventEmitLaunchArgs(d.ctx, LaunchEvent{
+		Args:     secondInstanceArgs,
+		Messages: d.messages,
+	})
+}
+
+func (d *Driver) eventEmitLaunchArgs(ctx context.Context, event LaunchEvent) {
+	d.logger.Debug("emitting launchArgs event", map[string]interface{}{
+		"event": event,
+	})
+
+	runtime.EventsEmit(ctx, "launchArgs", event)
 }
