@@ -88,10 +88,6 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		return nil, fmt.Errorf("error checking if package is installed: %w", err)
 	}
 
-	if pack.IsBuild() {
-		fmt.Println("INSTALLED:", installationPath, installed)
-	}
-
 	if !installed {
 		installationPath = ""
 	}
