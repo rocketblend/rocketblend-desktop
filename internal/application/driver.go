@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"github.com/flowshot-io/x/pkg/logger"
@@ -203,6 +204,17 @@ func (d *Driver) startup(ctx context.Context) {
 // shutdown is called when the app is shutting down
 func (d *Driver) shutdown(ctx context.Context) {}
 
+// onDomReady is called when the DOM is ready
+func (d *Driver) onDomReady(ctx context.Context) {
+	var args []string
+	if len(os.Args) > 1 {
+		args = os.Args[1:]
+	}
+
+	go runtime.EventsEmit(ctx, "launchArgs", args, d.messages)
+}
+
+// onSecondInstanceLaunch is called when the user opens a second instance of the application
 func (d *Driver) onSecondInstanceLaunch(secondInstanceData options.SecondInstanceData) {
 	secondInstanceArgs := secondInstanceData.Args
 

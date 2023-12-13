@@ -109,6 +109,7 @@ func (a *application) Execute() error {
 		BackgroundColour: &options.RGBA{R: 00, G: 00, B: 00, A: 1},
 		OnStartup:        a.driver.startup,
 		OnShutdown:       a.driver.shutdown,
+		OnDomReady:       a.driver.onDomReady,
 		Frameless:        true,
 		Bind: []interface{}{
 			a.driver,
