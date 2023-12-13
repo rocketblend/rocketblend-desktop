@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"strings"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
@@ -10,6 +11,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/rocketblend/rocketblend/pkg/rocketblend/config"
+	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -23,6 +25,8 @@ type Driver struct {
 
 	projectService projectservice.Service
 	packageService packageservice.Service
+
+	messages []string
 }
 
 // NewApp creates a new App application struct
@@ -30,7 +34,8 @@ func NewDriver(
 	logger logger.Logger,
 	configService *config.Service,
 	projectService projectservice.Service,
-	packageService packageservice.Service) (*Driver, error) {
+	packageService packageservice.Service,
+	messages ...string) (*Driver, error) {
 	return &Driver{
 		logger: logger,
 
@@ -38,6 +43,8 @@ func NewDriver(
 
 		projectService: projectService,
 		packageService: packageService,
+
+		messages: messages,
 	}, nil
 }
 
@@ -195,3 +202,16 @@ func (d *Driver) startup(ctx context.Context) {
 
 // shutdown is called when the app is shutting down
 func (d *Driver) shutdown(ctx context.Context) {}
+
+func (d *Driver) onSecondInstanceLaunch(secondInstanceData options.SecondInstanceData) {
+	secondInstanceArgs := secondInstanceData.Args
+
+	d.logger.Info("user opened second instance", map[string]interface{}{
+		"args":             strings.Join(secondInstanceData.Args, ","),
+		"workingDirectory": secondInstanceData.WorkingDirectory,
+	})
+
+	runtime.WindowUnminimise(d.ctx)
+	runtime.Show(d.ctx)
+	go runtime.EventsEmit(d.ctx, "launchArgs", secondInstanceArgs, d.messages)
+}

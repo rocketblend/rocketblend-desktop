@@ -1,10 +1,12 @@
 package application
 
 import (
+	"fmt"
 	"io/fs"
 	"net/http"
 
 	"github.com/flowshot-io/x/pkg/logger"
+	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
@@ -12,7 +14,10 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/mac"
 )
+
+const id = "3088d60d-70ae-47e5-bf1f-cad698da3620"
 
 type (
 	Application interface {
@@ -20,23 +25,16 @@ type (
 	}
 
 	application struct {
+		id      uuid.UUID
 		driver  *Driver
 		handler http.Handler
 		assets  fs.FS
 	}
 )
 
-func New(assets fs.FS) (Application, error) {
-	logger := logger.New(
-		logger.WithLogLevel("debug"),
-	)
-
-	factory, err := factory.New()
+func New(logger logger.Logger, factory factory.Factory, assets fs.FS, messages ...string) (Application, error) {
+	id, err := uuid.Parse(id)
 	if err != nil {
-		return nil, err
-	}
-
-	if err := factory.SetLogger(logger); err != nil {
 		return nil, err
 	}
 
@@ -70,7 +68,7 @@ func New(assets fs.FS) (Application, error) {
 		return nil, err
 	}
 
-	driver, err := NewDriver(logger, configService, projectService, packageService)
+	driver, err := NewDriver(logger, configService, projectService, packageService, messages...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,6 +80,7 @@ func New(assets fs.FS) (Application, error) {
 	}
 
 	return &application{
+		id:      id,
 		assets:  assets,
 		driver:  driver,
 		handler: handler,
@@ -97,6 +96,13 @@ func (a *application) Execute() error {
 		AssetServer: &assetserver.Options{
 			Assets:  a.assets,
 			Handler: a.handler,
+		},
+		Mac: &mac.Options{
+			OnFileOpen: func(filePath string) { fmt.Println(filePath) },
+		},
+		SingleInstanceLock: &options.SingleInstanceLock{
+			UniqueId:               a.id.String(),
+			OnSecondInstanceLaunch: a.driver.onSecondInstanceLaunch,
 		},
 		MinHeight:        580,
 		MinWidth:         800,
