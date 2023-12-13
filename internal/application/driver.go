@@ -27,7 +27,7 @@ type Driver struct {
 	projectService projectservice.Service
 	packageService packageservice.Service
 
-	messages []string
+	args []string
 }
 
 // NewApp creates a new App application struct
@@ -36,7 +36,7 @@ func NewDriver(
 	configService *config.Service,
 	projectService projectservice.Service,
 	packageService packageservice.Service,
-	messages ...string) (*Driver, error) {
+	args ...string) (*Driver, error) {
 	return &Driver{
 		logger: logger,
 
@@ -45,7 +45,7 @@ func NewDriver(
 		projectService: projectService,
 		packageService: packageService,
 
-		messages: messages,
+		args: args,
 	}, nil
 }
 
@@ -199,6 +199,8 @@ func (d *Driver) Quit() {
 // so we can call the runtime methods
 func (d *Driver) startup(ctx context.Context) {
 	d.ctx = ctx
+
+	d.logger.Debug("Starting application")
 }
 
 // shutdown is called when the app is shutting down
@@ -206,17 +208,13 @@ func (d *Driver) shutdown(ctx context.Context) {}
 
 // onDomReady is called when the DOM is ready
 func (d *Driver) onDomReady(ctx context.Context) {
-	var args []string
-	if len(os.Args) > 1 {
-		args = os.Args[1:]
-	}
+	d.logger.Debug("DOM is ready")
 
 	// Wait for main layout to be ready.
 	runtime.EventsOnce(ctx, "ready", func(optionalData ...interface{}) {
-		d.logger.Info("application is ready", map[string]interface{}{"args": args})
+		d.logger.Debug("Main layout is ready")
 		d.eventEmitLaunchArgs(ctx, LaunchEvent{
-			Args:     args,
-			Messages: d.messages,
+			Args: os.Args[1:],
 		})
 	})
 }
@@ -234,8 +232,7 @@ func (d *Driver) onSecondInstanceLaunch(secondInstanceData options.SecondInstanc
 	runtime.Show(d.ctx)
 
 	d.eventEmitLaunchArgs(d.ctx, LaunchEvent{
-		Args:     secondInstanceArgs,
-		Messages: d.messages,
+		Args: secondInstanceArgs,
 	})
 }
 

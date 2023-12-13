@@ -26,28 +26,16 @@
     }
 
     onMount(() => {     
-        EventsOn('launchArgs', (data: { args: string[], messages: string[]}) => {
+        EventsOn('launchArgs', (data: { args: string[]}) => {
+            console.log('launchArgs', data)
             if (data.args && data.args.length !== 0) {
                     var launchToast: ToastSettings = {
-                    message: `launchArgs: ${data.args.join(', ')}`,
+                    message: `args: ${data.args.join(', ')}`,
                     autohide: false,
                 };
 
                 toastStore.trigger(launchToast);
             }
-            
-            if (data.messages && data.messages.length !== 0) {
-                for (var message of data.messages) {
-                    var messageToast: ToastSettings = {
-                        message: `Message: ${message}`,
-                        autohide: false,
-                        background: 'variant-filled-error',
-                    };
-
-                    toastStore.trigger(messageToast);
-                }
-            }
-
         });
 
         EventsEmit('ready'); // Notify Wails that the frontend is ready for events

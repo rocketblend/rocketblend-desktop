@@ -32,7 +32,7 @@ type (
 	}
 )
 
-func New(logger logger.Logger, factory factory.Factory, assets fs.FS, messages ...string) (Application, error) {
+func New(logger logger.Logger, factory factory.Factory, assets fs.FS) (Application, error) {
 	id, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func New(logger logger.Logger, factory factory.Factory, assets fs.FS, messages .
 		return nil, err
 	}
 
-	driver, err := NewDriver(logger, configService, projectService, packageService, messages...)
+	driver, err := NewDriver(logger, configService, projectService, packageService)
 	if err != nil {
 		return nil, err
 	}

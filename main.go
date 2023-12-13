@@ -30,6 +30,9 @@ func main() {
 	if err := run(os.Args); err != nil {
 		fmt.Println("Error:", err)
 	}
+
+	fmt.Println("Exiting...")
+	fmt.Scanln()
 }
 
 func run(args []string) error {
@@ -46,19 +49,19 @@ func run(args []string) error {
 		return err
 	}
 
-	var messages []string
 	if len(os.Args) > 1 {
-		ctx := context.Background()
-		if err := open(ctx, os.Args[1], logger, rbFactory); err == nil {
+		var err error
+		if err = open(context.Background(), os.Args[1], logger, rbFactory); err == nil {
 			// If we successfully launched a project, we're done.
 			return nil
 		}
 
+		fmt.Println("Press enter to continue...", err.Error())
+		fmt.Scanln()
 		// If we failed to launch a project directly, open with application.
-		messages = append(messages, err.Error())
 	}
 
-	app, err := application.New(logger, rbFactory, assets, messages...)
+	app, err := application.New(logger, rbFactory, assets)
 	if err != nil {
 		return err
 	}
@@ -73,22 +76,22 @@ func run(args []string) error {
 func open(ctx context.Context, blendFilePath string, logger logger.Logger, factory factory.Factory) error {
 	rocketPackService, err := factory.GetRocketPackService()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get rocket pack service: %w", err)
 	}
 
 	installationService, err := factory.GetInstallationService()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get installation service: %w", err)
 	}
 
 	blendFileService, err := factory.GetBlendFileService()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get blend file service: %w", err)
 	}
 
 	blendFile, err := blendconfig.Load(blendFilePath, filepath.Join(filepath.Dir(blendFilePath), rocketfile.FileName))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to load project: %w", err)
 	}
 
 	driver, err := driver.New(
@@ -98,9 +101,8 @@ func open(ctx context.Context, blendFilePath string, logger logger.Logger, facto
 		driver.WithBlendFileService(blendFileService),
 		driver.WithBlendConfig(blendFile),
 	)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create project driver: %w", err)
 	}
 
 	return driver.Run(ctx)
