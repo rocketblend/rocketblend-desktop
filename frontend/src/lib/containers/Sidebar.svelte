@@ -1,5 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';
     import PackageFilter from '$lib/components/package/PackageFilter.svelte';
@@ -58,14 +60,30 @@
 
     function handleAddPackage(): void {
         console.log('Add package');
+
+        const addPackageToast: ToastSettings = {
+            message: "Added Package!",
+        };
+
+        toastStore.trigger(addPackageToast);
     }
 
     function handleRefreshPackages(): void {
-        console.log('Refresh packages');
+        const refreshPackageToast: ToastSettings = {
+            message: "Refreshed Packages!",
+        };
+
+        toastStore.trigger(refreshPackageToast);
     }
 
     function handlePackageDownload(event: CustomEvent<{ packageId: string }>) {
-        console.log('Download package', event.detail.packageId);
+        console.log('Downloaded package', event.detail.packageId);
+
+        const downloadPackageToast: ToastSettings = {
+            message: `Downloaded ${event.detail.packageId}!`,
+        };
+
+        toastStore.trigger(downloadPackageToast);
     }
 
     function handlePackageCancel(event: CustomEvent<{ packageId: string }>) {
@@ -73,7 +91,11 @@
     }
 
     function handlePackageDelete(event: CustomEvent<{ packageId: string }>) {
-        console.log('Delete package', event.detail.packageId);
+        const deletePackageToast: ToastSettings = {
+            message: `Deleted Package: ${event.detail.packageId}`,
+        };
+
+        toastStore.trigger(deletePackageToast);
     }
   
     onMount(() => {

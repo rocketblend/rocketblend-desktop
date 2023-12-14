@@ -9,5 +9,16 @@
   "author": {
     "name": "Elliot",
     "email": "git@lazercube.com"
+  },
+  "info": {
+    "fileAssociations": [
+      {
+        "ext": "blend",
+        "name": "Blender",
+        "description": "Blender Project File",
+        "iconName": "appicon",
+        "role": "Editor"
+      }
+    ]
   }
 }

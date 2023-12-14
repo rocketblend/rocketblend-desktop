@@ -2,6 +2,8 @@ package application
 
 import (
 	"context"
+	"os"
+	"strings"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
@@ -10,6 +12,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/rocketblend/rocketblend/pkg/rocketblend/config"
+	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -23,6 +26,8 @@ type Driver struct {
 
 	projectService projectservice.Service
 	packageService packageservice.Service
+
+	args []string
 }
 
 // NewApp creates a new App application struct
@@ -30,7 +35,8 @@ func NewDriver(
 	logger logger.Logger,
 	configService *config.Service,
 	projectService projectservice.Service,
-	packageService packageservice.Service) (*Driver, error) {
+	packageService packageservice.Service,
+	args ...string) (*Driver, error) {
 	return &Driver{
 		logger: logger,
 
@@ -38,6 +44,8 @@ func NewDriver(
 
 		projectService: projectService,
 		packageService: packageService,
+
+		args: args,
 	}, nil
 }
 
@@ -191,7 +199,47 @@ func (d *Driver) Quit() {
 // so we can call the runtime methods
 func (d *Driver) startup(ctx context.Context) {
 	d.ctx = ctx
+
+	d.logger.Debug("Starting application")
 }
 
 // shutdown is called when the app is shutting down
 func (d *Driver) shutdown(ctx context.Context) {}
+
+// onDomReady is called when the DOM is ready
+func (d *Driver) onDomReady(ctx context.Context) {
+	d.logger.Debug("DOM is ready")
+
+	// Wait for main layout to be ready.
+	runtime.EventsOnce(ctx, "ready", func(optionalData ...interface{}) {
+		d.logger.Debug("Main layout is ready")
+		d.eventEmitLaunchArgs(ctx, LaunchEvent{
+			Args: os.Args[1:],
+		})
+	})
+}
+
+// onSecondInstanceLaunch is called when the user opens a second instance of the application
+func (d *Driver) onSecondInstanceLaunch(secondInstanceData options.SecondInstanceData) {
+	secondInstanceArgs := secondInstanceData.Args
+
+	d.logger.Info("user opened second instance", map[string]interface{}{
+		"args":             strings.Join(secondInstanceData.Args, ","),
+		"workingDirectory": secondInstanceData.WorkingDirectory,
+	})
+
+	runtime.WindowUnminimise(d.ctx)
+	runtime.Show(d.ctx)
+
+	d.eventEmitLaunchArgs(d.ctx, LaunchEvent{
+		Args: secondInstanceArgs,
+	})
+}
+
+func (d *Driver) eventEmitLaunchArgs(ctx context.Context, event LaunchEvent) {
+	d.logger.Debug("emitting launchArgs event", map[string]interface{}{
+		"event": event,
+	})
+
+	runtime.EventsEmit(ctx, "launchArgs", event)
+}

@@ -8,7 +8,7 @@ require (
 	github.com/flowshot-io/x v0.0.0-20230622123052-b262ee884a19
 	github.com/google/uuid v1.3.0
 	github.com/rjeczalik/notify v0.9.3
-	github.com/rocketblend/rocketblend v0.8.0
+	github.com/rocketblend/rocketblend v0.8.1
 	github.com/wailsapp/wails/v2 v2.7.1
 	golang.org/x/text v0.13.0
 	sigs.k8s.io/yaml v1.3.0
@@ -42,7 +42,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.4.1 // indirect
-	github.com/go-git/go-git/v5 v5.7.0 // indirect
+	github.com/go-git/go-git/v5 v5.7.1-0.20230708113425-dc17aae65035 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Toast } from '@skeletonlabs/skeleton';
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import { t } from '$lib/translations/translations';
