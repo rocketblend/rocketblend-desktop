@@ -39,7 +39,7 @@
         });
 
         const launchToast: ToastSettings = {
-            message: "Welcome to RocketBlend Desktop!",
+            message: t.get('home.greeting'),
             background: 'bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white',
             timeout: 5000,
         };

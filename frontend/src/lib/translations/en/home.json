@@ -1,5 +1,6 @@
 {
     "title": "Welcome!",
+    "greeting": "Welcome to RocketBlend Desktop!",
     "navigation": {
         "root": "Projects"
     },
