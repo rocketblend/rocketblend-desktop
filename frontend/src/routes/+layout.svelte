@@ -30,13 +30,21 @@
             console.log('launchArgs', data)
             if (data.args && data.args.length !== 0) {
                     var launchToast: ToastSettings = {
-                    message: `args: ${data.args.join(', ')}`,
-                    autohide: false,
+                    message: `Args: ${data.args.join(', ')}`,
+                    timeout: 5000,
                 };
 
                 toastStore.trigger(launchToast);
             }
         });
+
+        const launchToast: ToastSettings = {
+            message: "Welcome to RocketBlend Desktop!",
+            background: 'bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white',
+            timeout: 5000,
+        };
+
+        toastStore.trigger(launchToast);
 
         EventsEmit('ready'); // Notify Wails that the frontend is ready for events
     });
@@ -46,7 +54,13 @@
     });
 </script>
 
-<Toast />
+<Toast
+    background="variant-filled-surface"
+    padding="p-4"
+    position="br"
+    rounded="rounded"
+    class="mx-4 mt-10 mb-24"
+/>
 
 <AppShell slotSidebarLeft="flex flex-col overflow-y-hidden space-y-2 pl-2 w-96 h-full">
     <svelte:fragment slot="header">

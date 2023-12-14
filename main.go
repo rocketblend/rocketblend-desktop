@@ -30,9 +30,6 @@ func main() {
 	if err := run(os.Args); err != nil {
 		fmt.Println("Error:", err)
 	}
-
-	fmt.Println("Exiting...")
-	fmt.Scanln()
 }
 
 func run(args []string) error {
@@ -56,8 +53,6 @@ func run(args []string) error {
 			return nil
 		}
 
-		fmt.Println("Press enter to continue...", err.Error())
-		fmt.Scanln()
 		// If we failed to launch a project directly, open with application.
 	}
 
