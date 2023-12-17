@@ -4,7 +4,6 @@ import type { Config } from 'tailwindcss';
 import { skeleton } from '@skeletonlabs/tw-plugin';
 
 import { rocketblend } from './src/themes/rocketblend';
-import { rocketblend2 } from './src/themes/rocketblend-2';
 
 const config = {
 	darkMode: 'class',
@@ -34,7 +33,7 @@ const config = {
         require('@tailwindcss/typography'),
 		skeleton({
             themes: {
-                custom: [ rocketblend, rocketblend2 ],
+                custom: [ rocketblend ],
                 // preset: [
                 //     "skeleton",
                 //     "modern",
