@@ -2,21 +2,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind variants;
 
 html, body { @apply h-full overflow-hidden; }
 
 .shadow-none { box-shadow: none!important; }
-
-.image-fade-in {
-    --reveal-transform: scale(1.01);
-    --reveal-transition: opacity .1s ease-in, transform 0.1s ease-out;
-    --reveal-filter: blur(20px);
-}
-
-.lqip {
-    @apply rounded-lg;
-    @apply overflow-hidden;
-}
 
 .gradient-heading {
 	@apply bg-clip-text text-transparent box-decoration-clone;
