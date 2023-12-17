@@ -1,6 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+    
+    import type {  ToastSettings } from '@skeletonlabs/skeleton';
+    import { getToastStore } from '@skeletonlabs/skeleton';
 
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';
@@ -12,6 +14,8 @@
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
     import { t } from '$lib/translations/translations';
     import type { RadioOption } from '$lib/types';
+
+    const toastStore = getToastStore();
 
     let selectedFilterType: number = 0;
     let searchQuery: string = "";

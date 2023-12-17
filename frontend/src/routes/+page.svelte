@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { Toast } from '@skeletonlabs/skeleton';
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
     import { t } from '$lib/translations/translations';
@@ -42,7 +41,7 @@
 </script>
 
 <main class="space-y-4"> 
-    <h2 class="font-bold">{$t('home.title')}</h2>
+    <h2 class="h2 font-bold">{$t('home.title')}</h2>
     <div class="space-y-4">
         <ProjectFilter
             bind:form={form}

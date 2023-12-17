@@ -17,7 +17,7 @@
     <div class="flex gap-4">
         <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
         <div class="space-y-4">
-            <h2 class="font-bold">{data.project.name}</h2>
+            <h2 class="h2 font-bold">{data.project.name}</h2>
             <p class="text-sm text-surface-300">Last updated: {data.project.updatedAt}</p>
         </div>
     </div>

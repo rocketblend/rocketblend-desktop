@@ -1,11 +1,10 @@
 <script lang="ts">
-    import "../theme.postcss";
-    import "@skeletonlabs/skeleton/styles/all.css";
     import "../app.postcss";
-
+    
     import { onMount, onDestroy } from 'svelte';
-    import { toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+    import { initializeStores, getToastStore } from '@skeletonlabs/skeleton';
     import { Toast, AppBar, AppShell } from '@skeletonlabs/skeleton';
+    import type { ToastSettings } from '@skeletonlabs/skeleton';
 
     import { goto } from '$app/navigation';
 
@@ -20,6 +19,9 @@
 
     import Footer from "$lib/containers/Footer.svelte";
     import Sidebar from "$lib/containers/Sidebar.svelte";
+
+    initializeStores();
+    const toastStore = getToastStore();
 
     function handleViewHome(): void {
         goto(`/`);
