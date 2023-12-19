@@ -51,6 +51,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@floating-ui/dom": "^1.5.3",
     "@jridgewell/sourcemap-codec": "^1.4.15",
     "@sveltejs/adapter-static": "^2.0.2",
     "dotenv": "^16.3.1",

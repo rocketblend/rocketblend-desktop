@@ -2,7 +2,8 @@
     import "../app.postcss";
     
     import { onMount, onDestroy } from 'svelte';
-    import { initializeStores, getToastStore } from '@skeletonlabs/skeleton';
+    import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+    import { initializeStores, getToastStore, storePopup } from '@skeletonlabs/skeleton';
     import { Toast, AppBar, AppShell } from '@skeletonlabs/skeleton';
     import type { ToastSettings } from '@skeletonlabs/skeleton';
 
@@ -22,6 +23,8 @@
 
     initializeStores();
     const toastStore = getToastStore();
+
+    storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
     function handleViewHome(): void {
         goto(`/`);

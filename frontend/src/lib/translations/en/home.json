@@ -17,5 +17,22 @@
         },
         "noresults": "No results found.",
         "error": "An error occurred while fetching packages."
+    },
+    "project": {
+        "query": {
+            "placeholder": "Search your projects..."
+        },
+        "filter": {
+            "tilte": "Sort by",
+            "option": {
+                "name": "Name",
+                "file": "File",
+                "build": "Build"
+            }
+        },
+        "view": {
+            "gallery": "Gallery",
+            "table": "Table"
+        }
     }
 }

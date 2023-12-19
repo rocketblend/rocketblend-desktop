@@ -6,14 +6,28 @@
     import { RunProject } from '$lib/wailsjs/go/application/Driver';
     import type { project } from '$lib/wailsjs/go/models';
     import type { PageData } from './$types';
+
 	import ProjectListView from '$lib/components/project/ProjectListView.svelte';
 	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
+	import { DisplayType, SortBy, type RadioOption } from '$lib/types';
+	import { convertToEnum } from '$lib/components/utils';
     
     export let data: PageData;
 
+    let displayTypeParam = "";
+    let sortByParam = "";
+
     let searchQuery = "";
-    let displayType = "table";
+    let displayType: DisplayType = DisplayType.Table;
+
+    let sortBy: number = SortBy.Name;
     let form : HTMLFormElement;
+
+    const sortByOptions: RadioOption[] = [
+        { value: SortBy.Name, display: t.get('home.project.filter.option.name') },
+        { value: SortBy.File, display: t.get('home.project.filter.option.file') },
+        { value: SortBy.Build, display: t.get('home.project.filter.option.build') },
+    ];
 
     function handleSelected(event: CustomEvent<project.Project | null>): void {
         const project = event.detail;
@@ -36,17 +50,27 @@
         form.requestSubmit();
     }
 
-    $: searchQuery = $page.url.searchParams.get('query') || '';
-    $: displayType = $page.url.searchParams.get('display') || 'table';
+    $: searchQuery = $page.url.searchParams.get("query") || "";
+    $: displayTypeParam = $page.url.searchParams.get("display") || "";
+    $: sortByParam = $page.url.searchParams.get("sortBy") || "";
+
+    $: displayType = convertToEnum(displayTypeParam, DisplayType);
+    //$: sortBy = convertToEnum(sortByParam, SortBy);
 </script>
 
-<main class="space-y-4"> 
-    <h2 class="h2 font-bold">{$t('home.title')}</h2>
+<main class="space-y-4">
+    <div>
+        <h2 class="h2 font-bold">{$t('home.title')}</h2>
+    </div>
+
     <div class="space-y-4">
         <ProjectFilter
             bind:form={form}
             bind:searchQuery={searchQuery}
             bind:displayType={displayType}
+            bind:sortBy={sortBy}
+            sortByOptions={sortByOptions}
+            searchPlaceholder={$t('home.project.query.placeholder')}
             on:change={handleFilterChangeEvent} />
         <ProjectListView
             bind:projects={data.projects}
