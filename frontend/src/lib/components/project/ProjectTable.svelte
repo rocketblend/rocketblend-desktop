@@ -1,30 +1,21 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    
-    import type { project } from '$lib/wailsjs/go/models';
-    import { tableMapperValues } from '$lib/components/core'
+  import type { project } from '$lib/wailsjs/go/models';
+  import { tableMapperValues } from '$lib/components/core'
 
-    import Table from '$lib/components/core/table/Table.svelte';
-    import type { TableSource } from '$lib/components/core/table/types.js';
-  
-    export let sourceData: project.Project[];
-  
-    let tableSource: TableSource;
+  import Table from '$lib/components/core/table/Table.svelte';
+  import type { TableSource } from '$lib/components/core/table/types.js';
 
-    const dispatch = createEventDispatcher<{ selected: project.Project | null }>();
+  export let sourceData: project.Project[];
+  export let selectedProjectIds: string[] = [];
 
-    function handleSelected(event: CustomEvent<string[]>) {
-      var project = sourceData.find((p) => p.id?.toString() === event.detail[0]);
-      dispatch('selected', project);
-    }
-  
-    $: {
-      tableSource = {
-        head: ['Project', 'File', 'Build', 'Tags'],
-        body: tableMapperValues(sourceData, ['name', 'fileName', 'build', 'tags']),
-        meta: tableMapperValues(sourceData, ['id']),
-      };
-    }
+  let tableSource: TableSource;
+
+  $: {
+    tableSource = {
+      head: ['Project', 'File', 'Build', 'Tags'],
+      body: tableMapperValues(sourceData, 'id', ['name', 'fileName', 'build', 'tags']),
+    };
+  }
 </script>
-  
-<Table source={tableSource} interactive={true} on:selected={handleSelected}/>
+
+<Table bind:source={tableSource} interactive={true} bind:selected={selectedProjectIds} />

@@ -33,6 +33,8 @@
             bind:items={galleryItems}
             bind:selectedIds={selectedProjectIds}/>
     {:else }
-        <ProjectTable bind:sourceData={projects} on:selected />
+        <ProjectTable
+            bind:sourceData={projects}
+            bind:selectedProjectIds={selectedProjectIds} />
     {/if}
 {/if}

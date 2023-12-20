@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { writable } from "svelte/store";
     import { tableA11y } from './actions.js';
 
     import type { CssClasses } from "@skeletonlabs/skeleton";
-    import type { TableSource } from './types.js';
+    import type { TableSource, TableRow } from './types.js';
 
     export let source: TableSource;
+    export let selected: string[] = [];
+    export let multiple: boolean = false;
     export let interactive = false;
 
     // Style Props...
@@ -20,20 +21,19 @@
     export let regionFootCell: CssClasses = '';
     export let regionRow: CssClasses = '';
 
-    // Bindable Property for Selected Rows
-    export let selectedRows = writable<number[]>([]);
-
-    // Row Click Handler
-    function onRowClick(rowIndex: number): void {
+    function onRowClick(clickedRow: TableRow): void {
         if (!interactive) return;
-        selectedRows.update(current => {
-            const index = current.indexOf(rowIndex);
-            if (index >= 0) {
-                return current.filter(i => i !== rowIndex); // Remove if already selected
+
+        const selectedIndex = selected.indexOf(clickedRow.id);
+        if (multiple) {
+            if (selectedIndex >= 0) {
+                selected = selected.filter(id => id !== clickedRow.id);
             } else {
-                return [...current, rowIndex]; // Add to selection if not
+                selected = [...selected, clickedRow.id];
             }
-        });
+        } else {
+            selected = selectedIndex >= 0 ? [] : [clickedRow.id];
+        }
     }
 
     // Reactive variables for classes
@@ -59,11 +59,11 @@
             {#each source.body as row, rowIndex}
                 <tr
                     class="{classesRow}"
-                    class:table-row-checked={$selectedRows.includes(rowIndex)}
-                    on:click={() => onRowClick(rowIndex)}
+                    class:table-row-checked={selected.includes(row.id)}
+                    on:click={() => onRowClick(row)}
                     aria-rowindex={rowIndex + 1}
                     tabindex={interactive ? 0 : -1}>
-                    {#each row as cell, cellIndex}
+                    {#each row.data as cell, cellIndex}
                         <td
                             class="{regionCell}"
                             role="gridcell"
