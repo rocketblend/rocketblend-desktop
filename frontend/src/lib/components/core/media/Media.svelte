@@ -20,7 +20,7 @@
     $: widthClass = `w-${width}`;
     $: mediaClass = twMerge(containerClass, heightClass, widthClass, mediaLoaded ? 'h-fit' : '');
     $: holderClass = twMerge(mediaClass, placeholderClass, src && !mediaLoaded ? loadingClass : '');
-    $: focusClass = selected ? "ring-2 ring-surface-50" : "";
+    $: focusClass = selected ? "ring-2 ring-primary-500 bg-initial" : "";
 
     function onMediaLoad() {
         if (!simulateLatency) {
@@ -58,11 +58,11 @@
                 on:load={onMediaLoad}
             />
         {/if}
-        <div class="overlay absolute inset-0 flex justify-center items-center text-white bg-primary-hover-token group-hover:flex hidden">
+        <div class="overlay absolute inset-0 flex justify-center items-center text-white hover:variant-glass-surface group-hover:flex hidden">
             <h6 class="font-bold">{title}</h6>
         </div>
     {:else}
-        <div class="overlay flex justify-center items-center h-full bg-primary-hover-token group-hover:flex hidden">
+        <div class="overlay flex justify-center items-center h-full hover:variant-glass-surface group-hover:flex hidden">
             <h6 class="font-bold">{title}</h6>
         </div>
     {/if}
