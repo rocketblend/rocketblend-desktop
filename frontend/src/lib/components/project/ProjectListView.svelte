@@ -34,6 +34,7 @@
             bind:selectedIds={selectedProjectIds}/>
     {:else }
         <ProjectTable
+            on:sortChanged
             bind:sourceData={projects}
             bind:selectedProjectIds={selectedProjectIds} />
     {/if}

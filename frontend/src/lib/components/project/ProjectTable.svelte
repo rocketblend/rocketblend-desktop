@@ -3,7 +3,7 @@
     import { tableMapperValues } from '$lib/components/core'
 
     import Table from '$lib/components/core/table/Table.svelte';
-    import type { TableSource } from '$lib/components/core/table/types.js';
+    import type { TableSource, TableColumn } from '$lib/components/core/table/types.js';
 
     export let sourceData: project.Project[];
     export let selectedProjectIds: string[] = [];
@@ -12,10 +12,15 @@
 
     $: {
         tableSource = {
-            head: ['Project', 'File', 'Build', 'Tags'],
+            head: [
+                { label: 'name', display: 'Name', sortable: true },
+                { label: 'fileName', display: 'File Name', sortable: true },
+                { label: 'build', display: 'Build', sortable: true },
+                { label: 'tags', display: 'Tags', sortable: true },
+            ] as TableColumn[],
             body: tableMapperValues(sourceData, 'id', ['name', 'fileName', 'build', 'tags']),
         };
     }
 </script>
 
-<Table bind:source={tableSource} interactive={true} bind:selected={selectedProjectIds} />
+<Table source={tableSource} interactive={true} bind:selected={selectedProjectIds} on:sortChanged/>

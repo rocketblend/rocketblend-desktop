@@ -59,6 +59,11 @@
         form.requestSubmit();
     }
 
+    function handleSortChange(event: CustomEvent<{ key: string, direction: string }>) {
+        const { key, direction } = event.detail;
+        console.log(key, direction);
+    }
+
     $: searchQuery = $page.url.searchParams.get("query") || "";
     $: displayTypeParam = $page.url.searchParams.get("display") || "";
     $: sortByParam = $page.url.searchParams.get("sortBy") || "";
@@ -89,6 +94,7 @@
             bind:selectedProjectIds={$selectedProjectIds}
             on:ctrlItemDoubleClicked={handleProjectActionDoubleClick}
             on:itemDoubleClicked={handleProjectDoubleClick}
-            on:selected={handleSelected}/>
+            on:selected={handleSelected}
+            on:sortChanged={handleSortChange}/>
     </div>
 </main>

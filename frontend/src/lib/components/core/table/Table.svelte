@@ -1,15 +1,20 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
     import { tableA11y } from './actions.js';
 
-    import type { CssClasses } from "@skeletonlabs/skeleton";
-    import type { TableSource, TableRow } from './types.js';
+    import type { CssClasses, Tab } from "@skeletonlabs/skeleton";
+    import type { TableSource, TableRow, TableColumn } from './types.js';
+
+    import IconArrowUpFill from '~icons/ri/arrow-up-s-fill';
+    import IconArrowDownFill from '~icons/ri/arrow-down-s-fill';
+
+    const dispatch = createEventDispatcher();
 
     export let source: TableSource;
     export let selected: string[] = [];
     export let multiple: boolean = false;
     export let interactive = false;
 
-    // Style Props...
     export let element: CssClasses = 'table';
     export let text: CssClasses = '';
     export let color: CssClasses = '';
@@ -20,6 +25,29 @@
     export let regionFoot: CssClasses = '';
     export let regionFootCell: CssClasses = '';
     export let regionRow: CssClasses = '';
+
+    function toggleSort(column: TableColumn): void {
+        // Clone the head array to trigger reactivity
+        let newHead: TableColumn[] = source.head.map(h => {
+            // Reset sort direction for other columns
+            if (h.label !== column.label) {
+                return { ...h, sortDirection: null };
+            } 
+            // Update the sort direction for the clicked column
+            else {
+                return {
+                    ...h,
+                    sortDirection: h.sortDirection === 'asc' ? 'desc' : 'asc'
+                };
+            }
+        });
+
+        // Update the source with the new head array
+        source = { ...source, head: newHead };
+
+        // Emit an event with the updated sorting parameters
+        dispatch('sortChanged', { key: column.label, direction: column.sortDirection });
+    }
 
     function onRowClick(clickedRow: TableRow): void {
         if (!interactive) return;
@@ -36,7 +64,6 @@
         }
     }
 
-    // Reactive variables for classes
     $: classesBase = `${$$props.class || ''}`;
     $: classesTable = `${element} ${text} ${color}`;
     $: classesRow = `${regionRow}`;
@@ -51,7 +78,26 @@
         <thead class="table-head {regionHead}">
             <tr>
                 {#each source.head as heading}
-                    <th class="{regionHeadCell}" role="columnheader">{@html heading}</th>
+                    <th
+                        class="{regionHeadCell} {heading.sortable ? 'sortable cursor-pointer' : ''}"
+                        role="columnheader"
+                        on:click={heading.sortable ? () => toggleSort(heading) : null}
+                        tabindex={heading.sortable ? 0 : -1}
+                        aria-label={heading.sortable ? `Sort by ${heading.label}` : heading.label}
+                    >
+                        <div class="inline-flex justify-center items-center space-x-2">
+                            <div>{heading.label}</div>
+                            {#if heading.sortable}
+                                <div class="sort-indicator">
+                                    {#if heading.sortDirection === 'asc'}
+                                        <IconArrowUpFill />
+                                    {:else if heading.sortDirection === 'desc'}
+                                        <IconArrowDownFill />
+                                    {/if}
+                                </div>
+                            {/if}
+                        </div>  
+                    </th>
                 {/each}
             </tr>
         </thead>
