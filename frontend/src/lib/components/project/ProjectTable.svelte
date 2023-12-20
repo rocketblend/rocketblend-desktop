@@ -27,4 +27,4 @@
     }
 </script>
   
-<Table source={tableSource} interactive={true} on:selected={handleSelected} />
+<Table source={tableSource} interactive={true} on:selected={handleSelected}/>
