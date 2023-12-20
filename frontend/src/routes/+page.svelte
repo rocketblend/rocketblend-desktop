@@ -9,7 +9,7 @@
 
 	import ProjectListView from '$lib/components/project/ProjectListView.svelte';
 	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
-	import { DisplayType, SortBy, type RadioOption } from '$lib/types';
+	import { DisplayType, type OptionGroup } from '$lib/types';
 	import { convertToEnum } from '$lib/components/utils';
     
     export let data: PageData;
@@ -20,14 +20,23 @@
     let searchQuery = "";
     let displayType: DisplayType = DisplayType.Table;
 
-    let sortBy: number = SortBy.Name;
     let form : HTMLFormElement;
 
-    const sortByOptions: RadioOption[] = [
-        { value: SortBy.Name, display: t.get('home.project.filter.option.name') },
-        { value: SortBy.File, display: t.get('home.project.filter.option.file') },
-        { value: SortBy.Build, display: t.get('home.project.filter.option.build') },
+    const optionGroups: OptionGroup[] = [
+        {
+            label: 'sort',
+            display: t.get('home.project.filter.group.sort.title'),
+            options: [
+                { value: 0, display: t.get('home.project.filter.group.sort.option.name') },
+                { value: 1, display: t.get('home.project.filter.group.sort.option.file') },
+                { value: 2, display: t.get('home.project.filter.group.sort.option.build') }
+            ]
+        }
     ];
+
+    let primaryOptionGroup: number = 0;
+    let selectedOptions: Record<string, number> = {'sort': 0};
+    let optionLabel: string = t.get('home.project.filter.group.title');
 
     function handleSelected(event: CustomEvent<project.Project | null>): void {
         const project = event.detail;
@@ -54,8 +63,9 @@
     $: displayTypeParam = $page.url.searchParams.get("display") || "";
     $: sortByParam = $page.url.searchParams.get("sortBy") || "";
 
-    $: displayType = convertToEnum(displayTypeParam, DisplayType);
-    //$: sortBy = convertToEnum(sortByParam, SortBy);
+    $: displayType = convertToEnum(displayTypeParam, DisplayType) || DisplayType.Table;
+
+    $: optionLabel = optionGroups[primaryOptionGroup].options[selectedOptions[optionGroups[primaryOptionGroup].label]].display;
 </script>
 
 <main class="space-y-4">
@@ -68,8 +78,9 @@
             bind:form={form}
             bind:searchQuery={searchQuery}
             bind:displayType={displayType}
-            bind:sortBy={sortBy}
-            sortByOptions={sortByOptions}
+            bind:selectedOptions={selectedOptions}
+            bind:filterLabel={optionLabel}
+            optionsGroups={optionGroups}
             searchPlaceholder={$t('home.project.query.placeholder')}
             on:change={handleFilterChangeEvent} />
         <ProjectListView

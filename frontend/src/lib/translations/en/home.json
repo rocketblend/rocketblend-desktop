@@ -23,11 +23,16 @@
             "placeholder": "Search your projects..."
         },
         "filter": {
-            "tilte": "Sort by",
-            "option": {
-                "name": "Name",
-                "file": "File",
-                "build": "Build"
+            "group": {
+                "sort": {
+                    "title": "Sort by",
+                    "option": {
+                        "name": "Name",
+                        "file": "File",
+                        "build": "Build",
+                        "updated": "Updated"
+                    }
+                }
             }
         },
         "view": {

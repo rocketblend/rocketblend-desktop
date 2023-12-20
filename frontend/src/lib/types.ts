@@ -20,3 +20,15 @@ export enum DisplayType {
     Table,
     Gallery
 }
+
+
+export type Option = {
+    value: number;
+    display: string;
+};
+
+export type OptionGroup = {
+    label: string;
+    display: string;
+    options: Option[];
+};
