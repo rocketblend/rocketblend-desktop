@@ -1,11 +1,11 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     
-    import type { TableSource } from '@skeletonlabs/skeleton';
-    import { Table } from '@skeletonlabs/skeleton';
-  
     import type { project } from '$lib/wailsjs/go/models';
     import { tableMapperValues } from '$lib/components/core'
+
+    import Table from '$lib/components/core/table/Table.svelte';
+    import type { TableSource } from '$lib/components/core/table/types.js';
   
     export let sourceData: project.Project[];
   

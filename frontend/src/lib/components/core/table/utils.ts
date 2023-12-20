@@ -1,4 +1,4 @@
-function getNestedObjectValue(obj: any, key: string): any {
+export function getNestedObjectValue(obj: any, key: string): any {
     let value = obj;
     key.split('.').forEach((k) => {
         if(value != null) {
