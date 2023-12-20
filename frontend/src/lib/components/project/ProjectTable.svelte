@@ -14,11 +14,10 @@
         tableSource = {
             head: [
                 { label: 'name', display: 'Name', sortable: true },
-                { label: 'fileName', display: 'File Name', sortable: true },
+                { label: 'filename', display: 'File Name', sortable: true },
                 { label: 'build', display: 'Build', sortable: true },
-                { label: 'tags', display: 'Tags', sortable: true },
             ] as TableColumn[],
-            body: tableMapperValues(sourceData, 'id', ['name', 'fileName', 'build', 'tags']),
+            body: tableMapperValues(sourceData, 'id', ['name', 'fileName', 'build']),
         };
     }
 </script>
