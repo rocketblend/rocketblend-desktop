@@ -201,7 +201,6 @@ func (s *service) Close() error {
 		return fmt.Errorf("close completed with errors: %s", strings.Join(closeErrors, "; "))
 	}
 
-	s.logger.Info("Watcher closed successfully")
 	return nil
 }
 
