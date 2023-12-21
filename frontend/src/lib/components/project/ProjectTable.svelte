@@ -1,30 +1,26 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    
-    import type { TableSource } from '@skeletonlabs/skeleton';
-    import { Table } from '@skeletonlabs/skeleton';
-  
     import type { project } from '$lib/wailsjs/go/models';
     import { tableMapperValues } from '$lib/components/core'
-  
+
+    import Table from '$lib/components/core/table/Table.svelte';
+    import type { TableSource, TableColumn } from '$lib/components/core/table/types.js';
+
     export let sourceData: project.Project[];
-  
+    export let selectedProjectIds: string[] = [];
+
     let tableSource: TableSource;
 
-    const dispatch = createEventDispatcher<{ selected: project.Project | null }>();
-
-    function handleSelected(event: CustomEvent<string[]>) {
-      var project = sourceData.find((p) => p.id?.toString() === event.detail[0]);
-      dispatch('selected', project);
-    }
-  
     $: {
-      tableSource = {
-        head: ['Project', 'File', 'Build', 'Tags'],
-        body: tableMapperValues(sourceData, ['name', 'fileName', 'build', 'tags']),
-        meta: tableMapperValues(sourceData, ['id']),
-      };
+        tableSource = {
+            head: [
+                { label: 'name', display: 'Name', sortable: true },
+                { label: 'filename', display: 'File Name', sortable: true },
+                { label: 'build', display: 'Build', sortable: true },
+            ] as TableColumn[],
+            body: tableMapperValues(sourceData, 'id', ['name', 'fileName', 'build']),
+            foot: ['']
+        };
     }
 </script>
-  
-<Table source={tableSource} interactive={true} on:selected={handleSelected} />
+
+<Table source={tableSource} interactive={true} bind:selected={selectedProjectIds} on:sortChanged on:itemDoubleClick/>

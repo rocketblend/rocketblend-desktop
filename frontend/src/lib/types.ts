@@ -1,6 +1,5 @@
 export type RadioOption = {
     value: number;
-    key: string;
     display: string;
 };
 
@@ -9,4 +8,27 @@ export type MediaInfo = {
     title: string;
     src: string;
     alt?: string;
+};
+
+export enum SortBy {
+    Name,
+    File,
+    Build
+}
+
+export enum DisplayType {
+    Table,
+    Gallery
+}
+
+
+export type Option = {
+    value: number;
+    display: string;
+};
+
+export type OptionGroup = {
+    label: string;
+    display: string;
+    options: Option[];
 };

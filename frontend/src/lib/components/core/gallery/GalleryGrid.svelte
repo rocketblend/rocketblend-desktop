@@ -22,6 +22,6 @@
 
 <Gallery class="gap-2 grid-cols-2 lg:grid-cols-4">
     {#each galleries as gallery}
-        <Gallery multiple={multiple} items={gallery} bind:group={selectedIds} on:itemDoubleClicked on:ctrlItemDoubleClicked />
+        <Gallery multiple={multiple} items={gallery} bind:group={selectedIds} on:itemDoubleClick />
     {/each}
 </Gallery>

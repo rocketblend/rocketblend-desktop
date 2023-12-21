@@ -2,12 +2,12 @@
     import ProjectTable from '$lib/components/project/ProjectTable.svelte';
     import GalleryGrid from '$lib/components/core/gallery/GalleryGrid.svelte';
     import type { project } from '$lib/wailsjs/go/models';
-    import type { MediaInfo } from '$lib/types';
+    import { DisplayType, type MediaInfo } from '$lib/types';
     import { resourcePath } from '$lib/components/utils';
 
     export let projects: project.Project[] = [];
     export let selectedProjectIds: string[] = [];
-    export let displayType: string;
+    export let displayType: DisplayType = DisplayType.Table;
 
     function convertProjectsToGalleryItems(projects: project.Project[] = []): MediaInfo[] {
         return projects.map((project) => ({
@@ -26,13 +26,16 @@
         <h4>No projects found.</h4>
     </div>
 {:else}
-    {#if displayType === "gallery"}
+    {#if displayType === DisplayType.Gallery}
         <GalleryGrid
-            on:itemDoubleClicked
-            on:ctrlItemDoubleClicked
+            on:itemDoubleClick
             bind:items={galleryItems}
             bind:selectedIds={selectedProjectIds}/>
     {:else }
-        <ProjectTable bind:sourceData={projects} on:selected />
+        <ProjectTable
+            on:sortChanged
+            on:itemDoubleClick
+            bind:sourceData={projects}
+            bind:selectedProjectIds={selectedProjectIds} />
     {/if}
 {/if}

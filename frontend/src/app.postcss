@@ -15,3 +15,13 @@ html, body { @apply h-full overflow-hidden; }
 	/* Color Stops */
 	@apply from-primary-400 to-secondary-400;
 }
+
+/* Elements: tables.css */
+
+.table-interactive tbody tr:hover {
+	@apply hover:variant-filled-surface even:hover:variant-filled-surface cursor-pointer;
+}
+
+.table-row-checked {
+	@apply !variant-ghost-primary;
+}

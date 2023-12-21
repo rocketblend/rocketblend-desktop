@@ -20,23 +20,16 @@
     }
 
     function handleClick(itemId: string) {
-        clearTimeout(clickTimeout);
-
-        clickTimeout = setTimeout(() => {
-            toggleSelection(itemId);
-        }, 50)
+        toggleSelection(itemId);
     }
 
     function handleDoubleClick(event: MouseEvent, itemId: string) {
-        clearTimeout(clickTimeout);
-        toggleSelection(itemId, true);
-
-        if (event.ctrlKey) {
-            dispatch('ctrlItemDoubleClicked', { itemId });
-            return;
+         // Ensure the item is selected on double-click
+        if (!group.includes(itemId)) {
+            group = multiple ? [...group, itemId] : [itemId];
         }
 
-        dispatch('itemDoubleClicked', { itemId });
+        dispatch('itemDoubleClick', { event: event, item: itemId});
     }
 
     function handleKeyDown(event: KeyboardEvent, itemId: string) {
@@ -45,20 +38,16 @@
         }
     }
 
-    function toggleSelection(itemId: string, isDoubleClick: boolean = false) {
+    function toggleSelection(itemId: string) {
         if (multiple) {
             const index = group.indexOf(itemId);
             if (index === -1) {
                 group = [...group, itemId];
             } else {
-                if (!isDoubleClick) {
-                    group = group.filter(id => id !== itemId);
-                }
+                group = group.filter(id => id !== itemId);
             }
         } else {
-            if (!isDoubleClick || group[0] !== itemId) {
-                group = group[0] === itemId ? [] : [itemId];
-            }
+            group = group[0] === itemId ? [] : [itemId];
         }
     }
 </script>

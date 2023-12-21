@@ -19,3 +19,11 @@ export const videoExtensions = ['.webm', '.mp4', '.ogg'];
 export function isVideo(path: string) {
     return videoExtensions.some(ext => path.endsWith(ext));
 }
+
+export function convertToEnum(value: string, enumType: { [key: number]: string }): any {
+    const num = parseInt(value, 10);
+    if (!isNaN(num) && num in enumType) {
+        return num as keyof typeof enumType;
+    }
+    return null;
+}
