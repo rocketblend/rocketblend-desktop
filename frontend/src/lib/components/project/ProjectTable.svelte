@@ -18,6 +18,7 @@
                 { label: 'build', display: 'Build', sortable: true },
             ] as TableColumn[],
             body: tableMapperValues(sourceData, 'id', ['name', 'fileName', 'build']),
+            foot: ['']
         };
     }
 </script>
