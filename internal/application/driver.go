@@ -293,6 +293,8 @@ func (d *Driver) shutdown(ctx context.Context) {
 	if err := d.factory.Close(); err != nil {
 		d.logger.Error("Failed to close factory", map[string]interface{}{"error": err.Error()})
 	}
+
+	d.logger.Debug("Application shutdown")
 }
 
 // onDomReady is called when the DOM is ready
