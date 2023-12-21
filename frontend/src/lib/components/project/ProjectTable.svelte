@@ -22,4 +22,4 @@
     }
 </script>
 
-<Table source={tableSource} interactive={true} bind:selected={selectedProjectIds} on:sortChanged/>
+<Table source={tableSource} interactive={true} bind:selected={selectedProjectIds} on:sortChanged on:itemDoubleClick/>

@@ -47,12 +47,13 @@
         selectedProjectIds.set([project.id.toString()]);
     }
 
-    function handleProjectDoubleClick(event: CustomEvent<{ itemId: string }>) {
-        goto(`/projects/${event.detail.itemId}`);
-    }
+    function handleProjectDoubleClick(event: CustomEvent<{ event: MouseEvent, item: string }>) {
+        if (event.detail.event.ctrlKey) {
+            RunProject(event.detail.item)
+            return;
+        }
 
-    function handleProjectActionDoubleClick(event: CustomEvent<{ itemId: string }>) {
-        RunProject(event.detail.itemId)
+        goto(`/projects/${event.detail.item}`);
     }
 
     function handleFilterChangeEvent(event: Event): void {
@@ -60,8 +61,7 @@
     }
 
     function handleSortChange(event: CustomEvent<{ key: string, direction: string }>) {
-        const { key, direction } = event.detail;
-        console.log(key, direction);
+        return;
     }
 
     $: searchQuery = $page.url.searchParams.get("query") || "";
@@ -92,8 +92,7 @@
             bind:projects={data.projects}
             bind:displayType={displayType}
             bind:selectedProjectIds={$selectedProjectIds}
-            on:ctrlItemDoubleClicked={handleProjectActionDoubleClick}
-            on:itemDoubleClicked={handleProjectDoubleClick}
+            on:itemDoubleClick={handleProjectDoubleClick}
             on:selected={handleSelected}
             on:sortChanged={handleSortChange}/>
     </div>

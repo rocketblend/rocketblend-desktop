@@ -2,7 +2,7 @@
     import { createEventDispatcher } from 'svelte';
     import { tableA11y } from './actions.js';
 
-    import type { CssClasses, Tab } from "@skeletonlabs/skeleton";
+    import type { CssClasses } from "@skeletonlabs/skeleton";
     import type { TableSource, TableRow, TableColumn } from './types.js';
 
     import IconArrowUpFill from '~icons/ri/arrow-up-s-fill';
@@ -27,13 +27,10 @@
     export let regionRow: CssClasses = '';
 
     function toggleSort(column: TableColumn): void {
-        // Clone the head array to trigger reactivity
         let newHead: TableColumn[] = source.head.map(h => {
-            // Reset sort direction for other columns
             if (h.label !== column.label) {
                 return { ...h, sortDirection: null };
             } 
-            // Update the sort direction for the clicked column
             else {
                 return {
                     ...h,
@@ -42,10 +39,8 @@
             }
         });
 
-        // Update the source with the new head array
         source = { ...source, head: newHead };
 
-        // Emit an event with the updated sorting parameters
         dispatch('sortChanged', { key: column.label, direction: column.sortDirection });
     }
 
@@ -62,6 +57,16 @@
         } else {
             selected = selectedIndex >= 0 ? [] : [clickedRow.id];
         }
+    }
+
+    function onRowDoubleClick(event: MouseEvent, id: string): void {
+        if (!interactive) return;
+
+        if (!selected.includes(id)) {
+            selected = multiple ? [...selected, id] : [id];
+        }
+
+        dispatch('itemDoubleClick', { event: event, item: id,  });
     }
 
     $: classesBase = `${$$props.class || ''}`;
@@ -107,6 +112,7 @@
                     class="{classesRow}"
                     class:table-row-checked={selected.includes(row.id)}
                     on:click={() => onRowClick(row)}
+                    on:dblclick={(event) => onRowDoubleClick(event, row.id)}
                     aria-rowindex={rowIndex + 1}
                     tabindex={interactive ? 0 : -1}>
                     {#each row.data as cell, cellIndex}

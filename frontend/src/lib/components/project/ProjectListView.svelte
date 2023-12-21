@@ -28,13 +28,13 @@
 {:else}
     {#if displayType === DisplayType.Gallery}
         <GalleryGrid
-            on:itemDoubleClicked
-            on:ctrlItemDoubleClicked
+            on:itemDoubleClick
             bind:items={galleryItems}
             bind:selectedIds={selectedProjectIds}/>
     {:else }
         <ProjectTable
             on:sortChanged
+            on:itemDoubleClick
             bind:sourceData={projects}
             bind:selectedProjectIds={selectedProjectIds} />
     {/if}
