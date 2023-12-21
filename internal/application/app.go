@@ -7,10 +7,7 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
-	"github.com/rocketblend/rocketblend/pkg/rocketblend/factory"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -32,49 +29,26 @@ type (
 	}
 )
 
-func New(logger logger.Logger, factory factory.Factory, assets fs.FS) (Application, error) {
+func New(logger logger.Logger, assets fs.FS) (Application, error) {
 	id, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
 
-	storeService, err := searchstore.New(
-		searchstore.WithLogger(logger),
+	factory, err := factory.New(
+		factory.WithLogger(logger),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	configService, err := factory.GetConfigService()
-	if err != nil {
-		return nil, err
-	}
-
-	projectService, err := projectservice.New(
-		projectservice.WithLogger(logger),
-		projectservice.WithFactory(factory),
-		projectservice.WithStore(storeService),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	packageService, err := packageservice.New(
-		packageservice.WithLogger(logger),
-		packageservice.WithStore(storeService),
-		packageservice.WithConfig(configService),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	driver, err := NewDriver(logger, configService, projectService, packageService)
+	driver, err := NewDriver(factory)
 	if err != nil {
 		return nil, err
 	}
 
 	cacheTimeout := 3600 // 1 hour
-	handler, err := NewFileLoader(logger, storeService, cacheTimeout)
+	handler, err := NewFileLoader(logger, factory, cacheTimeout)
 	if err != nil {
 		return nil, err
 	}

@@ -9,12 +9,16 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
-	"github.com/rocketblend/rocketblend/pkg/rocketblend/factory"
+
+	rocketblendBlendFile "github.com/rocketblend/rocketblend/pkg/driver/blendfile"
+	rocketblendInstallation "github.com/rocketblend/rocketblend/pkg/driver/installation"
+	rocketblendPackage "github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
 )
 
 type (
@@ -30,22 +34,35 @@ type (
 
 		Explore(ctx context.Context, id uuid.UUID) error
 
+		Refresh(ctx context.Context) error
+
 		Close() error
 	}
 
 	service struct {
 		logger logger.Logger
 
-		factory factory.Factory
+		applicationConfigService config.Service
+
+		rocketblendPackageService      rocketblendPackage.Service
+		rocketblendInstallationService rocketblendInstallation.Service
+		rocketblendBlendFileService    rocketblendBlendFile.Service
 
 		store   searchstore.Store
 		watcher watcher.Watcher
 	}
 
 	Options struct {
-		Logger                  logger.Logger
-		Factory                 factory.Factory
-		Store                   searchstore.Store
+		Logger logger.Logger
+
+		ApplicationConfigService config.Service
+
+		RocketblendPackageService      rocketblendPackage.Service
+		RocketblendInstallationService rocketblendInstallation.Service
+		RocketblendBlendFileService    rocketblendBlendFile.Service
+
+		Store searchstore.Store
+
 		WatcherDebounceDuration time.Duration
 	}
 
@@ -58,21 +75,39 @@ func WithLogger(logger logger.Logger) Option {
 	}
 }
 
-func WithFactory(factory factory.Factory) Option {
+func WithWatcherDebounceDuration(duration time.Duration) Option {
 	return func(o *Options) {
-		o.Factory = factory
+		o.WatcherDebounceDuration = duration
+	}
+}
+
+func WithApplicationConfigService(srv config.Service) Option {
+	return func(o *Options) {
+		o.ApplicationConfigService = srv
+	}
+}
+
+func WithRocketBlendPackageService(srv rocketblendPackage.Service) Option {
+	return func(o *Options) {
+		o.RocketblendPackageService = srv
+	}
+}
+
+func WithRocketBlendInstallationService(srv rocketblendInstallation.Service) Option {
+	return func(o *Options) {
+		o.RocketblendInstallationService = srv
+	}
+}
+
+func WithRocketBlendBlendFileService(srv rocketblendBlendFile.Service) Option {
+	return func(o *Options) {
+		o.RocketblendBlendFileService = srv
 	}
 }
 
 func WithStore(store searchstore.Store) Option {
 	return func(o *Options) {
 		o.Store = store
-	}
-}
-
-func WithWatcherDebounceDuration(duration time.Duration) Option {
-	return func(o *Options) {
-		o.WatcherDebounceDuration = duration
 	}
 }
 
@@ -86,24 +121,37 @@ func New(opts ...Option) (Service, error) {
 		o(options)
 	}
 
+	if options.ApplicationConfigService == nil {
+		return nil, fmt.Errorf("application config service is required")
+	}
+
+	if options.RocketblendPackageService == nil {
+		return nil, fmt.Errorf("rocketblend package service is required")
+	}
+
+	if options.RocketblendInstallationService == nil {
+		return nil, fmt.Errorf("rocketblend installation service is required")
+	}
+
+	if options.RocketblendBlendFileService == nil {
+		return nil, fmt.Errorf("rocketblend blend file service is required")
+	}
+
 	if options.Store == nil {
 		return nil, fmt.Errorf("store is required")
 	}
 
-	if options.Factory == nil {
-		return nil, fmt.Errorf("factory is required")
+	config, err := options.ApplicationConfigService.Get()
+	if err != nil {
+		return nil, err
 	}
-
-	// TODO: Move to config
-	watchPaths := "E:\\Blender\\Projects\\Testing\\RocketBlend"
-	watchFiles := []string{".blend", ".yaml"}
 
 	watcher, err := watcher.New(
 		watcher.WithLogger(options.Logger),
 		watcher.WithEventDebounceDuration(options.WatcherDebounceDuration),
-		watcher.WithPaths(watchPaths),
+		watcher.WithPaths(config.Project.Watcher.Paths...),
 		watcher.WithIsWatchableFileFunc(func(path string) bool {
-			for _, ext := range watchFiles {
+			for _, ext := range config.Project.Watcher.FileExtensions {
 				if filepath.Ext(path) == ext {
 					return true
 				}
@@ -152,10 +200,13 @@ func New(opts ...Option) (Service, error) {
 	}
 
 	return &service{
-		logger:  options.Logger,
-		factory: options.Factory,
-		store:   options.Store,
-		watcher: watcher,
+		logger:                         options.Logger,
+		applicationConfigService:       options.ApplicationConfigService,
+		rocketblendPackageService:      options.RocketblendPackageService,
+		rocketblendInstallationService: options.RocketblendInstallationService,
+		rocketblendBlendFileService:    options.RocketblendBlendFileService,
+		store:                          options.Store,
+		watcher:                        watcher,
 	}, nil
 }
 
@@ -207,6 +258,25 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 	return &ListProjectsResponse{
 		Projects: projects,
 	}, nil
+}
+
+func (s *service) Refresh(ctx context.Context) error {
+	registeredPaths := s.watcher.GetRegisteredPaths()
+
+	if err := s.watcher.UnregisterPaths(registeredPaths...); err != nil {
+		return err
+	}
+
+	config, err := s.applicationConfigService.Get()
+	if err != nil {
+		return err
+	}
+
+	if err := s.watcher.RegisterPaths(config.Project.Watcher.Paths...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, error) {

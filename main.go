@@ -33,22 +33,13 @@ func main() {
 }
 
 func run(args []string) error {
-	rbFactory, err := factory.New()
-	if err != nil {
-		return err
-	}
-
 	logger := logger.New(
 		logger.WithLogLevel("debug"),
 	)
 
-	if err := rbFactory.SetLogger(logger); err != nil {
-		return err
-	}
-
 	if len(os.Args) > 1 {
 		var err error
-		if err = open(context.Background(), os.Args[1], logger, rbFactory); err == nil {
+		if err = open(context.Background(), os.Args[1], logger); err == nil {
 			// If we successfully launched a project, we're done.
 			return nil
 		}
@@ -56,7 +47,7 @@ func run(args []string) error {
 		// If we failed to launch a project directly, open with application.
 	}
 
-	app, err := application.New(logger, rbFactory, assets)
+	app, err := application.New(logger, assets)
 	if err != nil {
 		return err
 	}
@@ -68,7 +59,16 @@ func run(args []string) error {
 	return nil
 }
 
-func open(ctx context.Context, blendFilePath string, logger logger.Logger, factory factory.Factory) error {
+func open(ctx context.Context, blendFilePath string, logger logger.Logger) error {
+	factory, err := factory.New()
+	if err != nil {
+		return err
+	}
+
+	if err := factory.SetLogger(logger); err != nil {
+		return err
+	}
+
 	rocketPackService, err := factory.GetRocketPackService()
 	if err != nil {
 		return fmt.Errorf("failed to get rocket pack service: %w", err)

@@ -6,9 +6,12 @@ require (
 	github.com/blevesearch/bleve/v2 v2.3.9
 	github.com/blevesearch/bleve_index_api v1.0.5
 	github.com/flowshot-io/x v0.0.0-20230622123052-b262ee884a19
+	github.com/go-playground/validator/v10 v10.13.0
 	github.com/google/uuid v1.3.0
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rjeczalik/notify v0.9.3
-	github.com/rocketblend/rocketblend v0.8.1
+	github.com/rocketblend/rocketblend v0.8.2-0.20231202115941-9cc57000da50
+	github.com/spf13/viper v1.14.0
 	github.com/wailsapp/wails/v2 v2.7.1
 	golang.org/x/text v0.13.0
 	sigs.k8s.io/yaml v1.3.0
@@ -46,7 +49,6 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.13.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -71,7 +73,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mholt/archiver/v3 v3.5.1 // indirect
-	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
@@ -91,7 +92,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.14.0 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect

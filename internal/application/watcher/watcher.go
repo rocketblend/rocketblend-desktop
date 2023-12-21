@@ -181,15 +181,26 @@ func (s *service) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	paths := s.GetRegisteredPaths()
-	if err := s.UnregisterPaths(paths...); err != nil {
-		s.logger.Error("Failed to unregister paths", map[string]interface{}{
-			"paths": paths,
-			"err":   err,
-		})
+	var closeErrors []string
+	s.logger.Debug("Closing watcher")
+
+	paths := s.registeredPaths
+	for _, path := range paths {
+		if err := s.unregisterPathLocked(path); err != nil {
+			closeErrors = append(closeErrors, fmt.Sprintf("path %s: %v", path, err))
+			s.logger.Error("Failed to unregister path", map[string]interface{}{
+				"path": path,
+				"err":  err,
+			})
+		}
 	}
 
-	s.logger.Info("Watcher closed successfully")
+	s.registeredPaths = []string{}
+
+	if len(closeErrors) > 0 {
+		return fmt.Errorf("close completed with errors: %s", strings.Join(closeErrors, "; "))
+	}
+
 	return nil
 }
 
@@ -253,6 +264,11 @@ func (s *service) unregisterPath(path string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	return s.unregisterPathLocked(path)
+}
+
+// unregisterPathLocked unregisters a path without locking the mutex.
+func (s *service) unregisterPathLocked(path string) error {
 	pathIndex := -1
 	for i, registeredPath := range s.registeredPaths {
 		if registeredPath == path {

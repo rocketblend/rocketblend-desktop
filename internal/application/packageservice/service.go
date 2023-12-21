@@ -15,8 +15,9 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
-	"github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
-	"github.com/rocketblend/rocketblend/pkg/rocketblend/config"
+
+	rocketblendPackage "github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
+	rocketblendConfig "github.com/rocketblend/rocketblend/pkg/rocketblend/config"
 )
 
 type (
@@ -28,18 +29,17 @@ type (
 	}
 
 	service struct {
-		logger logger.Logger
-
-		config  *config.Service //Swtich to interface
-		store   searchstore.Store
-		watcher watcher.Watcher
+		logger                   logger.Logger
+		rocketblendConfigService rocketblendConfig.Service
+		store                    searchstore.Store
+		watcher                  watcher.Watcher
 	}
 
 	Options struct {
-		Logger                  logger.Logger
-		Config                  *config.Service
-		Store                   searchstore.Store
-		WatcherDebounceDuration time.Duration
+		Logger                   logger.Logger
+		RocketblendConfigService rocketblendConfig.Service
+		Store                    searchstore.Store
+		WatcherDebounceDuration  time.Duration
 	}
 
 	Option func(*Options)
@@ -51,9 +51,9 @@ func WithLogger(logger logger.Logger) Option {
 	}
 }
 
-func WithConfig(config *config.Service) Option {
+func WithRocketBlendConfigService(srv rocketblendConfig.Service) Option {
 	return func(o *Options) {
-		o.Config = config
+		o.RocketblendConfigService = srv
 	}
 }
 
@@ -83,11 +83,11 @@ func New(opts ...Option) (Service, error) {
 		return nil, fmt.Errorf("store service is required")
 	}
 
-	if options.Config == nil {
-		return nil, fmt.Errorf("config service is required")
+	if options.RocketblendConfigService == nil {
+		return nil, fmt.Errorf("rocketblend config service is required")
 	}
 
-	config, err := options.Config.Get()
+	config, err := options.RocketblendConfigService.Get()
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func New(opts ...Option) (Service, error) {
 		watcher.WithEventDebounceDuration(options.WatcherDebounceDuration),
 		watcher.WithPaths(config.PackagesPath),
 		watcher.WithIsWatchableFileFunc(func(path string) bool {
-			return filepath.Base(path) == rocketpack.FileName
+			return filepath.Base(path) == rocketblendPackage.FileName
 		}),
 		watcher.WithUpdateObjectFunc(func(path string) error {
 			pack, err := pack.Load(config.PackagesPath, config.InstallationsPath, path)
@@ -129,10 +129,10 @@ func New(opts ...Option) (Service, error) {
 	}
 
 	return &service{
-		logger:  options.Logger,
-		config:  options.Config,
-		store:   options.Store,
-		watcher: watcher,
+		logger:                   options.Logger,
+		rocketblendConfigService: options.RocketblendConfigService,
+		store:                    options.Store,
+		watcher:                  watcher,
 	}, nil
 }
 
