@@ -22,7 +22,7 @@ type Driver struct {
 
 	logger logger.Logger
 
-	configService *config.Service
+	configService config.Service
 
 	projectService projectservice.Service
 	packageService packageservice.Service
@@ -33,7 +33,7 @@ type Driver struct {
 // NewApp creates a new App application struct
 func NewDriver(
 	logger logger.Logger,
-	configService *config.Service,
+	configService config.Service,
 	projectService projectservice.Service,
 	packageService packageservice.Service,
 	args ...string) (*Driver, error) {

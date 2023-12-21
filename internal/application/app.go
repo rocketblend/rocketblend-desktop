@@ -45,7 +45,7 @@ func New(logger logger.Logger, factory factory.Factory, assets fs.FS) (Applicati
 		return nil, err
 	}
 
-	configService, err := factory.GetConfigService()
+	rbConfigService, err := factory.GetConfigService()
 	if err != nil {
 		return nil, err
 	}
@@ -62,13 +62,13 @@ func New(logger logger.Logger, factory factory.Factory, assets fs.FS) (Applicati
 	packageService, err := packageservice.New(
 		packageservice.WithLogger(logger),
 		packageservice.WithStore(storeService),
-		packageservice.WithConfig(configService),
+		packageservice.WithConfig(rbConfigService),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	driver, err := NewDriver(logger, configService, projectService, packageService)
+	driver, err := NewDriver(logger, rbConfigService, projectService, packageService)
 	if err != nil {
 		return nil, err
 	}

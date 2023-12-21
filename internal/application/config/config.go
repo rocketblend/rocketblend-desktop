@@ -97,8 +97,6 @@ func (srv *service) validate(config *Config) error {
 func load(rootPath string) (*viper.Viper, error) {
 	v := viper.New()
 
-	v.SetDefault("logLevel", "info")
-
 	v.SetConfigName("settings")
 	v.AddConfigPath(rootPath)
 	v.SetConfigType("json")

@@ -14,7 +14,10 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
-	"github.com/rocketblend/rocketblend/pkg/rocketblend/factory"
+
+	rocketblendBlendFile "github.com/rocketblend/rocketblend/pkg/driver/blendfile"
+	rocketblendInstallation "github.com/rocketblend/rocketblend/pkg/driver/installation"
+	rocketblendPackage "github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
 )
 
 type (
@@ -36,15 +39,21 @@ type (
 	service struct {
 		logger logger.Logger
 
-		factory factory.Factory
+		rocketblendPackageService      rocketblendPackage.Service
+		rocketblendInstallationService rocketblendInstallation.Service
+		rocketblendBlendFileService    rocketblendBlendFile.Service
 
 		store   searchstore.Store
 		watcher watcher.Watcher
 	}
 
 	Options struct {
-		Logger                  logger.Logger
-		Factory                 factory.Factory
+		Logger logger.Logger
+
+		RocketblendPackageService      rocketblendPackage.Service
+		RocketblendInstallationService rocketblendInstallation.Service
+		RocketblendBlendFileService    rocketblendBlendFile.Service
+
 		Store                   searchstore.Store
 		WatcherDebounceDuration time.Duration
 	}
@@ -58,9 +67,21 @@ func WithLogger(logger logger.Logger) Option {
 	}
 }
 
-func WithFactory(factory factory.Factory) Option {
+func WithRocketBlendPackageService(srv rocketblendPackage.Service) Option {
 	return func(o *Options) {
-		o.Factory = factory
+		o.RocketblendPackageService = srv
+	}
+}
+
+func WithRocketBlendInstallationService(srv rocketblendInstallation.Service) Option {
+	return func(o *Options) {
+		o.RocketblendInstallationService = srv
+	}
+}
+
+func WithRocketBlendBlendFileService(srv rocketblendBlendFile.Service) Option {
+	return func(o *Options) {
+		o.RocketblendBlendFileService = srv
 	}
 }
 
@@ -86,12 +107,20 @@ func New(opts ...Option) (Service, error) {
 		o(options)
 	}
 
-	if options.Store == nil {
-		return nil, fmt.Errorf("store is required")
+	if options.RocketblendPackageService == nil {
+		return nil, fmt.Errorf("rocketblend package service is required")
 	}
 
-	if options.Factory == nil {
-		return nil, fmt.Errorf("factory is required")
+	if options.RocketblendInstallationService == nil {
+		return nil, fmt.Errorf("rocketblend installation service is required")
+	}
+
+	if options.RocketblendBlendFileService == nil {
+		return nil, fmt.Errorf("rocketblend blend file service is required")
+	}
+
+	if options.Store == nil {
+		return nil, fmt.Errorf("store is required")
 	}
 
 	// TODO: Move to config
@@ -152,10 +181,12 @@ func New(opts ...Option) (Service, error) {
 	}
 
 	return &service{
-		logger:  options.Logger,
-		factory: options.Factory,
-		store:   options.Store,
-		watcher: watcher,
+		logger:                         options.Logger,
+		rocketblendPackageService:      options.RocketblendPackageService,
+		rocketblendInstallationService: options.RocketblendInstallationService,
+		rocketblendBlendFileService:    options.RocketblendBlendFileService,
+		store:                          options.Store,
+		watcher:                        watcher,
 	}, nil
 }
 
