@@ -4,7 +4,6 @@
     import { t } from '$lib/translations/translations';
     import { selectedProjectIds } from '$lib/store';
     import { RunProject } from '$lib/wailsjs/go/application/Driver';
-    import type { project } from '$lib/wailsjs/go/models';
     import type { PageData } from './$types';
 
 	import ProjectListView from '$lib/components/project/ProjectListView.svelte';
@@ -37,15 +36,6 @@
     let primaryOptionGroup: number = 0;
     let selectedOptions: Record<string, number> = {'sort': 0};
     let optionLabel: string = t.get('home.project.filter.group.title');
-
-    function handleSelected(event: CustomEvent<project.Project | null>): void {
-        const project = event.detail;
-        if (!project || !project.id) {
-            return;
-        }
-
-        selectedProjectIds.set([project.id.toString()]);
-    }
 
     function handleProjectDoubleClick(event: CustomEvent<{ event: MouseEvent, item: string }>) {
         if (event.detail.event.ctrlKey) {
@@ -93,7 +83,6 @@
             bind:displayType={displayType}
             bind:selectedProjectIds={$selectedProjectIds}
             on:itemDoubleClick={handleProjectDoubleClick}
-            on:selected={handleSelected}
             on:sortChanged={handleSortChange}/>
     </div>
 </main>
