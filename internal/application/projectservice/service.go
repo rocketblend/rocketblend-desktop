@@ -9,6 +9,7 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
@@ -33,11 +34,15 @@ type (
 
 		Explore(ctx context.Context, id uuid.UUID) error
 
+		Refresh(ctx context.Context) error
+
 		Close() error
 	}
 
 	service struct {
 		logger logger.Logger
+
+		applicationConfigService config.Service
 
 		rocketblendPackageService      rocketblendPackage.Service
 		rocketblendInstallationService rocketblendInstallation.Service
@@ -50,11 +55,14 @@ type (
 	Options struct {
 		Logger logger.Logger
 
+		ApplicationConfigService config.Service
+
 		RocketblendPackageService      rocketblendPackage.Service
 		RocketblendInstallationService rocketblendInstallation.Service
 		RocketblendBlendFileService    rocketblendBlendFile.Service
 
-		Store                   searchstore.Store
+		Store searchstore.Store
+
 		WatcherDebounceDuration time.Duration
 	}
 
@@ -64,6 +72,18 @@ type (
 func WithLogger(logger logger.Logger) Option {
 	return func(o *Options) {
 		o.Logger = logger
+	}
+}
+
+func WithWatcherDebounceDuration(duration time.Duration) Option {
+	return func(o *Options) {
+		o.WatcherDebounceDuration = duration
+	}
+}
+
+func WithApplicationConfigService(srv config.Service) Option {
+	return func(o *Options) {
+		o.ApplicationConfigService = srv
 	}
 }
 
@@ -91,12 +111,6 @@ func WithStore(store searchstore.Store) Option {
 	}
 }
 
-func WithWatcherDebounceDuration(duration time.Duration) Option {
-	return func(o *Options) {
-		o.WatcherDebounceDuration = duration
-	}
-}
-
 func New(opts ...Option) (Service, error) {
 	options := &Options{
 		Logger:                  logger.NoOp(),
@@ -105,6 +119,10 @@ func New(opts ...Option) (Service, error) {
 
 	for _, o := range opts {
 		o(options)
+	}
+
+	if options.ApplicationConfigService == nil {
+		return nil, fmt.Errorf("application config service is required")
 	}
 
 	if options.RocketblendPackageService == nil {
@@ -123,16 +141,17 @@ func New(opts ...Option) (Service, error) {
 		return nil, fmt.Errorf("store is required")
 	}
 
-	// TODO: Move to config
-	watchPaths := "E:\\Blender\\Projects\\Testing\\RocketBlend"
-	watchFiles := []string{".blend", ".yaml"}
+	config, err := options.ApplicationConfigService.Get()
+	if err != nil {
+		return nil, err
+	}
 
 	watcher, err := watcher.New(
 		watcher.WithLogger(options.Logger),
 		watcher.WithEventDebounceDuration(options.WatcherDebounceDuration),
-		watcher.WithPaths(watchPaths),
+		watcher.WithPaths(config.Project.Watcher.Paths...),
 		watcher.WithIsWatchableFileFunc(func(path string) bool {
-			for _, ext := range watchFiles {
+			for _, ext := range config.Project.Watcher.FileExtensions {
 				if filepath.Ext(path) == ext {
 					return true
 				}
@@ -182,6 +201,7 @@ func New(opts ...Option) (Service, error) {
 
 	return &service{
 		logger:                         options.Logger,
+		applicationConfigService:       options.ApplicationConfigService,
 		rocketblendPackageService:      options.RocketblendPackageService,
 		rocketblendInstallationService: options.RocketblendInstallationService,
 		rocketblendBlendFileService:    options.RocketblendBlendFileService,
@@ -238,6 +258,25 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 	return &ListProjectsResponse{
 		Projects: projects,
 	}, nil
+}
+
+func (s *service) Refresh(ctx context.Context) error {
+	registeredPaths := s.watcher.GetRegisteredPaths()
+
+	if err := s.watcher.UnregisterPaths(registeredPaths...); err != nil {
+		return err
+	}
+
+	config, err := s.applicationConfigService.Get()
+	if err != nil {
+		return err
+	}
+
+	if err := s.watcher.RegisterPaths(config.Project.Watcher.Paths...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, error) {

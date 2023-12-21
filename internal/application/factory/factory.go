@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/rocketblend/rocketblend-desktop/internal/application/build"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
-	"github.com/rocketblend/rocketblend/pkg/rocketblend/build"
 
 	rocketblendBlendFile "github.com/rocketblend/rocketblend/pkg/driver/blendfile"
 	rocketblendInstallation "github.com/rocketblend/rocketblend/pkg/driver/installation"
@@ -110,6 +110,8 @@ func New(opts ...Option) (Factory, error) {
 		return nil, fmt.Errorf("failed to create app directory: %w", err)
 	}
 
+	options.Logger.Info("Using app directory", map[string]interface{}{"appDir": appDir})
+
 	return &factory{
 		appDir:             appDir,
 		logger:             options.Logger,
@@ -199,6 +201,11 @@ func (f *factory) GetProjectService() (projectservice.Service, error) {
 		return f.projectService, nil
 	}
 
+	applicationConfigService, err := f.GetApplicationConfigService()
+	if err != nil {
+		return nil, err
+	}
+
 	rocketblendBlendFileService, err := f.GetBlendFileService()
 	if err != nil {
 		return nil, err
@@ -221,6 +228,7 @@ func (f *factory) GetProjectService() (projectservice.Service, error) {
 
 	projectService, err := projectservice.New(
 		projectservice.WithLogger(f.logger),
+		projectservice.WithApplicationConfigService(applicationConfigService),
 		projectservice.WithRocketBlendBlendFileService(rocketblendBlendFileService),
 		projectservice.WithRocketBlendInstallationService(rocketblendInstallationService),
 		projectservice.WithRocketBlendPackageService(rocketblendPackageService),

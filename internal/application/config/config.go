@@ -97,6 +97,9 @@ func (srv *service) validate(config *Config) error {
 func load(rootPath string) (*viper.Viper, error) {
 	v := viper.New()
 
+	v.SetDefault("project.watcher.paths", []string{"E:\\Blender\\Projects\\Testing\\RocketBlend"})
+	v.SetDefault("project.watcher.fileExtensions", []string{".blend", ".yaml"})
+
 	v.SetConfigName("settings")
 	v.AddConfigPath(rootPath)
 	v.SetConfigType("json")

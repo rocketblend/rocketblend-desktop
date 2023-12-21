@@ -8,6 +8,7 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
@@ -15,6 +16,8 @@ import (
 	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+
+	rocketblendConfig "github.com/rocketblend/rocketblend/pkg/rocketblend/config"
 )
 
 // Driver struct
@@ -53,6 +56,38 @@ func (d *Driver) GetPlatform() *rbruntime.Platform {
 	}
 
 	return &config.Platform
+}
+
+func (d *Driver) GetApplicationConfig() *config.Config {
+	configService, err := d.factory.GetApplicationConfigService()
+	if err != nil {
+		d.logger.Error("Failed to get application config service", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	config, err := configService.Get()
+	if err != nil {
+		d.logger.Error("Failed to get config", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	return config
+}
+
+func (d *Driver) GetRocketBlendConfig() *rocketblendConfig.Config {
+	configService, err := d.factory.GetConfigService()
+	if err != nil {
+		d.logger.Error("Failed to get rocketblend config service", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	config, err := configService.Get()
+	if err != nil {
+		d.logger.Error("Failed to get config", map[string]interface{}{"error": err.Error()})
+		return nil
+	}
+
+	return config
 }
 
 // GetProject gets a project by id

@@ -14,6 +14,10 @@ export function ExploreProject(arg1) {
   return window['go']['application']['Driver']['ExploreProject'](arg1);
 }
 
+export function GetApplicationConfig() {
+  return window['go']['application']['Driver']['GetApplicationConfig']();
+}
+
 export function GetPackage(arg1) {
   return window['go']['application']['Driver']['GetPackage'](arg1);
 }
@@ -24,6 +28,10 @@ export function GetPlatform() {
 
 export function GetProject(arg1) {
   return window['go']['application']['Driver']['GetProject'](arg1);
+}
+
+export function GetRocketBlendConfig() {
+  return window['go']['application']['Driver']['GetRocketBlendConfig']();
 }
 
 export function ListPackages(arg1, arg2, arg3) {
