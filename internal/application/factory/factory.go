@@ -30,6 +30,9 @@ type (
 		GetProjectService() (projectservice.Service, error)
 		GetPackageService() (packageservice.Service, error)
 
+		Preload() error
+		Close() error
+
 		rocketblendFactory.Factory
 	}
 
@@ -120,6 +123,34 @@ func (f *factory) GetLogger() (logger.Logger, error) {
 
 func (f *factory) SetLogger(logger.Logger) error {
 	return fmt.Errorf("not implemented: will be removed in future")
+}
+
+func (f *factory) Preload() error {
+	if _, err := f.GetProjectService(); err != nil {
+		return err
+	}
+
+	if _, err := f.GetPackageService(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *factory) Close() error {
+	if f.packageService != nil {
+		if err := f.packageService.Close(); err != nil {
+			return err
+		}
+	}
+
+	if f.projectService != nil {
+		if err := f.projectService.Close(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (f *factory) GetApplicationConfigService() (config.Service, error) {

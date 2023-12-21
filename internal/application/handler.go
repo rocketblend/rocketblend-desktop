@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/flowshot-io/x/pkg/logger"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 )
 
@@ -27,14 +27,14 @@ var validExtensions = map[string]bool{
 type FileLoader struct {
 	cacheTimeout int
 
-	logger logger.Logger
-	store  searchstore.Store
+	logger  logger.Logger
+	factory factory.Factory
 }
 
-func NewFileLoader(logger logger.Logger, store searchstore.Store, cacheTimeout int) (*FileLoader, error) {
+func NewFileLoader(logger logger.Logger, factory factory.Factory, cacheTimeout int) (*FileLoader, error) {
 	return &FileLoader{
 		logger:       logger,
-		store:        store,
+		factory:      factory,
 		cacheTimeout: cacheTimeout,
 	}, nil
 }
@@ -64,7 +64,13 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		"userAgent":  req.UserAgent(),
 	})
 
-	result, err := h.store.List(listoption.WithResource(path), listoption.WithSize(1))
+	store, err := h.factory.GetSearchStore()
+	if err != nil {
+		h.respondWithError(res, http.StatusInternalServerError, "Could not get search store", err)
+		return
+	}
+
+	result, err := store.List(listoption.WithResource(path), listoption.WithSize(1))
 	if err != nil {
 		h.respondWithError(res, http.StatusInternalServerError, "Could not list resources", err)
 		return
