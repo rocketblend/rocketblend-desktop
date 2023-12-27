@@ -1,6 +1,8 @@
 package hook
 
 import (
+	"fmt"
+
 	"github.com/rs/zerolog"
 )
 
@@ -43,6 +45,8 @@ func (srv *hook) Run(e *zerolog.Event, level zerolog.Level, msg string) {
 	// Extract fields from zerolog.Event
 	fields := make(map[string]interface{})
 	e.Fields(fields)
+
+	fmt.Println("hook", level.String(), msg, fields)
 
 	// Call the onLogFunc if it's configured
 	if srv.onLogFunc != nil {

@@ -3,9 +3,9 @@
     
     import { onMount, onDestroy } from 'svelte';
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-    import { initializeStores, getToastStore, storePopup } from '@skeletonlabs/skeleton';
-    import { Toast, AppBar, AppShell } from '@skeletonlabs/skeleton';
-    import type { ToastSettings } from '@skeletonlabs/skeleton';
+    import { initializeStores, getToastStore, getDrawerStore, storePopup } from '@skeletonlabs/skeleton';
+    import { Toast, AppBar, AppShell, Drawer } from '@skeletonlabs/skeleton';
+    import type { ToastSettings, DrawerSettings } from '@skeletonlabs/skeleton';
 
     import { goto } from '$app/navigation';
 
@@ -20,14 +20,23 @@
 
     import Footer from "$lib/containers/Footer.svelte";
     import Sidebar from "$lib/containers/Sidebar.svelte";
+	import type { LogEvent } from "$lib/types";
+	import { draw } from "svelte/transition";
 
     initializeStores();
     const toastStore = getToastStore();
+    const drawerStore = getDrawerStore();
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
     function handleViewHome(): void {
         goto(`/`);
+    }
+
+    let logs: LogEvent[] = [];
+
+    function handleToggleMoreClick() {
+        drawerStore.open();
     }
 
     onMount(() => {     
@@ -43,8 +52,8 @@
             }
         });
 
-        EventsOn('logStream', (data: { level: string, message: string, fields: { [key: string]: any } }) => {
-            console.log(data.level, data.message, data.fields)
+        EventsOn('logStream', (data: LogEvent) => {
+            logs.push(data);
         });
 
         const launchToast: ToastSettings = {
@@ -64,7 +73,32 @@
     });
 </script>
 
+<Drawer
+    class="h-full overflow-hidden"
+    position="bottom"
+    rounded="none"
+    zIndex="z-50">
+    <div class="p-2 h-full">
+        <div class="overflow-auto h-full p-4 space-y-2 rounded">
+            <h3 class="h3">Logs</h3>
+            <hr>
+            <div>
+                {#each logs as log }
+                    <div class="flex flex-row space-x-2">
+                        <span class="font-bold text-sm text-surface-200 lowercase">{log.level}</span>
+                        <span class="text-sm text-surface-200 lowercase">{log.message}</span>
+                        {#each Object.entries(log.fields) as [key, value]}
+                            <span class="text-sm text-surface-200 lowercase">{key}: {value}</span>
+                        {/each}
+                    </div>
+                {/each}
+            </div>
+        </div>
+    </div>
+</Drawer>
+
 <Toast
+    zIndex="z-40"
     background="variant-filled-surface"
     padding="p-4"
     position="br"
@@ -77,7 +111,7 @@
         <div style="--wails-draggable:drag">
             <AppBar background="bg-surface-50-900-token" padding="p0" slotTrail="space-x-0 -mt-3">
                 <svelte:fragment slot="lead">
-                <button type="button" class="btn btn-sm py-2 px-4 rounded-none text-2xl">
+                <button type="button" class="btn btn-sm py-2 px-4 rounded-none text-2xl" on:click={handleToggleMoreClick} >
                     <IconMoreFill/>
                 </button>
                 </svelte:fragment>

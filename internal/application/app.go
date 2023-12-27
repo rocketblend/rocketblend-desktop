@@ -36,6 +36,7 @@ func New(assets fs.FS) (Application, error) {
 
 	hook, err := hook.New(
 		hook.WithOnLogFunc(func(level string, msg string, fields map[string]interface{}) {
+			fmt.Println("hook", level, msg, fields)
 			events.AddData(LogEvent{
 				Level:   level,
 				Message: msg,

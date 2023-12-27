@@ -32,3 +32,9 @@ export type OptionGroup = {
     display: string;
     options: Option[];
 };
+
+export type LogEvent = {
+    level: string,
+    message: string,
+    fields: { [key: string]: string }
+}
