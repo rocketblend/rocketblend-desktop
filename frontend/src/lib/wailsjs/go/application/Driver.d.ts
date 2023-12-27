@@ -6,6 +6,8 @@ import {config} from '../models';
 import {packageservice} from '../models';
 import {runtime} from '../models';
 
+export function AddPackage(arg1:string):Promise<void>;
+
 export function CreateProject(arg1:projectservice.CreateProjectRequest):Promise<void>;
 
 export function DeleteProject(arg1:uuid.UUID):Promise<void>;
@@ -22,14 +24,20 @@ export function GetProject(arg1:uuid.UUID):Promise<projectservice.GetProjectResp
 
 export function GetRocketBlendConfig():Promise<config.Config>;
 
+export function InstallPackage(arg1:uuid.UUID):Promise<void>;
+
 export function ListPackages(arg1:string,arg2:string,arg3:boolean):Promise<packageservice.ListPackagesResponse>;
 
 export function ListProjects(arg1:string):Promise<projectservice.ListProjectsResponse>;
 
 export function Quit():Promise<void>;
 
+export function RefreshPackages():Promise<void>;
+
 export function RenderProject(arg1:uuid.UUID):Promise<void>;
 
 export function RunProject(arg1:uuid.UUID):Promise<void>;
+
+export function UninstallPackage(arg1:uuid.UUID):Promise<void>;
 
 export function UpdateProject(arg1:projectservice.UpdateProjectRequest):Promise<void>;

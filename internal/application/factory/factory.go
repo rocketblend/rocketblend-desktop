@@ -256,6 +256,16 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 		return nil, err
 	}
 
+	rocketblendPackageService, err := f.GetRocketPackService()
+	if err != nil {
+		return nil, err
+	}
+
+	rocketblendInstallationService, err := f.GetInstallationService()
+	if err != nil {
+		return nil, err
+	}
+
 	store, err := f.GetSearchStore()
 	if err != nil {
 		return nil, err
@@ -263,6 +273,8 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 
 	packageService, err := packageservice.New(
 		packageservice.WithLogger(f.logger),
+		packageservice.WithRocketBlendPackageService(rocketblendPackageService),
+		packageservice.WithRocketBlendInstallationService(rocketblendInstallationService),
 		packageservice.WithRocketBlendConfigService(rocketblendConfigService),
 		packageservice.WithStore(store),
 	)

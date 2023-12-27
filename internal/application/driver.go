@@ -374,6 +374,10 @@ func (d *Driver) startup(ctx context.Context) {
 func (d *Driver) shutdown(ctx context.Context) {
 	d.logger.Debug("Shutting down application")
 
+	// Close the event stream
+	d.events.Close()
+
+	// Close the factory watchers
 	if err := d.factory.Close(); err != nil {
 		d.logger.Error("Failed to close factory", map[string]interface{}{"error": err.Error()})
 	}

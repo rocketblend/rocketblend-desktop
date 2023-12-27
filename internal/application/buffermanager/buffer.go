@@ -1,16 +1,20 @@
 package buffermanager
 
 type (
-	Data interface{}
+	Data interface {
+	}
 
 	BufferManager interface {
 		AddData(data Data)
 		GetNextData() (Data, bool)
+		Close()
 	}
 
 	bufferManager struct {
-		buffer []Data
-		ch     chan Data
+		buffer  []Data
+		ch      chan Data
+		closing chan struct{}
+		closed  bool
 	}
 
 	Options struct {
@@ -44,21 +48,46 @@ func New(opts ...Option) BufferManager {
 	return bm
 }
 
+func (bm *bufferManager) Close() {
+	if bm.closed {
+		return
+	}
+	bm.closed = true
+	close(bm.closing)
+	close(bm.ch)
+}
+
 func (bm *bufferManager) manageBuffer() {
-	for data := range bm.ch {
-		if len(bm.buffer) == cap(bm.buffer) {
-			bm.buffer = bm.buffer[1:]
+	for {
+		select {
+		case data, ok := <-bm.ch:
+			if !ok {
+				return // Channel is closed, exit the goroutine
+			}
+			if len(bm.buffer) == cap(bm.buffer) {
+				// Only remove the oldest element if there's more than one element
+				if len(bm.buffer) > 1 {
+					bm.buffer = bm.buffer[1:]
+				} else {
+					bm.buffer = bm.buffer[:0] // Reset buffer if it contains only one element
+				}
+			}
+			bm.buffer = append(bm.buffer, data)
+		case <-bm.closing:
+			return // Close signal received, exit the goroutine
 		}
-		bm.buffer = append(bm.buffer, data)
 	}
 }
 
 func (bm *bufferManager) AddData(data Data) {
+	if bm.closed {
+		return // Do not add data if BufferManager is closed
+	}
 	select {
 	case bm.ch <- data:
 		// Data added successfully
 	default:
-		// Channel is full, so this will be handled in manageBuffer
+		// Channel is full, handle accordingly
 	}
 }
 
