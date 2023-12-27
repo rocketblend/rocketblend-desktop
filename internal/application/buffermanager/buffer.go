@@ -40,8 +40,9 @@ func New(opts ...Option) BufferManager {
 	}
 
 	bm := &bufferManager{
-		buffer: make([]Data, 0, options.MaxBufferSize),
-		ch:     make(chan Data, options.MaxBufferSize),
+		buffer:  make([]Data, 0, options.MaxBufferSize),
+		ch:      make(chan Data, options.MaxBufferSize),
+		closing: make(chan struct{}),
 	}
 
 	go bm.manageBuffer()
