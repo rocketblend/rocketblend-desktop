@@ -9,15 +9,58 @@ import (
 )
 
 func (s *service) Add(ctx context.Context, reference reference.Reference) error {
-	return fmt.Errorf("not implemented")
+	rocketpack, err := s.rocketblendPackageService.GetPackages(ctx, true, reference)
+	if err != nil {
+		return err
+	}
+
+	if len(rocketpack) == 0 {
+		return fmt.Errorf("package not found")
+	}
+
+	return nil
 }
 
 func (s *service) Install(ctx context.Context, id uuid.UUID) error {
-	return fmt.Errorf("not implemented")
+	pack, err := s.get(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, pack.Reference)
+	if err != nil {
+		return err
+	}
+
+	installs, err := s.rocketblendInstallationService.GetInstallations(ctx, rocketpacks, false)
+	if err != nil {
+		return err
+	}
+
+	_, ok := installs[pack.Reference]
+	if !ok {
+		return fmt.Errorf("installation not found")
+	}
+
+	return nil
 }
 
 func (s *service) Uninstall(ctx context.Context, id uuid.UUID) error {
-	return fmt.Errorf("not implemented")
+	pack, err := s.get(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, pack.Reference)
+	if err != nil {
+		return err
+	}
+
+	if err := s.rocketblendInstallationService.RemoveInstallations(ctx, rocketpacks); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *service) Refresh(ctx context.Context) error {

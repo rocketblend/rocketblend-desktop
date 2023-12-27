@@ -16,6 +16,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
 
+	rocketblendInstallation "github.com/rocketblend/rocketblend/pkg/driver/installation"
 	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	rocketblendPackage "github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
 	rocketblendConfig "github.com/rocketblend/rocketblend/pkg/rocketblend/config"
@@ -36,17 +37,25 @@ type (
 	}
 
 	service struct {
-		logger                   logger.Logger
-		rocketblendConfigService rocketblendConfig.Service
-		store                    searchstore.Store
-		watcher                  watcher.Watcher
+		logger logger.Logger
+
+		rocketblendConfigService       rocketblendConfig.Service
+		rocketblendPackageService      rocketblendPackage.Service
+		rocketblendInstallationService rocketblendInstallation.Service
+
+		store   searchstore.Store
+		watcher watcher.Watcher
 	}
 
 	Options struct {
-		Logger                   logger.Logger
-		RocketblendConfigService rocketblendConfig.Service
-		Store                    searchstore.Store
-		WatcherDebounceDuration  time.Duration
+		Logger logger.Logger
+
+		RocketblendConfigService       rocketblendConfig.Service
+		RocketblendPackageService      rocketblendPackage.Service
+		RocketblendInstallationService rocketblendInstallation.Service
+
+		Store                   searchstore.Store
+		WatcherDebounceDuration time.Duration
 	}
 
 	Option func(*Options)
@@ -61,6 +70,18 @@ func WithLogger(logger logger.Logger) Option {
 func WithRocketBlendConfigService(srv rocketblendConfig.Service) Option {
 	return func(o *Options) {
 		o.RocketblendConfigService = srv
+	}
+}
+
+func WithRocketBlendPackageService(srv rocketblendPackage.Service) Option {
+	return func(o *Options) {
+		o.RocketblendPackageService = srv
+	}
+}
+
+func WithRocketBlendInstallationService(srv rocketblendInstallation.Service) Option {
+	return func(o *Options) {
+		o.RocketblendInstallationService = srv
 	}
 }
 
@@ -92,6 +113,14 @@ func New(opts ...Option) (Service, error) {
 
 	if options.RocketblendConfigService == nil {
 		return nil, fmt.Errorf("rocketblend config service is required")
+	}
+
+	if options.RocketblendPackageService == nil {
+		return nil, fmt.Errorf("rocketblend package service is required")
+	}
+
+	if options.RocketblendInstallationService == nil {
+		return nil, fmt.Errorf("rocketblend installation service is required")
 	}
 
 	config, err := options.RocketblendConfigService.Get()
@@ -136,10 +165,12 @@ func New(opts ...Option) (Service, error) {
 	}
 
 	return &service{
-		logger:                   options.Logger,
-		rocketblendConfigService: options.RocketblendConfigService,
-		store:                    options.Store,
-		watcher:                  watcher,
+		logger:                         options.Logger,
+		rocketblendConfigService:       options.RocketblendConfigService,
+		rocketblendPackageService:      options.RocketblendPackageService,
+		rocketblendInstallationService: options.RocketblendInstallationService,
+		store:                          options.Store,
+		watcher:                        watcher,
 	}, nil
 }
 
@@ -148,12 +179,7 @@ func (s *service) Close() error {
 }
 
 func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetPackageResponse, error) {
-	index, err := s.store.Get(id)
-	if err != nil {
-		return nil, err
-	}
-
-	pack, err := s.convert(index)
+	pack, err := s.get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -191,4 +217,18 @@ func (s *service) convert(index *searchstore.Index) (*pack.Package, error) {
 	}
 
 	return &result, nil
+}
+
+func (s *service) get(ctx context.Context, id uuid.UUID) (*pack.Package, error) {
+	index, err := s.store.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	pack, err := s.convert(index)
+	if err != nil {
+		return nil, err
+	}
+
+	return pack, nil
 }
