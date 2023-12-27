@@ -6,8 +6,8 @@ type (
 	}
 
 	LogEvent struct {
-		Level   string
-		Message string
-		Fields  []map[string]interface{}
+		Level   string                 `json:"level"`
+		Message string                 `json:"message"`
+		Fields  map[string]interface{} `json:"fields"`
 	}
 )

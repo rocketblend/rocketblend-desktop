@@ -35,7 +35,7 @@ func New(assets fs.FS) (Application, error) {
 	events := buffermanager.New(buffermanager.WithMaxBufferSize(200))
 
 	hook, err := hook.New(
-		hook.WithOnLogFunc(func(level string, msg string, fields ...map[string]interface{}) {
+		hook.WithOnLogFunc(func(level string, msg string, fields map[string]interface{}) {
 			events.AddData(LogEvent{
 				Level:   level,
 				Message: msg,

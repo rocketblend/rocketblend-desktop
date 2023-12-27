@@ -43,6 +43,10 @@
             }
         });
 
+        EventsOn('logStream', (data: { level: string, message: string, fields: { [key: string]: any } }) => {
+            console.log(data.level, data.message, data.fields)
+        });
+
         const launchToast: ToastSettings = {
             message: t.get('home.greeting'),
             background: 'bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white',
@@ -56,6 +60,7 @@
 
     onDestroy(() => {
         EventsOff('launchArgs');
+        EventsOff('logStream');
     });
 </script>
 

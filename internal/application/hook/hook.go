@@ -10,10 +10,10 @@ type (
 	}
 
 	hook struct {
-		onLogFunc func(level string, msg string, fields ...map[string]interface{})
+		onLogFunc func(level string, msg string, fields map[string]interface{})
 	}
 
-	LogFunc func(level string, msg string, fields ...map[string]interface{})
+	LogFunc func(level string, msg string, fields map[string]interface{})
 
 	Options struct {
 		OnLogFunc LogFunc
