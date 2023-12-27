@@ -27,3 +27,29 @@ export function convertToEnum(value: string, enumType: { [key: number]: string }
     }
     return null;
 }
+
+export function formatTime(dateInput: Date | string): string {
+    let date: Date;
+
+    if (typeof dateInput === 'string') {
+        date = new Date(dateInput);
+    } else if (dateInput instanceof Date) {
+        date = dateInput;
+    } else {
+        return "Invalid input";
+    }
+
+    // Check if 'date' is a valid Date object
+    if (isNaN(date.getTime())) {
+        return "Invalid date";
+    }
+
+    const options: Intl.DateTimeFormatOptions = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+
+    return date.toLocaleTimeString(undefined, options);
+}

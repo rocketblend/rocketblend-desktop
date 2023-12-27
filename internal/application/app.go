@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/hook"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -32,25 +31,10 @@ type (
 )
 
 func New(assets fs.FS) (Application, error) {
-	events := buffermanager.New(buffermanager.WithMaxBufferSize(200))
-
-	hook, err := hook.New(
-		hook.WithOnLogFunc(func(level string, msg string, fields map[string]interface{}) {
-			fmt.Println("hook", level, msg, fields)
-			events.AddData(LogEvent{
-				Level:   level,
-				Message: msg,
-				Fields:  fields,
-			})
-		}),
-	)
-	if err != nil {
-		return nil, err
-	}
-
+	events := buffermanager.New(buffermanager.WithMaxBufferSize(25))
 	logger := logger.New(
 		logger.WithLogLevel("debug"),
-		logger.WithHook(hook),
+		logger.WithWriter(NewEventBufferWriter(events)),
 	)
 
 	id, err := uuid.Parse(id)

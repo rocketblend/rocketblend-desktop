@@ -36,5 +36,6 @@ export type OptionGroup = {
 export type LogEvent = {
     level: string,
     message: string,
+    time: Date,
     fields: { [key: string]: string }
 }

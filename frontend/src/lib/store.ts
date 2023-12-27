@@ -1,4 +1,5 @@
 import { writable, get as getStoreValue } from 'svelte/store';
+import type { LogEvent } from './types';
 
 function createProjectIdStore() {
     const { subscribe, set, update } = writable<string[]>([]);

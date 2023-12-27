@@ -5,7 +5,7 @@
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
     import { initializeStores, getToastStore, getDrawerStore, storePopup } from '@skeletonlabs/skeleton';
     import { Toast, AppBar, AppShell, Drawer } from '@skeletonlabs/skeleton';
-    import type { ToastSettings, DrawerSettings } from '@skeletonlabs/skeleton';
+    import type { ToastSettings } from '@skeletonlabs/skeleton';
 
     import { goto } from '$app/navigation';
 
@@ -20,8 +20,8 @@
 
     import Footer from "$lib/containers/Footer.svelte";
     import Sidebar from "$lib/containers/Sidebar.svelte";
+    import { formatTime } from "$lib/components/utils";
 	import type { LogEvent } from "$lib/types";
-	import { draw } from "svelte/transition";
 
     initializeStores();
     const toastStore = getToastStore();
@@ -29,11 +29,11 @@
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
+    let logs: LogEvent[] = [];
+
     function handleViewHome(): void {
         goto(`/`);
     }
-
-    let logs: LogEvent[] = [];
 
     function handleToggleMoreClick() {
         drawerStore.open();
@@ -53,7 +53,7 @@
         });
 
         EventsOn('logStream', (data: LogEvent) => {
-            logs.push(data);
+            logs = [...logs, data];
         });
 
         const launchToast: ToastSettings = {
@@ -79,21 +79,23 @@
     rounded="none"
     zIndex="z-50">
     <div class="p-2 h-full">
-        <div class="overflow-auto h-full p-4 space-y-2 rounded">
-            <h3 class="h3">Logs</h3>
-            <hr>
-            <div>
-                {#each logs as log }
-                    <div class="flex flex-row space-x-2">
-                        <span class="font-bold text-sm text-surface-200 lowercase">{log.level}</span>
-                        <span class="text-sm text-surface-200 lowercase">{log.message}</span>
-                        {#each Object.entries(log.fields) as [key, value]}
-                            <span class="text-sm text-surface-200 lowercase">{key}: {value}</span>
-                        {/each}
-                    </div>
-                {/each}
-            </div>
-        </div>
+        <ul class="overflow-auto h-full rounded p-4">
+            {#each logs as log }
+                <li class="space-x-1 text-sm lowercase text-surface-200 w-full">
+                    <span>{formatTime(log.time)}</span>
+                    <span>|</span>
+                    <span class="uppercase">{log.level}</span>
+                    <span>|</span>
+                    <span class="font-bold">{log.message}</span>
+                    <span>|</span>
+                    {#each Object.entries(log.fields) as [key, value]}
+                        <span>
+                            <span class="text-primary-500-400-token">{key}=</span><span>{value}</span>
+                        </span>
+                    {/each}
+                </li>
+            {/each}
+        </ul>
     </div>
 </Drawer>
 

@@ -11,7 +11,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rjeczalik/notify v0.9.3
 	github.com/rocketblend/rocketblend v0.8.2-0.20231202115941-9cc57000da50
-	github.com/rs/zerolog v1.29.1
 	github.com/spf13/viper v1.14.0
 	github.com/wailsapp/wails/v2 v2.7.1
 	golang.org/x/text v0.13.0
@@ -85,6 +84,7 @@ require (
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/rs/zerolog v1.29.1 // indirect
 	github.com/samber/lo v1.38.1 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/skeema/knownhosts v1.1.1 // indirect
