@@ -16,6 +16,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
 
+	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	rocketblendPackage "github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
 	rocketblendConfig "github.com/rocketblend/rocketblend/pkg/rocketblend/config"
 )
@@ -24,6 +25,12 @@ type (
 	Service interface {
 		Get(ctx context.Context, id uuid.UUID) (*GetPackageResponse, error)
 		List(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error)
+
+		Add(ctx context.Context, reference reference.Reference) error
+		Install(ctx context.Context, id uuid.UUID) error
+		Uninstall(ctx context.Context, id uuid.UUID) error
+
+		Refresh(ctx context.Context) error
 
 		Close() error
 	}

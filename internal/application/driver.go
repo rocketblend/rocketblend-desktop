@@ -13,6 +13,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -265,6 +266,80 @@ func (d *Driver) ListPackages(query string, category string, installed bool) *pa
 	d.logger.Debug("Found packages", map[string]interface{}{"packages": len(response.Packages)})
 
 	return response
+}
+
+func (d *Driver) AddPackage(referenceStr string) {
+	ctx := context.Background()
+
+	packageService, err := d.factory.GetPackageService()
+	if err != nil {
+		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	ref, err := reference.Parse(referenceStr)
+	if err != nil {
+		d.logger.Error("Failed to parse reference", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	if err := packageService.Add(ctx, ref); err != nil {
+		d.logger.Error("Failed to add package", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Package added", map[string]interface{}{"reference": referenceStr})
+}
+
+func (d *Driver) RefreshPackages() {
+	ctx := context.Background()
+
+	packageService, err := d.factory.GetPackageService()
+	if err != nil {
+		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	if err := packageService.Refresh(ctx); err != nil {
+		d.logger.Error("Failed to refresh packages", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Packages refreshed")
+}
+
+func (d *Driver) InstallPackage(id uuid.UUID) {
+	ctx := context.Background()
+
+	packageService, err := d.factory.GetPackageService()
+	if err != nil {
+		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	if err := packageService.Install(ctx, id); err != nil {
+		d.logger.Error("Failed to install package", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Package installed", map[string]interface{}{"id": id})
+}
+
+func (d *Driver) UninstallPackage(id uuid.UUID) {
+	ctx := context.Background()
+
+	packageService, err := d.factory.GetPackageService()
+	if err != nil {
+		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	if err := packageService.Uninstall(ctx, id); err != nil {
+		d.logger.Error("Failed to uninstall package", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	d.logger.Debug("Package uninstalled", map[string]interface{}{"id": id})
 }
 
 // Quit quits the application
