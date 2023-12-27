@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
@@ -23,14 +25,16 @@ import (
 
 // Driver struct
 type Driver struct {
-	ctx     context.Context
-	logger  logger.Logger
+	ctx    context.Context
+	logger logger.Logger
+
 	factory factory.Factory
-	args    []string
+	events  buffermanager.BufferManager
+
+	args []string
 }
 
-// NewApp creates a new App application struct
-func NewDriver(factory factory.Factory, args ...string) (*Driver, error) {
+func NewDriver(factory factory.Factory, events buffermanager.BufferManager, args ...string) (*Driver, error) {
 	logger, err := factory.GetLogger()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get logger: %w", err)
@@ -38,6 +42,7 @@ func NewDriver(factory factory.Factory, args ...string) (*Driver, error) {
 
 	return &Driver{
 		factory: factory,
+		events:  events,
 		logger:  logger,
 		args:    args,
 	}, nil
@@ -355,6 +360,10 @@ func (d *Driver) startup(ctx context.Context) {
 
 	d.ctx = ctx
 
+	// Start listening to log events
+	go d.listenToLogEvents()
+
+	// Preloads all the data
 	if err := d.factory.Preload(); err != nil {
 		d.logger.Error("Failed to preload", map[string]interface{}{"error": err.Error()})
 		return
@@ -402,10 +411,32 @@ func (d *Driver) onSecondInstanceLaunch(secondInstanceData options.SecondInstanc
 	})
 }
 
+func (d *Driver) listenToLogEvents() {
+	for {
+		select {
+		case <-d.ctx.Done():
+			return
+		default:
+			data, ok := d.events.GetNextData()
+			if ok {
+				if logEvent, isLogEvent := data.(LogEvent); isLogEvent {
+					d.eventLogStream(d.ctx, logEvent)
+				}
+			} else {
+				time.Sleep(time.Millisecond * 100)
+			}
+		}
+	}
+}
+
 func (d *Driver) eventEmitLaunchArgs(ctx context.Context, event LaunchEvent) {
 	d.logger.Debug("emitting launchArgs event", map[string]interface{}{
 		"event": event,
 	})
 
 	runtime.EventsEmit(ctx, "launchArgs", event)
+}
+
+func (d *Driver) eventLogStream(ctx context.Context, event LogEvent) {
+	runtime.EventsEmit(ctx, "logStream", event)
 }

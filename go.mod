@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/blevesearch/bleve/v2 v2.3.9
 	github.com/blevesearch/bleve_index_api v1.0.5
-	github.com/flowshot-io/x v0.0.0-20230622123052-b262ee884a19
+	github.com/flowshot-io/x v0.0.0-20231227150030-8496bec27539
 	github.com/go-playground/validator/v10 v10.13.0
 	github.com/google/uuid v1.3.0
 	github.com/mitchellh/mapstructure v1.5.0

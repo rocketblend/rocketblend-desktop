@@ -7,7 +7,9 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/hook"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -29,7 +31,28 @@ type (
 	}
 )
 
-func New(logger logger.Logger, assets fs.FS) (Application, error) {
+func New(assets fs.FS) (Application, error) {
+	events := buffermanager.New(buffermanager.WithMaxBufferSize(200))
+
+	// Configure the log hook
+	logHook, err := hook.New(
+		hook.WithOnLogFunc(func(level string, msg string, fields ...map[string]interface{}) {
+			events.AddData(LogEvent{
+				Level:   level,
+				Message: msg,
+				Fields:  fields,
+			})
+		}),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	logger := logger.New(
+		logger.WithLogLevel("debug"),
+		logger.WithHook(logHook),
+	)
+
 	id, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
@@ -42,7 +65,7 @@ func New(logger logger.Logger, assets fs.FS) (Application, error) {
 		return nil, err
 	}
 
-	driver, err := NewDriver(factory)
+	driver, err := NewDriver(factory, events)
 	if err != nil {
 		return nil, err
 	}
