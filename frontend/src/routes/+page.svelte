@@ -1,15 +1,18 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
-    import { t } from '$lib/translations/translations';
-    import { selectedProjectIds } from '$lib/store';
-    import { RunProject } from '$lib/wailsjs/go/application/Driver';
     import type { PageData } from './$types';
 
-	import ProjectListView from '$lib/components/project/ProjectListView.svelte';
-	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
+    import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
+
+    import { t } from '$lib/translations/translations';
+    import { selectedProjectIds } from '$lib/stores';
+    import { RunProject } from '$lib/wailsjs/go/application/Driver';
 	import { DisplayType, type OptionGroup } from '$lib/types';
 	import { convertToEnum } from '$lib/components/utils';
+
+    import ProjectListView from '$lib/components/project/ProjectListView.svelte';
+	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
+	import LongRunningOperation from '$lib/containers/LongRunningOperation.svelte';
     
     export let data: PageData;
 
@@ -64,6 +67,8 @@
 </script>
 
 <main class="space-y-4">
+    <LongRunningOperation />
+
     <div>
         <h2 class="h2 font-bold">{$t('home.title')}</h2>
     </div>

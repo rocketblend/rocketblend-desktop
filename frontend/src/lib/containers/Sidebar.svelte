@@ -9,7 +9,7 @@
     import PackageFilter from '$lib/components/package/PackageFilter.svelte';
 
     import { GetProject } from '$lib/wailsjs/go/application/Driver'
-    import { selectedProjectIds } from '$lib/store';
+    import { selectedProjectIds } from '$lib/stores';
     import type { packageservice } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
     import { t } from '$lib/translations/translations';

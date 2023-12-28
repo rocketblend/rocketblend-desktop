@@ -2,7 +2,7 @@
     import type { PageData } from './$types';
 
     import { resourcePath } from '$lib/components/utils';
-    import { selectedProjectIds } from '$lib/store';
+    import { selectedProjectIds } from '$lib/stores';
 
 	import Media from '$lib/components/core/media/Media.svelte';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { selectedProjectIds } from '$lib/store';
+    import { selectedProjectIds } from '$lib/stores';
     import { goto } from '$app/navigation';
     import { ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
     import { GetProject } from '$lib/wailsjs/go/application/Driver'
