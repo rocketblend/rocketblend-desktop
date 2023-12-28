@@ -5,12 +5,19 @@
     import { GetProject } from '$lib/wailsjs/go/application/Driver'
     import type { project } from '$lib/wailsjs/go/models';
     import { resourcePath } from '$lib/components/utils';
+    import { getDrawerStore } from '@skeletonlabs/skeleton';
     import FooterContent from '$lib/components/footer/FooterContent.svelte';
+
+    const drawerStore = getDrawerStore();
 
     let selectedProject: project.Project | undefined = undefined;
 
     $: if ($selectedProjectIds) {
         loadProject();
+    }
+
+    function handleViewTerminal() {
+        drawerStore.open();
     }
 
     async function loadProject() {
@@ -47,6 +54,7 @@
     fileName={selectedProject?.fileName}
     imagePath={resourcePath(selectedProject?.thumbnailPath)}
     isLoading={!selectedProject}
+    on:viewTerminal={handleViewTerminal}
     on:viewProject={handleViewProject}
     on:runProject={handleRunProject}
     on:exploreProject={handleExploreProject}

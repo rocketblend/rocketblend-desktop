@@ -3,9 +3,9 @@
     
     import { onMount, onDestroy } from 'svelte';
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-    import { initializeStores, getToastStore, getDrawerStore, storePopup } from '@skeletonlabs/skeleton';
+    import { initializeStores, getToastStore, storePopup } from '@skeletonlabs/skeleton';
     import { Toast, AppBar, AppShell, Drawer } from '@skeletonlabs/skeleton';
-    import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
+    import { TabGroup, Tab } from '@skeletonlabs/skeleton';
     import type { ToastSettings } from '@skeletonlabs/skeleton';
 
     import { goto } from '$app/navigation';
@@ -26,7 +26,6 @@
 
     initializeStores();
     const toastStore = getToastStore();
-    const drawerStore = getDrawerStore();
 
     const MAX_LOGS= 250;
 
@@ -37,10 +36,6 @@
 
     function handleViewHome(): void {
         goto(`/`);
-    }
-
-    function handleToggleMoreClick() {
-        drawerStore.open();
     }
 
     function addLog(newLog: LogEvent) {
@@ -119,7 +114,7 @@
         <div style="--wails-draggable:drag">
             <AppBar background="bg-surface-50-900-token" padding="p0" slotTrail="space-x-0 -mt-3">
                 <svelte:fragment slot="lead">
-                <button type="button" class="btn btn-sm py-2 px-4 rounded-none text-2xl" on:click={handleToggleMoreClick} >
+                <button type="button" class="btn btn-sm py-2 px-4 rounded-none text-2xl">
                     <IconMoreFill/>
                 </button>
                 </svelte:fragment>
