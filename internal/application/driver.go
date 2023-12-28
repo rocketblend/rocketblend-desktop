@@ -48,214 +48,221 @@ func NewDriver(factory factory.Factory, events buffermanager.BufferManager, args
 	}, nil
 }
 
-func (d *Driver) GetPlatform() *rbruntime.Platform {
+func (d *Driver) GetPlatform() (*rbruntime.Platform, error) {
 	configService, err := d.factory.GetConfigService()
 	if err != nil {
 		d.logger.Error("Failed to get config service", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
 	config, err := configService.Get()
 	if err != nil {
 		d.logger.Error("Failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
-	return &config.Platform
+	return &config.Platform, nil
 }
 
-func (d *Driver) GetApplicationConfig() *config.Config {
+func (d *Driver) GetApplicationConfig() (*config.Config, error) {
 	configService, err := d.factory.GetApplicationConfigService()
 	if err != nil {
 		d.logger.Error("Failed to get application config service", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
 	config, err := configService.Get()
 	if err != nil {
 		d.logger.Error("Failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
-	return config
+	return config, nil
 }
 
-func (d *Driver) GetRocketBlendConfig() *rocketblendConfig.Config {
+func (d *Driver) GetRocketBlendConfig() (*rocketblendConfig.Config, error) {
 	configService, err := d.factory.GetConfigService()
 	if err != nil {
 		d.logger.Error("Failed to get rocketblend config service", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
 	config, err := configService.Get()
 	if err != nil {
 		d.logger.Error("Failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
-	return config
+	return config, nil
 }
 
 // GetProject gets a project by id
-func (d *Driver) GetProject(id uuid.UUID) *projectservice.GetProjectResponse {
+func (d *Driver) GetProject(id uuid.UUID) (*projectservice.GetProjectResponse, error) {
 	ctx := context.Background()
 
 	projectService, err := d.factory.GetProjectService()
 	if err != nil {
 		d.logger.Error("Failed to get project service", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
 	project, err := projectService.Get(ctx, id)
 	if err != nil {
 		d.logger.Error("Failed to find project by id", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
-	return project
+	return project, nil
 }
 
 // ListProjects lists all projects
-func (d *Driver) ListProjects(query string) *projectservice.ListProjectsResponse {
+func (d *Driver) ListProjects(query string) (*projectservice.ListProjectsResponse, error) {
 	ctx := context.Background()
 
 	projectService, err := d.factory.GetProjectService()
 	if err != nil {
 		d.logger.Error("Failed to get project service", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
 	response, err := projectService.List(ctx, listoption.WithQuery(query))
 	if err != nil {
 		d.logger.Error("Failed to find all projects", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
 	d.logger.Debug("Found projects", map[string]interface{}{"projects": len(response.Projects)})
 
-	return response
+	return response, nil
 }
 
 // CreateProject creates a new project
-func (d *Driver) CreateProject(request *projectservice.CreateProjectRequest) {
+func (d *Driver) CreateProject(request *projectservice.CreateProjectRequest) error {
 	ctx := context.Background()
 
 	projectService, err := d.factory.GetProjectService()
 	if err != nil {
 		d.logger.Error("Failed to get project service", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	if err := projectService.Create(ctx, request); err != nil {
 		d.logger.Error("Failed to create project", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	d.logger.Debug("Project created")
+	return nil
 }
 
 // UpdateProject updates a project
-func (d *Driver) UpdateProject(request *projectservice.UpdateProjectRequest) {
+func (d *Driver) UpdateProject(request *projectservice.UpdateProjectRequest) error {
 	ctx := context.Background()
 
 	projectService, err := d.factory.GetProjectService()
 	if err != nil {
 		d.logger.Error("Failed to get project service", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	if err := projectService.Update(ctx, request); err != nil {
 		d.logger.Error("Failed to update project", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	d.logger.Debug("Project updated", map[string]interface{}{"id": request.ID})
+
+	return nil
 }
 
 // DeleteProject deletes a project
-func (d *Driver) DeleteProject(id uuid.UUID) {
+func (d *Driver) DeleteProject(id uuid.UUID) error {
 	d.logger.Debug("Deleting project", map[string]interface{}{"id": id})
+	return nil
 }
 
 // RunProject runs a project
-func (d *Driver) RunProject(id uuid.UUID) {
+func (d *Driver) RunProject(id uuid.UUID) error {
 	ctx := context.Background()
 
 	projectService, err := d.factory.GetProjectService()
 	if err != nil {
 		d.logger.Error("Failed to get project service", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	if err := projectService.Run(ctx, id); err != nil {
 		d.logger.Error("Failed to run project", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	d.logger.Debug("Project started", map[string]interface{}{"id": id})
+	return nil
 }
 
 // RenderProject renders a project
-func (d *Driver) RenderProject(id uuid.UUID) {
+func (d *Driver) RenderProject(id uuid.UUID) error {
 	ctx := context.Background()
 
 	projectService, err := d.factory.GetProjectService()
 	if err != nil {
 		d.logger.Error("Failed to get project service", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	if err := projectService.Render(ctx, id); err != nil {
 		d.logger.Error("Failed to render project", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	d.logger.Debug("Project rendered", map[string]interface{}{"id": id})
+	return nil
 }
 
 // ExploreProject explores a project
-func (d *Driver) ExploreProject(id uuid.UUID) {
+func (d *Driver) ExploreProject(id uuid.UUID) error {
 	ctx := context.Background()
 
 	projectService, err := d.factory.GetProjectService()
 	if err != nil {
 		d.logger.Error("Failed to get project service", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	if err := projectService.Explore(ctx, id); err != nil {
 		d.logger.Error("Failed to explore project", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	d.logger.Debug("Project explored", map[string]interface{}{"id": id})
+	return nil
 }
 
-func (d *Driver) GetPackage(id uuid.UUID) *packageservice.GetPackageResponse {
+func (d *Driver) GetPackage(id uuid.UUID) (*packageservice.GetPackageResponse, error) {
 	ctx := context.Background()
 
 	packageService, err := d.factory.GetPackageService()
 	if err != nil {
 		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
 	pack, err := packageService.Get(ctx, id)
 	if err != nil {
 		d.logger.Error("Failed to find package by id", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
-	return pack
+	return pack, err
 }
 
-func (d *Driver) ListPackages(query string, category string, installed bool) *packageservice.ListPackagesResponse {
+func (d *Driver) ListPackages(query string, category string, installed bool) (*packageservice.ListPackagesResponse, error) {
 	ctx := context.Background()
 
 	packageService, err := d.factory.GetPackageService()
 	if err != nil {
 		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
 	response, err := packageService.List(ctx, []listoption.ListOption{
@@ -265,86 +272,90 @@ func (d *Driver) ListPackages(query string, category string, installed bool) *pa
 	}...)
 	if err != nil {
 		d.logger.Error("Failed to find all packages", map[string]interface{}{"error": err.Error()})
-		return nil
+		return nil, err
 	}
 
 	d.logger.Debug("Found packages", map[string]interface{}{"packages": len(response.Packages)})
 
-	return response
+	return response, err
 }
 
-func (d *Driver) AddPackage(referenceStr string) {
+func (d *Driver) AddPackage(referenceStr string) error {
 	ctx := context.Background()
 
 	packageService, err := d.factory.GetPackageService()
 	if err != nil {
 		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	ref, err := reference.Parse(referenceStr)
 	if err != nil {
 		d.logger.Error("Failed to parse reference", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	if err := packageService.Add(ctx, ref); err != nil {
 		d.logger.Error("Failed to add package", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	d.logger.Debug("Package added", map[string]interface{}{"reference": referenceStr})
+	return nil
 }
 
-func (d *Driver) RefreshPackages() {
+func (d *Driver) RefreshPackages() error {
 	ctx := context.Background()
 
 	packageService, err := d.factory.GetPackageService()
 	if err != nil {
 		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	if err := packageService.Refresh(ctx); err != nil {
 		d.logger.Error("Failed to refresh packages", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	d.logger.Debug("Packages refreshed")
+	return nil
 }
 
-func (d *Driver) InstallPackage(id uuid.UUID) {
+func (d *Driver) InstallPackage(id uuid.UUID) error {
 	ctx := context.Background()
 
 	packageService, err := d.factory.GetPackageService()
 	if err != nil {
 		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	if err := packageService.Install(ctx, id); err != nil {
 		d.logger.Error("Failed to install package", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	d.logger.Debug("Package installed", map[string]interface{}{"id": id})
+	return nil
 }
 
-func (d *Driver) UninstallPackage(id uuid.UUID) {
+func (d *Driver) UninstallPackage(id uuid.UUID) error {
 	ctx := context.Background()
 
 	packageService, err := d.factory.GetPackageService()
 	if err != nil {
 		d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	if err := packageService.Uninstall(ctx, id); err != nil {
 		d.logger.Error("Failed to uninstall package", map[string]interface{}{"error": err.Error()})
-		return
+		return err
 	}
 
 	d.logger.Debug("Package uninstalled", map[string]interface{}{"id": id})
+	return nil
 }
 
 // Quit quits the application
