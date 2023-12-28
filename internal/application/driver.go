@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -46,7 +47,7 @@ func NewDriver(factory factory.Factory, events buffermanager.BufferManager, args
 
 	return &Driver{
 		factory:           factory,
-		heartbeatInterval: 1 * time.Second,
+		heartbeatInterval: 5000 * time.Millisecond,
 		events:            events,
 		logger:            logger,
 		args:              args,
@@ -367,7 +368,13 @@ func (d *Driver) LongRunningOperation(opID uuid.UUID) error {
 	_, err := d.withCancellation(opID, func(ctx context.Context) (interface{}, error) {
 		// Simulate a long-running operation
 		for i := 0; i < 10; i++ {
-			time.Sleep(2 * time.Second)
+			select {
+			case <-ctx.Done():
+				d.logger.Debug("Long running operation canceled", map[string]interface{}{"opID": opID})
+				return nil, ctx.Err()
+			default:
+				time.Sleep(2 * time.Second)
+			}
 		}
 
 		return struct{}{}, nil
@@ -376,7 +383,7 @@ func (d *Driver) LongRunningOperation(opID uuid.UUID) error {
 		return err
 	}
 
-	d.logger.Debug("Long running operation completed!")
+	d.logger.Debug("Long running operation completed!", map[string]interface{}{"opID": opID})
 	return nil
 }
 
@@ -404,13 +411,13 @@ func (d *Driver) startup(ctx context.Context) {
 					d.logger.Error("Invalid operation ID format for cancellation", map[string]interface{}{"error": err.Error()})
 					return
 				}
-				d.cancelTokens.Store(opID, true)
+				d.cancelTokens.Store(opID.String(), true)
 				d.logger.Debug("Cancellation requested", map[string]interface{}{"opID": opID})
 			} else {
-				d.logger.Error("Invalid data type for operation ID", nil)
+				d.logger.Error("Invalid data type for operation ID", map[string]interface{}{"type": fmt.Sprintf("%T", optionalData[0])})
 			}
 		} else {
-			d.logger.Error("No operation ID provided for cancellation", nil)
+			d.logger.Error("No operation ID provided for cancellation")
 		}
 	})
 
@@ -495,45 +502,51 @@ func (d *Driver) eventEmitLaunchArgs(ctx context.Context, event LaunchEvent) {
 // withCancellation is a helper function that runs an operation with a cancellation token.
 // Wails doesn't support context cancellation yet, so we have to do it ourselves.
 func (d *Driver) withCancellation(opID uuid.UUID, operation func(ctx context.Context) (interface{}, error)) (interface{}, error) {
-	d.cancelTokens.Store(opID, false)
+	d.cancelTokens.Store(opID.String(), false)
+	defer d.cancelTokens.Delete(opID.String())
+
+	ctx, cancel := context.WithCancel(d.ctx)
+	defer cancel()
 
 	resultChan := make(chan interface{})
 	errChan := make(chan error)
 
+	// Run the operation in its own goroutine
 	go func() {
-		ctx, cancel := context.WithCancel(d.ctx)
-		defer cancel()
-		defer d.cancelTokens.Delete(opID)
+		defer close(resultChan)
+		defer close(errChan)
 
-		heartbeatTicker := time.NewTicker(d.heartbeatInterval)
-		defer heartbeatTicker.Stop()
-
-		for {
-			select {
-			case <-heartbeatTicker.C:
-				if cancel, _ := d.cancelTokens.Load(opID); cancel.(bool) {
-					return
-				}
-				runtime.EventsEmit(ctx, "operationHeartBeat", opID.String())
-			case <-ctx.Done():
-				return
-			default:
-				result, err := operation(ctx)
-				if err != nil {
-					d.logger.Error("Operation failed", map[string]interface{}{"error": err.Error(), "opID": opID})
-					errChan <- err
-					return
-				}
-				resultChan <- result
-				return
-			}
+		result, err := operation(ctx)
+		if err != nil {
+			d.logger.Error("Operation failed", map[string]interface{}{"error": err.Error(), "opID": opID})
+			errChan <- err
+			return
 		}
+		resultChan <- result
 	}()
 
-	select {
-	case result := <-resultChan:
-		return result, nil
-	case err := <-errChan:
-		return nil, err
+	// Start a ticker for heartbeats
+	heartbeatTicker := time.NewTicker(d.heartbeatInterval)
+	defer heartbeatTicker.Stop()
+
+	for {
+		select {
+		case <-heartbeatTicker.C:
+			d.logger.Debug("Operation heartbeat", map[string]interface{}{"opID": opID})
+			runtime.EventsEmit(ctx, "operationHeartBeat", opID.String())
+
+			cancelValue, ok := d.cancelTokens.Load(opID.String())
+			if ok && cancelValue.(bool) {
+				d.logger.Debug("Operation cancelled", map[string]interface{}{"opID": opID})
+				return nil, errors.New("operation cancelled")
+			}
+		case result := <-resultChan:
+			return result, nil
+		case err := <-errChan:
+			return nil, err
+		case <-ctx.Done():
+			// Context cancelled (e.g., application-level cancellation)
+			return nil, ctx.Err()
+		}
 	}
 }

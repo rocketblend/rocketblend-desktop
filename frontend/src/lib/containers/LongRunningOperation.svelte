@@ -32,7 +32,7 @@
 </script>
 
 <div class="flex flex-col card p-2 space-y-2">
-    <button class="btn variant-filled" on:click={startOperation}>
+    <button class="btn variant-filled" on:click={startOperation} disabled={operationStatus === 'Running...'}>
         Start Long Running Operation
     </button>
     
