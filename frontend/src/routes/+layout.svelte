@@ -28,6 +28,8 @@
     const toastStore = getToastStore();
     const drawerStore = getDrawerStore();
 
+    const MAX_LOGS= 250;
+
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
     let drawTabSet: number = 0;
@@ -39,6 +41,14 @@
 
     function handleToggleMoreClick() {
         drawerStore.open();
+    }
+
+    function addLog(newLog: LogEvent) {
+        if (logs.length >= MAX_LOGS) {
+            logs.shift();
+        }
+
+        logs = [...logs, newLog];
     }
 
     onMount(() => {     
@@ -55,7 +65,7 @@
         });
 
         EventsOn('logStream', (data: LogEvent) => {
-            logs = [...logs, data];
+            addLog(data);
         });
 
         const launchToast: ToastSettings = {
@@ -83,7 +93,6 @@
         <TabGroup class="flex flex-col h-full overflow-hidden" active="border-b-2 border-primary-400-500-token" rounded="" regionPanel="px-4 pb-4 flex-grow overflow-hidden h-full" regionList="flex flex-none">
             <Tab bind:group={drawTabSet} name="tab1" value={0}>{$t('home.drawer.tab.output.header')}</Tab>
             <Tab bind:group={drawTabSet} name="tab2" value={1}>{$t('home.drawer.tab.console.header')}</Tab>
-            <!-- Tab Panels --->
             <svelte:fragment slot="panel">
                 {#if drawTabSet === 0}
                     <LogFeed bind:feed={logs}/>
