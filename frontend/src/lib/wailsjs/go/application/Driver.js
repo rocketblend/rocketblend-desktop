@@ -6,6 +6,10 @@ export function AddPackage(arg1) {
   return window['go']['application']['Driver']['AddPackage'](arg1);
 }
 
+export function CancelOperation(arg1) {
+  return window['go']['application']['Driver']['CancelOperation'](arg1);
+}
+
 export function CreateProject(arg1) {
   return window['go']['application']['Driver']['CreateProject'](arg1);
 }
@@ -48,6 +52,10 @@ export function ListPackages(arg1, arg2, arg3) {
 
 export function ListProjects(arg1) {
   return window['go']['application']['Driver']['ListProjects'](arg1);
+}
+
+export function LongRunningOperation() {
+  return window['go']['application']['Driver']['LongRunningOperation']();
 }
 
 export function Quit() {
