@@ -24,8 +24,8 @@
             "output": {
                 "header": "Output"
             },
-            "console": {
-                "header": "Console"
+            "terminal": {
+                "header": "Terminal"
             }
         }
     },

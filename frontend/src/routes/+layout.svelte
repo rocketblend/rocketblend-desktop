@@ -87,7 +87,7 @@
     zIndex="z-50">
         <TabGroup class="flex flex-col h-full overflow-hidden" active="border-b-2 border-primary-400-500-token" rounded="" regionPanel="px-4 pb-4 flex-grow overflow-hidden h-full" regionList="flex flex-none">
             <Tab bind:group={drawTabSet} name="tab1" value={0}>{$t('home.drawer.tab.output.header')}</Tab>
-            <Tab bind:group={drawTabSet} name="tab2" value={1}>{$t('home.drawer.tab.console.header')}</Tab>
+            <Tab bind:group={drawTabSet} name="tab2" value={1}>{$t('home.drawer.tab.terminal.header')}</Tab>
             <svelte:fragment slot="panel">
                 {#if drawTabSet === 0}
                     <LogFeed bind:feed={logs}/>
