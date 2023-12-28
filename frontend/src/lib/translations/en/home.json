@@ -1,6 +1,7 @@
 {
     "title": "Welcome!",
     "greeting": "Welcome to RocketBlend Desktop!",
+    "soon": "Coming Soon!",
     "navigation": {
         "root": "Projects"
     },
@@ -17,6 +18,16 @@
         },
         "noresults": "No results found.",
         "error": "An error occurred while fetching packages."
+    },
+    "drawer" :{
+        "tab" : {
+            "output": {
+                "header": "Output"
+            },
+            "console": {
+                "header": "Console"
+            }
+        }
     },
     "project": {
         "query": {

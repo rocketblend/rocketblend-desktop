@@ -5,6 +5,7 @@
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
     import { initializeStores, getToastStore, getDrawerStore, storePopup } from '@skeletonlabs/skeleton';
     import { Toast, AppBar, AppShell, Drawer } from '@skeletonlabs/skeleton';
+    import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
     import type { ToastSettings } from '@skeletonlabs/skeleton';
 
     import { goto } from '$app/navigation';
@@ -20,8 +21,8 @@
 
     import Footer from "$lib/containers/Footer.svelte";
     import Sidebar from "$lib/containers/Sidebar.svelte";
-    import { formatTime } from "$lib/components/utils";
 	import type { LogEvent } from "$lib/types";
+	import LogFeed from "$lib/components/feed/LogFeed.svelte";
 
     initializeStores();
     const toastStore = getToastStore();
@@ -29,6 +30,7 @@
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
+    let drawTabSet: number = 0;
     let logs: LogEvent[] = [];
 
     function handleViewHome(): void {
@@ -78,25 +80,20 @@
     position="bottom"
     rounded="none"
     zIndex="z-50">
-    <div class="p-2 h-full">
-        <ul class="overflow-auto h-full rounded p-4">
-            {#each logs as log }
-                <li class="space-x-1 text-sm lowercase text-surface-200 w-full">
-                    <span>{formatTime(log.time)}</span>
-                    <span>|</span>
-                    <span class="uppercase">{log.level}</span>
-                    <span>|</span>
-                    <span class="font-bold">{log.message}</span>
-                    <span>|</span>
-                    {#each Object.entries(log.fields) as [key, value]}
-                        <span>
-                            <span class="text-primary-500-400-token">{key}=</span><span>{value}</span>
-                        </span>
-                    {/each}
-                </li>
-            {/each}
-        </ul>
-    </div>
+        <TabGroup class="flex flex-col h-full overflow-hidden" active="border-b-2 border-primary-400-500-token" rounded="" regionPanel="px-4 pb-4 flex-grow overflow-hidden h-full" regionList="flex flex-none">
+            <Tab bind:group={drawTabSet} name="tab1" value={0}>{$t('home.drawer.tab.output.header')}</Tab>
+            <Tab bind:group={drawTabSet} name="tab2" value={1}>{$t('home.drawer.tab.console.header')}</Tab>
+            <!-- Tab Panels --->
+            <svelte:fragment slot="panel">
+                {#if drawTabSet === 0}
+                    <LogFeed bind:feed={logs}/>
+                {:else if drawTabSet === 1}
+                    <div class="flex justify-center items-center h-full">
+                        <p>{$t('home.soon')}</p>
+                    </div>
+                {/if}
+            </svelte:fragment>
+        </TabGroup>
 </Drawer>
 
 <Toast
