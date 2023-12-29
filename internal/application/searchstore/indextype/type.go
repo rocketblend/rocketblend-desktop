@@ -8,6 +8,7 @@ const (
 	Unknown IndexType = iota
 	Project
 	Package
+	Operation
 )
 
 func (p IndexType) String() string {

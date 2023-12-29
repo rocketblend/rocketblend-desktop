@@ -286,22 +286,22 @@ func (d *Driver) ListPackages(query string, category string, installed bool) (*p
 	return response, err
 }
 
-func (d *Driver) AddPackageWithCancellation(opid uuid.UUID, referenceStr string) error {
-	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) AddPackageWithCancellation(cid uuid.UUID, referenceStr string) error {
+	_, err := d.runWithCancellation(cid, func(ctx context.Context) (interface{}, error) {
 		packageService, err := d.factory.GetPackageService()
 		if err != nil {
-			d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error(), "opid": opid})
+			d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error(), "cid": cid})
 			return nil, err
 		}
 
 		ref, err := reference.Parse(referenceStr)
 		if err != nil {
-			d.logger.Error("Failed to parse reference", map[string]interface{}{"error": err.Error(), "opid": opid})
+			d.logger.Error("Failed to parse reference", map[string]interface{}{"error": err.Error(), "cid": cid})
 			return nil, err
 		}
 
 		if err := packageService.Add(ctx, ref); err != nil {
-			d.logger.Error("Failed to add package", map[string]interface{}{"error": err.Error(), "opid": opid})
+			d.logger.Error("Failed to add package", map[string]interface{}{"error": err.Error(), "cid": cid})
 			return nil, err
 		}
 
@@ -312,20 +312,20 @@ func (d *Driver) AddPackageWithCancellation(opid uuid.UUID, referenceStr string)
 		return err
 	}
 
-	d.logger.Debug("Package added", map[string]interface{}{"reference": referenceStr, "opid": opid})
+	d.logger.Debug("Package added", map[string]interface{}{"reference": referenceStr, "cid": cid})
 	return nil
 }
 
-func (d *Driver) RefreshPackagesWithCancellation(opid uuid.UUID) error {
-	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) RefreshPackagesWithCancellation(cid uuid.UUID) error {
+	_, err := d.runWithCancellation(cid, func(ctx context.Context) (interface{}, error) {
 		packageService, err := d.factory.GetPackageService()
 		if err != nil {
-			d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error(), "opid": opid})
+			d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error(), "cid": cid})
 			return nil, err
 		}
 
 		if err := packageService.Refresh(ctx); err != nil {
-			d.logger.Error("Failed to refresh packages", map[string]interface{}{"error": err.Error(), "opid": opid})
+			d.logger.Error("Failed to refresh packages", map[string]interface{}{"error": err.Error(), "cid": cid})
 			return nil, err
 		}
 
@@ -335,45 +335,45 @@ func (d *Driver) RefreshPackagesWithCancellation(opid uuid.UUID) error {
 		return err
 	}
 
-	d.logger.Debug("Packages refreshed!", map[string]interface{}{"opid": opid})
+	d.logger.Debug("Packages refreshed!", map[string]interface{}{"cid": cid})
 	return nil
 }
 
-func (d *Driver) InstallPackageWithCancellation(opid uuid.UUID, id uuid.UUID) error {
-	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) InstallPackageWithCancellation(cid uuid.UUID, id uuid.UUID) error {
+	_, err := d.runWithCancellation(cid, func(ctx context.Context) (interface{}, error) {
 		// packageService, err := d.factory.GetPackageService()
 		// if err != nil {
-		// 	d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error(), "opid": opid})
+		// 	d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error(), "cid": cid})
 		// 	return nil, err
 		// }
 
 		// if err := packageService.Install(ctx, id); err != nil {
-		// 	d.logger.Error("Failed to install package", map[string]interface{}{"error": err.Error(), "opid": opid})
+		// 	d.logger.Error("Failed to install package", map[string]interface{}{"error": err.Error(), "cid": cid})
 		// 	return nil, err
 		// }
 		for i := 0; i < 10; i++ {
 			select {
 			case <-ctx.Done():
-				d.logger.Debug("Long running operation canceled", map[string]interface{}{"opid": opid})
+				d.logger.Debug("Long running operation canceled", map[string]interface{}{"cid": cid})
 				return nil, ctx.Err()
 			default:
 				time.Sleep(2 * time.Second)
 			}
 		}
 
-		d.logger.Debug("Package installed", map[string]interface{}{"id": id, "opid": opid})
+		d.logger.Debug("Package installed", map[string]interface{}{"id": id, "cid": cid})
 		return struct{}{}, nil
 	})
 	if err != nil {
 		return err
 	}
 
-	d.logger.Debug("Package installation completed!", map[string]interface{}{"id": id, "opid": opid})
+	d.logger.Debug("Package installation completed!", map[string]interface{}{"id": id, "cid": cid})
 	return nil
 }
 
-func (d *Driver) UninstallPackageWithCancellation(opid uuid.UUID, id uuid.UUID) error {
-	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) UninstallPackageWithCancellation(cid uuid.UUID, id uuid.UUID) error {
+	_, err := d.runWithCancellation(cid, func(ctx context.Context) (interface{}, error) {
 		packageService, err := d.factory.GetPackageService()
 		if err != nil {
 			d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
@@ -393,17 +393,17 @@ func (d *Driver) UninstallPackageWithCancellation(opid uuid.UUID, id uuid.UUID) 
 		return err
 	}
 
-	d.logger.Debug("Package uninstallation completed!", map[string]interface{}{"id": id, "opid": opid})
+	d.logger.Debug("Package uninstallation completed!", map[string]interface{}{"id": id, "cid": cid})
 	return nil
 }
 
-func (d *Driver) LongRunningWithCancellation(opid uuid.UUID) error {
-	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) LongRunningWithCancellation(cid uuid.UUID) error {
+	_, err := d.runWithCancellation(cid, func(ctx context.Context) (interface{}, error) {
 		// Simulate a long-running operation
 		for i := 0; i < 10; i++ {
 			select {
 			case <-ctx.Done():
-				d.logger.Debug("Long running operation canceled", map[string]interface{}{"opid": opid})
+				d.logger.Debug("Long running operation canceled", map[string]interface{}{"cid": cid})
 				return nil, ctx.Err()
 			default:
 				time.Sleep(2 * time.Second)
@@ -416,7 +416,7 @@ func (d *Driver) LongRunningWithCancellation(opid uuid.UUID) error {
 		return err
 	}
 
-	d.logger.Debug("Long running operation completed!", map[string]interface{}{"opid": opid})
+	d.logger.Debug("Long running operation completed!", map[string]interface{}{"cid": cid})
 	return nil
 }
 
@@ -438,14 +438,14 @@ func (d *Driver) startup(ctx context.Context) {
 
 	runtime.EventsOn(ctx, "cancelOperation", func(optionalData ...interface{}) {
 		if len(optionalData) > 0 {
-			if opidStr, ok := optionalData[0].(string); ok {
-				opid, err := uuid.Parse(opidStr)
+			if cidStr, ok := optionalData[0].(string); ok {
+				cid, err := uuid.Parse(cidStr)
 				if err != nil {
 					d.logger.Error("Invalid operation ID format for cancellation", map[string]interface{}{"error": err.Error()})
 					return
 				}
-				d.cancelTokens.Store(opid.String(), true)
-				d.logger.Debug("Cancellation requested", map[string]interface{}{"opid": opid})
+				d.cancelTokens.Store(cid.String(), true)
+				d.logger.Debug("Cancellation requested", map[string]interface{}{"cid": cid})
 			} else {
 				d.logger.Error("Invalid data type for operation ID", map[string]interface{}{"type": fmt.Sprintf("%T", optionalData[0])})
 			}
@@ -534,9 +534,9 @@ func (d *Driver) eventEmitLaunchArgs(ctx context.Context, event LaunchEvent) {
 
 // runWithCancellation is a helper function that runs an operation with a cancellation token.
 // Wails doesn't support context cancellation yet, so we have to do it ourselves.
-func (d *Driver) runWithCancellation(opid uuid.UUID, operation func(ctx context.Context) (interface{}, error)) (interface{}, error) {
-	d.cancelTokens.Store(opid.String(), false)
-	defer d.cancelTokens.Delete(opid.String())
+func (d *Driver) runWithCancellation(cid uuid.UUID, operation func(ctx context.Context) (interface{}, error)) (interface{}, error) {
+	d.cancelTokens.Store(cid.String(), false)
+	defer d.cancelTokens.Delete(cid.String())
 
 	ctx, cancel := context.WithCancel(d.ctx)
 	defer cancel()
@@ -551,7 +551,7 @@ func (d *Driver) runWithCancellation(opid uuid.UUID, operation func(ctx context.
 
 		result, err := operation(ctx)
 		if err != nil {
-			d.logger.Error("Operation failed", map[string]interface{}{"error": err.Error(), "opid": opid})
+			d.logger.Error("Operation failed", map[string]interface{}{"error": err.Error(), "cid": cid})
 			errChan <- err
 			return
 		}
@@ -565,12 +565,12 @@ func (d *Driver) runWithCancellation(opid uuid.UUID, operation func(ctx context.
 	for {
 		select {
 		case <-heartbeatTicker.C:
-			d.logger.Debug("Operation heartbeat", map[string]interface{}{"opid": opid})
-			runtime.EventsEmit(ctx, "operationHeartBeat", opid.String())
+			d.logger.Debug("Operation heartbeat", map[string]interface{}{"cid": cid})
+			runtime.EventsEmit(ctx, "operationHeartBeat", cid.String())
 
-			cancelValue, ok := d.cancelTokens.Load(opid.String())
+			cancelValue, ok := d.cancelTokens.Load(cid.String())
 			if ok && cancelValue.(bool) {
-				d.logger.Debug("Operation cancelled", map[string]interface{}{"opid": opid})
+				d.logger.Debug("Operation cancelled", map[string]interface{}{"cid": cid})
 				return nil, errors.New("operation cancelled")
 			}
 		case result := <-resultChan:

@@ -3,28 +3,28 @@ import { v4 as uuidv4 } from 'uuid';
 
 const heartbeatTimeout = 10000; // 10 seconds
 
-export function cancellableOperationWithHeartbeat<T>(operation: (opid: string, ...args: any[]) => Promise<T>, ...args: any[]): [Promise<T | null>, () => void] {
-    const opid = uuidv4();
+export function cancellableOperationWithHeartbeat<T>(operation: (cid: string, ...args: any[]) => Promise<T>, ...args: any[]): [Promise<T | null>, () => void] {
+    const cid = uuidv4();
     let cancelled = false;
     let heartbeatTimer: NodeJS.Timeout;
     let rejectOperation: (reason?: any) => void;
 
-    // console.log("Starting operation: " + opid);
+    // console.log("Starting operation: " + cid);
 
     const resetHeartbeatTimer = () => {
         clearTimeout(heartbeatTimer);
         heartbeatTimer = setTimeout(() => {
             if (!cancelled) {
-                // console.error("Operation timed out: " + opid);
+                // console.error("Operation timed out: " + cid);
                 cancel();
-                rejectOperation(new Error("Operation timed out: " + opid));
+                rejectOperation(new Error("Operation timed out: " + cid));
             }
         }, heartbeatTimeout);
     };
 
     const cancelHeartbeatListener = EventsOn("operationHeartBeat", (data: string) => {
         // console.log("Received heartbeat: " + data);
-        if (data === opid) {
+        if (data === cid) {
             resetHeartbeatTimer();
         }
     });
@@ -34,8 +34,8 @@ export function cancellableOperationWithHeartbeat<T>(operation: (opid: string, .
     const operationPromise = new Promise<T | null>((resolve, reject) => {
         rejectOperation = reject;
 
-        operation(opid, ...args).then(result => {
-            // console.log("Operation completed: " + opid);
+        operation(cid, ...args).then(result => {
+            // console.log("Operation completed: " + cid);
             clearTimeout(heartbeatTimer);
             cancelHeartbeatListener();
             if (!cancelled) {
@@ -43,7 +43,7 @@ export function cancellableOperationWithHeartbeat<T>(operation: (opid: string, .
             }
         }).catch(error => {
             if (!cancelled) {
-                // console.log("Operation failed: " + opid);
+                // console.log("Operation failed: " + cid);
                 clearTimeout(heartbeatTimer);
                 cancelHeartbeatListener();
                 reject(error);
@@ -52,11 +52,11 @@ export function cancellableOperationWithHeartbeat<T>(operation: (opid: string, .
     });
 
     const cancel = () => {
-        //console.log("Cancelled operation: " + opid);
+        //console.log("Cancelled operation: " + cid);
         cancelled = true;
         clearTimeout(heartbeatTimer);
         cancelHeartbeatListener();
-        EventsEmit("cancelOperation", opid);
+        EventsEmit("cancelOperation", cid);
     };
 
     return [operationPromise, cancel];
