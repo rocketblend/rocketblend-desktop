@@ -4,7 +4,7 @@
 
     import { getLogStore } from '$lib/stores';
 
-    import OperationDebugTool from "$lib/containers/OperationDebugTool.svelte";
+    import OperationDebugTool from "$lib/containers/debug/OperationDebugTool.svelte";
     import LogFeed from "$lib/components/feed/LogFeed.svelte";
 
     const logStore = getLogStore();
