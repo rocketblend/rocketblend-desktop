@@ -51,6 +51,9 @@ const createCancellableOperationsStore = (): CancellableOperationsStore => {
         add: (entry: OperationEntry) => {
             update(operations => [...operations, entry]);
         },
+        remove: (key: string) => {
+            update(operations => operations.filter(op => op.key !== key));
+        },
         cancel: (key: string) => {
             update(operations => {
                 const operationIndex = operations.findIndex(op => op.key === key);

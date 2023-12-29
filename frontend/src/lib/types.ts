@@ -63,6 +63,7 @@ export type OperationEntry = {
 export type CancellableOperationsStore = {
     subscribe: (this: void, run: import("svelte/store").Subscriber<OperationEntry[]>, invalidate?: (value?: OperationEntry[]) => void) => import("svelte/store").Unsubscriber;
     add: (entry: OperationEntry) => void;
+    remove: (key: string) => void;
     cancel: (key: string) => void;
     cancelAll: () => void;
 };

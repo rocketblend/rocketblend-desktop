@@ -86,14 +86,12 @@
 
     function handlePackageDownload(event: CustomEvent<{ packageId: string }>) {
         const packageId = event.detail.packageId;
-        console.log('Downloaded package', packageId);
-
         const [opPromise, cancelFunc] = cancellableOperationWithHeartbeat<void>(InstallPackageWithOperation, packageId);
         operationStore.add({ key: packageId, cancel: cancelFunc });
 
         opPromise.then(() => {
-            operationStore.cancel(packageId);
-            
+            operationStore.remove(packageId);
+
             const successPackageToast = {
                 message: `Downloaded ${packageId}`,
                 background: "variant-filled-success"
@@ -101,7 +99,8 @@
             toastStore.trigger(successPackageToast);
         }).catch(error => {
             if (error !== 'Cancelled') {
-                operationStore.cancel(packageId);
+                console.log(`Error downloading package ${packageId}: ${error}`);
+                operationStore.remove(packageId);
 
                 const errorPackageToast = {
                     message: `Download Failed ${packageId}!`,
@@ -120,6 +119,8 @@
     function handlePackageCancel(event: CustomEvent<{ packageId: string }>) {
         const packageId = event.detail.packageId;
         operationStore.cancel(packageId);
+
+        console.log('Cancelled package', packageId);
 
         const cancelledPackageToast = {
             message: `Cancelled ${packageId}!`,
