@@ -1,7 +1,7 @@
 import { EventsEmit, EventsOn } from '$lib/wailsjs/runtime';
 import { v4 as uuidv4 } from 'uuid';
 
-const heartbeatTimeout = 100000; // 1 seconds
+const heartbeatTimeout = 2000; // 1 seconds
 
 export function cancellableOperationWithHeartbeat<T>(operation: (opID: string, ...args: any[]) => Promise<T>, ...args: any[]): [Promise<T | null>, () => void] {
     const opID = uuidv4();

@@ -47,7 +47,7 @@ func NewDriver(factory factory.Factory, events buffermanager.BufferManager, args
 
 	return &Driver{
 		factory:           factory,
-		heartbeatInterval: 5000 * time.Millisecond,
+		heartbeatInterval: 1000 * time.Millisecond,
 		events:            events,
 		logger:            logger,
 		args:              args,
