@@ -9,12 +9,15 @@ import (
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 )
 
 type (
 	Service interface {
 		Start(ctx context.Context, opFunc func(ctx context.Context) (interface{}, error)) (uuid.UUID, error)
-		Get(opid uuid.UUID) (*Operation, error)
+		Get(ctx context.Context, opid uuid.UUID) (*Operation, error)
+		List(ctx context.Context, opts ...listoption.ListOption) ([]*Operation, error)
 		Cancel(opid uuid.UUID) error
 	}
 
@@ -33,8 +36,7 @@ type (
 
 	Options struct {
 		Logger logger.Logger
-
-		Store searchstore.Store
+		Store  searchstore.Store
 	}
 
 	Option func(*Options)
@@ -83,11 +85,11 @@ func (s *service) Start(ctx context.Context, opFunc func(ctx context.Context) (i
 	operation := Operation{ID: opid}
 	index, err := operation.ToSearchIndex()
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("failed to marshal OperationStatus: %w", err)
+		return uuid.Nil, err
 	}
 
 	if err := s.store.Insert(index); err != nil {
-		return uuid.Nil, fmt.Errorf("failed to insert OperationStatus: %w", err)
+		return uuid.Nil, err
 	}
 
 	go func() {
@@ -120,13 +122,43 @@ func (s *service) Start(ctx context.Context, opFunc func(ctx context.Context) (i
 	return opid, nil
 }
 
-func (s *service) Get(opid uuid.UUID) (*Operation, error) {
+func (s *service) Get(ctx context.Context, opid uuid.UUID) (*Operation, error) {
 	index, err := s.store.Get(opid)
 	if err != nil {
 		return nil, err
 	}
 
-	return convertIndexToOperation(index), nil
+	operation, err := convertIndexToOperation(index)
+	if err != nil {
+		return nil, err
+	}
+
+	return operation, nil
+}
+
+func (s *service) List(ctx context.Context, opts ...listoption.ListOption) ([]*Operation, error) {
+	opts = append(opts, listoption.WithType(indextype.Operation))
+	indexes, err := s.store.List(opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	operations := make([]*Operation, 0, len(indexes))
+	for _, index := range indexes {
+		op, err := convertIndexToOperation(index)
+		if err != nil {
+			return nil, err
+		}
+
+		operations = append(operations, op)
+	}
+
+	s.logger.Debug("Found operations", map[string]interface{}{
+		"operations": len(operations),
+		"indexes":    len(indexes),
+	})
+
+	return operations, nil
 }
 
 func (s *service) Cancel(opid uuid.UUID) error {
@@ -147,18 +179,18 @@ func (s *service) Cancel(opid uuid.UUID) error {
 	}
 	index, err := operation.ToSearchIndex()
 	if err != nil {
-		return fmt.Errorf("failed to marshal OperationStatus: %w", err)
+		return err
 	}
 
 	s.store.Insert(index)
 	return nil
 }
 
-func convertIndexToOperation(index *searchstore.Index) *Operation {
+func convertIndexToOperation(index *searchstore.Index) (*Operation, error) {
 	status := &Operation{}
 	if err := json.Unmarshal([]byte(index.Data), status); err != nil {
-		return nil
+		return nil, err
 	}
 
-	return status
+	return status, nil
 }

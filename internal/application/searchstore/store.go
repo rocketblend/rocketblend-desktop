@@ -13,7 +13,7 @@ type (
 		Get(id uuid.UUID) (*Index, error)
 		Insert(index *Index) error
 		Remove(id uuid.UUID) error
-		RemoveByPath(path string) error // Move to list then remove.
+		RemoveByPath(path string) error // Move to object service via list then remove.
 	}
 
 	store struct {
