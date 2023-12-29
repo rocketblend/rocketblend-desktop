@@ -7,10 +7,11 @@
     import { t } from '$lib/translations/translations';
 
     import type { packageservice } from '$lib/wailsjs/go/models';
-    import { GetProject, ListPackages } from '$lib/wailsjs/go/application/Driver';
+    import { GetProject, ListPackages, InstallPackageWithOperation } from '$lib/wailsjs/go/application/Driver';
 
     import type { RadioOption } from '$lib/types';
-    import { getSelectedProjectStore } from '$lib/stores';
+    import { getSelectedProjectStore, getCancellableOperationsStore } from '$lib/stores';
+    import { cancellableOperationWithHeartbeat } from '$lib/utils';
 
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';
@@ -18,6 +19,7 @@
 
     const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
+    const operationStore = getCancellableOperationsStore();
 
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
@@ -83,17 +85,47 @@
     }
 
     function handlePackageDownload(event: CustomEvent<{ packageId: string }>) {
-        console.log('Downloaded package', event.detail.packageId);
+        const packageId = event.detail.packageId;
+        console.log('Downloaded package', packageId);
 
-        const downloadPackageToast: ToastSettings = {
-            message: `Downloaded ${event.detail.packageId}!`,
+        const [opPromise, cancelFunc] = cancellableOperationWithHeartbeat<void>(InstallPackageWithOperation, packageId);
+        operationStore.add({ key: packageId, cancel: cancelFunc });
+
+        opPromise.then(() => {
+            operationStore.cancel(packageId);
+            
+            const successPackageToast = {
+                message: `Downloaded ${packageId}`,
+                background: "variant-filled-success"
+            };
+            toastStore.trigger(successPackageToast);
+        }).catch(error => {
+            if (error !== 'Cancelled') {
+                operationStore.cancel(packageId);
+
+                const errorPackageToast = {
+                    message: `Download Failed ${packageId}!`,
+                    background: "variant-filled-error"
+                };
+                toastStore.trigger(errorPackageToast);
+            }
+        });
+
+        const downloadPackageToast = {
+            message: `Downloading ${packageId}...`,
         };
-
         toastStore.trigger(downloadPackageToast);
     }
 
     function handlePackageCancel(event: CustomEvent<{ packageId: string }>) {
-        console.log('Cancel package', event.detail.packageId);
+        const packageId = event.detail.packageId;
+        operationStore.cancel(packageId);
+
+        const cancelledPackageToast = {
+            message: `Cancelled ${packageId}!`,
+            background: "variant-filled-warning"
+        };
+        toastStore.trigger(cancelledPackageToast);
     }
 
     function handlePackageDelete(event: CustomEvent<{ packageId: string }>) {
