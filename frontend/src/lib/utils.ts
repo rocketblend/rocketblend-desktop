@@ -15,7 +15,7 @@ export function cancellableOperationWithHeartbeat<T>(operation: (opID: string, .
         clearTimeout(heartbeatTimer);
         heartbeatTimer = setTimeout(() => {
             if (!cancelled) {
-                console.error("Operation timed out: " + opID);
+                // console.error("Operation timed out: " + opID);
                 cancel();
                 rejectOperation(new Error("Operation timed out: " + opID));
             }

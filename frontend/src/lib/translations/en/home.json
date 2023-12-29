@@ -52,7 +52,12 @@
         "operation" : {
             "start": "Start Long Running Operation",
             "cancel": "Cancel Operation",
-            "status": "Status"
+            "status": "Status",
+            "notStarted": "Not Started",
+            "running": "Running...",
+            "completed": "Completed",
+            "cancelled": "Cancelled",
+            "failed": "Failed"
         }
     }
 }

@@ -1,26 +1,36 @@
 <script lang="ts">
-    import { LongRunningOperation } from '$lib/wailsjs/go/application/Driver'
-    import { cancellableOperationWithHeartbeat } from '$lib/utils';
+    import { onDestroy } from 'svelte';
 
+    import { LongRunningOperation } from '$lib/wailsjs/go/application/Driver';
+    import { cancellableOperationWithHeartbeat } from '$lib/utils';
     import { t } from '$lib/translations/translations';
 
-    let operationStatus = 'Not started';
+    enum OperationStatus {
+        NotStarted,
+        Running,
+        Completed,
+        Cancelled,
+        Failed,
+    }
+
+    let operationStatus = OperationStatus.NotStarted;
     let operationPromise: Promise<void | null>;
     let cancelOperation: () => void;
 
     function startOperation() {
-        operationStatus = 'Running...';
+        operationStatus = OperationStatus.Running;
         const [opPromise, cancelFunc] = cancellableOperationWithHeartbeat<void>(LongRunningOperation, 15000);
         operationPromise = opPromise;
         cancelOperation = cancelFunc;
 
         operationPromise.then(() => {
-            if (operationStatus !== 'Cancelled') {
-                operationStatus = 'Completed';
+            if (operationStatus !== OperationStatus.Cancelled) {
+                operationStatus = OperationStatus.Completed;
             }
         }).catch(error => {
-            if (operationStatus !== 'Cancelled') {
-                operationStatus = `Failed: ${error}`;
+            if (operationStatus !== OperationStatus.Cancelled) {
+                operationStatus = OperationStatus.Failed;
+                console.error(`Operation failed: ${error}`); // Handle the error appropriately
             }
         });
     }
@@ -28,19 +38,42 @@
     function cancel() {
         if (cancelOperation) {
             cancelOperation();
-            operationStatus = 'Cancelled';
+            operationStatus = OperationStatus.Cancelled;
         }
     }
+
+    function getStatusText(status: OperationStatus): string {
+        switch (status) {
+            case OperationStatus.NotStarted:
+                return $t('home.debug.operation.notStarted');
+            case OperationStatus.Running:
+                return $t('home.debug.operation.running');
+            case OperationStatus.Completed:
+                return $t('home.debug.operation.completed');
+            case OperationStatus.Cancelled:
+                return $t('home.debug.operation.cancelled');
+            case OperationStatus.Failed:
+                return $t('home.debug.operation.failed');
+            default:
+                return '';
+        }
+    }
+
+    onDestroy(() => {
+        if (operationStatus === OperationStatus.Running) {
+            cancel();
+        }
+    });
 </script>
 
 <div class="flex flex-col card p-2 space-y-2">
-    <button class="btn variant-filled" on:click={startOperation} disabled={operationStatus === 'Running...'}>
+    <button class="btn variant-filled" on:click={startOperation} disabled={operationStatus === OperationStatus.Running}>
         {$t('home.debug.operation.start')}
     </button>
     
-    <button class="btn variant-filled" on:click={cancel} disabled={operationStatus !== 'Running...'}>
+    <button class="btn variant-filled" on:click={cancel} disabled={operationStatus !== OperationStatus.Running}>
         {$t('home.debug.operation.cancel')}
     </button>
     
-    <p>{$t('home.debug.operation.status')}: {operationStatus}</p>
+    <p>{$t('home.debug.operation.status')}: {getStatusText(operationStatus)}</p>
 </div>
