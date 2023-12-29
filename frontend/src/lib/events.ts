@@ -6,7 +6,7 @@ import type { LogStore, LogEvent } from '$lib/types';
 export function setupGlobalEventListeners(logStore: LogStore, toastStore: ToastStore) {
     // Setup log stream listener
     EventsOn('logStream', (data: LogEvent) => {
-        logStore.addLog(data);
+        logStore.add(data);
     });
 
     // Setup launch arguments listener

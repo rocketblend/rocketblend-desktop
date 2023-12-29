@@ -1,6 +1,8 @@
 import { writable, get as getStoreValue } from 'svelte/store';
 import type { ProjectIdStore, LogEvent, LogStore } from "$lib/types";
 
+const MAX_LOGS = 1000;
+
 const createSelectedProjectStore = (): ProjectIdStore => {
     const { subscribe, set, update } = writable<string[]>([]);
 
@@ -24,8 +26,18 @@ const createLogStore = (): LogStore => {
 
     return {
         subscribe,
-        addLog: (logItem: LogEvent) => update(logs => [...logs, logItem]),
-        clearLogs: () => set([]),
+        add: (logItem: LogEvent) => {
+            update(logs => {
+                const updatedLogs = [...logs, logItem];
+
+                if (updatedLogs.length > MAX_LOGS) {
+                    return updatedLogs.slice(-MAX_LOGS);
+                }
+
+                return updatedLogs;
+            });
+        },
+        clear: () => set([]),
     };
 };
 

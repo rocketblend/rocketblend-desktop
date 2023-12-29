@@ -51,6 +51,6 @@ export type ProjectIdStore = {
 
 export type LogStore = {
     subscribe: (run: (value: LogEvent[]) => void) => () => void;
-    addLog: (logItem: LogEvent) => void;
-    clearLogs: () => void;
+    add: (logItem: LogEvent) => void;
+    clear: () => void;
 };
