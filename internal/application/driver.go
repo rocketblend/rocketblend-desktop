@@ -416,7 +416,7 @@ func (d *Driver) LongRunningWithOperation(opid uuid.UUID) error {
 		return err
 	}
 
-	d.logger.Debug("Long running operation completed!", map[string]interface{}{"opID": opid})
+	d.logger.Debug("Long running operation completed!", map[string]interface{}{"opid": opid})
 	return nil
 }
 
@@ -438,14 +438,14 @@ func (d *Driver) startup(ctx context.Context) {
 
 	runtime.EventsOn(ctx, "cancelOperation", func(optionalData ...interface{}) {
 		if len(optionalData) > 0 {
-			if opIDStr, ok := optionalData[0].(string); ok {
-				opID, err := uuid.Parse(opIDStr)
+			if opidStr, ok := optionalData[0].(string); ok {
+				opid, err := uuid.Parse(opidStr)
 				if err != nil {
 					d.logger.Error("Invalid operation ID format for cancellation", map[string]interface{}{"error": err.Error()})
 					return
 				}
-				d.cancelTokens.Store(opID.String(), true)
-				d.logger.Debug("Cancellation requested", map[string]interface{}{"opID": opID})
+				d.cancelTokens.Store(opid.String(), true)
+				d.logger.Debug("Cancellation requested", map[string]interface{}{"opid": opid})
 			} else {
 				d.logger.Error("Invalid data type for operation ID", map[string]interface{}{"type": fmt.Sprintf("%T", optionalData[0])})
 			}
@@ -534,9 +534,9 @@ func (d *Driver) eventEmitLaunchArgs(ctx context.Context, event LaunchEvent) {
 
 // withCancellation is a helper function that runs an operation with a cancellation token.
 // Wails doesn't support context cancellation yet, so we have to do it ourselves.
-func (d *Driver) withCancellation(opID uuid.UUID, operation func(ctx context.Context) (interface{}, error)) (interface{}, error) {
-	d.cancelTokens.Store(opID.String(), false)
-	defer d.cancelTokens.Delete(opID.String())
+func (d *Driver) withCancellation(opid uuid.UUID, operation func(ctx context.Context) (interface{}, error)) (interface{}, error) {
+	d.cancelTokens.Store(opid.String(), false)
+	defer d.cancelTokens.Delete(opid.String())
 
 	ctx, cancel := context.WithCancel(d.ctx)
 	defer cancel()
@@ -551,7 +551,7 @@ func (d *Driver) withCancellation(opID uuid.UUID, operation func(ctx context.Con
 
 		result, err := operation(ctx)
 		if err != nil {
-			d.logger.Error("Operation failed", map[string]interface{}{"error": err.Error(), "opID": opID})
+			d.logger.Error("Operation failed", map[string]interface{}{"error": err.Error(), "opid": opid})
 			errChan <- err
 			return
 		}
@@ -565,12 +565,12 @@ func (d *Driver) withCancellation(opID uuid.UUID, operation func(ctx context.Con
 	for {
 		select {
 		case <-heartbeatTicker.C:
-			d.logger.Debug("Operation heartbeat", map[string]interface{}{"opID": opID})
-			runtime.EventsEmit(ctx, "operationHeartBeat", opID.String())
+			d.logger.Debug("Operation heartbeat", map[string]interface{}{"opid": opid})
+			runtime.EventsEmit(ctx, "operationHeartBeat", opid.String())
 
-			cancelValue, ok := d.cancelTokens.Load(opID.String())
+			cancelValue, ok := d.cancelTokens.Load(opid.String())
 			if ok && cancelValue.(bool) {
-				d.logger.Debug("Operation cancelled", map[string]interface{}{"opID": opID})
+				d.logger.Debug("Operation cancelled", map[string]interface{}{"opid": opid})
 				return nil, errors.New("operation cancelled")
 			}
 		case result := <-resultChan:

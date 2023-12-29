@@ -12,7 +12,7 @@
 
     import { t } from '$lib/translations/translations';
     import { setupGlobalEventListeners, tearDownGlobalEventListeners } from '$lib/events';
-    import { getLogStore } from "$lib/stores";
+    import { getLogStore, getCancellableOperationsStore } from "$lib/stores";
 
     import IconCloseFill from '~icons/ri/close-fill'
     import IconMoreFill from '~icons/ri/more-fill'
@@ -28,6 +28,7 @@
 
     const logStore = getLogStore();
     const toastStore = getToastStore();
+    const operationStore = getCancellableOperationsStore();
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -40,6 +41,8 @@
     });
 
     onDestroy(() => {
+        operationStore.cancelAll();
+        
         tearDownGlobalEventListeners();
     });
 
