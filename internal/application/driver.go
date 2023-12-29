@@ -271,10 +271,15 @@ func (d *Driver) ListPackages(query string, category string, installed bool) (*p
 		return nil, err
 	}
 
+	state := 0
+	if installed {
+		state = 1
+	}
+
 	response, err := packageService.List(ctx, []listoption.ListOption{
 		listoption.WithQuery(query),
 		listoption.WithCategory(category),
-		listoption.WithReady(installed),
+		listoption.WithState(state),
 	}...)
 	if err != nil {
 		d.logger.Error("Failed to find all packages", map[string]interface{}{"error": err.Error()})

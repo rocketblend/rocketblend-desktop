@@ -74,15 +74,15 @@ func (s *store) get(id uuid.UUID) (*Index, error) {
 				if typeInt, err := strconv.Atoi(value); err == nil {
 					result.Type = indextype.IndexType(typeInt)
 				}
-			case "path":
-				result.Path = value
+			case "reference":
+				result.Reference = value
 			case "name":
 				result.Name = value
 			case "category":
 				result.Category = value
-			case "ready":
-				if readyBool, err := strconv.ParseBool(value); err == nil {
-					result.Ready = readyBool
+			case "state":
+				if state, err := strconv.ParseInt(value, 0, 32); err == nil {
+					result.State = int(state)
 				}
 			case "data":
 				result.Data = value

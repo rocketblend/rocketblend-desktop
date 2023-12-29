@@ -13,7 +13,7 @@ type (
 		Type     indextype.IndexType
 		Category string
 		Resource string
-		Ready    bool
+		State    *int
 		Size     int
 		From     int
 	}
@@ -45,9 +45,9 @@ func WithResource(resource string) ListOption {
 	}
 }
 
-func WithReady(ready bool) ListOption {
+func WithState(state int) ListOption {
 	return func(o *ListOptions) {
-		o.Ready = ready
+		o.State = &state
 	}
 }
 
@@ -83,10 +83,9 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 		query.AddQuery(resourceQuery)
 	}
 
-	if so.Ready {
-		readyQuery := bleve.NewBoolFieldQuery(true)
-		readyQuery.SetField("ready")
-		query.AddQuery(readyQuery)
+	if so.State != nil {
+		stateQuery := bleve.NewQueryStringQuery("state:" + strconv.Itoa(*so.State))
+		query.AddQuery(stateQuery)
 	}
 
 	if so.Query != "" {

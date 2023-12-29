@@ -11,10 +11,10 @@ type (
 	Index struct {
 		ID        uuid.UUID           `json:"id,omitempty"`
 		Type      indextype.IndexType `json:"type,omitempty"`
-		Path      string              `json:"path,omitempty"` // Change to reference
+		Reference string              `json:"reference,omitempty"`
 		Name      string              `json:"name,omitempty"`
 		Category  string              `json:"category,omitempty"`
-		Ready     bool                `json:"ready,omitempty"` // Change to state int.
+		State     int                 `json:"state,omitempty"`
 		Resources []string            `json:"resources,omitempty"`
 		Error     string              `json:"error,omitempty"`
 		Data      string              `json:"data,omitempty"`

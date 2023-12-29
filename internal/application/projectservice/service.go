@@ -186,13 +186,13 @@ func New(opts ...Option) (Service, error) {
 				ID:        project.ID,
 				Name:      project.Name,
 				Type:      indextype.Project,
-				Path:      path,
+				Reference: path,
 				Resources: resources,
 				Data:      string(data),
 			})
 		}),
 		watcher.WithRemoveObjectFunc(func(path string) error {
-			return options.Store.RemoveByPath(path)
+			return options.Store.RemoveByReference(path)
 		}),
 	)
 	if err != nil {

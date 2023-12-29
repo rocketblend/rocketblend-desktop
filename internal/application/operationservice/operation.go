@@ -24,10 +24,15 @@ func (o Operation) ToSearchIndex() (*searchstore.Index, error) {
 		return nil, fmt.Errorf("failed to marshal OperationStatus: %w", err)
 	}
 
+	state := 0
+	if o.Completed {
+		state = 1
+	}
+
 	return &searchstore.Index{
 		ID:    o.ID,
 		Type:  indextype.Operation,
-		Ready: !o.Completed,
+		State: state,
 		Error: o.ErrorMsg,
 		Data:  string(data),
 	}, nil

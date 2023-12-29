@@ -146,18 +146,23 @@ func New(opts ...Option) (Service, error) {
 				return err
 			}
 
+			state := 0
+			if pack.InstallationPath != "" {
+				state = 1
+			}
+
 			return options.Store.Insert(&searchstore.Index{
-				ID:       pack.ID,
-				Name:     pack.Name,
-				Type:     indextype.Package,
-				Category: strings.ToLower(pack.Type.String()),
-				Ready:    pack.InstallationPath != "",
-				Path:     path,
-				Data:     string(data),
+				ID:        pack.ID,
+				Name:      pack.Name,
+				Type:      indextype.Package,
+				Category:  strings.ToLower(pack.Type.String()),
+				State:     state,
+				Reference: path,
+				Data:      string(data),
 			})
 		}),
 		watcher.WithRemoveObjectFunc(func(path string) error {
-			return options.Store.RemoveByPath(path)
+			return options.Store.RemoveByReference(path)
 		}),
 	)
 	if err != nil {

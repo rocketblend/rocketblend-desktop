@@ -13,7 +13,7 @@ type (
 		Get(id uuid.UUID) (*Index, error)
 		Insert(index *Index) error
 		Remove(id uuid.UUID) error
-		RemoveByPath(path string) error // Move to object service via list then remove.
+		RemoveByReference(path string) error
 	}
 
 	store struct {
@@ -85,12 +85,12 @@ func (s *store) Remove(id uuid.UUID) error {
 	return nil
 }
 
-func (s *store) RemoveByPath(path string) error {
+func (s *store) RemoveByReference(path string) error {
 	query := bleve.NewMatchQuery(path)
-	query.SetField("path")
+	query.SetField("reference")
 	searchResults, err := s.index.Search(bleve.NewSearchRequest(query))
 	if err != nil {
-		s.logger.Error("Error searching for projects in path", map[string]interface{}{
+		s.logger.Error("Error searching for indexes with reference", map[string]interface{}{
 			"err": err,
 		})
 
@@ -99,13 +99,13 @@ func (s *store) RemoveByPath(path string) error {
 
 	for _, hit := range searchResults.Hits {
 		if err := s.index.Delete(hit.ID); err != nil {
-			s.logger.Error("Error deleting project from index", map[string]interface{}{
+			s.logger.Error("Error deleting index from id", map[string]interface{}{
 				"err":  err,
 				"key":  hit.ID,
 				"path": path,
 			})
 		} else {
-			s.logger.Info("Deleted project from index", map[string]interface{}{
+			s.logger.Info("Deleted index from id", map[string]interface{}{
 				"key":  hit.ID,
 				"path": path,
 			})
