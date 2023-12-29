@@ -23,7 +23,7 @@
     import Sidebar from "$lib/containers/Sidebar.svelte";
 	import type { LogEvent } from "$lib/types";
 	import LogFeed from "$lib/components/feed/LogFeed.svelte";
-	import DebugOperation from "$lib/containers/DebugOperation.svelte";
+	import OperationDebugger from "$lib/containers/OperationDebugger.svelte";
 
     initializeStores();
     const toastStore = getToastStore();
@@ -99,7 +99,7 @@
                     </div>
                 {:else if drawTabSet === 2}
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <DebugOperation/>
+                        <OperationDebugger/>
                     </div>
                 {/if}
             </svelte:fragment>
