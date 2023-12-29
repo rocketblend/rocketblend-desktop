@@ -2,13 +2,17 @@
     import "../app.postcss";
     
     import { onMount, onDestroy } from 'svelte';
-    import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-    import { initializeStores, getToastStore, storePopup } from '@skeletonlabs/skeleton';
-    import { Toast, AppBar, AppShell, Drawer } from '@skeletonlabs/skeleton';
-    import { TabGroup, Tab } from '@skeletonlabs/skeleton';
-    import type { ToastSettings } from '@skeletonlabs/skeleton';
-
     import { goto } from '$app/navigation';
+
+    import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+    import { initializeStores, storePopup, getToastStore } from '@skeletonlabs/skeleton';
+    import { Toast, AppBar, AppShell } from '@skeletonlabs/skeleton';
+
+    import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
+
+    import { t } from '$lib/translations/translations';
+    import { setupGlobalEventListeners, tearDownGlobalEventListeners } from '$lib/events';
+    import { getLogStore } from "$lib/stores";
 
     import IconCloseFill from '~icons/ri/close-fill'
     import IconMoreFill from '~icons/ri/more-fill'
@@ -16,95 +20,32 @@
     import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
     import IconHomeFill from '~icons/ri/home-fill'
 
-    import { t } from '$lib/translations/translations';
-    import { EventsEmit, EventsOff, EventsOn, Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
-
     import Footer from "$lib/containers/Footer.svelte";
     import Sidebar from "$lib/containers/Sidebar.svelte";
-	import type { LogEvent } from "$lib/types";
-	import LogFeed from "$lib/components/feed/LogFeed.svelte";
-	import OperationDebugger from "$lib/containers/OperationDebugger.svelte";
+	import UtilityDrawer from "$lib/containers/UtilityDrawer.svelte";
 
     initializeStores();
+
+    const logStore = getLogStore();
     const toastStore = getToastStore();
 
-    const MAX_LOGS= 250;
-
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
-
-    let drawTabSet: number = 0;
-    let logs: LogEvent[] = [];
 
     function handleViewHome(): void {
         goto(`/`);
     }
 
-    function addLog(newLog: LogEvent) {
-        if (logs.length >= MAX_LOGS) {
-            logs.shift();
-        }
-
-        logs = [...logs, newLog];
-    }
-
-    onMount(() => {     
-        EventsOn('launchArgs', (data: { args: string[]}) => {
-            console.log('launchArgs', data)
-            if (data.args && data.args.length !== 0) {
-                    var launchToast: ToastSettings = {
-                    message: `Args: ${data.args.join(', ')}`,
-                    timeout: 5000,
-                };
-
-                toastStore.trigger(launchToast);
-            }
-        });
-
-        EventsOn('logStream', (data: LogEvent) => {
-            addLog(data);
-        });
-
-        const launchToast: ToastSettings = {
-            message: t.get('home.greeting'),
-            background: 'bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white',
-            timeout: 5000,
-        };
-
-        toastStore.trigger(launchToast);
-
-        EventsEmit('ready'); // Notify Wails that the frontend is ready for events
+    onMount(() => {
+        setupGlobalEventListeners(logStore, toastStore);
     });
 
     onDestroy(() => {
-        EventsOff('launchArgs');
-        EventsOff('logStream');
+        tearDownGlobalEventListeners();
     });
+
 </script>
 
-<Drawer
-    class="h-full overflow-hidden"
-    position="bottom"
-    rounded="none"
-    zIndex="z-50">
-        <TabGroup class="flex flex-col h-full overflow-hidden" active="border-b-2 border-primary-400-500-token" rounded="" regionPanel="px-4 pb-4 flex-grow overflow-hidden h-full" regionList="flex flex-none">
-            <Tab bind:group={drawTabSet} name="tab1" value={0}>{$t('home.drawer.tab.output')}</Tab>
-            <Tab bind:group={drawTabSet} name="tab2" value={1}>{$t('home.drawer.tab.terminal')}</Tab>
-            <Tab bind:group={drawTabSet} name="tab3" value={2}>{$t('home.drawer.tab.debug')}</Tab>
-            <svelte:fragment slot="panel">
-                {#if drawTabSet === 0}
-                    <LogFeed bind:feed={logs}/>
-                {:else if drawTabSet === 1}
-                    <div class="flex justify-center items-center h-full">
-                        <p>{$t('home.soon')}</p>
-                    </div>
-                {:else if drawTabSet === 2}
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <OperationDebugger/>
-                    </div>
-                {/if}
-            </svelte:fragment>
-        </TabGroup>
-</Drawer>
+<UtilityDrawer/>
 
 <Toast
     zIndex="z-40"

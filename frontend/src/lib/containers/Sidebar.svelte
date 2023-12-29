@@ -4,17 +4,19 @@
     import type {  ToastSettings } from '@skeletonlabs/skeleton';
     import { getToastStore } from '@skeletonlabs/skeleton';
 
+    import { t } from '$lib/translations/translations';
+
+    import type { packageservice } from '$lib/wailsjs/go/models';
+    import { GetProject, ListPackages } from '$lib/wailsjs/go/application/Driver';
+
+    import type { RadioOption } from '$lib/types';
+    import { getSelectedProjectStore } from '$lib/stores';
+
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';
     import PackageFilter from '$lib/components/package/PackageFilter.svelte';
 
-    import { GetProject } from '$lib/wailsjs/go/application/Driver'
-    import { selectedProjectIds } from '$lib/stores';
-    import type { packageservice } from '$lib/wailsjs/go/models';
-    import { ListPackages } from '$lib/wailsjs/go/application/Driver';
-    import { t } from '$lib/translations/translations';
-    import type { RadioOption } from '$lib/types';
-
+    const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
 
     let selectedFilterType: number = 0;
@@ -29,12 +31,12 @@
     let fetchPackagesPromise: Promise<packageservice.ListPackagesResponse | undefined>;
     let dependencies: string[] = [];
 
-    $: if ($selectedProjectIds) {
+    $: if ($selectedProjectStore) {
         loadDependencies();
     }
 
     async function loadDependencies() {
-        var id = selectedProjectIds.latest();
+        var id = selectedProjectStore.latest();
         if (!id) {
             return;
         }

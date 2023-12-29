@@ -22,7 +22,6 @@ export enum DisplayType {
     Gallery
 }
 
-
 export type Option = {
     value: number;
     display: string;
@@ -40,3 +39,18 @@ export type LogEvent = {
     time: Date,
     fields: { [key: string]: string }
 }
+
+export type ProjectIdStore = {
+    subscribe: (run: (value: string[]) => void) => () => void;
+    remove: (id: string) => void;
+    latest: () => string | null;
+    get: () => string[];
+    set: (ids: string[]) => void;
+    clear: () => void;
+};
+
+export type LogStore = {
+    subscribe: (run: (value: LogEvent[]) => void) => () => void;
+    addLog: (logItem: LogEvent) => void;
+    clearLogs: () => void;
+};

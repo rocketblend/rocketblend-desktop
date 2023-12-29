@@ -1,18 +1,22 @@
 <script lang="ts">
-    import { selectedProjectIds } from '$lib/stores';
     import { goto } from '$app/navigation';
-    import { ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
-    import { GetProject } from '$lib/wailsjs/go/application/Driver'
-    import type { project } from '$lib/wailsjs/go/models';
-    import { resourcePath } from '$lib/components/utils';
+
     import { getDrawerStore } from '@skeletonlabs/skeleton';
+
+    import { GetProject, ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
+    import type { project } from '$lib/wailsjs/go/models';
+
+    import { resourcePath } from '$lib/components/utils';
+    import { getSelectedProjectStore } from '$lib/stores';
+
     import FooterContent from '$lib/components/footer/FooterContent.svelte';
 
+    const selectedProjectStore = getSelectedProjectStore();
     const drawerStore = getDrawerStore();
 
     let selectedProject: project.Project | undefined = undefined;
 
-    $: if ($selectedProjectIds) {
+    $: if ($selectedProjectStore) {
         loadProject();
     }
 
@@ -21,7 +25,7 @@
     }
 
     async function loadProject() {
-        var id = selectedProjectIds.latest();
+        var id = selectedProjectStore.latest();
         if (!id) {
             return;
         }
