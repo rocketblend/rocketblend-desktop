@@ -12,7 +12,6 @@
 
     import ProjectListView from '$lib/components/project/ProjectListView.svelte';
 	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
-	import LongRunningOperation from '$lib/containers/LongRunningOperation.svelte';
     
     export let data: PageData;
 
@@ -67,8 +66,6 @@
 </script>
 
 <main class="space-y-4">
-    <LongRunningOperation />
-
     <div>
         <h2 class="h2 font-bold">{$t('home.title')}</h2>
     </div>

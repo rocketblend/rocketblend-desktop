@@ -2,6 +2,8 @@
     import { LongRunningOperation } from '$lib/wailsjs/go/application/Driver'
     import { cancellableOperationWithHeartbeat } from '$lib/utils';
 
+    import { t } from '$lib/translations/translations';
+
     let operationStatus = 'Not started';
     let operationPromise: Promise<void | null>;
     let cancelOperation: () => void;
@@ -33,13 +35,12 @@
 
 <div class="flex flex-col card p-2 space-y-2">
     <button class="btn variant-filled" on:click={startOperation} disabled={operationStatus === 'Running...'}>
-        Start Long Running Operation
+        {$t('home.debug.operation.start')}
     </button>
     
     <button class="btn variant-filled" on:click={cancel} disabled={operationStatus !== 'Running...'}>
-        Cancel Operation
+        {$t('home.debug.operation.cancel')}
     </button>
     
-    <p>Status: {operationStatus}</p>
+    <p>{$t('home.debug.operation.status')}: {operationStatus}</p>
 </div>
-

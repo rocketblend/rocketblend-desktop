@@ -21,12 +21,9 @@
     },
     "drawer" :{
         "tab" : {
-            "output": {
-                "header": "Output"
-            },
-            "terminal": {
-                "header": "Terminal"
-            }
+            "output": "Output",
+            "terminal": "Terminal",
+            "debug": "Debug Tools"
         }
     },
     "project": {
@@ -49,6 +46,13 @@
         "view": {
             "gallery": "Gallery",
             "table": "Table"
+        }
+    },
+    "debug":{
+        "operation" : {
+            "start": "Start Long Running Operation",
+            "cancel": "Cancel Operation",
+            "status": "Status"
         }
     }
 }

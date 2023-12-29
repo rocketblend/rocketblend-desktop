@@ -23,6 +23,7 @@
     import Sidebar from "$lib/containers/Sidebar.svelte";
 	import type { LogEvent } from "$lib/types";
 	import LogFeed from "$lib/components/feed/LogFeed.svelte";
+	import DebugOperation from "$lib/containers/DebugOperation.svelte";
 
     initializeStores();
     const toastStore = getToastStore();
@@ -86,14 +87,19 @@
     rounded="none"
     zIndex="z-50">
         <TabGroup class="flex flex-col h-full overflow-hidden" active="border-b-2 border-primary-400-500-token" rounded="" regionPanel="px-4 pb-4 flex-grow overflow-hidden h-full" regionList="flex flex-none">
-            <Tab bind:group={drawTabSet} name="tab1" value={0}>{$t('home.drawer.tab.output.header')}</Tab>
-            <Tab bind:group={drawTabSet} name="tab2" value={1}>{$t('home.drawer.tab.terminal.header')}</Tab>
+            <Tab bind:group={drawTabSet} name="tab1" value={0}>{$t('home.drawer.tab.output')}</Tab>
+            <Tab bind:group={drawTabSet} name="tab2" value={1}>{$t('home.drawer.tab.terminal')}</Tab>
+            <Tab bind:group={drawTabSet} name="tab3" value={2}>{$t('home.drawer.tab.debug')}</Tab>
             <svelte:fragment slot="panel">
                 {#if drawTabSet === 0}
                     <LogFeed bind:feed={logs}/>
                 {:else if drawTabSet === 1}
                     <div class="flex justify-center items-center h-full">
                         <p>{$t('home.soon')}</p>
+                    </div>
+                {:else if drawTabSet === 2}
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <DebugOperation/>
                     </div>
                 {/if}
             </svelte:fragment>
