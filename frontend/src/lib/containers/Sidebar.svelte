@@ -7,7 +7,7 @@
     import { t } from '$lib/translations/translations';
 
     import type { packageservice } from '$lib/wailsjs/go/models';
-    import { GetProject, ListPackages, InstallPackageWithOperation } from '$lib/wailsjs/go/application/Driver';
+    import { GetProject, ListPackages, InstallPackageWithCancellation } from '$lib/wailsjs/go/application/Driver';
 
     import type { RadioOption } from '$lib/types';
     import { getSelectedProjectStore, getCancellableOperationsStore } from '$lib/stores';
@@ -86,7 +86,7 @@
 
     function handlePackageDownload(event: CustomEvent<{ packageId: string }>) {
         const packageId = event.detail.packageId;
-        const [opPromise, cancelFunc] = cancellableOperationWithHeartbeat<void>(InstallPackageWithOperation, packageId);
+        const [opPromise, cancelFunc] = cancellableOperationWithHeartbeat<void>(InstallPackageWithCancellation, packageId);
         operationStore.add({ key: packageId, cancel: cancelFunc });
 
         opPromise.then(() => {

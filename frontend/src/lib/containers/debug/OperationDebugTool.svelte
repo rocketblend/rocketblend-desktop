@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
 
-    import { LongRunningWithOperation } from '$lib/wailsjs/go/application/Driver';
+    import { LongRunningWithCancellation } from '$lib/wailsjs/go/application/Driver';
     import { cancellableOperationWithHeartbeat } from '$lib/utils';
     import { t } from '$lib/translations/translations';
 
@@ -19,7 +19,7 @@
 
     function startOperation() {
         operationStatus = OperationStatus.Running;
-        const [opPromise, cancelFunc] = cancellableOperationWithHeartbeat<void>(LongRunningWithOperation, 15000);
+        const [opPromise, cancelFunc] = cancellableOperationWithHeartbeat<void>(LongRunningWithCancellation, 15000);
         operationPromise = opPromise;
         cancelOperation = cancelFunc;
 

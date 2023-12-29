@@ -286,8 +286,8 @@ func (d *Driver) ListPackages(query string, category string, installed bool) (*p
 	return response, err
 }
 
-func (d *Driver) AddPackageWithOperation(opid uuid.UUID, referenceStr string) error {
-	_, err := d.withCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) AddPackageWithCancellation(opid uuid.UUID, referenceStr string) error {
+	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
 		packageService, err := d.factory.GetPackageService()
 		if err != nil {
 			d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error(), "opid": opid})
@@ -316,8 +316,8 @@ func (d *Driver) AddPackageWithOperation(opid uuid.UUID, referenceStr string) er
 	return nil
 }
 
-func (d *Driver) RefreshPackagesWithOperation(opid uuid.UUID) error {
-	_, err := d.withCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) RefreshPackagesWithCancellation(opid uuid.UUID) error {
+	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
 		packageService, err := d.factory.GetPackageService()
 		if err != nil {
 			d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error(), "opid": opid})
@@ -339,8 +339,8 @@ func (d *Driver) RefreshPackagesWithOperation(opid uuid.UUID) error {
 	return nil
 }
 
-func (d *Driver) InstallPackageWithOperation(opid uuid.UUID, id uuid.UUID) error {
-	_, err := d.withCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) InstallPackageWithCancellation(opid uuid.UUID, id uuid.UUID) error {
+	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
 		// packageService, err := d.factory.GetPackageService()
 		// if err != nil {
 		// 	d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error(), "opid": opid})
@@ -372,8 +372,8 @@ func (d *Driver) InstallPackageWithOperation(opid uuid.UUID, id uuid.UUID) error
 	return nil
 }
 
-func (d *Driver) UninstallPackageWithOperation(opid uuid.UUID, id uuid.UUID) error {
-	_, err := d.withCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) UninstallPackageWithCancellation(opid uuid.UUID, id uuid.UUID) error {
+	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
 		packageService, err := d.factory.GetPackageService()
 		if err != nil {
 			d.logger.Error("Failed to get package service", map[string]interface{}{"error": err.Error()})
@@ -397,8 +397,8 @@ func (d *Driver) UninstallPackageWithOperation(opid uuid.UUID, id uuid.UUID) err
 	return nil
 }
 
-func (d *Driver) LongRunningWithOperation(opid uuid.UUID) error {
-	_, err := d.withCancellation(opid, func(ctx context.Context) (interface{}, error) {
+func (d *Driver) LongRunningWithCancellation(opid uuid.UUID) error {
+	_, err := d.runWithCancellation(opid, func(ctx context.Context) (interface{}, error) {
 		// Simulate a long-running operation
 		for i := 0; i < 10; i++ {
 			select {
@@ -532,9 +532,9 @@ func (d *Driver) eventEmitLaunchArgs(ctx context.Context, event LaunchEvent) {
 	runtime.EventsEmit(ctx, "launchArgs", event)
 }
 
-// withCancellation is a helper function that runs an operation with a cancellation token.
+// runWithCancellation is a helper function that runs an operation with a cancellation token.
 // Wails doesn't support context cancellation yet, so we have to do it ourselves.
-func (d *Driver) withCancellation(opid uuid.UUID, operation func(ctx context.Context) (interface{}, error)) (interface{}, error) {
+func (d *Driver) runWithCancellation(opid uuid.UUID, operation func(ctx context.Context) (interface{}, error)) (interface{}, error) {
 	d.cancelTokens.Store(opid.String(), false)
 	defer d.cancelTokens.Delete(opid.String())
 
