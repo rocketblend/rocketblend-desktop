@@ -16,6 +16,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
@@ -24,6 +25,8 @@ import (
 
 	rocketblendConfig "github.com/rocketblend/rocketblend/pkg/rocketblend/config"
 )
+
+const storeEventName = "updates"
 
 // Driver struct
 type Driver struct {
@@ -487,10 +490,27 @@ func (d *Driver) onDomReady(ctx context.Context) {
 
 	// Wait for main layout to be ready.
 	runtime.EventsOnce(ctx, "ready", func(optionalData ...interface{}) {
-		d.logger.Debug("Main layout is ready")
-		d.eventEmitLaunchArgs(ctx, LaunchEvent{
-			Args: os.Args[1:],
-		})
+		d.onLayoutReady(ctx)
+	})
+}
+
+// onLayoutReady is called when the layout is ready
+func (d *Driver) onLayoutReady(ctx context.Context) {
+	d.logger.Debug("Main layout is ready")
+
+	store, err := d.factory.GetSearchStore()
+	if err != nil {
+		d.logger.Error("Failed to get search store", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	store.RegisterListener(ctx, storeEventName, func(e searchstore.Event) {
+		d.logger.Debug("Search store event received", map[string]interface{}{"event": e})
+		runtime.EventsEmit(ctx, "storeEvent", e)
+	})
+
+	d.eventEmitLaunchArgs(ctx, LaunchEvent{
+		Args: os.Args[1:],
 	})
 }
 

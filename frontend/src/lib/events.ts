@@ -17,7 +17,19 @@ export function setupGlobalEventListeners(logStore: LogStore, toastStore: ToastS
                 timeout: 5000,
             };
 
-            //toastStore.trigger(launchToast);
+            toastStore.trigger(launchToast);
+        }
+    });
+
+    EventsOn('storeEvent', (data: { id: string, type: number, indexType: string }) => {
+        console.log('storeEvent', data);
+        if (data) {
+            const storeToast: ToastSettings = {
+                message: `Store event: ${data.id} ${data.type} ${data.indexType}`,
+                timeout: 5000,
+            };
+
+            toastStore.trigger(storeToast);
         }
     });
 
@@ -30,7 +42,7 @@ export function setupGlobalEventListeners(logStore: LogStore, toastStore: ToastS
         background: 'bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white',
         timeout: 5000,
     };
-    //toastStore.trigger(initialToast);
+    toastStore.trigger(initialToast);
 }
 
 export function tearDownGlobalEventListeners() {

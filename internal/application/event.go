@@ -13,4 +13,9 @@ type (
 		Time    time.Time              `json:"time"`
 		Fields  map[string]interface{} `json:"fields"`
 	}
+
+	StoreEvent struct {
+		ID   string `json:"id"`
+		Type string `json:"type"`
+	}
 )

@@ -1,6 +1,9 @@
 package searchstore
 
 import (
+	"context"
+	"sync"
+
 	"github.com/blevesearch/bleve/v2"
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
@@ -14,11 +17,18 @@ type (
 		Insert(index *Index) error
 		Remove(id uuid.UUID) error
 		RemoveByReference(path string) error
+
+		RegisterListener(ctx context.Context, id string, handler EventHandler) func()
+		UnregisterListener(id string)
+		ClearListeners()
 	}
 
 	store struct {
 		logger logger.Logger
 		index  bleve.Index
+
+		listeners map[string]EventHandler
+		lock      sync.Mutex
 	}
 
 	Options struct {
@@ -49,18 +59,27 @@ func New(opts ...Option) (Store, error) {
 		return nil, err
 	}
 
-	s := &store{
-		logger: options.Logger,
-		index:  index,
-	}
-
-	return s, nil
+	return &store{
+		logger:    options.Logger,
+		index:     index,
+		listeners: make(map[string]EventHandler),
+	}, nil
 }
 
 func (s *store) Insert(index *Index) error {
+	existing, _ := s.index.Document(index.ID.String())
+
 	err := s.index.Index(index.ID.String(), index)
 	if err != nil {
 		return err
+	}
+
+	if existing != nil {
+		s.emitEvent(Event{
+			ID:        index.ID,
+			IndexType: index.Type,
+			Type:      UpdateEvent,
+		})
 	}
 
 	s.logger.Debug("Indexed successful", map[string]interface{}{
@@ -73,16 +92,7 @@ func (s *store) Insert(index *Index) error {
 }
 
 func (s *store) Remove(id uuid.UUID) error {
-	err := s.index.Delete(id.String())
-	if err != nil {
-		return err
-	}
-
-	s.logger.Debug("Removed successful", map[string]interface{}{
-		"id": id,
-	})
-
-	return nil
+	return s.remove(id)
 }
 
 func (s *store) RemoveByReference(path string) error {
@@ -98,19 +108,52 @@ func (s *store) RemoveByReference(path string) error {
 	}
 
 	for _, hit := range searchResults.Hits {
-		if err := s.index.Delete(hit.ID); err != nil {
-			s.logger.Error("Error deleting index from id", map[string]interface{}{
+		id, err := uuid.Parse(hit.ID)
+		if err != nil {
+			s.logger.Error("Error parsing id", map[string]interface{}{
 				"err":  err,
 				"key":  hit.ID,
 				"path": path,
 			})
 		} else {
-			s.logger.Info("Deleted index from id", map[string]interface{}{
-				"key":  hit.ID,
-				"path": path,
-			})
+			if err := s.remove(id); err != nil {
+				s.logger.Error("Error deleting index from id", map[string]interface{}{
+					"err":  err,
+					"key":  hit.ID,
+					"path": path,
+				})
+			} else {
+				s.logger.Info("Deleted index from id", map[string]interface{}{
+					"key":  hit.ID,
+					"path": path,
+				})
+			}
 		}
 	}
+
+	return nil
+}
+
+func (s *store) remove(id uuid.UUID) error {
+	index, err := s.get(id)
+	if err != nil {
+		return err
+	}
+
+	err = s.index.Delete(id.String())
+	if err != nil {
+		return err
+	}
+
+	s.emitEvent(Event{
+		ID:        index.ID,
+		IndexType: index.Type,
+		Type:      RemoveEvent,
+	})
+
+	s.logger.Debug("Removed successful", map[string]interface{}{
+		"id": id,
+	})
 
 	return nil
 }
