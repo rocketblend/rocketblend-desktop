@@ -49,9 +49,9 @@
         }
     },
     "debug":{
-        "operation" : {
-            "start": "Start Long Running Operation",
-            "cancel": "Cancel Operation",
+        "request" : {
+            "start": "Start Slow Request",
+            "cancel": "Cancel Request",
             "status": "Status",
             "notStarted": "Not Started",
             "running": "Running...",

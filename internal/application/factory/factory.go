@@ -8,6 +8,7 @@ import (
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application/build"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/operationservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
@@ -29,6 +30,7 @@ type (
 		GetSearchStore() (searchstore.Store, error)
 		GetProjectService() (projectservice.Service, error)
 		GetPackageService() (packageservice.Service, error)
+		GetOperationService() (operationservice.Service, error)
 
 		Preload() error
 		Close() error
@@ -61,6 +63,9 @@ type (
 
 		packageMutex   sync.Mutex
 		packageService packageservice.Service
+
+		operationMutex   sync.Mutex
+		operationService operationservice.Service
 	}
 )
 
@@ -285,6 +290,32 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 	f.packageService = packageService
 
 	return f.packageService, nil
+}
+
+func (f *factory) GetOperationService() (operationservice.Service, error) {
+	f.operationMutex.Lock()
+	defer f.operationMutex.Unlock()
+
+	if f.operationService != nil {
+		return f.operationService, nil
+	}
+
+	store, err := f.GetSearchStore()
+	if err != nil {
+		return nil, err
+	}
+
+	operationService, err := operationservice.New(
+		operationservice.WithLogger(f.logger),
+		operationservice.WithStore(store),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	f.operationService = operationService
+
+	return f.operationService, nil
 }
 
 func (f *factory) GetConfigService() (rocketblendConfig.Service, error) {

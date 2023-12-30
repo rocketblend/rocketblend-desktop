@@ -4,7 +4,7 @@
 
     import { getLogStore } from '$lib/stores';
 
-    import OperationDebugTool from "$lib/containers/debug/OperationDebugTool.svelte";
+    import RequestCancellationDebugTool from "$lib/containers/debug/RequestCancellationDebugTool.svelte";
     import LogFeed from "$lib/components/feed/LogFeed.svelte";
 
     const logStore = getLogStore();
@@ -32,7 +32,7 @@
             </div>
             <div class="h-full" hidden={!(drawTabSet == 2)}>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <OperationDebugTool/>
+                    <RequestCancellationDebugTool/>
                 </div>
             </div>
         </svelte:fragment>

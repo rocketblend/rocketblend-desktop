@@ -15,7 +15,7 @@ import (
 
 type (
 	Service interface {
-		Start(ctx context.Context, opFunc func(ctx context.Context) (interface{}, error)) (uuid.UUID, error)
+		Create(ctx context.Context, opFunc func(ctx context.Context, opid uuid.UUID) (interface{}, error)) (uuid.UUID, error)
 		Get(ctx context.Context, opid uuid.UUID) (*Operation, error)
 		List(ctx context.Context, opts ...listoption.ListOption) ([]*Operation, error)
 		Cancel(opid uuid.UUID) error
@@ -74,7 +74,7 @@ func New(opts ...Option) (Service, error) {
 	}, nil
 }
 
-func (s *service) Start(ctx context.Context, opFunc func(ctx context.Context) (interface{}, error)) (uuid.UUID, error) {
+func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, opid uuid.UUID) (interface{}, error)) (uuid.UUID, error) {
 	opid := uuid.New()
 	opctx, cancel := context.WithCancel(ctx)
 
@@ -94,7 +94,7 @@ func (s *service) Start(ctx context.Context, opFunc func(ctx context.Context) (i
 
 	go func() {
 		defer cancel()
-		result, err := opFunc(opctx)
+		result, err := opFunc(opctx, opid)
 
 		if opctx.Err() == context.Canceled {
 			return

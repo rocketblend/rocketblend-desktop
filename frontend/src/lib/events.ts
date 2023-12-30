@@ -22,8 +22,8 @@ export function setupGlobalEventListeners(logStore: LogStore, toastStore: ToastS
     });
 
     EventsOn('storeEvent', (data: { id: string, type: number, indexType: string }) => {
-        console.log('storeEvent', data);
         if (data) {
+            console.log('storeEvent', data);
             const storeToast: ToastSettings = {
                 message: `Store event: ${data.id} ${data.type} ${data.indexType}`,
                 timeout: 5000,

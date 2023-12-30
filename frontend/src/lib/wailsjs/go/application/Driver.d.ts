@@ -3,10 +3,13 @@
 import {uuid} from '../models';
 import {projectservice} from '../models';
 import {config} from '../models';
+import {operationservice} from '../models';
 import {packageservice} from '../models';
 import {runtime} from '../models';
 
-export function AddPackageWithCancellation(arg1:uuid.UUID,arg2:string):Promise<void>;
+export function AddPackage(arg1:string):Promise<void>;
+
+export function CancelOperation(arg1:uuid.UUID):Promise<void>;
 
 export function CreateProject(arg1:projectservice.CreateProjectRequest):Promise<void>;
 
@@ -16,6 +19,8 @@ export function ExploreProject(arg1:uuid.UUID):Promise<void>;
 
 export function GetApplicationConfig():Promise<config.Config>;
 
+export function GetOperation(arg1:uuid.UUID):Promise<operationservice.Operation>;
+
 export function GetPackage(arg1:uuid.UUID):Promise<packageservice.GetPackageResponse>;
 
 export function GetPlatform():Promise<runtime.Platform>;
@@ -24,22 +29,26 @@ export function GetProject(arg1:uuid.UUID):Promise<projectservice.GetProjectResp
 
 export function GetRocketBlendConfig():Promise<config.Config>;
 
-export function InstallPackageWithCancellation(arg1:uuid.UUID,arg2:uuid.UUID):Promise<void>;
+export function InstallPackage(arg1:uuid.UUID):Promise<uuid.UUID>;
+
+export function ListOperations():Promise<Array<operationservice.Operation>>;
 
 export function ListPackages(arg1:string,arg2:string,arg3:boolean):Promise<packageservice.ListPackagesResponse>;
 
 export function ListProjects(arg1:string):Promise<projectservice.ListProjectsResponse>;
 
-export function LongRunningWithCancellation(arg1:uuid.UUID):Promise<void>;
+export function LongRunningOperation():Promise<uuid.UUID>;
+
+export function LongRunningRequestWithCancellation(arg1:uuid.UUID):Promise<void>;
 
 export function Quit():Promise<void>;
 
-export function RefreshPackagesWithCancellation(arg1:uuid.UUID):Promise<void>;
+export function RefreshPackages():Promise<void>;
 
 export function RenderProject(arg1:uuid.UUID):Promise<void>;
 
 export function RunProject(arg1:uuid.UUID):Promise<void>;
 
-export function UninstallPackageWithCancellation(arg1:uuid.UUID,arg2:uuid.UUID):Promise<void>;
+export function UninstallPackage(arg1:uuid.UUID):Promise<void>;
 
 export function UpdateProject(arg1:projectservice.UpdateProjectRequest):Promise<void>;

@@ -22,7 +22,7 @@ export function cancellableOperationWithHeartbeat<T>(operation: (cid: string, ..
         }, heartbeatTimeout);
     };
 
-    const cancelHeartbeatListener = EventsOn("operationHeartBeat", (data: string) => {
+    const cancelHeartbeatListener = EventsOn("requestHeartBeat", (data: string) => {
         // console.log("Received heartbeat: " + data);
         if (data === cid) {
             resetHeartbeatTimer();
