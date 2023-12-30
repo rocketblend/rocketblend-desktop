@@ -17,7 +17,7 @@
     let requestPromise: Promise<void | null>;
     let cancelOperation: () => void;
 
-    function startOperation() {
+    function startRequest() {
         requestStatus = RequestStatus.Running;
         const [opPromise, cancelFunc] = cancellableOperationWithHeartbeat<void>(LongRunningRequestWithCancellation, 15000);
         requestPromise = opPromise;
@@ -30,7 +30,7 @@
         }).catch(error => {
             if (requestStatus !== RequestStatus.Cancelled) {
                 requestStatus = RequestStatus.Failed;
-                console.error(`Operation failed: ${error}`); // Handle the error appropriately
+                console.error(`Request failed: ${error}`); // Handle the error appropriately
             }
         });
     }
@@ -67,7 +67,7 @@
 </script>
 
 <div class="flex flex-col card p-2 space-y-2">
-    <button class="btn variant-filled" on:click={startOperation} disabled={requestStatus === RequestStatus.Running}>
+    <button class="btn variant-filled" on:click={startRequest} disabled={requestStatus === RequestStatus.Running}>
         {$t('home.debug.request.start')}
     </button>
     

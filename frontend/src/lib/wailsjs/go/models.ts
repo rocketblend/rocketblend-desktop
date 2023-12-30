@@ -1,3 +1,26 @@
+export namespace operationservice {
+	
+	export class Operation {
+	    id: number[];
+	    completed: boolean;
+	    error?: string;
+	    result?: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new Operation(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.completed = source["completed"];
+	        this.error = source["error"];
+	        this.result = source["result"];
+	    }
+	}
+
+}
+
 export namespace pack {
 	
 	export class Package {

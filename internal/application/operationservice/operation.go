@@ -11,10 +11,10 @@ import (
 
 type (
 	Operation struct {
-		ID        uuid.UUID
-		Completed bool
-		ErrorMsg  string
-		Result    interface{}
+		ID        uuid.UUID   `json:"id"`
+		Completed bool        `json:"completed"`
+		ErrorMsg  string      `json:"error,omitempty"`
+		Result    interface{} `json:"result,omitempty"`
 	}
 )
 

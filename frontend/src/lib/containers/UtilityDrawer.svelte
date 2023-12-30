@@ -6,6 +6,7 @@
 
     import RequestCancellationDebugTool from "$lib/containers/debug/RequestCancellationDebugTool.svelte";
     import LogFeed from "$lib/components/feed/LogFeed.svelte";
+	import OperationDebugTool from './debug/OperationDebugTool.svelte';
 
     const logStore = getLogStore();
 
@@ -31,8 +32,9 @@
                 </div>
             </div>
             <div class="h-full" hidden={!(drawTabSet == 2)}>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="overflow-auto grid grid-cols-2 md:grid-cols-3 gap-4 h-full">
                     <RequestCancellationDebugTool/>
+                    <OperationDebugTool/>
                 </div>
             </div>
         </svelte:fragment>

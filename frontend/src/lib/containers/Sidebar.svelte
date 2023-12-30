@@ -10,7 +10,7 @@
     import { GetProject, ListPackages } from '$lib/wailsjs/go/application/Driver';
 
     import type { RadioOption } from '$lib/types';
-    import { getSelectedProjectStore, getCancellableOperationsStore } from '$lib/stores';
+    import { getSelectedProjectStore } from '$lib/stores';
 
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';

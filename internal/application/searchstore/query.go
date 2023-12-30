@@ -81,8 +81,8 @@ func (s *store) get(id uuid.UUID) (*Index, error) {
 			case "category":
 				result.Category = value
 			case "state":
-				if state, err := strconv.ParseInt(value, 0, 32); err == nil {
-					result.State = int(state)
+				if state, err := strconv.Atoi(value); err == nil {
+					result.State = state
 				}
 			case "data":
 				result.Data = value

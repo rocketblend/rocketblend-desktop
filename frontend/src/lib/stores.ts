@@ -1,5 +1,5 @@
 import { writable, get as getStoreValue } from 'svelte/store';
-import type { ProjectIdStore, LogEvent, LogStore, OperationEntry, CancellableOperationsStore } from "$lib/types";
+import type { ProjectIdStore, LogEvent, LogStore } from "$lib/types";
 
 const MAX_LOGS = 1000;
 
@@ -42,39 +42,6 @@ const createLogStore = (): LogStore => {
 };
 
 const logStore = createLogStore();
-
-const createCancellableOperationsStore = (): CancellableOperationsStore => {
-    const { subscribe, update } = writable<OperationEntry[]>([]);
-
-    return {
-        subscribe,
-        add: (entry: OperationEntry) => {
-            update(operations => [...operations, entry]);
-        },
-        remove: (key: string) => {
-            update(operations => operations.filter(op => op.key !== key));
-        },
-        cancel: (key: string) => {
-            update(operations => {
-                const operationIndex = operations.findIndex(op => op.key === key);
-                if (operationIndex !== -1) {
-                    operations[operationIndex].cancel();
-                    operations.splice(operationIndex, 1);
-                }
-                return operations;
-            });
-        },
-        cancelAll: () => {
-            const operations = getStoreValue({ subscribe });
-            operations.forEach(entry => entry.cancel());
-            update(() => []);
-        }
-    };
-};
-
-const cancellableOperationsStore = createCancellableOperationsStore();
-
-export const getCancellableOperationsStore = () => cancellableOperationsStore;
 
 export const getLogStore = () => logStore;
 

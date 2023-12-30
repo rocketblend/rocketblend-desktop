@@ -58,6 +58,15 @@
             "completed": "Completed",
             "cancelled": "Cancelled",
             "failed": "Failed"
+        },
+        "operation" : {
+            "start": "Start Operation",
+            "cancel": "Cancel Operation",
+            "status": "Status",
+            "running": "Running",
+            "completed": "Completed",
+            "cancelled": "Cancelled",
+            "failed": "Failed"
         }
     }
 }
