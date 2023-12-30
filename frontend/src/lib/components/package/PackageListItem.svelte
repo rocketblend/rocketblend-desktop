@@ -1,37 +1,30 @@
 <script lang="ts">
-    import { PackageState, PackageType } from './types';
     import ProgressBar from '$lib/components/core/progress/ProgressBar.svelte';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
 	import PackageBadge from './PackageBadge.svelte';
 	import PackageActionButton from './PackageActionButton.svelte';
+	import { pack } from '$lib/wailsjs/go/models';
 
-    export let name = "";
-    export let tag = "";
-    export let version = "";
-    export let author = "";
-    export let platform = "";
-    export let reference = "";
-    export let type: PackageType = PackageType.Unknown;
-    export let state: PackageState = PackageState.Available;
-    export let verified = false;
-    export let progress = 0;
-    export let downloadHost = "";
+    const platform = "windows"; // TODO: Remove this prop once the backend is ready
+    const downloadHost = "download.blender.org"; // TODO: Remove this prop once the backend is ready
+
+    export let item: pack.Package;
     export let selected = false;
 
     let active = false;
 
-    function getBackgroundVariants(type: PackageType) {
+    function getBackgroundVariants(type: pack.PackageType) {
         switch (type) {
-            case PackageType.Build:
+            case pack.PackageType.BUILD:
                 return { variantFrom: 'primary', variantTo: 'secondary' };
-            case PackageType.Addon:
+            case pack.PackageType.ADDON:
                 return { variantFrom: 'tertiary', variantTo: 'primary' };
             default:
                 return { variantFrom: 'secondary', variantTo: 'tertiary' };
         }
     }
 
-    const variant = getBackgroundVariants(type);
+    const variant = getBackgroundVariants(item.type || 0);
 
     $: selectedClass = selected ? "variant-ghost-primary" : "hover:variant-filled-surface";
 </script>
@@ -51,7 +44,7 @@
             on:download
             on:cancel
             on:delete
-            state={state}
+            state={item.state}
             isOpen={active}
             variantFrom={variant.variantFrom}
             variantTo={variant.variantTo}
@@ -61,23 +54,23 @@
         class="flex-col gap-2 overflow-hidden"
     >
         <div class="inline-flex items-center gap-2 w-full">
-            <span class="font-medium truncate">{name}</span>
-            <span class="text-sm truncate">{tag}</span>
-            {#if verified}
+            <span class="font-medium truncate">{item.name}</span>
+            <span class="text-sm truncate">{item.tag}</span>
+            {#if item.verified}
                 <IconVerifiedBadgeFill class="text-sm text-primary-500" />
             {/if}
         </div>
-        {#if state === PackageState.Downloading }
-            <ProgressBar value={progress} rounded={true} />
+        {#if item.state === pack.PackageState.DOWNLOADING }
+            <ProgressBar rounded={true} />
         {/if}
-        <div class="text-sm text-surface-800-100-token truncate">{reference}</div>
+        <div class="text-sm text-surface-800-100-token truncate">{item.reference}</div>
         <div class="flex-wrap gap-2 space-y-1 w-full">
             <PackageBadge label={downloadHost} variant="soft-success"/>
             <PackageBadge label={platform}/>
-            <PackageBadge label={version}/>
-            <PackageBadge label={author}/>
-            <PackageBadge label={PackageType[type].toLocaleLowerCase()}/>
-            <PackageBadge label={PackageState[state].toLocaleLowerCase()}/>
+            <PackageBadge label={item.version}/>
+            <PackageBadge label={item.author}/>
+            <PackageBadge label={pack.PackageType[item.type || 0].toLocaleLowerCase()}/>
+            <PackageBadge label={pack.PackageState[item.state || 0].toLocaleLowerCase()}/>
         </div>
     </div>
 </div>

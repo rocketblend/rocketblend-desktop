@@ -23,9 +23,22 @@ export namespace operationservice {
 
 export namespace pack {
 	
+	export enum PackageType {
+	    UNKNOWN = 0,
+	    ADDON = 1,
+	    BUILD = 2,
+	}
+	export enum PackageState {
+	    AVAILABLE = 0,
+	    DOWNLOADING = 1,
+	    STOPPED = 2,
+	    INSTALLED = 3,
+	    ERROR = 4,
+	}
 	export class Package {
 	    id?: number[];
-	    type?: number;
+	    type?: PackageType;
+	    state?: PackageState;
 	    reference?: string;
 	    name?: string;
 	    author?: string;
@@ -47,6 +60,7 @@ export namespace pack {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.type = source["type"];
+	        this.state = source["state"];
 	        this.reference = source["reference"];
 	        this.name = source["name"];
 	        this.author = source["author"];

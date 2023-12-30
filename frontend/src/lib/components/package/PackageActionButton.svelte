@@ -1,13 +1,14 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { PackageState } from './types';
+
+    import { pack } from '$lib/wailsjs/go/models';
 
     import IconDownload2Fill from '~icons/ri/file-download-fill';
     import IconStopFill from '~icons/ri/stop-mini-fill';
     import IconMoreFill from '~icons/ri/delete-bin-7-fill';
     import IconError from '~icons/ri/error-warning-fill';
 
-    export let state: PackageState = PackageState.Available;
+    export let state: pack.PackageState = pack.PackageState.AVAILABLE;
     export let variantFrom: string = 'secondary';
     export let variantTo: string = 'tertiary';
     export let isOpen: boolean = false;
@@ -17,16 +18,16 @@
 
     function handleAction() {
         switch (state) {
-            case PackageState.Available:
+            case pack.PackageState.AVAILABLE:
                 dispatch('download');
                 break;
-            case PackageState.Downloading:
+            case pack.PackageState.DOWNLOADING:
                 dispatch('cancel');
                 break;
-            case PackageState.Installed:
+            case pack.PackageState.INSTALLED:
                 dispatch('delete');
                 break;
-            case PackageState.Error:
+            case pack.PackageState.ERROR:
                 // Handle error state if needed
                 break;
             // Add additional cases as necessary
@@ -48,13 +49,13 @@
     tabindex="0"
 >
     {#if isOpen}
-        {#if state === PackageState.Available}
+        {#if state === pack.PackageState.AVAILABLE}
             <IconDownload2Fill />
-        {:else if state === PackageState.Downloading}
+        {:else if state === pack.PackageState.DOWNLOADING}
             <IconStopFill />
-        {:else if state === PackageState.Installed}
+        {:else if state === pack.PackageState.INSTALLED}
             <IconMoreFill />
-        {:else if state === PackageState.Error}
+        {:else if state === pack.PackageState.ERROR}
             <IconError /> <!-- Example error state handling -->
         {/if}
     {/if}

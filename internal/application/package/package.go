@@ -19,7 +19,8 @@ import (
 type (
 	Package struct {
 		ID               uuid.UUID             `json:"id,omitempty"`
-		Type             Type                  `json:"type,omitempty"`
+		Type             PackageType           `json:"type,omitempty"`
+		State            PackageState          `json:"state,omitempty"`
 		Reference        reference.Reference   `json:"reference,omitempty"`
 		Name             string                `json:"name,omitempty"`
 		Author           string                `json:"author,omitempty"`
@@ -50,6 +51,7 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		return nil, fmt.Errorf("error getting package modification time: %w", err)
 	}
 
+	state := Available
 	packType := Unknown
 	version := semver.Version{}
 	sources := make(rocketpack.Sources)
@@ -88,8 +90,14 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		return nil, fmt.Errorf("error checking if package is installed: %w", err)
 	}
 
+	// Check if package has lock file, if so it downloading.
+	// Check if package has temp download file but no lock file, if so it is stopped.
+	// Check if package has no download file, if so it is available.
+
 	if !installed {
 		installationPath = ""
+	} else {
+		state = Installed
 	}
 
 	id, err := util.StringToUUID(reference.String())
@@ -100,6 +108,7 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 	return &Package{
 		ID:               id,
 		Type:             packType,
+		State:            state,
 		Name:             getName(reference),
 		Tag:              getTag(reference),
 		Author:           getAuthor(reference),
