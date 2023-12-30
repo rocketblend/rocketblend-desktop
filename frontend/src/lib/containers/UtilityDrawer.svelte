@@ -33,8 +33,12 @@
             </div>
             <div class="h-full" hidden={!(drawTabSet == 2)}>
                 <div class="overflow-auto grid grid-cols-2 md:grid-cols-3 gap-4 h-full">
-                    <RequestCancellationDebugTool/>
-                    <OperationDebugTool/>
+                    <div>
+                        <RequestCancellationDebugTool/>
+                    </div>
+                    <div>
+                        <OperationDebugTool/>
+                    </div>
                 </div>
             </div>
         </svelte:fragment>
