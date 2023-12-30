@@ -10,7 +10,4 @@ type (
 	ListPackagesResponse struct {
 		Packages []*pack.Package `json:"packages,omitempty"`
 	}
-
-	InstallPackageResponse struct {
-	}
 )

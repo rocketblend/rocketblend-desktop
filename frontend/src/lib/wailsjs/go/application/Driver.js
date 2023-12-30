@@ -46,8 +46,8 @@ export function GetRocketBlendConfig() {
   return window['go']['application']['Driver']['GetRocketBlendConfig']();
 }
 
-export function InstallPackage(arg1) {
-  return window['go']['application']['Driver']['InstallPackage'](arg1);
+export function InstallPackageOperation(arg1) {
+  return window['go']['application']['Driver']['InstallPackageOperation'](arg1);
 }
 
 export function ListOperations() {

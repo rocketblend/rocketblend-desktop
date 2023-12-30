@@ -30,7 +30,7 @@ export function GetProject(arg1:uuid.UUID):Promise<projectservice.GetProjectResp
 
 export function GetRocketBlendConfig():Promise<config.Config>;
 
-export function InstallPackage(arg1:uuid.UUID):Promise<uuid.UUID>;
+export function InstallPackageOperation(arg1:uuid.UUID):Promise<uuid.UUID>;
 
 export function ListOperations():Promise<Array<operationservice.Operation>>;
 

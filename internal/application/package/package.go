@@ -85,6 +85,11 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		return nil, fmt.Errorf("error generating package id: %w", err)
 	}
 
+	version := pack.GetVersion()
+	if version == nil {
+		version = &semver.Version{}
+	}
+
 	return &Package{
 		ID:               id,
 		Type:             packType,
@@ -99,7 +104,7 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		Source:           source,
 		Dependencies:     pack.GetDependencies(),
 		Verified:         isPackageVerified(reference),
-		Version:          pack.GetVersion(),
+		Version:          version,
 		UpdatedAt:        modTime,
 	}, nil
 }

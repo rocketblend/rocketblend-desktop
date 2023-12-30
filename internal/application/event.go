@@ -1,6 +1,11 @@
 package application
 
-import "time"
+import (
+	"context"
+	"time"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+)
 
 type (
 	LaunchEvent struct {
@@ -19,3 +24,29 @@ type (
 		Type string `json:"type"`
 	}
 )
+
+func (d *Driver) listenToLogEvents() {
+	for {
+		select {
+		case <-d.ctx.Done():
+			return
+		default:
+			data, ok := d.events.GetNextData()
+			if ok {
+				if logEvent, isLogEvent := data.(LogEvent); isLogEvent {
+					runtime.EventsEmit(d.ctx, "logStream", logEvent)
+				}
+			} else {
+				time.Sleep(time.Millisecond * 100)
+			}
+		}
+	}
+}
+
+func (d *Driver) eventEmitLaunchArgs(ctx context.Context, event LaunchEvent) {
+	d.logger.Debug("emitting launchArgs event", map[string]interface{}{
+		"event": event,
+	})
+
+	runtime.EventsEmit(ctx, "launchArgs", event)
+}

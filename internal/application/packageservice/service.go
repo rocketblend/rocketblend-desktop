@@ -27,6 +27,8 @@ type (
 		Get(ctx context.Context, id uuid.UUID) (*GetPackageResponse, error)
 		List(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error)
 
+		AppendOperation(ctx context.Context, id uuid.UUID, opid uuid.UUID) error
+
 		Add(ctx context.Context, reference reference.Reference) error
 		Install(ctx context.Context, id uuid.UUID) error
 		Uninstall(ctx context.Context, id uuid.UUID) error
@@ -200,6 +202,17 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 	return &ListPackagesResponse{
 		Packages: packs,
 	}, nil
+}
+
+func (s *service) AppendOperation(ctx context.Context, id uuid.UUID, opid uuid.UUID) error {
+	pack, err := s.get(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	pack.Operations = append(pack.Operations, opid.String())
+
+	return s.insert(ctx, pack)
 }
 
 func (s *service) get(ctx context.Context, id uuid.UUID) (*pack.Package, error) {
