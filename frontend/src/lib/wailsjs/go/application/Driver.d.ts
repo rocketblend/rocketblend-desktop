@@ -6,6 +6,7 @@ import {config} from '../models';
 import {operationservice} from '../models';
 import {packageservice} from '../models';
 import {runtime} from '../models';
+import {pack} from '../models';
 
 export function AddPackage(arg1:string):Promise<void>;
 
@@ -33,7 +34,7 @@ export function InstallPackage(arg1:uuid.UUID):Promise<uuid.UUID>;
 
 export function ListOperations():Promise<Array<operationservice.Operation>>;
 
-export function ListPackages(arg1:string,arg2:string,arg3:boolean):Promise<packageservice.ListPackagesResponse>;
+export function ListPackages(arg1:string,arg2:pack.PackageType,arg3:boolean):Promise<packageservice.ListPackagesResponse>;
 
 export function ListProjects(arg1:string):Promise<projectservice.ListProjectsResponse>;
 

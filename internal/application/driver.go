@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -15,6 +16,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/operationservice"
+	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
@@ -314,7 +316,7 @@ func (d *Driver) GetPackage(id uuid.UUID) (*packageservice.GetPackageResponse, e
 	return pack, err
 }
 
-func (d *Driver) ListPackages(query string, category string, installed bool) (*packageservice.ListPackagesResponse, error) {
+func (d *Driver) ListPackages(query string, packageType pack.PackageType, installed bool) (*packageservice.ListPackagesResponse, error) {
 	ctx := context.Background()
 
 	packageService, err := d.factory.GetPackageService()
@@ -323,9 +325,15 @@ func (d *Driver) ListPackages(query string, category string, installed bool) (*p
 		return nil, err
 	}
 
-	state := 0
+	category := ""
+	if packageType != pack.Unknown {
+		category = strconv.Itoa(int(packageType))
+	}
+
+	var state *int = nil
 	if installed {
-		state = 1
+		stateInt := int(pack.Installed)
+		state = &stateInt
 	}
 
 	response, err := packageService.List(ctx, []listoption.ListOption{

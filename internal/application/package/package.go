@@ -10,11 +10,14 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
+	"github.com/rocketblend/rocketblend/pkg/driver/installation"
 	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
 	"github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/rocketblend/rocketblend/pkg/semver"
 )
+
+const TempFileExtension = ".tmp" //TODO: Get via rocketblend downloader.
 
 type (
 	Package struct {
@@ -27,24 +30,25 @@ type (
 		Tag              string                `json:"tag,omitempty"`
 		Path             string                `json:"path,omitempty"`
 		InstallationPath string                `json:"installationPath,omitempty"`
-		Version          semver.Version        `json:"version,omitempty"`
 		Operations       []string              `json:"operations,omitempty"`
 		Dependencies     []reference.Reference `json:"addons,omitempty"`
-		Sources          rocketpack.Sources
-		Verified         bool      `json:"verified,omitempty"`
-		UpdatedAt        time.Time `json:"updatedAt,omitempty"`
+		Platform         runtime.Platform      `json:"platform,omitempty"`
+		Source           *rocketpack.Source    `json:"source,omitempty"`
+		Version          *semver.Version       `json:"version,omitempty"`
+		Verified         bool                  `json:"verified,omitempty"`
+		UpdatedAt        time.Time             `json:"updatedAt,omitempty"`
 	}
 )
 
-func Load(packageRootPath string, installationRootPath string, packagePath string) (*Package, error) {
+func Load(packageRootPath string, installationRootPath string, packagePath string, platform runtime.Platform) (*Package, error) {
 	pack, err := rocketpack.Load(packagePath)
 	if err != nil {
 		return nil, fmt.Errorf("error loading package: %w", err)
 	}
 
-	reference, err := filePathToReference(packageRootPath, packagePath)
+	reference, err := convertPathToReference(packageRootPath, packagePath)
 	if err != nil {
-		return nil, fmt.Errorf("error getting path reference for package: %w", err)
+		return nil, fmt.Errorf("error converting package path to reference: %w", err)
 	}
 
 	modTime, err := util.GetModTime(packagePath)
@@ -52,53 +56,28 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		return nil, fmt.Errorf("error getting package modification time: %w", err)
 	}
 
-	state := Available
 	packType := Unknown
-	version := semver.Version{}
-	sources := make(rocketpack.Sources)
-
 	if pack.IsAddon() {
 		packType = Addon
-
-		if pack.Addon.Version != nil {
-			version = *pack.Addon.Version
-		}
-
-		if pack.Addon.Source != nil {
-			sources[runtime.Undefined] = &rocketpack.Source{
-				Resource: pack.Addon.Source.Resource,
-				URI:      pack.Addon.Source.URI,
-			}
-		}
 	}
 
 	if pack.IsBuild() {
 		packType = Build
+	}
 
-		if pack.Build.Version != nil {
-			version = *pack.Build.Version
-		}
-
-		if pack.Build.Sources != nil {
-			sources = pack.Build.Sources
+	var source *rocketpack.Source = nil
+	if !pack.IsPreInstalled() {
+		sources := pack.GetSources()
+		source, err = findCompatibleSource(sources, platform, runtime.Undefined)
+		if err != nil {
+			return nil, fmt.Errorf("error finding compatible source for package: %w", err)
 		}
 	}
 
-	// TODO: Improve this check. Use check for if package is installed from InstallationService in CLI.
 	installationPath := filepath.Join(installationRootPath, reference.String())
-	installed, err := CheckIfDirectoryHasFiles(installationPath)
+	state, err := determinePackageState(installationPath, source)
 	if err != nil {
-		return nil, fmt.Errorf("error checking if package is installed: %w", err)
-	}
-
-	// Check if package has lock file, if so it downloading.
-	// Check if package has temp download file but no lock file, if so it is stopped.
-	// Check if package has no download file, if so it is available.
-
-	if !installed {
-		installationPath = ""
-	} else {
-		state = Installed
+		return nil, fmt.Errorf("error determining package state: %w", err)
 	}
 
 	id, err := util.StringToUUID(reference.String())
@@ -110,26 +89,78 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 		ID:               id,
 		Type:             packType,
 		State:            state,
-		Name:             getName(reference),
-		Tag:              getTag(reference),
-		Author:           getAuthor(reference),
+		Name:             extractPackageName(reference),
+		Tag:              extractPackageTag(reference),
+		Author:           extractPackageAuthor(reference),
 		Reference:        reference,
 		Path:             packagePath,
 		InstallationPath: installationPath,
-		Sources:          sources,
+		Platform:         platform,
+		Source:           source,
 		Dependencies:     pack.GetDependencies(),
-		Verified:         getVerification(reference),
-		Version:          version,
+		Verified:         isPackageVerified(reference),
+		Version:          pack.GetVersion(),
 		UpdatedAt:        modTime,
 	}, nil
 }
 
-func filePathToReference(packageRootPath string, filePath string) (reference.Reference, error) {
-	strippedFilePath := stripPathToFolder(filePath, filepath.Base(packageRootPath))
+func determinePackageState(installationPath string, source *rocketpack.Source) (PackageState, error) {
+	if source == nil {
+		fmt.Println("source is nil", installationPath)
+		return Installed, nil
+	}
+
+	return verifyInstallationState(installationPath, source)
+}
+
+func verifyInstallationState(installationPath string, source *rocketpack.Source) (PackageState, error) {
+	if source == nil {
+		return 0, fmt.Errorf("error verifying installation state: source is nil")
+	}
+
+	resourcePath := filepath.Join(installationPath, source.Resource)
+	fmt.Println("resourcePath", resourcePath)
+	if installed, err := checkFileExistence(resourcePath); err != nil {
+		return 0, fmt.Errorf("error checking if package resource '%s' is installed: %w", resourcePath, err)
+	} else if installed {
+		return Installed, nil
+	}
+
+	return verifyPartialDownloadState(installationPath, source)
+}
+
+func verifyPartialDownloadState(installationPath string, source *rocketpack.Source) (PackageState, error) {
+	if source == nil || source.URI == nil {
+		return 0, fmt.Errorf("error verifying partial download state: source URI is nil")
+	}
+
+	partialResourcePath := filepath.Join(installationPath, filepath.Base(source.URI.Path)+TempFileExtension)
+	if partial, err := checkFileExistence(partialResourcePath); err != nil {
+		return 0, fmt.Errorf("error checking if package resource is partially downloaded: %w", err)
+	} else if partial {
+		return checkLockFile(installationPath)
+	}
+
+	return Available, nil
+}
+
+func checkLockFile(installationPath string) (PackageState, error) {
+	lockFilePath := filepath.Join(installationPath, installation.LockFileName)
+	if locked, err := checkFileExistence(lockFilePath); err != nil {
+		return 0, fmt.Errorf("error checking if package is locked: %w", err)
+	} else if locked {
+		return Downloading, nil
+	}
+
+	return Stopped, nil
+}
+
+func convertPathToReference(packageRootPath string, filePath string) (reference.Reference, error) {
+	strippedFilePath := trimPathFromFolder(filePath, filepath.Base(packageRootPath))
 	return reference.Parse(path.Dir(path.Clean(strings.TrimPrefix(strippedFilePath, "/"))))
 }
 
-func stripPathToFolder(path, folderName string) string {
+func trimPathFromFolder(path, folderName string) string {
 	normPath := filepath.ToSlash(strings.ToLower(path))
 	normFolderName := strings.ToLower(folderName)
 
@@ -141,47 +172,49 @@ func stripPathToFolder(path, folderName string) string {
 	return normPath[index+len(normFolderName):]
 }
 
-func CheckIfDirectoryHasFiles(folderPath string) (bool, error) {
-	info, err := os.Stat(folderPath)
+func checkFileExistence(filepath string) (bool, error) {
+	_, err := os.Stat(filepath)
+	if err == nil {
+		return true, nil
+	}
 	if os.IsNotExist(err) {
 		return false, nil
 	}
-	if err != nil {
-		return false, err
+
+	return false, err
+}
+
+func findCompatibleSource(sources map[runtime.Platform]*rocketpack.Source, primary, fallback runtime.Platform) (*rocketpack.Source, error) {
+	keys := []runtime.Platform{primary, fallback}
+
+	for _, key := range keys {
+		if source, ok := sources[key]; ok {
+			return source, nil
+		}
 	}
 
-	if !info.IsDir() {
-		return false, fmt.Errorf("%s is not a directory", folderPath)
-	}
-
-	files, err := os.ReadDir(folderPath)
-	if err != nil {
-		return false, err
-	}
-
-	return len(files) > 0, nil
+	return nil, fmt.Errorf("unable to find source for the given keys")
 }
 
 // TODO: Move these to reference package
-func getName(ref reference.Reference) string {
+func getPathSegment(ref reference.Reference, n int) string {
 	parts := strings.Split(string(ref), "/")
-	if len(parts) < 2 {
+	if len(parts) < n {
 		return ""
 	}
 
-	return parts[len(parts)-2]
+	return parts[len(parts)-n]
 }
 
-func getTag(ref reference.Reference) string {
-	parts := strings.Split(string(ref), "/")
-	if len(parts) < 1 {
-		return ""
-	}
-
-	return parts[len(parts)-1]
+func extractPackageName(ref reference.Reference) string {
+	return getPathSegment(ref, 2)
 }
 
-func getAuthor(ref reference.Reference) string {
+func extractPackageTag(ref reference.Reference) string {
+	return getPathSegment(ref, 1)
+}
+
+func extractPackageAuthor(ref reference.Reference) string {
 	author, err := ref.GetRepo()
 	if err != nil {
 		return ""
@@ -191,7 +224,7 @@ func getAuthor(ref reference.Reference) string {
 }
 
 // TODO: Move safe list into rocketblend config.
-func getVerification(ref reference.Reference) bool {
+func isPackageVerified(ref reference.Reference) bool {
 	repo, err := ref.GetRepo()
 	if err != nil {
 		return false

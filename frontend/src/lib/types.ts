@@ -3,7 +3,6 @@ import type { operationservice } from '$lib/wailsjs/go/models';
 
 export type RadioOption = {
     value: number;
-    key: string;
     display: string;
 };
 

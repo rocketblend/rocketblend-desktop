@@ -23,17 +23,17 @@ export namespace operationservice {
 
 export namespace pack {
 	
+	export enum PackageType {
+	    UNKNOWN = 0,
+	    ADDON = 1,
+	    BUILD = 2,
+	}
 	export enum PackageState {
 	    AVAILABLE = 0,
 	    DOWNLOADING = 1,
 	    STOPPED = 2,
 	    INSTALLED = 3,
 	    ERROR = 4,
-	}
-	export enum PackageType {
-	    UNKNOWN = 0,
-	    ADDON = 1,
-	    BUILD = 2,
 	}
 	export class Package {
 	    id?: number[];
@@ -45,10 +45,12 @@ export namespace pack {
 	    tag?: string;
 	    path?: string;
 	    installationPath?: string;
-	    // Go type: semver
-	    version?: any;
 	    operations?: string[];
 	    addons?: string[];
+	    platform?: number;
+	    source?: rocketpack.Source;
+	    // Go type: semver
+	    version?: any;
 	    verified?: boolean;
 	    // Go type: time
 	    updatedAt?: any;
@@ -68,9 +70,11 @@ export namespace pack {
 	        this.tag = source["tag"];
 	        this.path = source["path"];
 	        this.installationPath = source["installationPath"];
-	        this.version = this.convertValues(source["version"], null);
 	        this.operations = source["operations"];
 	        this.addons = source["addons"];
+	        this.platform = source["platform"];
+	        this.source = this.convertValues(source["source"], rocketpack.Source);
+	        this.version = this.convertValues(source["version"], null);
 	        this.verified = source["verified"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }
@@ -324,6 +328,44 @@ export namespace projectservice {
 	        this.build = source["build"];
 	        this.addons = source["addons"];
 	    }
+	}
+
+}
+
+export namespace rocketpack {
+	
+	export class Source {
+	    resource?: string;
+	    // Go type: downloader
+	    uri?: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new Source(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.resource = source["resource"];
+	        this.uri = this.convertValues(source["uri"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

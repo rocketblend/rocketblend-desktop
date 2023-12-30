@@ -66,7 +66,7 @@
         <div class="text-sm text-surface-800-100-token truncate">{item.reference}</div>
         <div class="flex-wrap gap-2 space-y-1 w-full">
             <PackageBadge label={downloadHost} variant="soft-success"/>
-            <PackageBadge label={platform}/>
+            <PackageBadge label={item.platform?.toString()}/>
             <PackageBadge label={item.version}/>
             <PackageBadge label={item.author}/>
             <PackageBadge label={pack.PackageType[item.type || 0].toLocaleLowerCase()}/>

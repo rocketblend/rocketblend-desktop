@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-	"strings"
+	"strconv"
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
@@ -136,7 +136,7 @@ func New(opts ...Option) (Service, error) {
 			return filepath.Base(path) == rocketblendPackage.FileName
 		}),
 		watcher.WithUpdateObjectFunc(func(path string) error {
-			pack, err := pack.Load(config.PackagesPath, config.InstallationsPath, path)
+			pack, err := pack.Load(config.PackagesPath, config.InstallationsPath, path, config.Platform)
 			if err != nil {
 				return fmt.Errorf("failed to load package %s: %w", path, err)
 			}
@@ -245,7 +245,7 @@ func convertToIndex(pack *pack.Package) (*searchstore.Index, error) {
 		Name:       pack.Name,
 		Type:       indextype.Package,
 		Reference:  pack.Path,
-		Category:   strings.ToLower(pack.Type.String()),
+		Category:   strconv.Itoa(int(pack.Type)),
 		State:      int(pack.State),
 		Operations: pack.Operations,
 		Data:       string(data),

@@ -6,7 +6,7 @@
 
     import { t } from '$lib/translations/translations';
 
-    import type { packageservice } from '$lib/wailsjs/go/models';
+    import { pack, type packageservice } from '$lib/wailsjs/go/models';
     import { GetProject, ListPackages } from '$lib/wailsjs/go/application/Driver';
 
     import type { RadioOption } from '$lib/types';
@@ -23,9 +23,9 @@
     let searchQuery: string = "";
     let filterInstalled: boolean = false;
     const filterRadioOptions: RadioOption[] = [
-        { value: 0, key: 'all', display: $t('home.sidebar.filter.option.all') },
-        { value: 1, key: 'build', display: $t('home.sidebar.filter.option.build') },
-        { value: 2, key: 'addon', display: $t('home.sidebar.filter.option.addon') },
+        { value: pack.PackageType.UNKNOWN, display: $t('home.sidebar.filter.option.all') },
+        { value: pack.PackageType.BUILD, display: $t('home.sidebar.filter.option.build') },
+        { value: pack.PackageType.ADDON, display: $t('home.sidebar.filter.option.addon') },
     ];
 
     let fetchPackagesPromise: Promise<packageservice.ListPackagesResponse | undefined>;
@@ -48,12 +48,7 @@
 
     async function fetchPackages(query: string): Promise<packageservice.ListPackagesResponse | undefined> {
         try {
-            var category = filterRadioOptions[selectedFilterType].key;
-            if (category === 'all') {
-                category = '';
-            }
-
-            return await ListPackages(query, category, filterInstalled);
+            return await ListPackages(query, selectedFilterType, filterInstalled);
         } catch (error) {
             console.error('Error fetching packages:', error);
             return undefined;

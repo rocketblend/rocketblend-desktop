@@ -52,9 +52,9 @@ func WithOperation(operation string) ListOption {
 	}
 }
 
-func WithState(state int) ListOption {
+func WithState(state *int) ListOption {
 	return func(o *ListOptions) {
-		o.State = &state
+		o.State = state
 	}
 }
 
