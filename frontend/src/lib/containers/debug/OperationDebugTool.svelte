@@ -3,12 +3,12 @@
     import { LongRunningOperation, CancelOperation, ListOperations, GetOperation } from '$lib/wailsjs/go/application/Driver';
     import type { operationservice } from '$lib/wailsjs/go/models';
     import { EventsOn, EventsOff } from '$lib/wailsjs/runtime';
-    
+
     import { t } from '$lib/translations/translations';
-    import { writable } from 'svelte/store';
+	import { getOperationStore } from '$lib/stores';
 
     let cooldown = false;
-    let operations = writable<Array<operationservice.Operation>>([]);
+    const operationStore = getOperationStore();
 
     function startOperation() {
         cooldown = true;
@@ -39,7 +39,7 @@
 
     function fetchOperations() {
         ListOperations().then(result => {
-            operations.set([...result]);
+            operationStore.set([...result]);
         }).catch(error => {
             console.log(`Error fetching operations: ${error}`);
         });
@@ -81,7 +81,7 @@
     </button>
     <hr>
     <ul class="space-y-1">
-        {#each $operations as operation (operation.id)}
+        {#each $operationStore as operation}
             <li class="flex flex-col card p-2 space-y-2">
                 <div>
                     ID: {operation.id}, Status: {getStatusText(operation)}, Error: {operation.error || 'None'}
