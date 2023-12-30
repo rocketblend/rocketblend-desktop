@@ -23,17 +23,17 @@ export namespace operationservice {
 
 export namespace pack {
 	
-	export enum PackageType {
-	    UNKNOWN = 0,
-	    ADDON = 1,
-	    BUILD = 2,
-	}
 	export enum PackageState {
 	    AVAILABLE = 0,
 	    DOWNLOADING = 1,
 	    STOPPED = 2,
 	    INSTALLED = 3,
 	    ERROR = 4,
+	}
+	export enum PackageType {
+	    UNKNOWN = 0,
+	    ADDON = 1,
+	    BUILD = 2,
 	}
 	export class Package {
 	    id?: number[];
@@ -47,6 +47,7 @@ export namespace pack {
 	    installationPath?: string;
 	    // Go type: semver
 	    version?: any;
+	    operations?: string[];
 	    addons?: string[];
 	    verified?: boolean;
 	    // Go type: time
@@ -68,6 +69,7 @@ export namespace pack {
 	        this.path = source["path"];
 	        this.installationPath = source["installationPath"];
 	        this.version = this.convertValues(source["version"], null);
+	        this.operations = source["operations"];
 	        this.addons = source["addons"];
 	        this.verified = source["verified"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);

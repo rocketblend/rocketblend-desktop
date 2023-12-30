@@ -141,25 +141,12 @@ func New(opts ...Option) (Service, error) {
 				return fmt.Errorf("failed to load package %s: %w", path, err)
 			}
 
-			data, err := json.Marshal(pack)
+			index, err := convertToIndex(pack)
 			if err != nil {
 				return err
 			}
 
-			state := 0
-			if pack.InstallationPath != "" {
-				state = 1
-			}
-
-			return options.Store.Insert(&searchstore.Index{
-				ID:        pack.ID,
-				Name:      pack.Name,
-				Type:      indextype.Package,
-				Category:  strings.ToLower(pack.Type.String()),
-				State:     state,
-				Reference: path,
-				Data:      string(data),
-			})
+			return options.Store.Insert(index)
 		}),
 		watcher.WithRemoveObjectFunc(func(path string) error {
 			return options.Store.RemoveByReference(path)
@@ -203,7 +190,7 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 
 	packs := make([]*pack.Package, 0, len(indexes))
 	for _, index := range indexes {
-		pack, err := s.convert(index)
+		pack, err := convertFromIndex(index)
 		if err != nil {
 			return nil, err
 		}
@@ -215,7 +202,30 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 	}, nil
 }
 
-func (s *service) convert(index *searchstore.Index) (*pack.Package, error) {
+func (s *service) get(ctx context.Context, id uuid.UUID) (*pack.Package, error) {
+	index, err := s.store.Get(id)
+	if err != nil {
+		return nil, err
+	}
+
+	pack, err := convertFromIndex(index)
+	if err != nil {
+		return nil, err
+	}
+
+	return pack, nil
+}
+
+func (s *service) insert(ctx context.Context, pack *pack.Package) error {
+	index, err := convertToIndex(pack)
+	if err != nil {
+		return err
+	}
+
+	return s.store.Insert(index)
+}
+
+func convertFromIndex(index *searchstore.Index) (*pack.Package, error) {
 	var result pack.Package
 	if err := json.Unmarshal([]byte(index.Data), &result); err != nil {
 		return nil, err
@@ -224,16 +234,20 @@ func (s *service) convert(index *searchstore.Index) (*pack.Package, error) {
 	return &result, nil
 }
 
-func (s *service) get(ctx context.Context, id uuid.UUID) (*pack.Package, error) {
-	index, err := s.store.Get(id)
+func convertToIndex(pack *pack.Package) (*searchstore.Index, error) {
+	data, err := json.Marshal(pack)
 	if err != nil {
 		return nil, err
 	}
 
-	pack, err := s.convert(index)
-	if err != nil {
-		return nil, err
-	}
-
-	return pack, nil
+	return &searchstore.Index{
+		ID:         pack.ID,
+		Name:       pack.Name,
+		Type:       indextype.Package,
+		Reference:  pack.Path,
+		Category:   strings.ToLower(pack.Type.String()),
+		State:      int(pack.State),
+		Operations: pack.Operations,
+		Data:       string(data),
+	}, nil
 }

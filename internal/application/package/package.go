@@ -28,6 +28,7 @@ type (
 		Path             string                `json:"path,omitempty"`
 		InstallationPath string                `json:"installationPath,omitempty"`
 		Version          semver.Version        `json:"version,omitempty"`
+		Operations       []string              `json:"operations,omitempty"`
 		Dependencies     []reference.Reference `json:"addons,omitempty"`
 		Sources          rocketpack.Sources
 		Verified         bool      `json:"verified,omitempty"`

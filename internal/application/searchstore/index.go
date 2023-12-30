@@ -9,15 +9,16 @@ import (
 
 type (
 	Index struct {
-		ID        uuid.UUID           `json:"id,omitempty"`
-		Type      indextype.IndexType `json:"type,omitempty"`
-		Reference string              `json:"reference,omitempty"`
-		Name      string              `json:"name,omitempty"`
-		Category  string              `json:"category,omitempty"`
-		State     int                 `json:"state,omitempty"`
-		Resources []string            `json:"resources,omitempty"`
-		Error     string              `json:"error,omitempty"`
-		Data      string              `json:"data,omitempty"`
+		ID         uuid.UUID           `json:"id,omitempty"`
+		Type       indextype.IndexType `json:"type,omitempty"`
+		Reference  string              `json:"reference,omitempty"`
+		Name       string              `json:"name,omitempty"`
+		Category   string              `json:"category,omitempty"`
+		State      int                 `json:"state,omitempty"`
+		Resources  []string            `json:"resources,omitempty"`
+		Operations []string            `json:"operations,omitempty"`
+		Error      string              `json:"error,omitempty"`
+		Data       string              `json:"data,omitempty"`
 	}
 )
 

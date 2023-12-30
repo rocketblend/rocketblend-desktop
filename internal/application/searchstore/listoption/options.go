@@ -9,13 +9,14 @@ import (
 
 type (
 	ListOptions struct {
-		Query    string
-		Type     indextype.IndexType
-		Category string
-		Resource string
-		State    *int
-		Size     int
-		From     int
+		Query     string
+		Type      indextype.IndexType
+		Category  string
+		Resource  string
+		Operation string
+		State     *int
+		Size      int
+		From      int
 	}
 
 	ListOption func(*ListOptions)
@@ -42,6 +43,12 @@ func WithCategory(category string) ListOption {
 func WithResource(resource string) ListOption {
 	return func(o *ListOptions) {
 		o.Resource = resource
+	}
+}
+
+func WithOperation(operation string) ListOption {
+	return func(o *ListOptions) {
+		o.Operation = operation
 	}
 }
 
@@ -81,6 +88,12 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 		resourceQuery := bleve.NewMatchPhraseQuery(so.Resource)
 		resourceQuery.SetField("resources")
 		query.AddQuery(resourceQuery)
+	}
+
+	if so.Operation != "" {
+		operationQuery := bleve.NewMatchPhraseQuery(so.Operation)
+		operationQuery.SetField("operations")
+		query.AddQuery(operationQuery)
 	}
 
 	if so.State != nil {

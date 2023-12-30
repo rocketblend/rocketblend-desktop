@@ -168,28 +168,12 @@ func New(opts ...Option) (Service, error) {
 				return fmt.Errorf("failed to load project %s: %w", path, err)
 			}
 
-			data, err := json.Marshal(project)
+			index, err := convertToIndex(project)
 			if err != nil {
 				return err
 			}
 
-			resources := []string{}
-			if project.ThumbnailPath != "" {
-				resources = append(resources, filepath.ToSlash(project.ThumbnailPath))
-				resources = append(resources, filepath.ToSlash(project.SplashPath))
-				options.Logger.Debug("Added resource", map[string]interface{}{
-					"resource": resources,
-				})
-			}
-
-			return options.Store.Insert(&searchstore.Index{
-				ID:        project.ID,
-				Name:      project.Name,
-				Type:      indextype.Project,
-				Reference: path,
-				Resources: resources,
-				Data:      string(data),
-			})
+			return options.Store.Insert(index)
 		}),
 		watcher.WithRemoveObjectFunc(func(path string) error {
 			return options.Store.RemoveByReference(path)
@@ -242,7 +226,7 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 
 	projects := make([]*project.Project, 0, len(indexes))
 	for _, index := range indexes {
-		pack, err := s.convert(index)
+		pack, err := convertFromIndex(index)
 		if err != nil {
 			return nil, err
 		}
@@ -285,7 +269,7 @@ func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, erro
 		return nil, err
 	}
 
-	project, err := s.convert(index)
+	project, err := convertFromIndex(index)
 	if err != nil {
 		return nil, err
 	}
@@ -293,11 +277,42 @@ func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, erro
 	return project, nil
 }
 
-func (s *service) convert(index *searchstore.Index) (*project.Project, error) {
+func (s *service) update(ctx context.Context, project *project.Project) error {
+	index, err := convertToIndex(project)
+	if err != nil {
+		return err
+	}
+
+	return s.store.Insert(index)
+}
+
+func convertFromIndex(index *searchstore.Index) (*project.Project, error) {
 	var result project.Project
 	if err := json.Unmarshal([]byte(index.Data), &result); err != nil {
 		return nil, err
 	}
 
 	return &result, nil
+}
+
+func convertToIndex(project *project.Project) (*searchstore.Index, error) {
+	data, err := json.Marshal(project)
+	if err != nil {
+		return nil, err
+	}
+
+	resources := []string{}
+	if project.ThumbnailPath != "" {
+		resources = append(resources, filepath.ToSlash(project.ThumbnailPath))
+		resources = append(resources, filepath.ToSlash(project.SplashPath))
+	}
+
+	return &searchstore.Index{
+		ID:        project.ID,
+		Name:      project.Name,
+		Type:      indextype.Project,
+		Reference: project.Path,
+		Resources: resources,
+		Data:      string(data),
+	}, nil
 }
