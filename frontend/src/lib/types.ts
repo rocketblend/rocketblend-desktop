@@ -1,5 +1,4 @@
-import type { writable } from 'svelte/store';
-import type { operationservice } from '$lib/wailsjs/go/models';
+import type { operationservice, pack } from '$lib/wailsjs/go/models';
 
 export type RadioOption = {
     value: number;
@@ -61,5 +60,12 @@ export type OperationStore = {
     subscribe: (this: void, run: import("svelte/store").Subscriber<operationservice.Operation[]>, invalidate?: (value?: operationservice.Operation[]) => void) => import("svelte/store").Unsubscriber;
     set: (operations: operationservice.Operation[]) => void;
     add: (operation: operationservice.Operation) => void;
+    clear: () => void;
+}
+
+export type PackageStore = {
+    subscribe: (this: void, run: import("svelte/store").Subscriber<pack.Package[]>, invalidate?: (value?: pack.Package[]) => void) => import("svelte/store").Unsubscriber;
+    set: (packages: pack.Package[]) => void;
+    add: (pack: pack.Package) => void;
     clear: () => void;
 }

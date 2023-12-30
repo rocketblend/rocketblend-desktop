@@ -1,6 +1,6 @@
 import { writable, get as getStoreValue } from 'svelte/store';
-import type { ProjectIdStore, LogEvent, LogStore, OperationStore } from "$lib/types";
-import type { operationservice } from '$lib/wailsjs/go/models';
+import type { ProjectIdStore, LogEvent, LogStore, OperationStore, PackageStore } from "$lib/types";
+import type { operationservice, pack } from '$lib/wailsjs/go/models';
 
 const MAX_LOGS = 1000;
 
@@ -62,6 +62,27 @@ const createOperationStore = (): OperationStore => {
 };
 
 const operationStore = createOperationStore();
+
+const createPacakgeStore = (): PackageStore => {
+    const { subscribe, set, update } = writable<pack.Package[]>([]);
+
+    return {
+        subscribe,
+        set: (pack) => {
+            set(pack);
+        },
+        add: (pack) => {
+            update(packages => [...packages, pack]);
+        },
+        clear: () => {
+            set([]);
+        },
+    };
+};
+
+const packageStore = createPacakgeStore();
+
+export const getPackageStore = () => packageStore;
 
 export const getOperationStore = () => operationStore;
 

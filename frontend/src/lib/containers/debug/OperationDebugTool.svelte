@@ -62,10 +62,11 @@
 
         EventsOn('storeEvent', (data: { id: string, type: number, indexType: string }) => {
             if (data.indexType === "operation") {
-                GetOperation(data.id).then(operation => {
-                    console.log('Operation updated', operation);
-                    fetchOperations();
-                });
+                fetchOperations();
+                // GetOperation(data.id).then(operation => {
+                //     console.log('Operation updated', operation);
+                //     fetchOperations();
+                // });
             }
         });
     });
