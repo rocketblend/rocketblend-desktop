@@ -17,7 +17,6 @@ type (
 		ListEvents() []string
 		FilterEvents(filterFunc func(string, []eventListener) bool) []string
 		CountListeners(eventName string) int
-		RemoveEvents(names ...string)
 	}
 
 	eventListener struct {
@@ -89,23 +88,6 @@ func (s *service) ListEvents() []string {
 	return list
 }
 
-// RemoveEvents removes one or more events
-func (s *service) RemoveEvents(names ...string) {
-	s.Lock()
-	defer s.Unlock()
-
-	if len(names) > 0 {
-		for _, name := range names {
-			s.logger.Debug("removing event", map[string]interface{}{"event": name})
-			delete(s.events, name)
-		}
-		return
-	}
-
-	s.logger.Debug("clearing all events")
-	s.events = make(map[string][]eventListener)
-}
-
 // FilterEvents returns a list of events filtered by a filter function
 func (s *service) FilterEvents(filterFunc func(string, []eventListener) bool) []string {
 	s.RLock()
@@ -116,6 +98,7 @@ func (s *service) FilterEvents(filterFunc func(string, []eventListener) bool) []
 			filteredEvents = append(filteredEvents, name)
 		}
 	}
+
 	return filteredEvents
 }
 
@@ -130,6 +113,7 @@ func (s *service) CountListeners(eventName string) int {
 	for _, listeners := range s.events {
 		count += len(listeners)
 	}
+
 	return count
 }
 

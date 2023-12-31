@@ -183,7 +183,7 @@ func (s *service) updateListenerCount(listener *eventListener) {
 
 func (s *service) unregisterListener(eventListener *eventListener) {
 	if val, ok := s.register.Load(eventListener.id); ok {
-		if lstnr, ok := val.(listener); ok {
+		if lstnr, ok := val.(eventContext); ok {
 			lstnr.cancel()
 		}
 	}
