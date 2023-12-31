@@ -15,8 +15,7 @@
     const toastStore = getToastStore();
 
     let cooldown = false;
-
-    let test: string = "";
+    let cancelListener: () => void;
 
     function startOperation() {
         cooldown = true;
@@ -73,7 +72,7 @@
     onMount(() => {
         fetchOperations();
 
-        EventsOn('storeEvent', (data: { id: string, type: number, indexType: string }) => {
+        cancelListener = EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
             if (data.indexType === "operation") {
                 fetchOperations();
                 // GetOperation(data.id).then(operation => {
@@ -85,7 +84,9 @@
     });
 
     onDestroy(() => {
-        EventsOff('storeEvent');
+        if (cancelListener) {
+            cancelListener();
+        }
     });
 </script>
 

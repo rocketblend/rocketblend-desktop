@@ -1,5 +1,7 @@
 <script lang="ts">
-    import ProgressBar from '$lib/components/core/progress/ProgressBar.svelte';
+    import { ProgressBar } from '@skeletonlabs/skeleton';
+
+    //import ProgressBar from '$lib/components/core/progress/ProgressBar.svelte';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
     import PackageBadge from './PackageBadge.svelte';
     import PackageActionButton from './PackageActionButton.svelte';
@@ -72,7 +74,8 @@
             {/if}
         </div>
         {#if state === pack.PackageState.DOWNLOADING }
-            <ProgressBar rounded={true} />
+            <ProgressBar meter="bg-primary-400-500-token"/>
+            <!-- <ProgressBar rounded={true}/> -->
         {/if}
         <div class="text-sm text-surface-800-100-token truncate">{reference}</div>
         <div class="flex-wrap gap-2 space-y-1 w-full">

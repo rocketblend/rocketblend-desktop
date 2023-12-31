@@ -28,6 +28,8 @@
         { value: pack.PackageType.ADDON, display: $t('home.sidebar.filter.option.addon') },
     ];
 
+    const fetchPackagesDebounced = debounce(fetchPackages, 500);
+
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
     let filterInstalled: boolean = false;
@@ -35,6 +37,7 @@
 
     let initialLoad: boolean = true;
     let error: boolean = false;
+    let cancelListener: () => void;
 
     $: if ($selectedProjectStore) {
         loadDependencies();
@@ -52,7 +55,7 @@
     }
 
     function handleInputChange(): void {
-        fetchPackages();
+        fetchPackagesDebounced();
     }
 
     function handleAddPackage(): void {
@@ -125,20 +128,20 @@
     }
   
     onMount(() => {
-        fetchPackages();
+        fetchPackagesDebounced();
 
-        EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
+        cancelListener = EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
             if (data.indexType === "package") {
-                debounce(() => {
-                    console.log('Search store insert', data);
-                    fetchPackages();
-                }, 1000)
+                console.log('Search store insert', data);
+                fetchPackagesDebounced();
             }
         });
     });
 
     onDestroy(() => {
-        EventsOff('storeEvent');
+        if (cancelListener) {
+            cancelListener();
+        }
     });
 </script>
   
