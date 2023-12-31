@@ -1,6 +1,7 @@
 package eventservice
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"sync"
@@ -11,10 +12,16 @@ import (
 type (
 	Service interface {
 		On(name string, fn interface{}) error
-		Go(name string, params ...interface{}) error
+		Go(ctx context.Context, name string, params ...interface{}) error
+		Once(name string, fn interface{}) error
 		Has(name string) bool
 		List() []string
 		Remove(names ...string)
+	}
+
+	eventListener struct {
+		fn   interface{}
+		once bool
 	}
 
 	service struct {
@@ -22,7 +29,7 @@ type (
 
 		sync.RWMutex
 
-		events map[string][]interface{}
+		events map[string][]eventListener
 	}
 
 	Options struct {
@@ -51,12 +58,22 @@ func New(opts ...Option) (Service, error) {
 
 	return &service{
 		logger: options.Logger,
-		events: make(map[string][]interface{}),
+		events: make(map[string][]eventListener),
 	}, nil
 }
 
-// On set new listener
+// Once registers a listener for an event that is called only once
+func (s *service) Once(name string, fn interface{}) error {
+	return s.on(name, fn, true)
+}
+
+// On registers a listener for an event
 func (s *service) On(name string, fn interface{}) error {
+	return s.on(name, fn, false)
+}
+
+// On registers a listener for an event
+func (s *service) on(name string, fn interface{}, once bool) error {
 	s.Lock()
 	defer s.Unlock()
 
@@ -66,7 +83,7 @@ func (s *service) On(name string, fn interface{}) error {
 		return err
 	}
 	if _, ok := fn.(handle); ok {
-		s.events[name] = append(s.events[name], fn)
+		s.events[name] = append(s.events[name], eventListener{fn: fn, once: once})
 		return nil
 	}
 
@@ -92,31 +109,53 @@ func (s *service) On(name string, fn interface{}) error {
 		}
 	}
 
-	s.events[name] = append(s.events[name], fn)
+	s.events[name] = append(s.events[name], eventListener{fn: fn, once: once})
 	s.logger.Info("listener registered", map[string]interface{}{"event": name})
 	return nil
 }
 
 // Go firing an event
-func (s *service) Go(name string, params ...interface{}) error {
-	s.logger.Trace("Firing event", map[string]interface{}{"event": name})
+func (s *service) Go(ctx context.Context, name string, params ...interface{}) error {
+	s.logger.Trace("firing event", map[string]interface{}{"event": name})
 
 	s.RLock()
-	defer s.RUnlock()
+	fns := append([]eventListener(nil), s.events[name]...)
+	s.RUnlock()
 
-	fns := s.events[name]
-	for i := len(fns) - 1; i >= 0; i-- {
-		stopped, err := s.call(fns[i], params...)
-		if err != nil {
-			s.logger.Error("error in event handling", map[string]interface{}{"event": name, "error": err})
-			return err
-		}
-		if stopped {
-			break
+	var err error
+
+	// Temporary slice to store remaining listeners
+	remainingListeners := make([]eventListener, 0, len(fns))
+
+eventLoop:
+	for _, fn := range fns {
+		select {
+		case <-ctx.Done():
+			s.logger.Debug("event processing canceled", map[string]interface{}{"event": name})
+			return ctx.Err()
+		default:
+			stopped, e := s.call(fn.fn, params...)
+			if e != nil {
+				s.logger.Error("error in event handling", map[string]interface{}{"event": name, "error": e.Error()})
+				err = e
+				break eventLoop
+			}
+			if !fn.once {
+				remainingListeners = append(remainingListeners, fn)
+			}
+			if stopped {
+				s.logger.Trace("event propagation stopped", map[string]interface{}{"event": name})
+				break eventLoop
+			}
 		}
 	}
 
-	return nil
+	// Update the event listeners, removing 'once' listeners that were executed
+	s.Lock()
+	s.events[name] = remainingListeners
+	s.Unlock()
+
+	return err
 }
 
 // Has returns true if a event exists
@@ -152,7 +191,7 @@ func (s *service) Remove(names ...string) {
 	}
 
 	s.logger.Debug("clearing all events")
-	s.events = make(map[string][]interface{})
+	s.events = make(map[string][]eventListener)
 }
 
 func (s *service) call(fn interface{}, params ...interface{}) (stopped bool, err error) {
