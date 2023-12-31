@@ -116,13 +116,6 @@
         ListPackages(searchQuery, selectedFilterType, filterInstalled).then(result => {
             initialLoad = false;
             console.log('Fetch packages');
-
-            result.packages?.forEach(element => {
-                if (element.state === undefined) {
-                    console.log("undefined state:", element)
-                }
-            });
-            
             packageStore.set([...result.packages || []]);
         }).catch(error => {
             console.log(`Error fetching packages: ${error}`);
@@ -134,9 +127,10 @@
     onMount(() => {
         fetchPackages();
 
-        EventsOn('storeEvent', (data: { id: string, type: number, indexType: string }) => {
+        EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
             if (data.indexType === "package") {
                 debounce(() => {
+                    console.log('Search store insert', data);
                     fetchPackages();
                 }, 1000)
             }

@@ -56,7 +56,7 @@ export function cancellableOperationWithHeartbeat<T>(operation: (cid: string, ..
         cancelled = true;
         clearTimeout(heartbeatTimer);
         cancelHeartbeatListener();
-        EventsEmit("cancelOperation", cid);
+        EventsEmit("operation.cancel", cid);
     };
 
     return [operationPromise, cancel];

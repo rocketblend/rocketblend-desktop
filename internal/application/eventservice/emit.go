@@ -6,8 +6,8 @@ import (
 	"reflect"
 )
 
-// TriggerEvent fires an event
-func (s *service) TriggerEvent(ctx context.Context, name string, params ...interface{}) (err error) {
+// EmitEvent fires an event
+func (s *service) EmitEvent(ctx context.Context, name string, params ...interface{}) (err error) {
 	s.logger.Trace("firing event", map[string]interface{}{"event": name})
 
 	listeners := s.copyListeners(name)
@@ -33,7 +33,7 @@ func (s *service) Broadcast(ctx context.Context, params ...interface{}) error {
 	s.RUnlock()
 
 	for _, name := range eventNames {
-		if err := s.TriggerEvent(ctx, name, params...); err != nil {
+		if err := s.EmitEvent(ctx, name, params...); err != nil {
 			return err
 		}
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application/build"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/eventservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/operationservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
@@ -26,6 +27,8 @@ type (
 	Factory interface {
 		GetLogger() (logger.Logger, error)
 		GetApplicationConfigService() (config.Service, error)
+
+		GetEventService() (eventservice.Service, error)
 
 		GetSearchStore() (searchstore.Store, error)
 		GetProjectService() (projectservice.Service, error)
@@ -66,6 +69,9 @@ type (
 
 		operationMutex   sync.Mutex
 		operationService operationservice.Service
+
+		eventMutex   sync.Mutex
+		eventService eventservice.Service
 	}
 )
 
@@ -178,6 +184,26 @@ func (f *factory) GetApplicationConfigService() (config.Service, error) {
 	return f.applicationConfigService, nil
 }
 
+func (f *factory) GetEventService() (eventservice.Service, error) {
+	f.eventMutex.Lock()
+	defer f.eventMutex.Unlock()
+
+	if f.eventService != nil {
+		return f.eventService, nil
+	}
+
+	eventService, err := eventservice.New(
+		eventservice.WithLogger(f.logger),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	f.eventService = eventService
+
+	return f.eventService, nil
+}
+
 func (f *factory) GetSearchStore() (searchstore.Store, error) {
 	f.searchstoreMutex.Lock()
 	defer f.searchstoreMutex.Unlock()
@@ -186,8 +212,14 @@ func (f *factory) GetSearchStore() (searchstore.Store, error) {
 		return f.searchStore, nil
 	}
 
+	event, err := f.GetEventService()
+	if err != nil {
+		return nil, err
+	}
+
 	store, err := searchstore.New(
 		searchstore.WithLogger(f.logger),
+		searchstore.WithEventService(event),
 	)
 	if err != nil {
 		return nil, err

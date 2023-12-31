@@ -2,12 +2,18 @@ package searchstore
 
 import (
 	"context"
-	"sync"
+	"errors"
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/eventservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+)
+
+const (
+	InsertEventChannel = "searchstore.insert"
+	RemoveEventChannel = "searchstore.remove"
 )
 
 type (
@@ -17,22 +23,18 @@ type (
 		Insert(index *Index) error
 		Remove(id uuid.UUID) error
 		RemoveByReference(path string) error
-
-		RegisterListener(ctx context.Context, id string, handler EventHandler) func()
-		UnregisterListener(id string)
-		ClearListeners()
 	}
 
 	store struct {
 		logger logger.Logger
 		index  bleve.Index
 
-		listeners map[string]EventHandler
-		lock      sync.Mutex
+		event eventservice.Service
 	}
 
 	Options struct {
 		Logger logger.Logger
+		Event  eventservice.Service
 	}
 
 	Option func(*Options)
@@ -41,6 +43,12 @@ type (
 func WithLogger(logger logger.Logger) Option {
 	return func(o *Options) {
 		o.Logger = logger
+	}
+}
+
+func WithEventService(event eventservice.Service) Option {
+	return func(o *Options) {
+		o.Event = event
 	}
 }
 
@@ -53,6 +61,10 @@ func New(opts ...Option) (Store, error) {
 		o(options)
 	}
 
+	if options.Event == nil {
+		return nil, errors.New("event service is required")
+	}
+
 	indexMapping := newIndexMapping()
 	index, err := bleve.NewMemOnly(indexMapping)
 	if err != nil {
@@ -60,9 +72,9 @@ func New(opts ...Option) (Store, error) {
 	}
 
 	return &store{
-		logger:    options.Logger,
-		index:     index,
-		listeners: make(map[string]EventHandler),
+		logger: options.Logger,
+		index:  index,
+		event:  options.Event,
 	}, nil
 }
 
@@ -74,15 +86,17 @@ func (s *store) Insert(index *Index) error {
 		return err
 	}
 
+	ctx := context.Background()
 	if existing != nil {
-		s.emitEvent(Event{
-			ID:        index.ID,
-			IndexType: index.Type,
-			Type:      UpdateEvent,
-		})
+		event := NewEvent(index.ID, index.Type)
+		if err := s.event.EmitEvent(ctx, InsertEventChannel, event); err != nil {
+			s.logger.Error("error emitting event", map[string]interface{}{
+				"err": err,
+			})
+		}
 	}
 
-	s.logger.Debug("Indexed successful", map[string]interface{}{
+	s.logger.Debug("indexed successful", map[string]interface{}{
 		"id":       index.ID,
 		"type":     index.Type,
 		"resource": index.Resources,
@@ -100,7 +114,7 @@ func (s *store) RemoveByReference(path string) error {
 	query.SetField("reference")
 	searchResults, err := s.index.Search(bleve.NewSearchRequest(query))
 	if err != nil {
-		s.logger.Error("Error searching for indexes with reference", map[string]interface{}{
+		s.logger.Error("error searching for indexes with reference", map[string]interface{}{
 			"err": err,
 		})
 
@@ -110,20 +124,20 @@ func (s *store) RemoveByReference(path string) error {
 	for _, hit := range searchResults.Hits {
 		id, err := uuid.Parse(hit.ID)
 		if err != nil {
-			s.logger.Error("Error parsing id", map[string]interface{}{
+			s.logger.Error("error parsing id", map[string]interface{}{
 				"err":  err,
 				"key":  hit.ID,
 				"path": path,
 			})
 		} else {
 			if err := s.remove(id); err != nil {
-				s.logger.Error("Error deleting index from id", map[string]interface{}{
+				s.logger.Error("error deleting index from id", map[string]interface{}{
 					"err":  err,
 					"key":  hit.ID,
 					"path": path,
 				})
 			} else {
-				s.logger.Info("Deleted index from id", map[string]interface{}{
+				s.logger.Info("deleted index from id", map[string]interface{}{
 					"key":  hit.ID,
 					"path": path,
 				})
@@ -145,11 +159,14 @@ func (s *store) remove(id uuid.UUID) error {
 		return err
 	}
 
-	s.emitEvent(Event{
-		ID:        index.ID,
-		IndexType: index.Type,
-		Type:      RemoveEvent,
-	})
+	// TODO: make functions take context
+	ctx := context.Background()
+	event := NewEvent(index.ID, index.Type)
+	if err := s.event.EmitEvent(ctx, RemoveEventChannel, event); err != nil {
+		s.logger.Error("error emitting event", map[string]interface{}{
+			"err": err,
+		})
+	}
 
 	s.logger.Debug("Removed successful", map[string]interface{}{
 		"id": id,

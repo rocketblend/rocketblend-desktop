@@ -11,7 +11,7 @@ import (
 type (
 	Service interface {
 		Subscribe(ctx context.Context, name string, fn interface{}, maxTrigger int) (context.CancelFunc, error)
-		TriggerEvent(ctx context.Context, name string, params ...interface{}) error
+		EmitEvent(ctx context.Context, name string, params ...interface{}) error
 		Broadcast(ctx context.Context, params ...interface{}) error
 		EventExists(name string) bool
 		ListEvents() []string
