@@ -7,19 +7,25 @@ import (
 	"sync"
 
 	"github.com/flowshot-io/x/pkg/logger"
+	"github.com/google/uuid"
 )
 
 type (
 	Service interface {
-		On(name string, fn interface{}) error
-		Go(ctx context.Context, name string, params ...interface{}) error
-		Once(name string, fn interface{}) error
-		Has(name string) bool
-		List() []string
-		Remove(names ...string)
+		SubscribeOnce(ctx context.Context, name string, fn interface{}) error
+		Subscribe(ctx context.Context, name string, fn interface{}) error
+		Unsubscribe(id string)
+		TriggerEvent(ctx context.Context, name string, params ...interface{}) error
+		Broadcast(ctx context.Context, params ...interface{}) error
+		EventExists(name string) bool
+		ListEvents() []string
+		FilterEvents(filterFunc func(string, []eventListener) bool) []string
+		CountListeners(eventName string) int
+		RemoveEvents(names ...string)
 	}
 
 	eventListener struct {
+		id   string
 		fn   interface{}
 		once bool
 	}
@@ -29,7 +35,8 @@ type (
 
 		sync.RWMutex
 
-		events map[string][]eventListener
+		events    map[string][]eventListener
+		listeners sync.Map
 	}
 
 	Options struct {
@@ -62,60 +69,60 @@ func New(opts ...Option) (Service, error) {
 	}, nil
 }
 
-// Once registers a listener for an event that is called only once
-func (s *service) Once(name string, fn interface{}) error {
-	return s.on(name, fn, true)
-}
-
-// On registers a listener for an event
-func (s *service) On(name string, fn interface{}) error {
-	return s.on(name, fn, false)
-}
-
-// On registers a listener for an event
-func (s *service) on(name string, fn interface{}, once bool) error {
-	s.Lock()
-	defer s.Unlock()
-
-	if fn == nil {
-		err := errors.New("fn is nil")
-		s.logger.Error("fn is nil", map[string]interface{}{"error": err})
+// SubscribeOnce registers a listener for an event that is called only once
+func (s *service) SubscribeOnce(ctx context.Context, name string, fn interface{}) error {
+	unregister, err := s.subscribe(ctx, name, fn, true)
+	if err != nil {
 		return err
 	}
-	if _, ok := fn.(handle); ok {
-		s.events[name] = append(s.events[name], eventListener{fn: fn, once: once})
-		return nil
-	}
-
-	t := reflect.TypeOf(fn)
-	if t.Kind() != reflect.Func {
-		return errors.New("fn is not a function")
-	}
-	if t.NumOut() != 1 {
-		return errors.New("fn must have one return value")
-	}
-	if t.Out(0) != reflect.TypeOf((*error)(nil)).Elem() {
-		return errors.New("fn must return an error message")
-	}
-	if list, ok := s.events[name]; ok && len(list) > 0 {
-		tt := reflect.TypeOf(list[0])
-		if tt.NumIn() != t.NumIn() {
-			return errors.New("fn signature is not equal")
-		}
-		for i := 0; i < tt.NumIn(); i++ {
-			if tt.In(i) != t.In(i) {
-				return errors.New("fn signature is not equal")
-			}
-		}
-	}
-
-	s.events[name] = append(s.events[name], eventListener{fn: fn, once: once})
-	s.logger.Info("listener registered", map[string]interface{}{"event": name})
+	go func() {
+		<-ctx.Done()
+		unregister()
+	}()
 	return nil
 }
 
-// Go firing an event
-func (s *service) Go(ctx context.Context, name string, params ...interface{}) error {
+// Subscribe registers a listener for an event
+func (s *service) Subscribe(ctx context.Context, name string, fn interface{}) error {
+	unregister, err := s.subscribe(ctx, name, fn, false)
+	if err != nil {
+		return err
+	}
+	go func() {
+		<-ctx.Done()
+		unregister()
+	}()
+	return nil
+}
+
+// Unsubscribe removes a listener from the event list
+func (s *service) Unsubscribe(id string) {
+	value, exists := s.listeners.Load(id)
+	if !exists {
+		return
+	}
+
+	name, _ := value.(string)
+	s.listeners.Delete(id)
+
+	s.Lock()
+	defer s.Unlock()
+
+	listeners := s.events[name]
+	for i, listener := range listeners {
+		if listener.id == id {
+			s.events[name] = append(listeners[:i], listeners[i+1:]...)
+			break
+		}
+	}
+
+	if len(s.events[name]) == 0 {
+		delete(s.events, name)
+	}
+}
+
+// TriggerEvent fires an event
+func (s *service) TriggerEvent(ctx context.Context, name string, params ...interface{}) error {
 	s.logger.Trace("firing event", map[string]interface{}{"event": name})
 
 	s.RLock()
@@ -158,16 +165,34 @@ eventLoop:
 	return err
 }
 
-// Has returns true if a event exists
-func (s *service) Has(name string) bool {
+// Broadcast fires an event to all listeners
+func (s *service) Broadcast(ctx context.Context, params ...interface{}) error {
+	s.RLock()
+	eventNames := make([]string, 0, len(s.events))
+	for name := range s.events {
+		eventNames = append(eventNames, name)
+	}
+	s.RUnlock()
+
+	for _, name := range eventNames {
+		if err := s.TriggerEvent(ctx, name, params...); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// EventExists checks if an event exists
+func (s *service) EventExists(name string) bool {
 	s.RLock()
 	defer s.RUnlock()
 	_, ok := s.events[name]
 	return ok
 }
 
-// List returns list events
-func (s *service) List() []string {
+// ListEvents returns a list of all events
+func (s *service) ListEvents() []string {
 	s.RLock()
 	defer s.RUnlock()
 	list := make([]string, 0, len(s.events))
@@ -177,8 +202,8 @@ func (s *service) List() []string {
 	return list
 }
 
-// Remove delete events from the event list
-func (s *service) Remove(names ...string) {
+// RemoveEvents removes one or more events
+func (s *service) RemoveEvents(names ...string) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -192,6 +217,79 @@ func (s *service) Remove(names ...string) {
 
 	s.logger.Debug("clearing all events")
 	s.events = make(map[string][]eventListener)
+}
+
+// FilterEvents returns a list of events filtered by a filter function
+func (s *service) FilterEvents(filterFunc func(string, []eventListener) bool) []string {
+	s.RLock()
+	defer s.RUnlock()
+	var filteredEvents []string
+	for name, listeners := range s.events {
+		if filterFunc(name, listeners) {
+			filteredEvents = append(filteredEvents, name)
+		}
+	}
+	return filteredEvents
+}
+
+// CountListeners returns the number of listeners for an event
+func (s *service) CountListeners(eventName string) int {
+	s.RLock()
+	defer s.RUnlock()
+	if eventName != "" {
+		return len(s.events[eventName])
+	}
+	count := 0
+	for _, listeners := range s.events {
+		count += len(listeners)
+	}
+	return count
+}
+
+func (s *service) subscribe(ctx context.Context, name string, fn interface{}, once bool) (func(), error) {
+	if fn == nil {
+		return nil, errors.New("fn is nil")
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	if _, ok := fn.(handle); ok {
+		id := s.generateListenerID()
+		s.events[name] = append(s.events[name], eventListener{id: id, fn: fn, once: once})
+		s.listeners.Store(id, name)
+
+		return func() { s.Unsubscribe(id) }, nil
+	}
+
+	t := reflect.TypeOf(fn)
+	if t.Kind() != reflect.Func {
+		return nil, errors.New("fn is not a function")
+	}
+	if t.NumOut() != 1 {
+		return nil, errors.New("fn must have one return value")
+	}
+	if t.Out(0) != reflect.TypeOf((*error)(nil)).Elem() {
+		return nil, errors.New("fn must return an error message")
+	}
+	if list, ok := s.events[name]; ok && len(list) > 0 {
+		tt := reflect.TypeOf(list[0])
+		if tt.NumIn() != t.NumIn() {
+			return nil, errors.New("fn signature is not equal")
+		}
+		for i := 0; i < tt.NumIn(); i++ {
+			if tt.In(i) != t.In(i) {
+				return nil, errors.New("fn signature is not equal")
+			}
+		}
+	}
+
+	id := s.generateListenerID()
+	s.events[name] = append(s.events[name], eventListener{id: id, fn: fn, once: once})
+	s.listeners.Store(id, name)
+
+	s.logger.Info("listener registered", map[string]interface{}{"event": name, "id": id})
+	return func() { s.Unsubscribe(id) }, nil
 }
 
 func (s *service) call(fn interface{}, params ...interface{}) (stopped bool, err error) {
@@ -244,6 +342,11 @@ func (s *service) call(fn interface{}, params ...interface{}) (stopped bool, err
 		s.logger.Error("error in function call", map[string]interface{}{"error": err})
 		return stopped, err
 	}
+
 	s.logger.Trace("function call successful")
 	return stopped, nil
+}
+
+func (s *service) generateListenerID() string {
+	return uuid.New().String()
 }
