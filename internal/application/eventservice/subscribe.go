@@ -18,7 +18,7 @@ func (s *service) Subscribe(ctx context.Context, name string, fn interface{}, ma
 
 func (s *service) setupListenerCancellation(ctx context.Context, listenerID, name string) context.CancelFunc {
 	lctx, lcancel := context.WithCancel(ctx)
-	s.register.Store(listenerID, listener{name: name, cancel: lcancel})
+	s.register.Store(listenerID, eventContext{name: name, cancel: lcancel})
 
 	go s.listenerCleanupRoutine(lctx, listenerID)
 
@@ -103,7 +103,7 @@ func (s *service) unsubscribe(id string) {
 		return
 	}
 
-	registered, ok := value.(listener)
+	registered, ok := value.(eventContext)
 	if !ok {
 		s.logger.Error("Type assertion failed for listener", map[string]interface{}{"id": id})
 		return
