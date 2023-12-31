@@ -25,7 +25,7 @@ type (
 		fn    interface{}
 	}
 
-	listener struct {
+	eventContext struct {
 		name   string
 		cancel context.CancelFunc
 	}
