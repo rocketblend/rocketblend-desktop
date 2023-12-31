@@ -92,11 +92,14 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 		return uuid.Nil, err
 	}
 
+	s.logger.Info("Starting operation", map[string]interface{}{"id": opid})
+
 	go func() {
 		defer cancel()
 		result, err := opFunc(opctx, opid)
 
 		if opctx.Err() == context.Canceled {
+			s.logger.Info("Operation context canceled", map[string]interface{}{"id": opid})
 			return
 		}
 
@@ -108,6 +111,7 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 
 		if err != nil {
 			operation.ErrorMsg = err.Error()
+			s.logger.Error("Operation failed", map[string]interface{}{"error": err.Error()})
 		}
 
 		index, err := operation.ToSearchIndex()
@@ -171,6 +175,7 @@ func (s *service) Cancel(opid uuid.UUID) error {
 	}
 
 	op.cancel()
+	s.logger.Info("Cancelled operation", map[string]interface{}{"id": opid})
 
 	operation := Operation{
 		ID:        opid,

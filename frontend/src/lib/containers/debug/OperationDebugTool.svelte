@@ -1,5 +1,9 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
+
+    import type {  ToastSettings } from '@skeletonlabs/skeleton';
+    import { getToastStore } from '@skeletonlabs/skeleton';
+
     import { LongRunningOperation, CancelOperation, ListOperations, GetOperation } from '$lib/wailsjs/go/application/Driver';
     import type { operationservice } from '$lib/wailsjs/go/models';
     import { EventsOn, EventsOff } from '$lib/wailsjs/runtime';
@@ -7,8 +11,12 @@
     import { t } from '$lib/translations/translations';
 	import { getOperationStore } from '$lib/stores';
 
-    let cooldown = false;
     const operationStore = getOperationStore();
+    const toastStore = getToastStore();
+
+    let cooldown = false;
+
+    let test: string = "";
 
     function startOperation() {
         cooldown = true;
@@ -19,7 +27,12 @@
         LongRunningOperation().then(response => {
             fetchOperations();
             GetOperation(response).then(operationDetails => {
-                console.log('Operation started:', operationDetails);
+                // const toast: ToastSettings = {
+                //     message: t.get('home.operation.started.message', { id: operationDetails.id.toString() }),
+                // };
+
+                // toastStore.trigger(toast);
+                console.log('Operation started', operationDetails);
             }).catch(error => {
                 console.log('Error fetching operation details:', error);
             });

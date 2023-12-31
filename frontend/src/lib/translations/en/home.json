@@ -48,6 +48,11 @@
             "table": "Table"
         }
     },
+    "operation": {
+        "started" : {
+            "message": "Operation started {{id:string}}."
+        }
+    },
     "debug":{
         "request" : {
             "start": "Start Slow Request",

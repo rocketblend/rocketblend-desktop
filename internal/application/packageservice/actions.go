@@ -2,8 +2,8 @@ package packageservice
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
@@ -33,35 +33,45 @@ func (s *service) Install(ctx context.Context, id uuid.UUID) (err error) {
 		return fmt.Errorf("package not in state for installation (%s)", item.State)
 	}
 
-	rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, item.Reference)
-	if err != nil {
-		return fmt.Errorf("error getting packages: %w", err)
-	}
+	// rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, item.Reference)
+	// if err != nil {
+	// 	return fmt.Errorf("error getting packages: %w", err)
+	// }
 
 	if err = s.update(ctx, id, pack.Downloading); err != nil {
 		return fmt.Errorf("error updating to downloading state: %w", err)
 	}
 
-	installs, err := s.rocketblendInstallationService.GetInstallations(ctx, rocketpacks, false)
-	if err != nil {
-		newState := pack.Error
-		if errors.Is(err, context.Canceled) {
-			newState = pack.Stopped
+	for i := 0; i < 10; i++ {
+		select {
+		case <-ctx.Done():
+			s.logger.Debug("Install context canceled", map[string]interface{}{"id": id})
+			return ctx.Err()
+		default:
+			time.Sleep(2 * time.Second)
 		}
-
-		if uErr := s.update(ctx, id, newState); uErr != nil {
-			return fmt.Errorf("error updating to %s state after GetInstallations error: %w", newState, uErr)
-		}
-
-		return fmt.Errorf("error in GetInstallations: %w", err)
 	}
 
-	if _, ok := installs[item.Reference]; !ok {
-		if uErr := s.update(ctx, id, pack.Error); uErr != nil {
-			return fmt.Errorf("error updating to error state after installation not found: %w", uErr)
-		}
-		return fmt.Errorf("installation not found")
-	}
+	// installs, err := s.rocketblendInstallationService.GetInstallations(ctx, rocketpacks, false)
+	// if err != nil {
+	// 	newState := pack.Error
+	// 	if errors.Is(err, context.Canceled) {
+	// 		newState = pack.Stopped
+	// 	}
+
+	// 	if uErr := s.update(ctx, id, newState); uErr != nil {
+	// 		return fmt.Errorf("error updating to %s state after GetInstallations error: %w", newState, uErr)
+	// 	}
+
+	// 	return fmt.Errorf("error in GetInstallations: %w", err)
+	// }
+
+	// if _, ok := installs[item.Reference]; !ok {
+	// 	if uErr := s.update(ctx, id, pack.Error); uErr != nil {
+	// 		return fmt.Errorf("error updating to error state after installation not found: %w", uErr)
+	// 	}
+	// 	return fmt.Errorf("installation not found")
+	// }
 
 	if err = s.update(ctx, id, pack.Installed); err != nil {
 		return fmt.Errorf("error updating to installed state: %w", err)

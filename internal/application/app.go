@@ -35,7 +35,7 @@ func New(assets fs.FS) (Application, error) {
 	events := buffermanager.New(buffermanager.WithMaxBufferSize(25))
 	logger := logger.New(
 		logger.WithLogLevel("debug"),
-		logger.WithWriter(NewEventBufferWriter(events)),
+		//logger.WithWriter(NewEventBufferWriter(events)),
 	)
 
 	id, err := uuid.Parse(id)

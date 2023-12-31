@@ -52,7 +52,6 @@ func (d *Driver) CancelOperation(opid uuid.UUID) error {
 		return err
 	}
 
-	d.logger.Debug("Operation cancelled", map[string]interface{}{"id": opid})
 	return nil
 }
 
@@ -70,7 +69,7 @@ func (d *Driver) InstallPackageOperation(id uuid.UUID) (uuid.UUID, error) {
 	}
 
 	opid, err := operationservice.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
-		if err := packageService.Install(d.ctx, id); err != nil {
+		if err := packageService.Install(ctx, id); err != nil {
 			d.logger.Error("Failed to install package", map[string]interface{}{"error": err.Error(), "opid": opid})
 			return nil, err
 		}
