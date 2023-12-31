@@ -33,14 +33,22 @@
 </script>
 
 <div class="flex-auto space-y-1 rounded-token">
-    {#each packages as pack}
+    {#each packages as pkg}
         <PackageListItem
-            on:click={() => handleItemClick(pack.reference?.toString())}
-            on:download={() => handleItemDownload(pack.id?.toString())}
-            on:cancel={() => handleItemCancel(pack.id?.toString())}
-            on:delete={() => handleItemDelete(pack.id?.toString())}
-            selected={dependencies.includes(pack.reference?.toString() || "")}
-            item={pack}
+            on:click={() => handleItemClick(pkg.reference?.toString())}
+            on:download={() => handleItemDownload(pkg.id?.toString())}
+            on:cancel={() => handleItemCancel(pkg.id?.toString())}
+            on:delete={() => handleItemDelete(pkg.id?.toString())}
+            selected={dependencies.includes(pkg.reference?.toString() || "")}
+            name={pkg.name?.toString() || ""}
+            tag={pkg.tag?.toString() || ""}
+            verified={pkg.verified? true : false}
+            reference={pkg.reference?.toString() || ""}
+            platform={pkg.platform?.toString() || ""}
+            version={pkg.version?.toString() || ""}
+            author={pkg.author?.toString() || ""}
+            type={pkg.type}
+            state={pkg.state}
         />
     {/each}
 </div>

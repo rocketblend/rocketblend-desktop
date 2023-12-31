@@ -13,7 +13,7 @@ import (
 
 func (s *store) List(opts ...listoption.ListOption) ([]*Index, error) {
 	options := &listoption.ListOptions{
-		Size: 500,
+		Size: 25,
 	}
 
 	for _, o := range opts {

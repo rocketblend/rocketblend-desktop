@@ -37,8 +37,8 @@ export namespace pack {
 	}
 	export class Package {
 	    id?: number[];
-	    type?: PackageType;
-	    state?: PackageState;
+	    type: PackageType;
+	    state: PackageState;
 	    reference?: string;
 	    name?: string;
 	    author?: string;

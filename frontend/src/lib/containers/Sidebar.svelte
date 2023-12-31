@@ -8,10 +8,11 @@
 
     import { EventsOn, EventsOff } from '$lib/wailsjs/runtime';
     import { pack } from '$lib/wailsjs/go/models';
-    import { GetProject, ListPackages } from '$lib/wailsjs/go/application/Driver';
+    import { GetProject, ListPackages, InstallPackageOperation } from '$lib/wailsjs/go/application/Driver';
 
     import type { RadioOption } from '$lib/types';
     import { getSelectedProjectStore, getPackageStore } from '$lib/stores';
+    import { debounce } from '$lib/components/utils';
 
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';
@@ -74,15 +75,27 @@
 
     function handlePackageDownload(event: CustomEvent<{ packageId: string }>) {
         const packageId = event.detail.packageId;
-        const downloadPackageToast: ToastSettings = {
-            message: `Downloading Package: ${packageId}`,
-        };
 
-        toastStore.trigger(downloadPackageToast);
+        InstallPackageOperation(packageId).then((result) => {
+            const downloadPackageToast: ToastSettings = {
+                message: `Downloading Package: ${packageId}`,
+            };
+
+            toastStore.trigger(downloadPackageToast);
+        }).catch(error => {
+            const downloadPackageToast: ToastSettings = {
+                message: `Error starting package download: ${error}`,
+                background: "variant-filled-error"
+            };
+
+            toastStore.trigger(downloadPackageToast);
+        });
     }
 
     function handlePackageCancel(event: CustomEvent<{ packageId: string }>) {
         const packageId = event.detail.packageId;
+        //var item = $packageStore.find((pack) => pack.id?.toString() === packageId);
+
         const cancelledPackageToast = {
             message: `Cancelled ${packageId}!`,
             background: "variant-filled-warning"
@@ -102,10 +115,19 @@
         error = false;
         ListPackages(searchQuery, selectedFilterType, filterInstalled).then(result => {
             initialLoad = false;
+            console.log('Fetch packages');
+
+            result.packages?.forEach(element => {
+                if (element.state === undefined) {
+                    console.log("undefined state:", element)
+                }
+            });
+            
             packageStore.set([...result.packages || []]);
         }).catch(error => {
             console.log(`Error fetching packages: ${error}`);
             error = true;
+            packageStore.set([]);
         });
     }
   
@@ -114,7 +136,9 @@
 
         EventsOn('storeEvent', (data: { id: string, type: number, indexType: string }) => {
             if (data.indexType === "package") {
-                //fetchPackages();
+                debounce(() => {
+                    fetchPackages();
+                }, 1000)
             }
         });
     });

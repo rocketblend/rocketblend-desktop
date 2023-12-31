@@ -14,7 +14,7 @@ type (
 		Reference  string              `json:"reference,omitempty"`
 		Name       string              `json:"name,omitempty"`
 		Category   string              `json:"category,omitempty"`
-		State      int                 `json:"state,omitempty"`
+		State      int                 `json:"state"`
 		Resources  []string            `json:"resources,omitempty"`
 		Operations []string            `json:"operations,omitempty"`
 		Error      string              `json:"error,omitempty"`

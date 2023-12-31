@@ -6,12 +6,13 @@
     import IconDownload2Fill from '~icons/ri/file-download-fill';
     import IconStopFill from '~icons/ri/stop-mini-fill';
     import IconMoreFill from '~icons/ri/delete-bin-7-fill';
-    import IconError from '~icons/ri/error-warning-fill';
+    import IconPlayFill from '~icons/ri/play-fill';
+    import IconErrorFill from '~icons/ri/error-warning-fill';
 
     export let state: pack.PackageState = pack.PackageState.AVAILABLE;
     export let variantFrom: string = 'secondary';
     export let variantTo: string = 'tertiary';
-    export let isOpen: boolean = false;
+    export let open: boolean = false;
     export let rounded: boolean = true;
 
     const dispatch = createEventDispatcher();
@@ -48,15 +49,17 @@
     role="button"
     tabindex="0"
 >
-    {#if isOpen}
+    {#if open}
         {#if state === pack.PackageState.AVAILABLE}
             <IconDownload2Fill />
         {:else if state === pack.PackageState.DOWNLOADING}
             <IconStopFill />
+        {:else if state === pack.PackageState.STOPPED}
+            <IconPlayFill />
         {:else if state === pack.PackageState.INSTALLED}
             <IconMoreFill />
         {:else if state === pack.PackageState.ERROR}
-            <IconError /> <!-- Example error state handling -->
+            <IconErrorFill /> <!-- Example error state handling -->
         {/if}
     {/if}
 </div>

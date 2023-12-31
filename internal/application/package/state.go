@@ -27,5 +27,5 @@ func (ps PackageState) String() string {
 			return state.TSName
 		}
 	}
-	return "UNKNOWN"
+	return "ERROR"
 }

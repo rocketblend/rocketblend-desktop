@@ -22,8 +22,8 @@ const TempFileExtension = ".tmp" //TODO: Get via rocketblend downloader.
 type (
 	Package struct {
 		ID               uuid.UUID             `json:"id,omitempty"`
-		Type             PackageType           `json:"type,omitempty"`
-		State            PackageState          `json:"state,omitempty"`
+		Type             PackageType           `json:"type"`
+		State            PackageState          `json:"state"`
 		Reference        reference.Reference   `json:"reference,omitempty"`
 		Name             string                `json:"name,omitempty"`
 		Author           string                `json:"author,omitempty"`
@@ -111,7 +111,6 @@ func Load(packageRootPath string, installationRootPath string, packagePath strin
 
 func determinePackageState(installationPath string, source *rocketpack.Source) (PackageState, error) {
 	if source == nil {
-		fmt.Println("source is nil", installationPath)
 		return Installed, nil
 	}
 
@@ -124,7 +123,6 @@ func verifyInstallationState(installationPath string, source *rocketpack.Source)
 	}
 
 	resourcePath := filepath.Join(installationPath, source.Resource)
-	fmt.Println("resourcePath", resourcePath)
 	if installed, err := checkFileExistence(resourcePath); err != nil {
 		return 0, fmt.Errorf("error checking if package resource '%s' is installed: %w", resourcePath, err)
 	} else if installed {
