@@ -480,6 +480,8 @@ func (d *Driver) onSecondInstanceLaunch(secondInstanceData options.SecondInstanc
 	})
 }
 
+//TODO: Create a background context with cancel and store it against an ID, rather then true/false.
+
 // runWithCancellation is a helper function that allows to have request cancellation.
 // Wails doesn't support context cancellation yet, so we have to do it ourselves.
 func (d *Driver) runWithCancellation(cid uuid.UUID, requestFunc func(ctx context.Context) (interface{}, error)) (interface{}, error) {
