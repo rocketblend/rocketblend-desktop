@@ -99,11 +99,6 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 		defer cancel()
 		result, err := opFunc(opctx, opid)
 
-		if opctx.Err() == context.Canceled {
-			s.logger.Debug("operation context canceled", map[string]interface{}{"id": opid})
-			return
-		}
-
 		operation := Operation{
 			ID:        opid,
 			Completed: true,
@@ -115,6 +110,7 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 			s.logger.Error("operation failed", map[string]interface{}{"error": err.Error()})
 		}
 
+		// TODO: Handle failure better. We still want to update the operation state.
 		index, err := operation.ToSearchIndex()
 		if err != nil {
 			s.logger.Error("failed to marshal Operation", map[string]interface{}{"error": err.Error()})

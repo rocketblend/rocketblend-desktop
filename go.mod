@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rjeczalik/notify v0.9.3
-	github.com/rocketblend/rocketblend v0.8.2-0.20231202115941-9cc57000da50
+	github.com/rocketblend/rocketblend v0.8.2-0.20240101225649-cbbc15ca1f25
 	github.com/spf13/viper v1.14.0
 	github.com/wailsapp/wails/v2 v2.7.1
 	golang.org/x/text v0.13.0

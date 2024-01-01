@@ -11,13 +11,13 @@ import (
 )
 
 func (s *service) Add(ctx context.Context, reference reference.Reference) error {
-	rocketpack, err := s.rocketblendPackageService.GetPackages(ctx, true, reference)
+	rocketpack, err := s.rocketblendPackageService.Get(ctx, true, reference)
 	if err != nil {
 		return err
 	}
 
 	if len(rocketpack) == 0 {
-		return fmt.Errorf("package not found")
+		return errors.New("package not found")
 	}
 
 	return nil
@@ -33,7 +33,7 @@ func (s *service) Install(ctx context.Context, id uuid.UUID) (err error) {
 		return fmt.Errorf("package not in state for installation (%s)", item.State)
 	}
 
-	rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, item.Reference)
+	rocketpacks, err := s.rocketblendPackageService.Get(ctx, false, item.Reference)
 	if err != nil {
 		return err
 	}
@@ -43,17 +43,17 @@ func (s *service) Install(ctx context.Context, id uuid.UUID) (err error) {
 		return err
 	}
 
-	if _, err := s.rocketblendInstallationService.GetInstallations(ctx, rocketpacks, false); err != nil {
+	if _, err := s.rocketblendInstallationService.Get(ctx, rocketpacks, false); err != nil {
 		newState := pack.Error
 		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 			newState = pack.Cancelled
 		}
 
 		if uErr := s.update(id, newState); uErr != nil {
-			return fmt.Errorf("error updating to %s state after GetInstallations error: %w", newState, uErr)
+			return fmt.Errorf("error updating to %s state after get installations error: %w", newState, uErr)
 		}
 
-		return fmt.Errorf("error in GetInstallations: %w", err)
+		return err
 	}
 
 	if err := s.update(id, pack.Installed); err != nil {
@@ -69,12 +69,12 @@ func (s *service) Uninstall(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, pack.Reference)
+	rocketpacks, err := s.rocketblendPackageService.Get(ctx, false, pack.Reference)
 	if err != nil {
 		return err
 	}
 
-	if err := s.rocketblendInstallationService.RemoveInstallations(ctx, rocketpacks); err != nil {
+	if err := s.rocketblendInstallationService.Remove(ctx, rocketpacks); err != nil {
 		return err
 	}
 
@@ -86,20 +86,7 @@ func (s *service) Refresh(ctx context.Context) error {
 }
 
 func (s *service) update(id uuid.UUID, state pack.PackageState) error {
-	ctx := context.Background()
-
-	item, err := s.get(ctx, id)
-	if err != nil {
-		return fmt.Errorf("error getting item in update: %w", err)
-	}
-
-	item.State = state
-
-	if err = s.insert(ctx, item); err != nil {
-		return fmt.Errorf("error inserting item in update: %w", err)
-	}
-
-	return nil
+	return s.updateWithContext(context.Background(), id, state)
 }
 
 func (s *service) updateWithContext(ctx context.Context, id uuid.UUID, state pack.PackageState) error {
