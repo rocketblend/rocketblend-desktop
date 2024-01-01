@@ -226,6 +226,10 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 
 	projects := make([]*project.Project, 0, len(indexes))
 	for _, index := range indexes {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
 		pack, err := convertFromIndex(index)
 		if err != nil {
 			return nil, err
@@ -264,6 +268,10 @@ func (s *service) Refresh(ctx context.Context) error {
 }
 
 func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
 	index, err := s.store.Get(id)
 	if err != nil {
 		return nil, err
@@ -277,14 +285,18 @@ func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, erro
 	return project, nil
 }
 
-func (s *service) update(ctx context.Context, project *project.Project) error {
-	index, err := convertToIndex(project)
-	if err != nil {
-		return err
-	}
+// func (s *service) update(ctx context.Context, project *project.Project) error {
+// 	if err := ctx.Err(); err != nil {
+// 		return err
+// 	}
 
-	return s.store.Insert(index)
-}
+// 	index, err := convertToIndex(project)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return s.store.Insert(index)
+// }
 
 func convertFromIndex(index *searchstore.Index) (*project.Project, error) {
 	var result project.Project

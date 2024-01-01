@@ -11,6 +11,10 @@ import (
 )
 
 func (s *service) Add(ctx context.Context, reference reference.Reference) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	rocketpack, err := s.rocketblendPackageService.Get(ctx, true, reference)
 	if err != nil {
 		return err
@@ -24,6 +28,10 @@ func (s *service) Add(ctx context.Context, reference reference.Reference) error 
 }
 
 func (s *service) Install(ctx context.Context, id uuid.UUID) (err error) {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	item, err := s.get(ctx, id)
 	if err != nil {
 		return err
@@ -64,6 +72,10 @@ func (s *service) Install(ctx context.Context, id uuid.UUID) (err error) {
 }
 
 func (s *service) Uninstall(ctx context.Context, id uuid.UUID) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	pack, err := s.get(ctx, id)
 	if err != nil {
 		return err
@@ -82,6 +94,10 @@ func (s *service) Uninstall(ctx context.Context, id uuid.UUID) error {
 }
 
 func (s *service) Refresh(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	return fmt.Errorf("not implemented")
 }
 
@@ -90,6 +106,10 @@ func (s *service) update(id uuid.UUID, state pack.PackageState) error {
 }
 
 func (s *service) updateWithContext(ctx context.Context, id uuid.UUID, state pack.PackageState) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	item, err := s.get(ctx, id)
 	if err != nil {
 		return fmt.Errorf("error getting item in update: %w", err)

@@ -184,6 +184,10 @@ func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetPackageResponse, e
 }
 
 func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
 	opts = append(opts, listoption.WithType(indextype.Package))
 	indexes, err := s.store.List(opts...)
 	if err != nil {
@@ -192,6 +196,10 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 
 	packs := make([]*pack.Package, 0, len(indexes))
 	for _, index := range indexes {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
 		pack, err := convertFromIndex(index)
 		if err != nil {
 			return nil, err
@@ -216,6 +224,10 @@ func (s *service) AppendOperation(ctx context.Context, id uuid.UUID, opid uuid.U
 }
 
 func (s *service) get(ctx context.Context, id uuid.UUID) (*pack.Package, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
 	index, err := s.store.Get(id)
 	if err != nil {
 		return nil, err
@@ -230,6 +242,10 @@ func (s *service) get(ctx context.Context, id uuid.UUID) (*pack.Package, error) 
 }
 
 func (s *service) insert(ctx context.Context, pack *pack.Package) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	index, err := convertToIndex(pack)
 	if err != nil {
 		return err
