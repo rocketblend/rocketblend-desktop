@@ -155,7 +155,7 @@ func checkLockFile(installationPath string) (PackageState, error) {
 		return Downloading, nil
 	}
 
-	return Stopped, nil
+	return Cancelled, nil
 }
 
 func convertPathToReference(packageRootPath string, filePath string) (reference.Reference, error) {

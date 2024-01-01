@@ -31,7 +31,7 @@ export namespace pack {
 	export enum PackageState {
 	    AVAILABLE = 0,
 	    DOWNLOADING = 1,
-	    STOPPED = 2,
+	    CANCELLED = 2,
 	    INSTALLED = 3,
 	    ERROR = 4,
 	}

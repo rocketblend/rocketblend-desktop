@@ -101,7 +101,9 @@
                 <div>
                     <div>ID: {operation.id}</div>
                     <div>Status: {getStatusText(operation)}</div>
-                    <div>Error: {operation.error || 'None'}</div>
+                    {#if operation.error }
+                        <div>Error: {operation.error}</div>
+                    {/if}
                 </div>
                 {#if !operation.completed}
                     <button class="btn variant-ghost-warning w-full" on:click={() => cancelOperation(operation.id.toString())}>

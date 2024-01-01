@@ -2,8 +2,8 @@ package packageservice
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
@@ -26,54 +26,37 @@ func (s *service) Add(ctx context.Context, reference reference.Reference) error 
 func (s *service) Install(ctx context.Context, id uuid.UUID) (err error) {
 	item, err := s.get(ctx, id)
 	if err != nil {
-		return fmt.Errorf("error getting item: %w", err)
+		return err
 	}
 
-	if item.State != pack.Available && item.State != pack.Stopped {
+	if item.State != pack.Available && item.State != pack.Cancelled {
 		return fmt.Errorf("package not in state for installation (%s)", item.State)
 	}
 
-	for i := 0; i < 10; i++ {
-		select {
-		case <-ctx.Done():
-			s.logger.Debug("Install context canceled", map[string]interface{}{"id": id})
-			return ctx.Err()
-		default:
-			time.Sleep(2 * time.Second)
-		}
+	rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, item.Reference)
+	if err != nil {
+		return err
 	}
 
-	// rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, item.Reference)
-	// if err != nil {
-	// 	return fmt.Errorf("error getting packages: %w", err)
-	// }
+	// Don't use updateWithContext on these as we don't want to cancel state updates.
+	if err := s.update(id, pack.Downloading); err != nil {
+		return err
+	}
 
-	// if err = s.update(ctx, id, pack.Downloading); err != nil {
-	// 	return fmt.Errorf("error updating to downloading state: %w", err)
-	// }
+	if _, err := s.rocketblendInstallationService.GetInstallations(ctx, rocketpacks, false); err != nil {
+		newState := pack.Error
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			newState = pack.Cancelled
+		}
 
-	// installs, err := s.rocketblendInstallationService.GetInstallations(ctx, rocketpacks, false)
-	// if err != nil {
-	// 	newState := pack.Error
-	// 	if errors.Is(err, context.Canceled) {
-	// 		newState = pack.Stopped
-	// 	}
+		if uErr := s.update(id, newState); uErr != nil {
+			return fmt.Errorf("error updating to %s state after GetInstallations error: %w", newState, uErr)
+		}
 
-	// 	if uErr := s.update(ctx, id, newState); uErr != nil {
-	// 		return fmt.Errorf("error updating to %s state after GetInstallations error: %w", newState, uErr)
-	// 	}
+		return fmt.Errorf("error in GetInstallations: %w", err)
+	}
 
-	// 	return fmt.Errorf("error in GetInstallations: %w", err)
-	// }
-
-	// if _, ok := installs[item.Reference]; !ok {
-	// 	if uErr := s.update(ctx, id, pack.Error); uErr != nil {
-	// 		return fmt.Errorf("error updating to error state after installation not found: %w", uErr)
-	// 	}
-	// 	return fmt.Errorf("installation not found")
-	// }
-
-	if err = s.update(ctx, id, pack.Installed); err != nil {
+	if err := s.update(id, pack.Installed); err != nil {
 		return fmt.Errorf("error updating to installed state: %w", err)
 	}
 
@@ -102,7 +85,24 @@ func (s *service) Refresh(ctx context.Context) error {
 	return fmt.Errorf("not implemented")
 }
 
-func (s *service) update(ctx context.Context, id uuid.UUID, state pack.PackageState) error {
+func (s *service) update(id uuid.UUID, state pack.PackageState) error {
+	ctx := context.Background()
+
+	item, err := s.get(ctx, id)
+	if err != nil {
+		return fmt.Errorf("error getting item in update: %w", err)
+	}
+
+	item.State = state
+
+	if err = s.insert(ctx, item); err != nil {
+		return fmt.Errorf("error inserting item in update: %w", err)
+	}
+
+	return nil
+}
+
+func (s *service) updateWithContext(ctx context.Context, id uuid.UUID, state pack.PackageState) error {
 	item, err := s.get(ctx, id)
 	if err != nil {
 		return fmt.Errorf("error getting item in update: %w", err)

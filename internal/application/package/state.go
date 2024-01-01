@@ -5,7 +5,7 @@ type PackageState int
 const (
 	Available PackageState = iota
 	Downloading
-	Stopped
+	Cancelled
 	Installed
 	Error
 )
@@ -16,7 +16,7 @@ var AllPackageStates = []struct {
 }{
 	{Available, "AVAILABLE"},
 	{Downloading, "DOWNLOADING"},
-	{Stopped, "STOPPED"},
+	{Cancelled, "CANCELLED"},
 	{Installed, "INSTALLED"},
 	{Error, "ERROR"},
 }

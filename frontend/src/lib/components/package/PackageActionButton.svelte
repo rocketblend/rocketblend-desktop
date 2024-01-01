@@ -54,7 +54,7 @@
             <IconDownload2Fill />
         {:else if state === pack.PackageState.DOWNLOADING}
             <IconStopFill />
-        {:else if state === pack.PackageState.STOPPED}
+        {:else if state === pack.PackageState.CANCELLED}
             <IconPlayFill />
         {:else if state === pack.PackageState.INSTALLED}
             <IconMoreFill />
