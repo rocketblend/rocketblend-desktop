@@ -151,6 +151,12 @@ func (f *factory) Preload() error {
 }
 
 func (f *factory) Close() error {
+	if f.eventService != nil {
+		if err := f.eventService.Close(); err != nil {
+			return err
+		}
+	}
+
 	if f.packageService != nil {
 		if err := f.packageService.Close(); err != nil {
 			return err

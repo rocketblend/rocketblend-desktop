@@ -55,7 +55,7 @@
     }
 
     function handleInputChange(): void {
-        fetchPackagesDebounced();
+        fetchPackages();
     }
 
     function handleAddPackage(): void {
@@ -127,11 +127,10 @@
     }
   
     onMount(() => {
-        fetchPackagesDebounced();
+        fetchPackages();
 
         cancelListener = EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
             if (data.indexType === "package") {
-                console.log('Search store insert', data);
                 fetchPackagesDebounced();
             }
         });

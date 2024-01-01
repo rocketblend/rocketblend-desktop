@@ -444,16 +444,16 @@ func (d *Driver) onDomReady(ctx context.Context) {
 
 // onLayoutReady is called when the layout is ready
 func (d *Driver) onLayoutReady(ctx context.Context) {
-	d.logger.Debug("Main layout is ready")
+	d.logger.Debug("main layout is ready")
 
 	eventService, err := d.factory.GetEventService()
 	if err != nil {
-		d.logger.Error("Failed to get event service", map[string]interface{}{"error": err.Error()})
+		d.logger.Error("failed to get event service", map[string]interface{}{"error": err.Error()})
 		return
 	}
 
 	// Register the event listener for the searchstore
-	eventService.Subscribe(ctx, searchstore.InsertEventChannel, func(e eventservice.Eventer) error {
+	_, err = eventService.Subscribe(ctx, searchstore.InsertEventChannel, func(e eventservice.Eventer) error {
 		ev, ok := e.(*searchstore.Event)
 		if !ok {
 			return errors.New("invalid event type")
@@ -463,6 +463,10 @@ func (d *Driver) onLayoutReady(ctx context.Context) {
 		runtime.EventsEmit(ctx, searchstore.InsertEventChannel, e)
 		return nil
 	}, 0)
+	if err != nil {
+		d.logger.Error("failed to subscribe to store insert event", map[string]interface{}{"error": err.Error()})
+		return
+	}
 
 	d.eventEmitLaunchArgs(ctx, LaunchEvent{
 		Args: os.Args[1:],

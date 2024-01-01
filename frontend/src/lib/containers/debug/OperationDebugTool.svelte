@@ -2,7 +2,7 @@
     import { onMount, onDestroy } from 'svelte';
 
     import type {  ToastSettings } from '@skeletonlabs/skeleton';
-    import { getToastStore } from '@skeletonlabs/skeleton';
+    import { ProgressRadial, getToastStore } from '@skeletonlabs/skeleton';
 
     import { LongRunningOperation, CancelOperation, ListOperations, GetOperation } from '$lib/wailsjs/go/application/Driver';
     import type { operationservice } from '$lib/wailsjs/go/models';
@@ -97,12 +97,19 @@
     <hr>
     <ul class="space-y-1">
         {#each $operationStore as operation}
-            <li class="flex flex-col card p-2 space-y-2">
+            <li class="flex flex-col card p-2 space-y-2 text-sm">
                 <div>
-                    ID: {operation.id}, Status: {getStatusText(operation)}, Error: {operation.error || 'None'}
+                    <div>ID: {operation.id}</div>
+                    <div>Status: {getStatusText(operation)}</div>
+                    <div>Error: {operation.error || 'None'}</div>
                 </div>
                 {#if !operation.completed}
-                    <button class="btn variant-ghost-warning w-full" on:click={() => cancelOperation(operation.id.toString())}>Cancel</button>
+                    <button class="btn variant-ghost-warning w-full" on:click={() => cancelOperation(operation.id.toString())}>
+                        <div class="flex justify-center items-center space-x-2">
+                            <span>Cancel</span>
+                            <ProgressRadial width="w-4" stroke={40} strokeLinecap="round"/>
+                        </div>
+                    </button>
                 {/if}
             </li>
         {/each}

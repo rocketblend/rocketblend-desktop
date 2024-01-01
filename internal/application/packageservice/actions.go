@@ -33,15 +33,6 @@ func (s *service) Install(ctx context.Context, id uuid.UUID) (err error) {
 		return fmt.Errorf("package not in state for installation (%s)", item.State)
 	}
 
-	// rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, item.Reference)
-	// if err != nil {
-	// 	return fmt.Errorf("error getting packages: %w", err)
-	// }
-
-	if err = s.update(ctx, id, pack.Downloading); err != nil {
-		return fmt.Errorf("error updating to downloading state: %w", err)
-	}
-
 	for i := 0; i < 10; i++ {
 		select {
 		case <-ctx.Done():
@@ -51,6 +42,15 @@ func (s *service) Install(ctx context.Context, id uuid.UUID) (err error) {
 			time.Sleep(2 * time.Second)
 		}
 	}
+
+	// rocketpacks, err := s.rocketblendPackageService.GetPackages(ctx, false, item.Reference)
+	// if err != nil {
+	// 	return fmt.Errorf("error getting packages: %w", err)
+	// }
+
+	// if err = s.update(ctx, id, pack.Downloading); err != nil {
+	// 	return fmt.Errorf("error updating to downloading state: %w", err)
+	// }
 
 	// installs, err := s.rocketblendInstallationService.GetInstallations(ctx, rocketpacks, false)
 	// if err != nil {

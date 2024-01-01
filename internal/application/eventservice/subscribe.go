@@ -27,6 +27,7 @@ func (s *service) setupListenerCancellation(ctx context.Context, listenerID, nam
 
 func (s *service) listenerCleanupRoutine(ctx context.Context, listenerID string) {
 	<-ctx.Done()
+	s.logger.Debug("listener context canceled", map[string]interface{}{"id": listenerID})
 	s.unsubscribe(listenerID)
 }
 

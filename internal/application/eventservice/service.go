@@ -17,6 +17,7 @@ type (
 		ListEvents() []string
 		FilterEvents(filterFunc func(string, []eventListener) bool) []string
 		CountListeners(eventName string) int
+		Close() error
 	}
 
 	eventListener struct {
@@ -115,6 +116,12 @@ func (s *service) CountListeners(eventName string) int {
 	}
 
 	return count
+}
+
+// Close closes the event service
+func (s *service) Close() error {
+	// TODO: Wait for all listeners to finish exiting.
+	return nil
 }
 
 func (s *service) generateListenerID() string {

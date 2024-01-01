@@ -3,6 +3,7 @@ package operationservice
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -92,14 +93,14 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 		return uuid.Nil, err
 	}
 
-	s.logger.Info("Starting operation", map[string]interface{}{"id": opid})
+	s.logger.Info("starting operation", map[string]interface{}{"id": opid})
 
 	go func() {
 		defer cancel()
 		result, err := opFunc(opctx, opid)
 
 		if opctx.Err() == context.Canceled {
-			s.logger.Info("Operation context canceled", map[string]interface{}{"id": opid})
+			s.logger.Debug("operation context canceled", map[string]interface{}{"id": opid})
 			return
 		}
 
@@ -111,7 +112,7 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 
 		if err != nil {
 			operation.ErrorMsg = err.Error()
-			s.logger.Error("Operation failed", map[string]interface{}{"error": err.Error()})
+			s.logger.Error("operation failed", map[string]interface{}{"error": err.Error()})
 		}
 
 		index, err := operation.ToSearchIndex()
@@ -120,7 +121,13 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 			return
 		}
 
-		s.store.Insert(index)
+		if err := s.store.Insert(index); err != nil {
+			s.logger.Error("failed to insert Operation", map[string]interface{}{"error": err.Error()})
+			return
+		}
+
+		s.logger.Info("operation ended", map[string]interface{}{"id": opid})
+
 	}()
 
 	return opid, nil
@@ -157,10 +164,10 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) ([]*O
 		operations = append(operations, op)
 	}
 
-	s.logger.Debug("Found operations", map[string]interface{}{
-		"operations": len(operations),
-		"indexes":    len(indexes),
-	})
+	// s.logger.Debug("found operations", map[string]interface{}{
+	// 	"operations": len(operations),
+	// 	"indexes":    len(indexes),
+	// })
 
 	return operations, nil
 }
@@ -171,15 +178,15 @@ func (s *service) Cancel(opid uuid.UUID) error {
 	s.operationsMux.RUnlock()
 
 	if !exists {
-		return fmt.Errorf("operation not found")
+		return errors.New("operation does not exist")
 	}
 
 	op.cancel()
-	s.logger.Info("Cancelled operation", map[string]interface{}{"id": opid})
+	s.logger.Info("cancelled operation", map[string]interface{}{"id": opid})
 
 	operation := Operation{
 		ID:        opid,
-		ErrorMsg:  fmt.Errorf("operation cancelled").Error(),
+		ErrorMsg:  errors.New("operation cancelled").Error(),
 		Completed: true,
 	}
 	index, err := operation.ToSearchIndex()
