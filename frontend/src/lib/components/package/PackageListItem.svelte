@@ -73,11 +73,13 @@
                 <IconVerifiedBadgeFill class="text-sm text-primary-500" />
             {/if}
         </div>
-        {#if state === pack.PackageState.DOWNLOADING }
-            <ProgressBar meter="bg-primary-400-500-token"/>
-            <!-- <ProgressBar rounded={true}/> -->
-        {/if}
         <div class="text-sm text-surface-800-100-token truncate">{reference}</div>
+        {#if state === pack.PackageState.DOWNLOADING }
+        <div class="py-2">
+            <ProgressBar />
+            <!-- <ProgressBar /> -->
+        </div>
+        {/if}
         <div class="flex-wrap gap-2 space-y-1 w-full">
             <PackageBadge label={downloadHost} variant="soft-success"/>
             <PackageBadge label={platform?.toString()}/>

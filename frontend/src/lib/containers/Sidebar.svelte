@@ -101,7 +101,6 @@
 
         const cancelledPackageToast = {
             message: `Cancelled ${packageId}!`,
-            background: "variant-filled-warning"
         };
         toastStore.trigger(cancelledPackageToast);
     }
