@@ -372,7 +372,7 @@ func (d *Driver) LongRunningRequestWithCancellation(cid uuid.UUID) error {
 		return err
 	}
 
-	d.logger.Debug("long running operation completed!", map[string]interface{}{"cid": cid})
+	d.logger.Debug("long running request completed", map[string]interface{}{"cid": cid})
 	return nil
 }
 

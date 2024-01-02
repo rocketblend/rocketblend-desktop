@@ -3,6 +3,7 @@ package application
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
@@ -12,7 +13,7 @@ type EventBufferWriter struct {
 	bufferManager buffermanager.BufferManager
 }
 
-func NewEventBufferWriter(bm buffermanager.BufferManager) *EventBufferWriter {
+func BufferWriter(bm buffermanager.BufferManager) io.Writer {
 	return &EventBufferWriter{bufferManager: bm}
 }
 
