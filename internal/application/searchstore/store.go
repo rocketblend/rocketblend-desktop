@@ -23,6 +23,8 @@ type (
 		Insert(index *Index) error
 		Remove(id uuid.UUID) error
 		RemoveByReference(path string) error
+
+		Close() error
 	}
 
 	store struct {
@@ -146,6 +148,14 @@ func (s *store) RemoveByReference(path string) error {
 	}
 
 	return nil
+}
+
+func (s *store) Close() error {
+	if s.index == nil {
+		return nil
+	}
+
+	return s.index.Close()
 }
 
 func (s *store) remove(id uuid.UUID) error {

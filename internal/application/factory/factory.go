@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -55,22 +56,25 @@ type (
 
 		rocketblendFactory rocketblendFactory.Factory
 
-		applicationConfigMutex   sync.Mutex
+		closing      bool
+		closingMutex sync.RWMutex
+
+		applicationConfigMutex   sync.RWMutex
 		applicationConfigService config.Service
 
-		searchstoreMutex sync.Mutex
+		searchstoreMutex sync.RWMutex
 		searchStore      searchstore.Store
 
-		projectMutex   sync.Mutex
+		projectMutex   sync.RWMutex
 		projectService projectservice.Service
 
-		packageMutex   sync.Mutex
+		packageMutex   sync.RWMutex
 		packageService packageservice.Service
 
-		operationMutex   sync.Mutex
+		operationMutex   sync.RWMutex
 		operationService operationservice.Service
 
-		eventMutex   sync.Mutex
+		eventMutex   sync.RWMutex
 		eventService eventservice.Service
 	}
 )
@@ -139,6 +143,12 @@ func (f *factory) SetLogger(logger.Logger) error {
 }
 
 func (f *factory) Preload() error {
+	if err := f.checkClosing(); err != nil {
+		return err
+	}
+
+	f.logger.Info("preloading factory")
+
 	if _, err := f.GetProjectService(); err != nil {
 		return err
 	}
@@ -151,35 +161,85 @@ func (f *factory) Preload() error {
 }
 
 func (f *factory) Close() error {
-	if f.eventService != nil {
-		if err := f.eventService.Close(); err != nil {
-			return err
-		}
+	if err := f.setClosing(); err != nil {
+		return err
 	}
 
-	if f.packageService != nil {
-		if err := f.packageService.Close(); err != nil {
-			return err
-		}
-	}
+	f.logger.Info("closing factory")
 
+	f.projectMutex.Lock()
 	if f.projectService != nil {
 		if err := f.projectService.Close(); err != nil {
+			f.projectMutex.Unlock()
 			return err
 		}
+		f.projectService = nil
 	}
+	f.projectMutex.Unlock()
+
+	f.packageMutex.Lock()
+	if f.packageService != nil {
+		if err := f.packageService.Close(); err != nil {
+			f.packageMutex.Unlock()
+			return err
+		}
+		f.packageService = nil
+	}
+	f.packageMutex.Unlock()
+
+	f.operationMutex.Lock()
+	if f.operationService != nil {
+		f.operationService = nil
+	}
+	f.operationMutex.Unlock()
+
+	f.searchstoreMutex.Lock()
+	if f.searchStore != nil {
+		if err := f.searchStore.Close(); err != nil {
+			f.searchstoreMutex.Unlock()
+			return err
+		}
+		f.searchStore = nil
+	}
+	f.searchstoreMutex.Unlock()
+
+	f.eventMutex.Lock()
+	if f.eventService != nil {
+		if err := f.eventService.Close(); err != nil {
+			f.eventMutex.Unlock()
+			return err
+		}
+		f.eventService = nil
+	}
+	f.eventMutex.Unlock()
+
+	f.applicationConfigMutex.Lock()
+	if f.applicationConfigService != nil {
+		f.applicationConfigService = nil
+	}
+	f.applicationConfigMutex.Unlock()
+
+	f.unsetClosing()
+
+	f.logger.Info("factory cleared")
 
 	return nil
 }
 
 func (f *factory) GetApplicationConfigService() (config.Service, error) {
-	f.applicationConfigMutex.Lock()
-	defer f.applicationConfigMutex.Unlock()
-
-	if f.applicationConfigService != nil {
-		return f.applicationConfigService, nil
+	if err := f.checkClosing(); err != nil {
+		return nil, err
 	}
 
+	f.applicationConfigMutex.RLock()
+	if f.applicationConfigService != nil {
+		defer f.applicationConfigMutex.RUnlock()
+		return f.applicationConfigService, nil
+	}
+	f.applicationConfigMutex.RUnlock()
+
+	f.applicationConfigMutex.Lock()
+	defer f.applicationConfigMutex.Unlock()
 	configService, err := config.New(f.appDir)
 	if err != nil {
 		return nil, err
@@ -191,13 +251,19 @@ func (f *factory) GetApplicationConfigService() (config.Service, error) {
 }
 
 func (f *factory) GetEventService() (eventservice.Service, error) {
-	f.eventMutex.Lock()
-	defer f.eventMutex.Unlock()
-
-	if f.eventService != nil {
-		return f.eventService, nil
+	if err := f.checkClosing(); err != nil {
+		return nil, err
 	}
 
+	f.eventMutex.RLock()
+	if f.eventService != nil {
+		defer f.eventMutex.RUnlock()
+		return f.eventService, nil
+	}
+	f.eventMutex.RUnlock()
+
+	f.eventMutex.Lock()
+	defer f.eventMutex.Unlock()
 	eventService, err := eventservice.New(
 		eventservice.WithLogger(f.logger),
 	)
@@ -211,18 +277,24 @@ func (f *factory) GetEventService() (eventservice.Service, error) {
 }
 
 func (f *factory) GetSearchStore() (searchstore.Store, error) {
-	f.searchstoreMutex.Lock()
-	defer f.searchstoreMutex.Unlock()
+	if err := f.checkClosing(); err != nil {
+		return nil, err
+	}
 
+	f.searchstoreMutex.RLock()
 	if f.searchStore != nil {
+		defer f.searchstoreMutex.RUnlock()
 		return f.searchStore, nil
 	}
+	f.searchstoreMutex.RUnlock()
 
 	event, err := f.GetEventService()
 	if err != nil {
 		return nil, err
 	}
 
+	f.searchstoreMutex.Lock()
+	defer f.searchstoreMutex.Unlock()
 	store, err := searchstore.New(
 		searchstore.WithLogger(f.logger),
 		searchstore.WithEventService(event),
@@ -237,12 +309,16 @@ func (f *factory) GetSearchStore() (searchstore.Store, error) {
 }
 
 func (f *factory) GetProjectService() (projectservice.Service, error) {
-	f.projectMutex.Lock()
-	defer f.projectMutex.Unlock()
+	if err := f.checkClosing(); err != nil {
+		return nil, err
+	}
 
+	f.projectMutex.RLock()
 	if f.projectService != nil {
+		defer f.projectMutex.RUnlock()
 		return f.projectService, nil
 	}
+	f.projectMutex.RUnlock()
 
 	applicationConfigService, err := f.GetApplicationConfigService()
 	if err != nil {
@@ -269,6 +345,8 @@ func (f *factory) GetProjectService() (projectservice.Service, error) {
 		return nil, err
 	}
 
+	f.projectMutex.Lock()
+	defer f.projectMutex.Unlock()
 	projectService, err := projectservice.New(
 		projectservice.WithLogger(f.logger),
 		projectservice.WithApplicationConfigService(applicationConfigService),
@@ -287,12 +365,16 @@ func (f *factory) GetProjectService() (projectservice.Service, error) {
 }
 
 func (f *factory) GetPackageService() (packageservice.Service, error) {
-	f.packageMutex.Lock()
-	defer f.packageMutex.Unlock()
+	if err := f.checkClosing(); err != nil {
+		return nil, err
+	}
 
+	f.packageMutex.RLock()
 	if f.packageService != nil {
+		defer f.packageMutex.RUnlock()
 		return f.packageService, nil
 	}
+	f.packageMutex.RUnlock()
 
 	rocketblendConfigService, err := f.GetConfigService()
 	if err != nil {
@@ -314,6 +396,8 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 		return nil, err
 	}
 
+	f.packageMutex.Lock()
+	defer f.packageMutex.Unlock()
 	packageService, err := packageservice.New(
 		packageservice.WithLogger(f.logger),
 		packageservice.WithRocketBlendPackageService(rocketblendPackageService),
@@ -331,18 +415,24 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 }
 
 func (f *factory) GetOperationService() (operationservice.Service, error) {
-	f.operationMutex.Lock()
-	defer f.operationMutex.Unlock()
+	if err := f.checkClosing(); err != nil {
+		return nil, err
+	}
 
+	f.operationMutex.RLock()
 	if f.operationService != nil {
+		defer f.operationMutex.RUnlock()
 		return f.operationService, nil
 	}
+	f.operationMutex.RUnlock()
 
 	store, err := f.GetSearchStore()
 	if err != nil {
 		return nil, err
 	}
 
+	f.operationMutex.Lock()
+	defer f.operationMutex.Unlock()
 	operationService, err := operationservice.New(
 		operationservice.WithLogger(f.logger),
 		operationservice.WithStore(store),
@@ -357,17 +447,63 @@ func (f *factory) GetOperationService() (operationservice.Service, error) {
 }
 
 func (f *factory) GetConfigService() (rocketblendConfig.Service, error) {
+	if err := f.checkClosing(); err != nil {
+		return nil, err
+	}
+
 	return f.rocketblendFactory.GetConfigService()
 }
 
 func (f *factory) GetRocketPackService() (rocketblendRocketPack.Service, error) {
+	if err := f.checkClosing(); err != nil {
+		return nil, err
+	}
+
 	return f.rocketblendFactory.GetRocketPackService()
 }
 
 func (f *factory) GetInstallationService() (rocketblendInstallation.Service, error) {
+	if err := f.checkClosing(); err != nil {
+		return nil, err
+	}
+
 	return f.rocketblendFactory.GetInstallationService()
 }
 
 func (f *factory) GetBlendFileService() (rocketblendBlendFile.Service, error) {
+	if err := f.checkClosing(); err != nil {
+		return nil, err
+	}
+
 	return f.rocketblendFactory.GetBlendFileService()
+}
+
+func (f *factory) checkClosing() error {
+	f.closingMutex.RLock()
+	defer f.closingMutex.RUnlock()
+
+	if f.closing {
+		return errors.New("factory is closing or closed")
+	}
+
+	return nil
+}
+
+func (f *factory) setClosing() error {
+	f.closingMutex.Lock()
+	defer f.closingMutex.Unlock()
+
+	if f.closing {
+		return errors.New("factory is already closing")
+	}
+
+	f.closing = true
+	return nil
+}
+
+func (f *factory) unsetClosing() {
+	f.closingMutex.Lock()
+	defer f.closingMutex.Unlock()
+
+	f.closing = false
 }
