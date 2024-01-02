@@ -26,6 +26,9 @@
             "debug": "Debug Tools"
         }
     },
+    "toast" : {
+        "changeDetected" : "Change detected. Refreshing..."
+    },
     "project": {
         "query": {
             "placeholder": "Search your projects..."

@@ -6,7 +6,7 @@
 
     import { t } from '$lib/translations/translations';
 
-    import { EventsOn, EventsOff } from '$lib/wailsjs/runtime';
+    import { EventsOn } from '$lib/wailsjs/runtime';
     import { pack } from '$lib/wailsjs/go/models';
     import { GetProject, ListPackages, InstallPackageOperation } from '$lib/wailsjs/go/application/Driver';
 
@@ -59,8 +59,6 @@
     }
 
     function handleAddPackage(): void {
-        console.log('Add package');
-
         const addPackageToast: ToastSettings = {
             message: "Added Package!",
         };

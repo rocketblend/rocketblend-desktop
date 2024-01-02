@@ -1,18 +1,63 @@
 <script lang="ts">
+    import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
 
-    import { resourcePath } from '$lib/components/utils';
+    import type {  ToastSettings } from '@skeletonlabs/skeleton';
+    import { getToastStore } from '@skeletonlabs/skeleton';
+
+    import { t } from '$lib/translations/translations';
     import { getSelectedProjectStore } from '$lib/stores';
+    import { resourcePath, debounce } from '$lib/components/utils';
+    import { EventsOn } from '$lib/wailsjs/runtime';
 
 	import Media from '$lib/components/core/media/Media.svelte';
+	import { GetProject } from '$lib/wailsjs/go/application/Driver';
 
     const selectedProjectStore = getSelectedProjectStore();
+    const toastStore = getToastStore();
+    const refreshProjectDebounced = debounce(refreshProject, 100);
 
     export let data: PageData;
+    
+    let cancelListener: () => void;
 
-    if (data.project.id) {
-        selectedProjectStore.set([data.project.id.toString()]);
+    async function refreshProject() {
+        const checkDetectedToast: ToastSettings = {
+            message: t.get('home.toast.changeDetected'),
+            timeout: 2000
+        };
+
+        toastStore.trigger(checkDetectedToast);
+
+        const project = (await GetProject(data.project.id?.toString())).project;
+        if (!project) {
+            return;
+        }
+
+        data = {...data, project};
     }
+
+    function setSelectedProject() {
+        if (data.project.id) {
+            selectedProjectStore.set([data.project.id.toString()]);
+        }
+    }
+
+    onMount(() => {
+        setSelectedProject();
+
+        cancelListener = EventsOn('searchstore.insert', (event: { id: string, indexType: string }) => {
+            if (event.indexType === "project" && event.id === data.project.id?.toString()) {
+                refreshProjectDebounced();
+            }
+        });
+    });
+
+    onDestroy(() => {
+        if (cancelListener) {
+            cancelListener();
+        }
+    });
 </script>
 
 <main class="space-y-4"> 

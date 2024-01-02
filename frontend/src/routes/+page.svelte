@@ -1,31 +1,27 @@
 <script lang="ts">
+    import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
 
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
 
+    import type {  ToastSettings } from '@skeletonlabs/skeleton';
+    import { getToastStore } from '@skeletonlabs/skeleton';
+
+    import { EventsOn } from '$lib/wailsjs/runtime';
     import { t } from '$lib/translations/translations';
-    import { RunProject } from '$lib/wailsjs/go/application/Driver';
+    import { RunProject, ListProjects } from '$lib/wailsjs/go/application/Driver';
 
     import { getSelectedProjectStore } from '$lib/stores';
 	import { DisplayType, type OptionGroup } from '$lib/types';
-	import { convertToEnum } from '$lib/components/utils';
+	import { convertToEnum, debounce } from '$lib/components/utils';
 
     import ProjectListView from '$lib/components/project/ProjectListView.svelte';
 	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
 
     const selectedProjectStore = getSelectedProjectStore();
-    
-    export let data: PageData;
-
-    let displayTypeParam = "";
-    let sortByParam = "";
-
-    let searchQuery = "";
-    let displayType: DisplayType = DisplayType.Table;
-
-    let form : HTMLFormElement;
-
+    const toastStore = getToastStore();
+    const fetchProjectsDebounced = debounce(refreshProjects, 500);
     const optionGroups: OptionGroup[] = [
         {
             label: 'sort',
@@ -37,10 +33,22 @@
             ]
         }
     ];
+    
+    export let data: PageData;
+
+    let displayTypeParam = "";
+    let sortByParam = "";
+
+    let searchQuery = "";
+    let displayType: DisplayType = DisplayType.Table;
+
+    let form : HTMLFormElement;
 
     let primaryOptionGroup: number = 0;
     let selectedOptions: Record<string, number> = {'sort': 0};
     let optionLabel: string = t.get('home.project.filter.group.title');
+
+    let cancelListener: () => void;
 
     function handleProjectDoubleClick(event: CustomEvent<{ event: MouseEvent, item: string }>) {
         if (event.detail.event.ctrlKey) {
@@ -58,6 +66,32 @@
     function handleSortChange(event: CustomEvent<{ key: string, direction: string }>) {
         return;
     }
+
+    async function refreshProjects() {
+        const checkDetectedToast: ToastSettings = {
+            message: t.get('home.toast.changeDetected'),
+            timeout: 2000
+        };
+
+        toastStore.trigger(checkDetectedToast);
+
+        const projects = (await ListProjects(searchQuery)).projects;
+        data = {...data, projects};
+    }
+
+    onMount(() => {
+        cancelListener = EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
+            if (data.indexType === "project") {
+                fetchProjectsDebounced();
+            }
+        });
+    });
+
+    onDestroy(() => {
+        if (cancelListener) {
+            cancelListener();
+        }
+    });
 
     $: searchQuery = $page.url.searchParams.get("query") || "";
     $: displayTypeParam = $page.url.searchParams.get("display") || "";
