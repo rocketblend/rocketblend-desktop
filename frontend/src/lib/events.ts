@@ -5,12 +5,12 @@ import type { LogStore, LogEvent } from '$lib/types';
 
 export function setupGlobalEventListeners(logStore: LogStore, toastStore: ToastStore) {
     // Setup log stream listener
-    EventsOn('logStream', (data: LogEvent) => {
+    EventsOn('debug.log', (data: LogEvent) => {
         logStore.add(data);
     });
 
     // Setup launch arguments listener
-    EventsOn('launchArgs', (data: { args: string[] }) => {
+    EventsOn('application.argument', (data: { args: string[] }) => {
         if (data.args && data.args.length !== 0) {
             const launchToast: ToastSettings = {
                 message: `Args: ${data.args.join(', ')}`,
@@ -47,8 +47,8 @@ export function setupGlobalEventListeners(logStore: LogStore, toastStore: ToastS
 
 export function tearDownGlobalEventListeners() {
     // Remove log stream listener
-    EventsOff('logStream');
+    EventsOff('debug.log');
 
     // Remove launch arguments listener
-    EventsOff('launchArgs');
+    EventsOff('application.argument');
 }

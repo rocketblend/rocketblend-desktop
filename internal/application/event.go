@@ -34,7 +34,7 @@ func (d *Driver) listenToLogEvents() {
 			data, ok := d.events.GetNextData()
 			if ok {
 				if logEvent, isLogEvent := data.(LogEvent); isLogEvent {
-					runtime.EventsEmit(d.ctx, "logStream", logEvent)
+					runtime.EventsEmit(d.ctx, "debug.log", logEvent)
 				}
 			} else {
 				time.Sleep(time.Millisecond * 100)
@@ -44,9 +44,9 @@ func (d *Driver) listenToLogEvents() {
 }
 
 func (d *Driver) eventEmitLaunchArgs(ctx context.Context, event LaunchEvent) {
-	d.logger.Debug("emitting launchArgs event", map[string]interface{}{
+	d.logger.Debug("emitting application.argument event", map[string]interface{}{
 		"event": event,
 	})
 
-	runtime.EventsEmit(ctx, "launchArgs", event)
+	runtime.EventsEmit(ctx, "application.argument", event)
 }
