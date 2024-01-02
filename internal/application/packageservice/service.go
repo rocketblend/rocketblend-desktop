@@ -148,10 +148,13 @@ func New(opts ...Option) (Service, error) {
 				return err
 			}
 
-			return options.Store.Insert(index)
+			// TODO: Pass context from watcher
+			ctx := context.Background()
+			return options.Store.Insert(ctx, index)
 		}),
 		watcher.WithRemoveObjectFunc(func(path string) error {
-			return options.Store.RemoveByReference(path)
+			ctx := context.Background()
+			return options.Store.RemoveByReference(ctx, path)
 		}),
 	)
 	if err != nil {
@@ -189,7 +192,7 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 	}
 
 	opts = append(opts, listoption.WithType(indextype.Package))
-	indexes, err := s.store.List(opts...)
+	indexes, err := s.store.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -224,11 +227,7 @@ func (s *service) AppendOperation(ctx context.Context, id uuid.UUID, opid uuid.U
 }
 
 func (s *service) get(ctx context.Context, id uuid.UUID) (*pack.Package, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-
-	index, err := s.store.Get(id)
+	index, err := s.store.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +250,7 @@ func (s *service) insert(ctx context.Context, pack *pack.Package) error {
 		return err
 	}
 
-	return s.store.Insert(index)
+	return s.store.Insert(ctx, index)
 }
 
 func convertFromIndex(index *searchstore.Index) (*pack.Package, error) {

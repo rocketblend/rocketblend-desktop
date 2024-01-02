@@ -173,10 +173,13 @@ func New(opts ...Option) (Service, error) {
 				return err
 			}
 
-			return options.Store.Insert(index)
+			// TODO: Pass context from watcher
+			ctx := context.Background()
+			return options.Store.Insert(ctx, index)
 		}),
 		watcher.WithRemoveObjectFunc(func(path string) error {
-			return options.Store.RemoveByReference(path)
+			ctx := context.Background()
+			return options.Store.RemoveByReference(ctx, path)
 		}),
 	)
 	if err != nil {
@@ -219,7 +222,7 @@ func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, e
 
 func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*ListProjectsResponse, error) {
 	opts = append(opts, listoption.WithType(indextype.Project))
-	indexes, err := s.store.List(opts...)
+	indexes, err := s.store.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -249,6 +252,10 @@ func (s *service) List(ctx context.Context, opts ...listoption.ListOption) (*Lis
 }
 
 func (s *service) Refresh(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	registeredPaths := s.watcher.GetRegisteredPaths()
 
 	if err := s.watcher.UnregisterPaths(registeredPaths...); err != nil {
@@ -268,11 +275,7 @@ func (s *service) Refresh(ctx context.Context) error {
 }
 
 func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-
-	index, err := s.store.Get(id)
+	index, err := s.store.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
