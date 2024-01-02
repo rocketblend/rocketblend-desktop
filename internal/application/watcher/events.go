@@ -64,7 +64,7 @@ func (s *service) watchPath(path string) error {
 		Cancel:       cancel,
 	}
 
-	s.logger.Debug("Watching path", map[string]interface{}{
+	s.logger.Debug("watching path", map[string]interface{}{
 		"path": path,
 	})
 
@@ -76,7 +76,7 @@ func (s *service) unwatchPath(path string) error {
 	s.watchers[path].Cancel()
 	delete(s.watchers, path)
 
-	s.logger.Debug("Unwatching path", map[string]interface{}{
+	s.logger.Debug("unwatching path", map[string]interface{}{
 		"path": path,
 	})
 
@@ -101,7 +101,7 @@ func (s *service) monitorEvents(events chan notify.EventInfo, ctx context.Contex
 }
 
 func (s *service) handleEventDebounced(event *objectEventInfo) {
-	s.logger.Info("Filesystem event occurred", map[string]interface{}{
+	s.logger.Info("filesystem event occurred", map[string]interface{}{
 		"event": event,
 	})
 
@@ -132,7 +132,7 @@ func (s *service) handleEventDebounced(event *objectEventInfo) {
 }
 
 func (s *service) handleEvent(event *objectEventInfo) {
-	s.logger.Info("Filesystem event occurred", map[string]interface{}{
+	s.logger.Info("filesystem event occurred", map[string]interface{}{
 		"event":      event.EventInfo.Event(),
 		"path":       event.EventInfo.Path(),
 		"objectPath": event.ObjectPath,
@@ -142,7 +142,7 @@ func (s *service) handleEvent(event *objectEventInfo) {
 	case notify.Create, notify.Write:
 		// Export event.
 		if err := s.updateObject(event.ObjectPath); err != nil {
-			s.logger.Error("Error while loading project", map[string]interface{}{
+			s.logger.Error("error while loading project", map[string]interface{}{
 				"err": err,
 			})
 		}
@@ -150,7 +150,7 @@ func (s *service) handleEvent(event *objectEventInfo) {
 	case notify.Remove, notify.Rename:
 		// Export event.
 		if err := s.removeObject(event.ObjectPath); err != nil {
-			s.logger.Error("Error while removing project", map[string]interface{}{
+			s.logger.Error("error while removing project", map[string]interface{}{
 				"err": err,
 			})
 		}
