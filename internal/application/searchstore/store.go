@@ -18,11 +18,11 @@ const (
 
 type (
 	Store interface {
-		List(opts ...listoption.ListOption) ([]*Index, error)
-		Get(id uuid.UUID) (*Index, error)
-		Insert(index *Index) error
-		Remove(id uuid.UUID) error
-		RemoveByReference(path string) error
+		List(ctx context.Context, opts ...listoption.ListOption) ([]*Index, error)
+		Get(ctx context.Context, id uuid.UUID) (*Index, error)
+		Insert(ctx context.Context, index *Index) error
+		Remove(ctx context.Context, id uuid.UUID) error
+		RemoveByReference(ctx context.Context, path string) error
 
 		Close() error
 	}
@@ -80,7 +80,11 @@ func New(opts ...Option) (Store, error) {
 	}, nil
 }
 
-func (s *store) Insert(index *Index) error {
+func (s *store) Insert(ctx context.Context, index *Index) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	existing, _ := s.index.Document(index.ID.String())
 
 	err := s.index.Index(index.ID.String(), index)
@@ -88,7 +92,6 @@ func (s *store) Insert(index *Index) error {
 		return err
 	}
 
-	ctx := context.Background()
 	if existing != nil {
 		event := NewEvent(index.ID, index.Type)
 		if err := s.event.EmitEvent(ctx, InsertEventChannel, event); err != nil {
@@ -107,14 +110,14 @@ func (s *store) Insert(index *Index) error {
 	return nil
 }
 
-func (s *store) Remove(id uuid.UUID) error {
-	return s.remove(id)
+func (s *store) Remove(ctx context.Context, id uuid.UUID) error {
+	return s.remove(ctx, id)
 }
 
-func (s *store) RemoveByReference(path string) error {
+func (s *store) RemoveByReference(ctx context.Context, path string) error {
 	query := bleve.NewMatchQuery(path)
 	query.SetField("reference")
-	searchResults, err := s.index.Search(bleve.NewSearchRequest(query))
+	searchResults, err := s.index.SearchInContext(ctx, bleve.NewSearchRequest(query))
 	if err != nil {
 		s.logger.Error("error searching for indexes with reference", map[string]interface{}{
 			"err": err,
@@ -132,7 +135,7 @@ func (s *store) RemoveByReference(path string) error {
 				"path": path,
 			})
 		} else {
-			if err := s.remove(id); err != nil {
+			if err := s.remove(ctx, id); err != nil {
 				s.logger.Error("error deleting index from id", map[string]interface{}{
 					"err":  err,
 					"key":  hit.ID,
@@ -158,8 +161,8 @@ func (s *store) Close() error {
 	return s.index.Close()
 }
 
-func (s *store) remove(id uuid.UUID) error {
-	index, err := s.get(id)
+func (s *store) remove(ctx context.Context, id uuid.UUID) error {
+	index, err := s.get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -169,8 +172,6 @@ func (s *store) remove(id uuid.UUID) error {
 		return err
 	}
 
-	// TODO: make functions take context
-	ctx := context.Background()
 	event := NewEvent(index.ID, index.Type)
 	if err := s.event.EmitEvent(ctx, RemoveEventChannel, event); err != nil {
 		s.logger.Error("error emitting event", map[string]interface{}{

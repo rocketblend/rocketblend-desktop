@@ -1,6 +1,7 @@
 package searchstore
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 
@@ -11,16 +12,20 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 )
 
-func (s *store) List(opts ...listoption.ListOption) ([]*Index, error) {
+func (s *store) List(ctx context.Context, opts ...listoption.ListOption) ([]*Index, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
 	options := &listoption.ListOptions{
-		Size: 25,
+		Size: 50,
 	}
 
 	for _, o := range opts {
 		o(options)
 	}
 
-	result, err := s.index.Search(options.SearchRequest())
+	result, err := s.index.SearchInContext(ctx, options.SearchRequest())
 	if err != nil {
 		return nil, err
 	}
@@ -33,12 +38,16 @@ func (s *store) List(opts ...listoption.ListOption) ([]*Index, error) {
 
 	var indexes []*Index
 	for _, hit := range result.Hits {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
 		id, err := uuid.Parse(hit.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		index, err := s.get(id)
+		index, err := s.get(ctx, id)
 		if err != nil {
 			return nil, err
 		}
@@ -49,11 +58,15 @@ func (s *store) List(opts ...listoption.ListOption) ([]*Index, error) {
 	return indexes, nil
 }
 
-func (s *store) Get(id uuid.UUID) (*Index, error) {
-	return s.get(id)
+func (s *store) Get(ctx context.Context, id uuid.UUID) (*Index, error) {
+	return s.get(ctx, id)
 }
 
-func (s *store) get(id uuid.UUID) (*Index, error) {
+func (s *store) get(ctx context.Context, id uuid.UUID) (*Index, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
 	doc, err := s.index.Document(id.String())
 	if err != nil {
 		return nil, err

@@ -89,7 +89,7 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 		return uuid.Nil, err
 	}
 
-	if err := s.store.Insert(index); err != nil {
+	if err := s.store.Insert(ctx, index); err != nil {
 		return uuid.Nil, err
 	}
 
@@ -117,7 +117,7 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 			return
 		}
 
-		if err := s.store.Insert(index); err != nil {
+		if err := s.store.Insert(context.Background(), index); err != nil {
 			s.logger.Error("failed to insert Operation", map[string]interface{}{"error": err.Error()})
 			return
 		}
@@ -130,7 +130,7 @@ func (s *service) Create(ctx context.Context, opFunc func(ctx context.Context, o
 }
 
 func (s *service) Get(ctx context.Context, opid uuid.UUID) (*Operation, error) {
-	index, err := s.store.Get(opid)
+	index, err := s.store.Get(ctx, opid)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (s *service) Get(ctx context.Context, opid uuid.UUID) (*Operation, error) {
 
 func (s *service) List(ctx context.Context, opts ...listoption.ListOption) ([]*Operation, error) {
 	opts = append(opts, listoption.WithType(indextype.Operation))
-	indexes, err := s.store.List(opts...)
+	indexes, err := s.store.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func (s *service) Cancel(opid uuid.UUID) error {
 		return err
 	}
 
-	s.store.Insert(index)
+	s.store.Insert(context.Background(), index)
 	return nil
 }
 
