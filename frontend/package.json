@@ -28,6 +28,7 @@
     "@tailwindcss/typography": "^0.5.9",
     "@types/cookie": "^0.5.1",
     "@types/node": "^20.10.4",
+    "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "@zerodevx/svelte-img": "^2.1.0",
@@ -56,6 +57,7 @@
     "@sveltejs/adapter-static": "^2.0.2",
     "dotenv": "^16.3.1",
     "sveltekit-i18n": "^2.3.2",
-    "tailwind-merge": "^2.1.0"
+    "tailwind-merge": "^2.1.0",
+    "uuid": "^9.0.1"
   }
 }

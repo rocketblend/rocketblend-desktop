@@ -1,40 +1,50 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     
     import type {  ToastSettings } from '@skeletonlabs/skeleton';
     import { getToastStore } from '@skeletonlabs/skeleton';
+
+    import { t } from '$lib/translations/translations';
+
+    import { EventsOn, EventsOff } from '$lib/wailsjs/runtime';
+    import { pack } from '$lib/wailsjs/go/models';
+    import { GetProject, ListPackages, InstallPackageOperation } from '$lib/wailsjs/go/application/Driver';
+
+    import type { RadioOption } from '$lib/types';
+    import { getSelectedProjectStore, getPackageStore } from '$lib/stores';
+    import { debounce } from '$lib/components/utils';
 
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';
     import PackageFilter from '$lib/components/package/PackageFilter.svelte';
 
-    import { GetProject } from '$lib/wailsjs/go/application/Driver'
-    import { selectedProjectIds } from '$lib/store';
-    import type { packageservice } from '$lib/wailsjs/go/models';
-    import { ListPackages } from '$lib/wailsjs/go/application/Driver';
-    import { t } from '$lib/translations/translations';
-    import type { RadioOption } from '$lib/types';
-
+    const packageStore = getPackageStore();
+    const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
+
+    const filterRadioOptions: RadioOption[] = [
+        { value: pack.PackageType.UNKNOWN, display: $t('home.sidebar.filter.option.all') },
+        { value: pack.PackageType.BUILD, display: $t('home.sidebar.filter.option.build') },
+        { value: pack.PackageType.ADDON, display: $t('home.sidebar.filter.option.addon') },
+    ];
+
+    const fetchPackagesDebounced = debounce(fetchPackages, 500);
 
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
     let filterInstalled: boolean = false;
-    const filterRadioOptions: RadioOption[] = [
-        { value: 0, key: 'all', display: $t('home.sidebar.filter.option.all') },
-        { value: 1, key: 'build', display: $t('home.sidebar.filter.option.build') },
-        { value: 2, key: 'addon', display: $t('home.sidebar.filter.option.addon') },
-    ];
-
-    let fetchPackagesPromise: Promise<packageservice.ListPackagesResponse | undefined>;
     let dependencies: string[] = [];
 
-    $: if ($selectedProjectIds) {
+    let initialLoad: boolean = true;
+    let error: boolean = false;
+    let cancelListener: () => void;
+
+    $: if ($selectedProjectStore) {
         loadDependencies();
     }
 
     async function loadDependencies() {
-        var id = selectedProjectIds.latest();
+        var id = selectedProjectStore.latest();
         if (!id) {
             return;
         }
@@ -44,22 +54,8 @@
         dependencies.push(result.project?.build || '');
     }
 
-    async function fetchPackages(query: string): Promise<packageservice.ListPackagesResponse | undefined> {
-        try {
-            var category = filterRadioOptions[selectedFilterType].key;
-            if (category === 'all') {
-                category = '';
-            }
-
-            return await ListPackages(query, category, filterInstalled);
-        } catch (error) {
-            console.error('Error fetching packages:', error);
-            return undefined;
-        }
-    }
-  
     function handleInputChange(): void {
-        fetchPackagesPromise = fetchPackages(searchQuery);
+        fetchPackages();
     }
 
     function handleAddPackage(): void {
@@ -81,17 +77,32 @@
     }
 
     function handlePackageDownload(event: CustomEvent<{ packageId: string }>) {
-        console.log('Downloaded package', event.detail.packageId);
+        const packageId = event.detail.packageId;
 
-        const downloadPackageToast: ToastSettings = {
-            message: `Downloaded ${event.detail.packageId}!`,
-        };
+        InstallPackageOperation(packageId).then((result) => {
+            const downloadPackageToast: ToastSettings = {
+                message: `Downloading Package: ${packageId}`,
+            };
 
-        toastStore.trigger(downloadPackageToast);
+            toastStore.trigger(downloadPackageToast);
+        }).catch(error => {
+            const downloadPackageToast: ToastSettings = {
+                message: `Error starting package download: ${error}`,
+                background: "variant-filled-error"
+            };
+
+            toastStore.trigger(downloadPackageToast);
+        });
     }
 
     function handlePackageCancel(event: CustomEvent<{ packageId: string }>) {
-        console.log('Cancel package', event.detail.packageId);
+        const packageId = event.detail.packageId;
+        //var item = $packageStore.find((pack) => pack.id?.toString() === packageId);
+
+        const cancelledPackageToast = {
+            message: `Cancelled ${packageId}!`,
+        };
+        toastStore.trigger(cancelledPackageToast);
     }
 
     function handlePackageDelete(event: CustomEvent<{ packageId: string }>) {
@@ -101,9 +112,34 @@
 
         toastStore.trigger(deletePackageToast);
     }
+
+    function fetchPackages() {
+        error = false;
+        ListPackages(searchQuery, selectedFilterType, filterInstalled).then(result => {
+            initialLoad = false;
+            console.log('Fetch packages');
+            packageStore.set([...result.packages || []]);
+        }).catch(error => {
+            console.log(`Error fetching packages: ${error}`);
+            error = true;
+            packageStore.set([]);
+        });
+    }
   
     onMount(() => {
-        fetchPackagesPromise = fetchPackages(searchQuery);
+        fetchPackages();
+
+        cancelListener = EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
+            if (data.indexType === "package") {
+                fetchPackagesDebounced();
+            }
+        });
+    });
+
+    onDestroy(() => {
+        if (cancelListener) {
+            cancelListener();
+        }
     });
 </script>
   
@@ -124,28 +160,28 @@
     />
 
     <div class="overflow-y-auto h-full">
-        {#await fetchPackagesPromise}
-            <div class="space-y-4 p-2">
-                {#each Array(10) as _}
-                    <div class="placeholder animate-pulse p-5 h-10" />
-                {/each}
-            </div>
-        {:then response}
-            {#if response && response.packages}
-                <PackageListView
-                    on:download={handlePackageDownload}
-                    on:cancel={handlePackageCancel}
-                    on:delete={handlePackageDelete}
-                    packages={response.packages}
-                    bind:dependencies={dependencies}    
-                />
+        {#if $packageStore && $packageStore.length > 0}
+            <PackageListView
+                on:download={handlePackageDownload}
+                on:cancel={handlePackageCancel}
+                on:delete={handlePackageDelete}
+                packages={$packageStore}
+                bind:dependencies={dependencies}    
+            />
+        {:else}
+            {#if initialLoad}
+                <div class="space-y-4 p-2">
+                    {#each Array(10) as _}
+                        <div class="placeholder animate-pulse p-5 h-10" />
+                    {/each}
+                </div>
+            {:else if error}
+                <p>{$t('home.sidebar.error')}</p>
             {:else}
                 <div class="p-2">
                     <p class="font-bold text-sm text-surface-200 text-center">{$t('home.sidebar.noresults')}</p>
                 </div>
             {/if}
-        {:catch error}
-            <p>{$t('home.sidebar.error')}</p>
-        {/await}
+        {/if}
     </div>
 </div>

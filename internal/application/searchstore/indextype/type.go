@@ -8,10 +8,11 @@ const (
 	Unknown IndexType = iota
 	Project
 	Package
+	Operation
 )
 
 func (p IndexType) String() string {
-	return [...]string{"unknown", "project", "package"}[p]
+	return [...]string{"unknown", "project", "package", "operation"}[p]
 }
 
 func (p IndexType) Int() int {
@@ -35,9 +36,10 @@ func (p *IndexType) UnmarshalJSON(b []byte) error {
 
 func PackageTypeFromString(str string) IndexType {
 	packageTypeMap := map[string]IndexType{
-		"unknown": Unknown,
-		"project": Project,
-		"package": Package,
+		"unknown":   Unknown,
+		"project":   Project,
+		"package":   Package,
+		"operation": Operation,
 	}
 
 	packageType, ok := packageTypeMap[str]

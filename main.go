@@ -33,9 +33,7 @@ func main() {
 }
 
 func run(args []string) error {
-	logger := logger.New(
-		logger.WithLogLevel("debug"),
-	)
+	logger := logger.NoOp()
 
 	if len(os.Args) > 1 {
 		var err error
@@ -47,7 +45,7 @@ func run(args []string) error {
 		// If we failed to launch a project directly, open with application.
 	}
 
-	app, err := application.New(logger, assets)
+	app, err := application.New(assets)
 	if err != nil {
 		return err
 	}

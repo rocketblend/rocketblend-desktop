@@ -1,45 +1,27 @@
 package pack
 
-import "encoding/json"
-
-type Type int
+type PackageType int
 
 const (
-	Unknown Type = iota
+	Unknown PackageType = iota
 	Addon
 	Build
 )
 
-func (p Type) String() string {
-	return [...]string{"unknown", "addon", "build"}[p]
+func (p PackageType) String() string {
+	for _, t := range AllPackageTypes {
+		if t.Value == p {
+			return t.TSName
+		}
+	}
+	return "UNKNOWN"
 }
 
-func (p Type) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.String())
-}
-
-func (p *Type) UnmarshalJSON(b []byte) error {
-	var s string
-	err := json.Unmarshal(b, &s)
-	if err != nil {
-		return err
-	}
-
-	*p = PackageTypeFromString(s)
-	return nil
-}
-
-func PackageTypeFromString(str string) Type {
-	packageTypeMap := map[string]Type{
-		"unknown": Unknown,
-		"addon":   Addon,
-		"build":   Build,
-	}
-
-	packageType, ok := packageTypeMap[str]
-	if !ok {
-		return Unknown
-	}
-
-	return packageType
+var AllPackageTypes = []struct {
+	Value  PackageType
+	TSName string
+}{
+	{Unknown, "UNKNOWN"},
+	{Addon, "ADDON"},
+	{Build, "BUILD"},
 }

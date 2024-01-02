@@ -7,7 +7,9 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
+	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -29,7 +31,16 @@ type (
 	}
 )
 
-func New(logger logger.Logger, assets fs.FS) (Application, error) {
+func New(assets fs.FS) (Application, error) {
+	events := buffermanager.New(buffermanager.WithMaxBufferSize(50))
+	logger := logger.New(
+		logger.WithLogLevel("debug"),
+		logger.WithWriters(
+			logger.PrettyWriter(),
+			BufferWriter(events),
+		),
+	)
+
 	id, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
@@ -42,7 +53,7 @@ func New(logger logger.Logger, assets fs.FS) (Application, error) {
 		return nil, err
 	}
 
-	driver, err := NewDriver(factory)
+	driver, err := NewDriver(factory, events)
 	if err != nil {
 		return nil, err
 	}
@@ -77,6 +88,10 @@ func (a *application) Execute() error {
 		SingleInstanceLock: &options.SingleInstanceLock{
 			UniqueId:               a.id.String(),
 			OnSecondInstanceLaunch: a.driver.onSecondInstanceLaunch,
+		},
+		EnumBind: []interface{}{
+			pack.AllPackageTypes,
+			pack.AllPackageStates,
 		},
 		MinHeight:        580,
 		MinWidth:         800,

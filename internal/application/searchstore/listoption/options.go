@@ -9,13 +9,14 @@ import (
 
 type (
 	ListOptions struct {
-		Query    string
-		Type     indextype.IndexType
-		Category string
-		Resource string
-		Ready    bool
-		Size     int
-		From     int
+		Query     string
+		Type      indextype.IndexType
+		Category  string
+		Resource  string
+		Operation string
+		State     *int
+		Size      int
+		From      int
 	}
 
 	ListOption func(*ListOptions)
@@ -45,9 +46,15 @@ func WithResource(resource string) ListOption {
 	}
 }
 
-func WithReady(ready bool) ListOption {
+func WithOperation(operation string) ListOption {
 	return func(o *ListOptions) {
-		o.Ready = ready
+		o.Operation = operation
+	}
+}
+
+func WithState(state *int) ListOption {
+	return func(o *ListOptions) {
+		o.State = state
 	}
 }
 
@@ -83,10 +90,15 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 		query.AddQuery(resourceQuery)
 	}
 
-	if so.Ready {
-		readyQuery := bleve.NewBoolFieldQuery(true)
-		readyQuery.SetField("ready")
-		query.AddQuery(readyQuery)
+	if so.Operation != "" {
+		operationQuery := bleve.NewMatchPhraseQuery(so.Operation)
+		operationQuery.SetField("operations")
+		query.AddQuery(operationQuery)
+	}
+
+	if so.State != nil {
+		stateQuery := bleve.NewQueryStringQuery("state:" + strconv.Itoa(*so.State))
+		query.AddQuery(stateQuery)
 	}
 
 	if so.Query != "" {

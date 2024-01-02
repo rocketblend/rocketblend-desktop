@@ -8,6 +8,8 @@ import (
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application/build"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/eventservice"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/operationservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
@@ -26,9 +28,12 @@ type (
 		GetLogger() (logger.Logger, error)
 		GetApplicationConfigService() (config.Service, error)
 
+		GetEventService() (eventservice.Service, error)
+
 		GetSearchStore() (searchstore.Store, error)
 		GetProjectService() (projectservice.Service, error)
 		GetPackageService() (packageservice.Service, error)
+		GetOperationService() (operationservice.Service, error)
 
 		Preload() error
 		Close() error
@@ -61,6 +66,12 @@ type (
 
 		packageMutex   sync.Mutex
 		packageService packageservice.Service
+
+		operationMutex   sync.Mutex
+		operationService operationservice.Service
+
+		eventMutex   sync.Mutex
+		eventService eventservice.Service
 	}
 )
 
@@ -140,6 +151,12 @@ func (f *factory) Preload() error {
 }
 
 func (f *factory) Close() error {
+	if f.eventService != nil {
+		if err := f.eventService.Close(); err != nil {
+			return err
+		}
+	}
+
 	if f.packageService != nil {
 		if err := f.packageService.Close(); err != nil {
 			return err
@@ -173,6 +190,26 @@ func (f *factory) GetApplicationConfigService() (config.Service, error) {
 	return f.applicationConfigService, nil
 }
 
+func (f *factory) GetEventService() (eventservice.Service, error) {
+	f.eventMutex.Lock()
+	defer f.eventMutex.Unlock()
+
+	if f.eventService != nil {
+		return f.eventService, nil
+	}
+
+	eventService, err := eventservice.New(
+		eventservice.WithLogger(f.logger),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	f.eventService = eventService
+
+	return f.eventService, nil
+}
+
 func (f *factory) GetSearchStore() (searchstore.Store, error) {
 	f.searchstoreMutex.Lock()
 	defer f.searchstoreMutex.Unlock()
@@ -181,8 +218,14 @@ func (f *factory) GetSearchStore() (searchstore.Store, error) {
 		return f.searchStore, nil
 	}
 
+	event, err := f.GetEventService()
+	if err != nil {
+		return nil, err
+	}
+
 	store, err := searchstore.New(
 		searchstore.WithLogger(f.logger),
+		searchstore.WithEventService(event),
 	)
 	if err != nil {
 		return nil, err
@@ -256,6 +299,16 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 		return nil, err
 	}
 
+	rocketblendPackageService, err := f.GetRocketPackService()
+	if err != nil {
+		return nil, err
+	}
+
+	rocketblendInstallationService, err := f.GetInstallationService()
+	if err != nil {
+		return nil, err
+	}
+
 	store, err := f.GetSearchStore()
 	if err != nil {
 		return nil, err
@@ -263,6 +316,8 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 
 	packageService, err := packageservice.New(
 		packageservice.WithLogger(f.logger),
+		packageservice.WithRocketBlendPackageService(rocketblendPackageService),
+		packageservice.WithRocketBlendInstallationService(rocketblendInstallationService),
 		packageservice.WithRocketBlendConfigService(rocketblendConfigService),
 		packageservice.WithStore(store),
 	)
@@ -273,6 +328,32 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 	f.packageService = packageService
 
 	return f.packageService, nil
+}
+
+func (f *factory) GetOperationService() (operationservice.Service, error) {
+	f.operationMutex.Lock()
+	defer f.operationMutex.Unlock()
+
+	if f.operationService != nil {
+		return f.operationService, nil
+	}
+
+	store, err := f.GetSearchStore()
+	if err != nil {
+		return nil, err
+	}
+
+	operationService, err := operationservice.New(
+		operationservice.WithLogger(f.logger),
+		operationservice.WithStore(store),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	f.operationService = operationService
+
+	return f.operationService, nil
 }
 
 func (f *factory) GetConfigService() (rocketblendConfig.Service, error) {

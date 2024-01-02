@@ -2,12 +2,17 @@
     import "../app.postcss";
     
     import { onMount, onDestroy } from 'svelte';
-    import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-    import { initializeStores, getToastStore, storePopup } from '@skeletonlabs/skeleton';
-    import { Toast, AppBar, AppShell } from '@skeletonlabs/skeleton';
-    import type { ToastSettings } from '@skeletonlabs/skeleton';
-
     import { goto } from '$app/navigation';
+
+    import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+    import { initializeStores, storePopup, getToastStore } from '@skeletonlabs/skeleton';
+    import { Toast, AppBar, AppShell } from '@skeletonlabs/skeleton';
+
+    import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
+
+    import { t } from '$lib/translations/translations';
+    import { setupGlobalEventListeners, tearDownGlobalEventListeners } from '$lib/events';
+    import { getLogStore } from "$lib/stores";
 
     import IconCloseFill from '~icons/ri/close-fill'
     import IconMoreFill from '~icons/ri/more-fill'
@@ -15,13 +20,13 @@
     import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
     import IconHomeFill from '~icons/ri/home-fill'
 
-    import { t } from '$lib/translations/translations';
-    import { EventsEmit, EventsOff, EventsOn, Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
-
     import Footer from "$lib/containers/Footer.svelte";
     import Sidebar from "$lib/containers/Sidebar.svelte";
+	import UtilityDrawer from "$lib/containers/UtilityDrawer.svelte";
 
     initializeStores();
+
+    const logStore = getLogStore();
     const toastStore = getToastStore();
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
@@ -30,36 +35,20 @@
         goto(`/`);
     }
 
-    onMount(() => {     
-        EventsOn('launchArgs', (data: { args: string[]}) => {
-            console.log('launchArgs', data)
-            if (data.args && data.args.length !== 0) {
-                    var launchToast: ToastSettings = {
-                    message: `Args: ${data.args.join(', ')}`,
-                    timeout: 5000,
-                };
-
-                toastStore.trigger(launchToast);
-            }
-        });
-
-        const launchToast: ToastSettings = {
-            message: t.get('home.greeting'),
-            background: 'bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white',
-            timeout: 5000,
-        };
-
-        toastStore.trigger(launchToast);
-
-        EventsEmit('ready'); // Notify Wails that the frontend is ready for events
+    onMount(() => {
+        setupGlobalEventListeners(logStore, toastStore);
     });
 
     onDestroy(() => {
-        EventsOff('launchArgs');
+        tearDownGlobalEventListeners();
     });
+
 </script>
 
+<UtilityDrawer/>
+
 <Toast
+    zIndex="z-40"
     background="variant-filled-surface"
     padding="p-4"
     position="br"

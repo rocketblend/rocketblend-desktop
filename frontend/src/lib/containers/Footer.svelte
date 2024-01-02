@@ -1,20 +1,31 @@
 <script lang="ts">
-    import { selectedProjectIds } from '$lib/store';
     import { goto } from '$app/navigation';
-    import { ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
-    import { GetProject } from '$lib/wailsjs/go/application/Driver'
+
+    import { getDrawerStore } from '@skeletonlabs/skeleton';
+
+    import { GetProject, ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
     import type { project } from '$lib/wailsjs/go/models';
+
     import { resourcePath } from '$lib/components/utils';
+    import { getSelectedProjectStore } from '$lib/stores';
+
     import FooterContent from '$lib/components/footer/FooterContent.svelte';
+
+    const selectedProjectStore = getSelectedProjectStore();
+    const drawerStore = getDrawerStore();
 
     let selectedProject: project.Project | undefined = undefined;
 
-    $: if ($selectedProjectIds) {
+    $: if ($selectedProjectStore) {
         loadProject();
     }
 
+    function handleViewTerminal() {
+        drawerStore.open();
+    }
+
     async function loadProject() {
-        var id = selectedProjectIds.latest();
+        var id = selectedProjectStore.latest();
         if (!id) {
             return;
         }
@@ -47,6 +58,7 @@
     fileName={selectedProject?.fileName}
     imagePath={resourcePath(selectedProject?.thumbnailPath)}
     isLoading={!selectedProject}
+    on:viewTerminal={handleViewTerminal}
     on:viewProject={handleViewProject}
     on:runProject={handleRunProject}
     on:exploreProject={handleExploreProject}

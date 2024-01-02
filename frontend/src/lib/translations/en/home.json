@@ -1,6 +1,7 @@
 {
     "title": "Welcome!",
     "greeting": "Welcome to RocketBlend Desktop!",
+    "soon": "Coming Soon!",
     "navigation": {
         "root": "Projects"
     },
@@ -17,6 +18,13 @@
         },
         "noresults": "No results found.",
         "error": "An error occurred while fetching packages."
+    },
+    "drawer" :{
+        "tab" : {
+            "output": "Output",
+            "terminal": "Terminal",
+            "debug": "Debug Tools"
+        }
     },
     "project": {
         "query": {
@@ -38,6 +46,32 @@
         "view": {
             "gallery": "Gallery",
             "table": "Table"
+        }
+    },
+    "operation": {
+        "started" : {
+            "message": "Operation started {{id:string}}."
+        }
+    },
+    "debug":{
+        "request" : {
+            "start": "Start Slow Request",
+            "cancel": "Cancel Request",
+            "status": "Status",
+            "notStarted": "Not Started",
+            "running": "Running...",
+            "completed": "Completed",
+            "cancelled": "Cancelled",
+            "failed": "Failed"
+        },
+        "operation" : {
+            "start": "Start Operation",
+            "cancel": "Cancel Operation",
+            "status": "Status",
+            "running": "Running",
+            "completed": "Completed",
+            "cancelled": "Cancelled",
+            "failed": "Failed"
         }
     }
 }

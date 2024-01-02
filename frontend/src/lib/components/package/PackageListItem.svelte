@@ -1,38 +1,44 @@
 <script lang="ts">
-    import { PackageState, PackageType } from './types';
-    import ProgressBar from '$lib/components/core/progress/ProgressBar.svelte';
-    import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
-	import PackageBadge from './PackageBadge.svelte';
-	import PackageActionButton from './PackageActionButton.svelte';
+    import { ProgressBar } from '@skeletonlabs/skeleton';
 
-    export let name = "";
-    export let tag = "";
-    export let version = "";
-    export let author = "";
-    export let platform = "";
-    export let reference = "";
-    export let type: PackageType = PackageType.Unknown;
-    export let state: PackageState = PackageState.Available;
-    export let verified = false;
-    export let progress = 0;
-    export let downloadHost = "";
+    //import ProgressBar from '$lib/components/core/progress/ProgressBar.svelte';
+    import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
+    import PackageBadge from './PackageBadge.svelte';
+    import PackageActionButton from './PackageActionButton.svelte';
+    import { pack } from '$lib/wailsjs/go/models';
+
+    const downloadHost = "download.blender.org"; // TODO: Remove this prop once the backend is ready
+
+    export let name: string;
+    export let tag: string;
+    export let verified: boolean;
+    export let reference: string;
+    export let platform: string;
+    export let version: string;
+    export let author: string;
+    export let type: pack.PackageType = pack.PackageType.UNKNOWN;
+    export let state: pack.PackageState = pack.PackageState.ERROR;
     export let selected = false;
 
     let active = false;
 
-    function getBackgroundVariants(type: PackageType) {
+    type BackgroundVariant = {
+        variantFrom: string;
+        variantTo: string;
+    }
+
+    function getBackgroundVariants(type: pack.PackageType): BackgroundVariant {
         switch (type) {
-            case PackageType.Build:
+            case pack.PackageType.BUILD:
                 return { variantFrom: 'primary', variantTo: 'secondary' };
-            case PackageType.Addon:
+            case pack.PackageType.ADDON:
                 return { variantFrom: 'tertiary', variantTo: 'primary' };
             default:
                 return { variantFrom: 'secondary', variantTo: 'tertiary' };
         }
     }
 
-    const variant = getBackgroundVariants(type);
-
+    $: variant = getBackgroundVariants(type);
     $: selectedClass = selected ? "variant-ghost-primary" : "hover:variant-filled-surface";
 </script>
 
@@ -52,7 +58,7 @@
             on:cancel
             on:delete
             state={state}
-            isOpen={active}
+            open={active}
             variantFrom={variant.variantFrom}
             variantTo={variant.variantTo}
         />
@@ -67,17 +73,20 @@
                 <IconVerifiedBadgeFill class="text-sm text-primary-500" />
             {/if}
         </div>
-        {#if state === PackageState.Downloading }
-            <ProgressBar value={progress} rounded={true} />
-        {/if}
         <div class="text-sm text-surface-800-100-token truncate">{reference}</div>
+        {#if state === pack.PackageState.DOWNLOADING }
+        <div class="py-2">
+            <ProgressBar />
+            <!-- <ProgressBar /> -->
+        </div>
+        {/if}
         <div class="flex-wrap gap-2 space-y-1 w-full">
             <PackageBadge label={downloadHost} variant="soft-success"/>
-            <PackageBadge label={platform}/>
+            <PackageBadge label={platform?.toString()}/>
             <PackageBadge label={version}/>
             <PackageBadge label={author}/>
-            <PackageBadge label={PackageType[type].toLocaleLowerCase()}/>
-            <PackageBadge label={PackageState[state].toLocaleLowerCase()}/>
+            <PackageBadge label={pack.PackageType[type].toLocaleLowerCase()}/>
+            <PackageBadge label={pack.PackageState[state].toLocaleLowerCase()}/>
         </div>
     </div>
 </div>

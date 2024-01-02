@@ -5,12 +5,12 @@ go 1.19
 require (
 	github.com/blevesearch/bleve/v2 v2.3.9
 	github.com/blevesearch/bleve_index_api v1.0.5
-	github.com/flowshot-io/x v0.0.0-20230622123052-b262ee884a19
+	github.com/flowshot-io/x v0.0.0-20240102003836-a3532f1d23dd
 	github.com/go-playground/validator/v10 v10.13.0
 	github.com/google/uuid v1.3.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rjeczalik/notify v0.9.3
-	github.com/rocketblend/rocketblend v0.8.2-0.20231202115941-9cc57000da50
+	github.com/rocketblend/rocketblend v0.8.2-0.20240102004540-1ed6df7f3430
 	github.com/spf13/viper v1.14.0
 	github.com/wailsapp/wails/v2 v2.7.1
 	golang.org/x/text v0.13.0

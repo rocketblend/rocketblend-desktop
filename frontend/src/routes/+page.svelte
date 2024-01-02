@@ -1,15 +1,20 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
-    import { t } from '$lib/translations/translations';
-    import { selectedProjectIds } from '$lib/store';
-    import { RunProject } from '$lib/wailsjs/go/application/Driver';
     import type { PageData } from './$types';
 
-	import ProjectListView from '$lib/components/project/ProjectListView.svelte';
-	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
+    import { goto } from '$app/navigation';
+    import { page } from '$app/stores';
+
+    import { t } from '$lib/translations/translations';
+    import { RunProject } from '$lib/wailsjs/go/application/Driver';
+
+    import { getSelectedProjectStore } from '$lib/stores';
 	import { DisplayType, type OptionGroup } from '$lib/types';
 	import { convertToEnum } from '$lib/components/utils';
+
+    import ProjectListView from '$lib/components/project/ProjectListView.svelte';
+	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
+
+    const selectedProjectStore = getSelectedProjectStore();
     
     export let data: PageData;
 
@@ -81,7 +86,7 @@
         <ProjectListView
             bind:projects={data.projects}
             bind:displayType={displayType}
-            bind:selectedProjectIds={$selectedProjectIds}
+            bind:selectedProjectIds={$selectedProjectStore}
             on:itemDoubleClick={handleProjectDoubleClick}
             on:sortChanged={handleSortChange}/>
     </div>

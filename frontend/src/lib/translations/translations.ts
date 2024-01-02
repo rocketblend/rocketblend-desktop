@@ -3,7 +3,8 @@ import lang from './lang.json';
 import type { Config } from 'sveltekit-i18n';
 
 interface Params {
-  link: string;
+  id?: string;
+  link?: string;
   // add more parameters that are used here
 }
 

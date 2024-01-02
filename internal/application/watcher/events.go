@@ -87,7 +87,7 @@ func (s *service) monitorEvents(events chan notify.EventInfo, ctx context.Contex
 	for {
 		select {
 		case event := <-events:
-			// Only handle events for files we care about. Change to function set in options.
+			// Only handle events for files we care about.
 			if s.isWatchableFile(event.Path()) {
 				s.handleEventDebounced(&objectEventInfo{
 					ObjectPath: s.resolveObjectPath(event.Path()),

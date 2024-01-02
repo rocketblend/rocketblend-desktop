@@ -1,10 +1,13 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
+
     import IconBlenderFill from '~icons/ri/blender-fill';
     import IconFolderOpenFill from '~icons/ri/folder-open-fill';
     import IconEyeFill from '~icons/ri/eye-fill';
     import IconBookmark3Fill from '~icons/ri/bookmark-3-fill';
+    import IconTerminalBoxFill from '~icons/ri/terminal-box-fill';
+
 	import Media from '../core/media/Media.svelte';
-    import { createEventDispatcher } from 'svelte';
 
     const dispatch = createEventDispatcher();
 
@@ -24,6 +27,10 @@
     function handleExploreProject() {
         dispatch('exploreProject');
     }
+
+    function handleViewTerminal() {
+        dispatch('viewTerminal');
+    }
 </script>
 
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">
@@ -39,6 +46,7 @@
         <div class="min-w-max items-center justify-center flex gap-2"></div>
         <div class="justify-end items-center flex gap-2">
             <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleViewProject}><IconEyeFill/></button>
+            <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleViewTerminal}><IconTerminalBoxFill/></button>
             <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleExploreProject}><IconFolderOpenFill /></button>
             <button type="button" class="btn variant-filled text-lg px-9" on:click={handleRunProject}><IconBlenderFill/></button>
         </div>

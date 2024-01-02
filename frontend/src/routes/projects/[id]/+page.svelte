@@ -2,14 +2,16 @@
     import type { PageData } from './$types';
 
     import { resourcePath } from '$lib/components/utils';
-    import { selectedProjectIds } from '$lib/store';
+    import { getSelectedProjectStore } from '$lib/stores';
 
 	import Media from '$lib/components/core/media/Media.svelte';
+
+    const selectedProjectStore = getSelectedProjectStore();
 
     export let data: PageData;
 
     if (data.project.id) {
-        selectedProjectIds.set([data.project.id.toString()]);
+        selectedProjectStore.set([data.project.id.toString()]);
     }
 </script>
 
