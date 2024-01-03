@@ -1,18 +1,19 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
 
-    import type {  ToastSettings } from '@skeletonlabs/skeleton';
     import { ProgressRadial, getToastStore } from '@skeletonlabs/skeleton';
 
+    import { t } from '$lib/translations/translations';
     import { LongRunningOperation, CancelOperation, ListOperations, GetOperation } from '$lib/wailsjs/go/application/Driver';
     import type { operationservice } from '$lib/wailsjs/go/models';
-    import { EventsOn, EventsOff } from '$lib/wailsjs/runtime';
+    import { EventsOn } from '$lib/wailsjs/runtime';
+    import { createOperationStore } from '$lib/stores';
+    import { debounce } from '$lib/utils';
+	import { EVENT_DEBOUNCE } from '$lib/events';
 
-    import { t } from '$lib/translations/translations';
-	import { getOperationStore } from '$lib/stores';
-
-    const operationStore = getOperationStore();
+    const operationStore = createOperationStore();
     const toastStore = getToastStore();
+    const debounceFetchOperations = debounce(fetchOperations, EVENT_DEBOUNCE);
 
     let cooldown = false;
     let cancelListener: () => void;
@@ -21,16 +22,11 @@
         cooldown = true;
         setTimeout(() => {
             cooldown = false;
-        }, 5000); // 5 seconds cooldown
+        }, 2000); // 2 seconds cooldown
 
         LongRunningOperation().then(response => {
             fetchOperations();
             GetOperation(response).then(operationDetails => {
-                // const toast: ToastSettings = {
-                //     message: t.get('home.operation.started.message', { id: operationDetails.id.toString() }),
-                // };
-
-                // toastStore.trigger(toast);
                 console.log('Operation started', operationDetails);
             }).catch(error => {
                 console.log('Error fetching operation details:', error);
@@ -74,11 +70,7 @@
 
         cancelListener = EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
             if (data.indexType === "operation") {
-                fetchOperations();
-                // GetOperation(data.id).then(operation => {
-                //     console.log('Operation updated', operation);
-                //     fetchOperations();
-                // });
+                debounceFetchOperations();
             }
         });
     });

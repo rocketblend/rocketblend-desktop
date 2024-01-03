@@ -1,18 +1,53 @@
 <script lang="ts">
+    import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
 
-    import { resourcePath } from '$lib/components/utils';
     import { getSelectedProjectStore } from '$lib/stores';
+    import { debounce } from '$lib/utils';
+    import { EventsOn } from '$lib/wailsjs/runtime';
+    import { resourcePath } from '$lib/components/utils';
+    import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
 	import Media from '$lib/components/core/media/Media.svelte';
+	import { GetProject } from '$lib/wailsjs/go/application/Driver';
 
     const selectedProjectStore = getSelectedProjectStore();
+    const refreshProjectDebounced = debounce(refreshProject, EVENT_DEBOUNCE);
 
     export let data: PageData;
+    
+    let cancelListener: () => void;
 
-    if (data.project.id) {
-        selectedProjectStore.set([data.project.id.toString()]);
+    async function refreshProject() {
+        const project = (await GetProject(data.project.id?.toString())).project;
+        if (!project) {
+            return;
+        }
+
+        data = {...data, project};
     }
+
+    function setSelectedProject() {
+        if (data.project.id) {
+            selectedProjectStore.set([data.project.id.toString()]);
+        }
+    }
+
+    setSelectedProject();
+
+    onMount(() => {
+        cancelListener = EventsOn(SEARCH_STORE_INSERT_CHANNEL, (event: { id: string, indexType: string }) => {
+            if (event.indexType === "project" && event.id === data.project.id?.toString()) {
+                refreshProjectDebounced();
+            }
+        });
+    });
+
+    onDestroy(() => {
+        if (cancelListener) {
+            cancelListener();
+        }
+    });
 </script>
 
 <main class="space-y-4"> 

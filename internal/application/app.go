@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
@@ -48,6 +49,7 @@ func New(assets fs.FS) (Application, error) {
 
 	factory, err := factory.New(
 		factory.WithLogger(logger),
+		factory.WithWatcherDebounceDuration(250*time.Millisecond),
 	)
 	if err != nil {
 		return nil, err

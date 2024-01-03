@@ -1,20 +1,27 @@
 <script lang="ts">
+    import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
 
     import { getDrawerStore } from '@skeletonlabs/skeleton';
 
-    import { GetProject, ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
+    import { EventsOn } from '$lib/wailsjs/runtime';
     import type { project } from '$lib/wailsjs/go/models';
+    import { GetProject, ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
+    import { debounce } from '$lib/utils';
 
     import { resourcePath } from '$lib/components/utils';
     import { getSelectedProjectStore } from '$lib/stores';
 
     import FooterContent from '$lib/components/footer/FooterContent.svelte';
+	import { SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
     const selectedProjectStore = getSelectedProjectStore();
     const drawerStore = getDrawerStore();
+    const refreshProjectDebounced = debounce(loadProject, 1000);
 
     let selectedProject: project.Project | undefined = undefined;
+
+    let cancelListener: () => void;
 
     $: if ($selectedProjectStore) {
         loadProject();
@@ -51,6 +58,20 @@
             return await ExploreProject(selectedProject.id);
         }
     }
+
+    onMount(() => {
+        cancelListener = EventsOn(SEARCH_STORE_INSERT_CHANNEL, (event: { id: string, indexType: string }) => {
+            if (selectedProject && event.indexType === "project" && selectedProject.id?.toString() === event.id) {
+                refreshProjectDebounced();
+            }
+        });
+    });
+
+    onDestroy(() => {
+        if (cancelListener) {
+            cancelListener();
+        }
+    });
 </script>
 
 <FooterContent

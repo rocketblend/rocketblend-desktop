@@ -1,36 +1,49 @@
 import type { ToastSettings, ToastStore } from '@skeletonlabs/skeleton';
-import { EventsOn, EventsOff, EventsEmit } from '$lib/wailsjs/runtime';
-import { t } from '$lib/translations/translations';
-import type { LogStore, LogEvent } from '$lib/types';
 
-export function setupGlobalEventListeners(logStore: LogStore, toastStore: ToastStore) {
-    // Setup log stream listener
+import { t } from '$lib/translations/translations';
+
+import type { LogStore, LogEvent } from '$lib/types';
+import {debounce} from '$lib/utils';
+import { resourcePath } from '$lib/components/utils';
+import { EventsOn, EventsOff, EventsEmit } from '$lib/wailsjs/runtime';
+
+export const EVENT_DEBOUNCE = 250;
+export const SEARCH_STORE_INSERT_CHANNEL = 'searchstore.insert';
+
+export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastStore) => {
+    const changeDetectedDebounce = debounce(() => {
+        const changeDetectedToast: ToastSettings = {
+            message: t.get('home.toast.changeDetected'),
+            timeout: 3000
+        };
+        toastStore.trigger(changeDetectedToast);
+    }, EVENT_DEBOUNCE - 50);
+
+
+    // Setup debug log listener
     EventsOn('debug.log', (data: LogEvent) => {
         logStore.add(data);
     });
 
-    // Setup launch arguments listener
+    // Setup application argument listener
     EventsOn('application.argument', (data: { args: string[] }) => {
         if (data.args && data.args.length !== 0) {
-            const launchToast: ToastSettings = {
+            const applicationArgumentToast: ToastSettings = {
                 message: `Args: ${data.args.join(', ')}`,
                 timeout: 5000,
             };
 
-            toastStore.trigger(launchToast);
+            toastStore.trigger(applicationArgumentToast);
         }
     });
 
-    EventsOn('storeEvent', (data: { id: string, type: number, indexType: string }) => {
-        if (data) {
-            console.log('storeEvent', data);
-            const storeToast: ToastSettings = {
-                message: `Store event: ${data.id} ${data.type} ${data.indexType}`,
-                timeout: 5000,
-            };
-
-            toastStore.trigger(storeToast);
+    // Setup search store listener
+    EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
+        if (data.indexType === 'operation') {
+            return;
         }
+
+        changeDetectedDebounce();
     });
 
     // Emit a ready event for the backend to listen for.
@@ -43,11 +56,14 @@ export function setupGlobalEventListeners(logStore: LogStore, toastStore: ToastS
         timeout: 5000,
     };
     toastStore.trigger(initialToast);
-}
+};
 
-export function tearDownGlobalEventListeners() {
+export const tearDownGlobalEventListeners = () => {
     // Remove log stream listener
     EventsOff('debug.log');
+
+    // Remove search store listener
+    EventsOff('searchstore.insert');
 
     // Remove launch arguments listener
     EventsOff('application.argument');

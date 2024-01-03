@@ -44,7 +44,7 @@ const createLogStore = (): LogStore => {
 
 const logStore = createLogStore();
 
-const createOperationStore = (): OperationStore => {
+export const createOperationStore = (): OperationStore => {
     const { subscribe, set, update } = writable<operationservice.Operation[]>([]);
 
     return {
@@ -61,9 +61,7 @@ const createOperationStore = (): OperationStore => {
     };
 };
 
-const operationStore = createOperationStore();
-
-const createPacakgeStore = (): PackageStore => {
+export const createPackageStore = (): PackageStore => {
     const { subscribe, set, update } = writable<pack.Package[]>([]);
 
     return {
@@ -79,12 +77,6 @@ const createPacakgeStore = (): PackageStore => {
         },
     };
 };
-
-const packageStore = createPacakgeStore();
-
-export const getPackageStore = () => packageStore;
-
-export const getOperationStore = () => operationStore;
 
 export const getLogStore = () => logStore;
 

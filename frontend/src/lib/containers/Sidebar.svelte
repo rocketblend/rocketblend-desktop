@@ -6,19 +6,20 @@
 
     import { t } from '$lib/translations/translations';
 
-    import { EventsOn, EventsOff } from '$lib/wailsjs/runtime';
+    import { EventsOn } from '$lib/wailsjs/runtime';
     import { pack } from '$lib/wailsjs/go/models';
     import { GetProject, ListPackages, InstallPackageOperation } from '$lib/wailsjs/go/application/Driver';
 
     import type { RadioOption } from '$lib/types';
-    import { getSelectedProjectStore, getPackageStore } from '$lib/stores';
-    import { debounce } from '$lib/components/utils';
+    import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
+    import { getSelectedProjectStore, createPackageStore } from '$lib/stores';
+    import { debounce } from '$lib/utils';
 
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';
     import PackageFilter from '$lib/components/package/PackageFilter.svelte';
 
-    const packageStore = getPackageStore();
+    const packageStore = createPackageStore();
     const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
 
@@ -28,7 +29,7 @@
         { value: pack.PackageType.ADDON, display: $t('home.sidebar.filter.option.addon') },
     ];
 
-    const fetchPackagesDebounced = debounce(fetchPackages, 500);
+    const fetchPackagesDebounced = debounce(fetchPackages, EVENT_DEBOUNCE);
 
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
@@ -59,8 +60,6 @@
     }
 
     function handleAddPackage(): void {
-        console.log('Add package');
-
         const addPackageToast: ToastSettings = {
             message: "Added Package!",
         };
@@ -117,10 +116,8 @@
         error = false;
         ListPackages(searchQuery, selectedFilterType, filterInstalled).then(result => {
             initialLoad = false;
-            console.log('Fetch packages');
             packageStore.set([...result.packages || []]);
         }).catch(error => {
-            console.log(`Error fetching packages: ${error}`);
             error = true;
             packageStore.set([]);
         });
@@ -129,7 +126,7 @@
     onMount(() => {
         fetchPackages();
 
-        cancelListener = EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
+        cancelListener = EventsOn(SEARCH_STORE_INSERT_CHANNEL, (data: { id: string, indexType: string }) => {
             if (data.indexType === "package") {
                 fetchPackagesDebounced();
             }
