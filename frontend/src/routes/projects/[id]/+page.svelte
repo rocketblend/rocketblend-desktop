@@ -2,10 +2,10 @@
     import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
 
-    import type {  ToastSettings } from '@skeletonlabs/skeleton';
     import { getToastStore } from '@skeletonlabs/skeleton';
 
     import { t } from '$lib/translations/translations';
+    import { changeDetectedToast } from '$lib/toasts';
     import { getSelectedProjectStore } from '$lib/stores';
     import { resourcePath, debounce } from '$lib/components/utils';
     import { EventsOn } from '$lib/wailsjs/runtime';
@@ -22,12 +22,7 @@
     let cancelListener: () => void;
 
     async function refreshProject() {
-        const checkDetectedToast: ToastSettings = {
-            message: t.get('home.toast.changeDetected'),
-            timeout: 2000
-        };
-
-        toastStore.trigger(checkDetectedToast);
+        toastStore.trigger(changeDetectedToast);
 
         const project = (await GetProject(data.project.id?.toString())).project;
         if (!project) {

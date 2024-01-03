@@ -5,7 +5,6 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
 
-    import type {  ToastSettings } from '@skeletonlabs/skeleton';
     import { getToastStore } from '@skeletonlabs/skeleton';
 
     import { EventsOn } from '$lib/wailsjs/runtime';
@@ -14,7 +13,9 @@
 
     import { getSelectedProjectStore } from '$lib/stores';
 	import { DisplayType, type OptionGroup } from '$lib/types';
+    import { changeDetectedToast } from '$lib/toasts';
 	import { convertToEnum, debounce } from '$lib/components/utils';
+    
 
     import ProjectListView from '$lib/components/project/ProjectListView.svelte';
 	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
@@ -68,13 +69,7 @@
     }
 
     async function refreshProjects() {
-        const checkDetectedToast: ToastSettings = {
-            message: t.get('home.toast.changeDetected'),
-            timeout: 2000
-        };
-
-        toastStore.trigger(checkDetectedToast);
-
+        toastStore.trigger(changeDetectedToast);
         const projects = (await ListProjects(searchQuery)).projects;
         data = {...data, projects};
     }
