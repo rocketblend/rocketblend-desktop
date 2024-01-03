@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application/build"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
@@ -43,8 +44,10 @@ type (
 	}
 
 	Options struct {
-		Logger             logger.Logger
-		RocketBlendFactory rocketblendFactory.Factory
+		Logger logger.Logger
+
+		RocketBlendFactory      rocketblendFactory.Factory
+		WatcherDebounceDuration time.Duration
 	}
 
 	Option func(*Options)
@@ -53,6 +56,8 @@ type (
 		appDir string
 
 		logger logger.Logger
+
+		watcherDebounceDuration time.Duration
 
 		rocketblendFactory rocketblendFactory.Factory
 
@@ -91,9 +96,16 @@ func WithRocketBlendFactory(factory rocketblendFactory.Factory) Option {
 	}
 }
 
+func WithWatcherDebounceDuration(duration time.Duration) Option {
+	return func(o *Options) {
+		o.WatcherDebounceDuration = duration
+	}
+}
+
 func New(opts ...Option) (Factory, error) {
 	options := &Options{
-		Logger: logger.NoOp(),
+		Logger:                  logger.NoOp(),
+		WatcherDebounceDuration: 2 * time.Second,
 	}
 
 	for _, o := range opts {
@@ -128,9 +140,10 @@ func New(opts ...Option) (Factory, error) {
 	options.Logger.Info("Using app directory", map[string]interface{}{"appDir": appDir})
 
 	return &factory{
-		appDir:             appDir,
-		logger:             options.Logger,
-		rocketblendFactory: options.RocketBlendFactory,
+		appDir:                  appDir,
+		watcherDebounceDuration: options.WatcherDebounceDuration,
+		logger:                  options.Logger,
+		rocketblendFactory:      options.RocketBlendFactory,
 	}, nil
 }
 
@@ -349,6 +362,7 @@ func (f *factory) GetProjectService() (projectservice.Service, error) {
 	defer f.projectMutex.Unlock()
 	projectService, err := projectservice.New(
 		projectservice.WithLogger(f.logger),
+		projectservice.WithWatcherDebounceDuration(f.watcherDebounceDuration),
 		projectservice.WithApplicationConfigService(applicationConfigService),
 		projectservice.WithRocketBlendBlendFileService(rocketblendBlendFileService),
 		projectservice.WithRocketBlendInstallationService(rocketblendInstallationService),
@@ -400,6 +414,7 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 	defer f.packageMutex.Unlock()
 	packageService, err := packageservice.New(
 		packageservice.WithLogger(f.logger),
+		packageservice.WithWatcherDebounceDuration(f.watcherDebounceDuration),
 		packageservice.WithRocketBlendPackageService(rocketblendPackageService),
 		packageservice.WithRocketBlendInstallationService(rocketblendInstallationService),
 		packageservice.WithRocketBlendConfigService(rocketblendConfigService),

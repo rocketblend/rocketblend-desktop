@@ -17,7 +17,7 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
             timeout: 3000
         };
         toastStore.trigger(changeDetectedToast);
-    }, EVENT_DEBOUNCE);
+    }, EVENT_DEBOUNCE - 50);
 
 
     // Setup debug log listener
