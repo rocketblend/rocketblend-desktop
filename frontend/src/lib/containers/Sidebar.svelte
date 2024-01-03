@@ -12,14 +12,14 @@
 
     import type { RadioOption } from '$lib/types';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
-    import { getSelectedProjectStore, getPackageStore } from '$lib/stores';
+    import { getSelectedProjectStore, createPackageStore } from '$lib/stores';
     import { debounce } from '$lib/utils';
 
     import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
     import PackageListView from '$lib/components/package/PackageListView.svelte';
     import PackageFilter from '$lib/components/package/PackageFilter.svelte';
 
-    const packageStore = getPackageStore();
+    const packageStore = createPackageStore();
     const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
 
