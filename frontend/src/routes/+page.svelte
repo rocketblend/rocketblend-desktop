@@ -12,13 +12,14 @@
     import { getSelectedProjectStore } from '$lib/stores';
 	import { DisplayType, type OptionGroup } from '$lib/types';
 	import { convertToEnum, debounce } from '$lib/components/utils';
+    import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
     
 
     import ProjectListView from '$lib/components/project/ProjectListView.svelte';
 	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
 
     const selectedProjectStore = getSelectedProjectStore();
-    const fetchProjectsDebounced = debounce(refreshProjects, 1000);
+    const fetchProjectsDebounced = debounce(refreshProjects, EVENT_DEBOUNCE);
     const optionGroups: OptionGroup[] = [
         {
             label: 'sort',
@@ -70,7 +71,7 @@
     }
 
     onMount(() => {
-        cancelListener = EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
+        cancelListener = EventsOn(SEARCH_STORE_INSERT_CHANNEL, (data: { id: string, indexType: string }) => {
             if (data.indexType === "project") {
                 fetchProjectsDebounced();
             }

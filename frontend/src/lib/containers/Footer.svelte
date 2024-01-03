@@ -13,6 +13,7 @@
     import { getSelectedProjectStore } from '$lib/stores';
 
     import FooterContent from '$lib/components/footer/FooterContent.svelte';
+	import { SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
     const selectedProjectStore = getSelectedProjectStore();
     const drawerStore = getDrawerStore();
@@ -59,7 +60,7 @@
     }
 
     onMount(() => {
-        cancelListener = EventsOn('searchstore.insert', (event: { id: string, indexType: string }) => {
+        cancelListener = EventsOn(SEARCH_STORE_INSERT_CHANNEL, (event: { id: string, indexType: string }) => {
             if (selectedProject && event.indexType === "project" && selectedProject.id?.toString() === event.id) {
                 refreshProjectDebounced();
             }

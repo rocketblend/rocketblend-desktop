@@ -7,6 +7,9 @@ import {debounce} from '$lib/utils';
 import { resourcePath } from '$lib/components/utils';
 import { EventsOn, EventsOff, EventsEmit } from '$lib/wailsjs/runtime';
 
+export const EVENT_DEBOUNCE = 250;
+export const SEARCH_STORE_INSERT_CHANNEL = 'searchstore.insert';
+
 export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastStore) => {
     const changeDetectedDebounce = debounce(() => {
         const changeDetectedToast: ToastSettings = {
@@ -14,7 +17,7 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
             timeout: 3000
         };
         toastStore.trigger(changeDetectedToast);
-    }, 1000);
+    }, EVENT_DEBOUNCE);
 
 
     // Setup debug log listener
@@ -36,6 +39,10 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
 
     // Setup search store listener
     EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
+        if (data.indexType === 'operation') {
+            return;
+        }
+
         changeDetectedDebounce();
     });
 

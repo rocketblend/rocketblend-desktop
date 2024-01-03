@@ -6,12 +6,13 @@
     import { debounce } from '$lib/utils';
     import { EventsOn } from '$lib/wailsjs/runtime';
     import { resourcePath } from '$lib/components/utils';
+    import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
 	import Media from '$lib/components/core/media/Media.svelte';
 	import { GetProject } from '$lib/wailsjs/go/application/Driver';
 
     const selectedProjectStore = getSelectedProjectStore();
-    const refreshProjectDebounced = debounce(refreshProject, 1000);
+    const refreshProjectDebounced = debounce(refreshProject, EVENT_DEBOUNCE);
 
     export let data: PageData;
     
@@ -35,7 +36,7 @@
     setSelectedProject();
 
     onMount(() => {
-        cancelListener = EventsOn('searchstore.insert', (event: { id: string, indexType: string }) => {
+        cancelListener = EventsOn(SEARCH_STORE_INSERT_CHANNEL, (event: { id: string, indexType: string }) => {
             if (event.indexType === "project" && event.id === data.project.id?.toString()) {
                 refreshProjectDebounced();
             }
