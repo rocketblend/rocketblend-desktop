@@ -2,28 +2,22 @@
     import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
 
-    import { getToastStore } from '@skeletonlabs/skeleton';
-
-    import { t } from '$lib/translations/translations';
-    import { changeDetectedToast } from '$lib/toasts';
     import { getSelectedProjectStore } from '$lib/stores';
-    import { resourcePath, debounce } from '$lib/components/utils';
+    import { debounce } from '$lib/utils';
     import { EventsOn } from '$lib/wailsjs/runtime';
+    import { resourcePath } from '$lib/components/utils';
 
 	import Media from '$lib/components/core/media/Media.svelte';
 	import { GetProject } from '$lib/wailsjs/go/application/Driver';
 
     const selectedProjectStore = getSelectedProjectStore();
-    const toastStore = getToastStore();
-    const refreshProjectDebounced = debounce(refreshProject, 100);
+    const refreshProjectDebounced = debounce(refreshProject, 1000);
 
     export let data: PageData;
     
     let cancelListener: () => void;
 
     async function refreshProject() {
-        toastStore.trigger(changeDetectedToast);
-
         const project = (await GetProject(data.project.id?.toString())).project;
         if (!project) {
             return;
@@ -38,9 +32,9 @@
         }
     }
 
-    onMount(() => {
-        setSelectedProject();
+    setSelectedProject();
 
+    onMount(() => {
         cancelListener = EventsOn('searchstore.insert', (event: { id: string, indexType: string }) => {
             if (event.indexType === "project" && event.id === data.project.id?.toString()) {
                 refreshProjectDebounced();

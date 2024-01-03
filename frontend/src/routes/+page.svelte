@@ -5,15 +5,12 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
 
-    import { getToastStore } from '@skeletonlabs/skeleton';
-
     import { EventsOn } from '$lib/wailsjs/runtime';
     import { t } from '$lib/translations/translations';
     import { RunProject, ListProjects } from '$lib/wailsjs/go/application/Driver';
 
     import { getSelectedProjectStore } from '$lib/stores';
 	import { DisplayType, type OptionGroup } from '$lib/types';
-    import { changeDetectedToast } from '$lib/toasts';
 	import { convertToEnum, debounce } from '$lib/components/utils';
     
 
@@ -21,8 +18,7 @@
 	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
 
     const selectedProjectStore = getSelectedProjectStore();
-    const toastStore = getToastStore();
-    const fetchProjectsDebounced = debounce(refreshProjects, 500);
+    const fetchProjectsDebounced = debounce(refreshProjects, 1000);
     const optionGroups: OptionGroup[] = [
         {
             label: 'sort',
@@ -69,7 +65,6 @@
     }
 
     async function refreshProjects() {
-        toastStore.trigger(changeDetectedToast);
         const projects = (await ListProjects(searchQuery)).projects;
         data = {...data, projects};
     }
