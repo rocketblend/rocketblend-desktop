@@ -19,7 +19,7 @@
         "noresults": "No results found.",
         "error": "An error occurred while fetching packages."
     },
-    "drawer" :{
+    "drawer" : {
         "tab" : {
             "output": "Output",
             "terminal": "Terminal",
@@ -27,7 +27,11 @@
         }
     },
     "toast" : {
-        "changeDetected" : "Change detected. Refreshing..."
+        "changeDetected" : "Change detected. Refreshing...",
+        "saving": {
+            "save": "Saving...",
+            "error": "An error occurred while saving."
+        }
     },
     "project": {
         "query": {
@@ -49,6 +53,9 @@
         "view": {
             "gallery": "Gallery",
             "table": "Table"
+        },
+        "tag": {
+            "dependency": "{{number:gt; 0:{{number; 1:1 dependency; default:{{number}} deps}}; default:No deps}}"
         }
     },
     "operation": {

@@ -86,7 +86,7 @@
             <PackageBadge label={version}/>
             <PackageBadge label={author}/>
             <PackageBadge label={pack.PackageType[type].toLocaleLowerCase()}/>
-            <PackageBadge label={pack.PackageState[state].toLocaleLowerCase()}/>
+            <PackageBadge label={pack.PackageState[state].toLocaleLowerCase()} />
         </div>
     </div>
 </div>

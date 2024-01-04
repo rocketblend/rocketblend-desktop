@@ -5,6 +5,8 @@ import type { Config } from 'sveltekit-i18n';
 interface Params {
   id?: string;
   link?: string;
+  number?: number;
+  count?: number;
   // add more parameters that are used here
 }
 

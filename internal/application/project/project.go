@@ -19,7 +19,7 @@ const IgnoreFileName = ".rocketignore"
 
 type (
 	Project struct {
-		ID            uuid.UUID             `json:"id,omitempty"`
+		ID            uuid.UUID             `json:"id"`
 		Name          string                `json:"name,omitempty"`
 		Tags          []string              `json:"tags,omitempty"`
 		Path          string                `json:"path,omitempty"`
@@ -120,10 +120,6 @@ func Load(projectPath string) (*Project, error) {
 		Version:       blendFile.RocketFile.GetVersion(),
 		UpdatedAt:     modTime,
 	}, nil
-}
-
-func Save(project *Project) error {
-	return nil
 }
 
 func ignoreProject(projectPath string) bool {

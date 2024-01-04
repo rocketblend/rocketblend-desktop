@@ -64,7 +64,8 @@
                 title={item.title}
                 selected={group.includes(item.id)}
                 width="full"
-                height="80" />
+                height="80" 
+                interactable />
         </slot>
     {:else}
         <slot item={items[0]} />

@@ -12,8 +12,9 @@
     export let height: string = "32";
     export let width: string = "32";
     export let simulateLatency: boolean = false;
+    export let interactable: boolean = false;
 
-    let mediaLoaded = false;
+    let mediaLoaded: boolean = false;
 
     $: if (src || src == "") {mediaLoaded = false;}
     $: heightClass = `h-${height}`;
@@ -21,26 +22,29 @@
     $: mediaClass = twMerge(containerClass, heightClass, widthClass, mediaLoaded ? 'h-fit' : '');
     $: holderClass = twMerge(mediaClass, placeholderClass, src && !mediaLoaded ? loadingClass : '');
     $: focusClass = selected ? "ring-2 ring-primary-500 bg-initial" : "";
+    $: cursorClass = interactable ? 'cursor-pointer' : 'cursor-default';
 
     function onMediaLoad() {
-        if (!simulateLatency) {
+        if (simulateLatency) {
+            setTimeout(() => { mediaLoaded = true; }, randomDelay());
+        } else {
             mediaLoaded = true;
-            return;
         }
+    }
 
-        setTimeout(() => {
-            mediaLoaded = true;
-        }, Math.floor(Math.random() * 5000));
+    function randomDelay() {
+        return Math.floor(Math.random() * 5000);
     }
 </script>
 
+<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div 
-    class="group {focusClass} {holderClass} relative inline-block overflow-hidden" 
+    class={`group ${interactable ? focusClass : ''} ${holderClass} ${cursorClass} relative inline-block overflow-hidden`} 
     on:click
     on:dblclick
     on:keydown
-    role="button" 
-    tabindex="0"
+    role={interactable ? 'button' : undefined}
+    tabindex={interactable ? 0 : undefined}
 >
     {#if src}
         {#if isVideo(src)}
@@ -58,12 +62,16 @@
                 on:load={onMediaLoad}
             />
         {/if}
-        <div class="overlay absolute inset-0 flex justify-center items-center text-white hover:variant-glass-surface group-hover:flex hidden">
-            <h6 class="font-bold">{title}</h6>
-        </div>
+            {#if interactable}
+                <div class="overlay absolute inset-0 flex justify-center items-center text-white hover:variant-glass-surface group-hover:flex hidden">
+                    <h6 class="font-bold">{title}</h6>
+                </div>
+            {/if}
     {:else}
-        <div class="overlay flex justify-center items-center h-full hover:variant-glass-surface group-hover:flex hidden">
-            <h6 class="font-bold">{title}</h6>
-        </div>
+        {#if interactable}
+            <div class="overlay flex justify-center items-center h-full hover:variant-glass-surface group-hover:flex hidden">
+                <h6 class="font-bold">{title}</h6>
+            </div>
+        {/if}
     {/if}
 </div>

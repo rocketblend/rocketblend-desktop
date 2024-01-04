@@ -2,7 +2,6 @@
     import { createEventDispatcher } from 'svelte';
     import { ListBox, ListBoxItem, popup } from '@skeletonlabs/skeleton';
     import type { PopupSettings } from '@skeletonlabs/skeleton';
-    import IconListUnordered from '~icons/ri/list-unordered';
     import type { OptionGroup } from '$lib/types';
 
     export let optionsGroups: OptionGroup[];

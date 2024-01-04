@@ -168,7 +168,7 @@ export namespace packageservice {
 export namespace project {
 	
 	export class Project {
-	    id?: number[];
+	    id: number[];
 	    name?: string;
 	    tags?: string[];
 	    path?: string;
@@ -306,13 +306,8 @@ export namespace projectservice {
 		}
 	}
 	export class UpdateProjectRequest {
-	    id?: number[];
-	    name?: string;
-	    tags?: string[];
-	    path?: string;
-	    fileName?: string;
-	    build?: string;
-	    addons?: string[];
+	    id: number[];
+	    name: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new UpdateProjectRequest(source);
@@ -322,11 +317,6 @@ export namespace projectservice {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.name = source["name"];
-	        this.tags = source["tags"];
-	        this.path = source["path"];
-	        this.fileName = source["fileName"];
-	        this.build = source["build"];
-	        this.addons = source["addons"];
 	    }
 	}
 

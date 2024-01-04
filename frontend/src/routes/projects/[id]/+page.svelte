@@ -2,15 +2,24 @@
     import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
 
+    import { type ToastSettings, getToastStore  } from '@skeletonlabs/skeleton';
+
+    import { t } from '$lib/translations/translations';
     import { getSelectedProjectStore } from '$lib/stores';
     import { debounce } from '$lib/utils';
     import { EventsOn } from '$lib/wailsjs/runtime';
-    import { resourcePath } from '$lib/components/utils';
+    import { formatDateTime, resourcePath } from '$lib/components/utils';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
-	import Media from '$lib/components/core/media/Media.svelte';
-	import { GetProject } from '$lib/wailsjs/go/application/Driver';
+    import type { projectservice } from '$lib/wailsjs/go/models';
+	import { GetProject, UpdateProject } from '$lib/wailsjs/go/application/Driver';
 
+    import Media from '$lib/components/core/media/Media.svelte';
+	import InlineInput from '$lib/components/core/input/InlineInput.svelte';
+
+    import IconEditFill from '~icons/ri/edit-fill';
+
+    const toastStore = getToastStore();
     const selectedProjectStore = getSelectedProjectStore();
     const refreshProjectDebounced = debounce(refreshProject, EVENT_DEBOUNCE);
 
@@ -27,10 +36,45 @@
         data = {...data, project};
     }
 
+    async function updateProject() {
+        const request: projectservice.UpdateProjectRequest = {
+            id: data.project.id,
+            name: data.project.name || "",
+        };
+
+        await UpdateProject(request)
+            .then(() => {
+                const updateProjectSuccessToast: ToastSettings = {
+                    message: t.get('home.toast.saving.save'),
+                    timeout: 1000
+                };
+                toastStore.trigger(updateProjectSuccessToast);
+            })
+            .catch((error) => {
+                const updateProjectErrorToast: ToastSettings = {
+                    message: t.get('home.toast.saving.error'),
+                    background: "variant-filled-error",
+                    timeout: 3000
+                };
+                toastStore.trigger(updateProjectErrorToast);
+                console.error(error);
+            });
+    }
+
     function setSelectedProject() {
         if (data.project.id) {
             selectedProjectStore.set([data.project.id.toString()]);
         }
+    }
+
+    function getDependenciesDisplay(): string {
+        const dependencies = data.project.addons || [];
+        const buildDependencyCount = data.project.build ? 1 : 0;
+        return t.get('home.project.tag.dependency', { number: dependencies.length + buildDependencyCount });
+    }
+
+    function handleChange(event: CustomEvent) {
+        updateProject();
     }
 
     setSelectedProject();
@@ -51,27 +95,30 @@
 </script>
 
 <main class="space-y-4"> 
-    <div class="flex gap-4">
-        <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
-        <div class="space-y-4">
-            <h2 class="h2 font-bold">{data.project.name}</h2>
-            <p class="text-sm text-surface-300">Last updated: {data.project.updatedAt}</p>
+    <div class="flex gap-4 items-end">
+        <div>
+            <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
+        </div>
+        <div class="space-y-2">
+            <InlineInput bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
+                <IconEditFill class="text-sm text-surface-600-300-token"/>
+            </InlineInput>
+            <div class="flex flex-wrap text-sm text-surface-800-100-token gap-1">
+                <div class="badge variant-ghost rounded">{data.project.path}</div>
+                <div class="badge variant-ghost rounded">{data.project.fileName}</div>
+                <div class="badge variant-ghost rounded">{data.project.build}</div>
+                {#each data.project.tags || [] as tag}
+                    <div class="badge variant-ghost-primary rounded">{tag}</div>
+                {/each}
+                <div class="badge variant-ghost-secondary rounded">{getDependenciesDisplay()}</div>
+                <div class="badge variant-ghost rounded">{formatDateTime(data.project.updatedAt)}</div>
+            </div>
         </div>
     </div>
-    <hr>
-    <ul>
-        <li>ID: {data.project.id}</li>
-        <li>Path: {data.project.path}</li>
-        <li>File Name: {data.project.fileName}</li>
-        <li>Thumbnail Path: {data.project.thumbnailPath}</li>
-        <li>Splash Path: {data.project.splashPath}</li>
-        <li>Build: {data.project.build}</li>
-        <li>Addons: {data.project.addons}</li>
-        <li>Tags: {data.project.tags}</li>
-        <li>Version: {data.project.version}</li>
-    </ul>
+    <!-- <hr>
+    <InlineInput type="textarea" placeholder="Add description..."/> -->
     <hr>
     <div class="grid grid-cols-4 gap-4">
-        <Media height="80" width="full" src="{resourcePath(data.project.splashPath)}" alt="" />
+        <Media height="80" width="full" src={resourcePath(data.project.splashPath)} />
       </div>
 </main>

@@ -60,6 +60,11 @@ func Load(filePath string) (*ProjectSettings, error) {
 }
 
 func Save(settings *ProjectSettings, filePath string) error {
+	settings, err := Clean(filepath.Dir(filePath), settings)
+	if err != nil {
+		return fmt.Errorf("failed to clean project settings: %s", err)
+	}
+
 	if err := Validate(settings); err != nil {
 		return fmt.Errorf("failed to validate project settings: %s", err)
 	}
@@ -100,6 +105,22 @@ func Validate(settings *ProjectSettings) error {
 	return nil
 }
 
+func Clean(basePath string, settings *ProjectSettings) (*ProjectSettings, error) {
+	thumbnailPath, err := toRelativePath(basePath, settings.ThumbnailPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to clean thumbnail path: %s", err)
+	}
+	settings.ThumbnailPath = thumbnailPath
+
+	splashPath, err := toRelativePath(basePath, settings.SplashPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to clean splash path: %s", err)
+	}
+	settings.SplashPath = splashPath
+
+	return settings, nil
+}
+
 func validateFilePath(filePath string) error {
 	if filePath == "" {
 		return fmt.Errorf("file path cannot be empty")
@@ -110,4 +131,17 @@ func validateFilePath(filePath string) error {
 	}
 
 	return nil
+}
+
+func toRelativePath(basePath, absolutePath string) (string, error) {
+	if absolutePath == "" {
+		return "", nil
+	}
+
+	relativePath, err := filepath.Rel(basePath, absolutePath)
+	if err != nil {
+		return "", err
+	}
+
+	return relativePath, nil
 }
