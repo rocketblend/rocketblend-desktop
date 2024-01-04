@@ -1,8 +1,6 @@
 <script lang="ts">
     import { tick, createEventDispatcher } from 'svelte';
 
-    // import IconEditFill from '~icons/ri/edit-fill';
-
     const dispatch = createEventDispatcher();
     interface Option { label: string; value: string; }
     interface InputTypeState {
@@ -35,6 +33,7 @@
     let currentInputType: InputTypeState = getInputTypeState(type);
 
     const computeLabel = (): string => {
+        console.log('computeLabel', value);
         if (currentInputType.text || currentInputType.number || currentInputType.textarea) {
             return value || placeholder;
         } else if (currentInputType.select) {
@@ -54,7 +53,13 @@
 
     const toggleEditing = () => {
         editing = !editing;
-        if (editing) focusInput();
+        if (editing) {
+            focusInput();
+            return;
+        }
+
+        label = computeLabel()
+        dispatch('change', value);
     };
 
     const handleInput = (event: Event) => {
@@ -144,7 +149,7 @@
             <div>
                 {label}
             </div>
-            <!-- <slot name="editIcon"><div class="text-sm text-surface-600-300-token"><IconEditFill /></div></slot> -->
+            <slot></slot>
             <slot name="selectCaret">{#if currentInputType.select}<span>&#9660;</span>{/if}</slot>
         </div>
     {/if}

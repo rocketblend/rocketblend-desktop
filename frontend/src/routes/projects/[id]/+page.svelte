@@ -13,6 +13,8 @@
 	import { GetProject } from '$lib/wailsjs/go/application/Driver';
 	import InlineInput from '$lib/components/core/input/InlineInput.svelte';
 
+    import IconEditFill from '~icons/ri/edit-fill';
+
     const selectedProjectStore = getSelectedProjectStore();
     const refreshProjectDebounced = debounce(refreshProject, EVENT_DEBOUNCE);
 
@@ -64,7 +66,9 @@
             <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
         </div>
         <div class="space-y-2">
-            <InlineInput bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" />
+            <InlineInput bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input">
+                <IconEditFill class="text-sm text-surface-600-300-token"/>
+            </InlineInput>
             <div class="flex flex-wrap text-sm text-surface-800-100-token gap-1">
                 <div class="badge variant-ghost rounded">{data.project.path}</div>
                 <div class="badge variant-ghost rounded">{data.project.fileName}</div>
