@@ -38,20 +38,14 @@
     function randomDelay() {
         return Math.floor(Math.random() * 5000);
     }
-
-    function dispatchEvent(eventName: string) {
-        if (interactable) {
-            dispatch(eventName);
-        }
-    }
 </script>
 
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div 
     class={`group ${interactable ? focusClass : ''} ${holderClass} ${cursorClass} relative inline-block overflow-hidden`} 
-    on:click={() => dispatchEvent('click')}
-    on:dblclick={() => dispatchEvent('dblclick')}
-    on:keydown={() => dispatchEvent('keydown')}
+    on:click
+    on:dblclick
+    on:keydown
     role={interactable ? 'button' : undefined}
     tabindex={interactable ? 0 : undefined}
 >
