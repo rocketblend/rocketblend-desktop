@@ -49,6 +49,9 @@
         "view": {
             "gallery": "Gallery",
             "table": "Table"
+        },
+        "tag": {
+            "dependency": "{{number:gt; 0:{{number; 1:1 dependency; default:{{number}} deps}}; default:No deps}}"
         }
     },
     "operation": {

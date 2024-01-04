@@ -168,7 +168,7 @@ export namespace packageservice {
 export namespace project {
 	
 	export class Project {
-	    id?: number[];
+	    id: number[];
 	    name?: string;
 	    tags?: string[];
 	    path?: string;

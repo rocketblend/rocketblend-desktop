@@ -2,10 +2,11 @@
     import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
 
+    import { t } from '$lib/translations/translations';
     import { getSelectedProjectStore } from '$lib/stores';
     import { debounce } from '$lib/utils';
     import { EventsOn } from '$lib/wailsjs/runtime';
-    import { resourcePath } from '$lib/components/utils';
+    import { formatDateTime, resourcePath } from '$lib/components/utils';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
 	import Media from '$lib/components/core/media/Media.svelte';
@@ -34,6 +35,12 @@
         }
     }
 
+    function getDependenciesDisplay(): string {
+        const dependencies = data.project.addons || [];
+        const buildDependencyCount = data.project.build ? 1 : 0;
+        return t.get('home.project.tag.dependency', { number: dependencies.length + buildDependencyCount });
+    }
+
     setSelectedProject();
 
     onMount(() => {
@@ -53,24 +60,25 @@
 
 <main class="space-y-4"> 
     <div class="flex gap-4 items-end">
-        <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
-        <div class="space-y-4">
+        <div>
+            <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
+        </div>
+        <div class="space-y-1">
             <InlineInput bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" />
-            <span class="text-sm text-surface-600-300-token">Last updated: {data.project.updatedAt}</span>
+            <div class="text-sm text-surface-800-100-token space-y-1">
+                <div class="badge variant-ghost rounded">{data.project.path}</div>
+                <div class="badge variant-ghost rounded">{data.project.fileName}</div>
+                <div class="badge variant-ghost-primary rounded">{data.project.build}</div>
+                {#each data.project.tags || [] as tag}
+                    <div class="badge variant-ghost-success rounded">{tag}</div>
+                {/each}
+                <div class="badge variant-ghost-secondary rounded">{getDependenciesDisplay()}</div>
+                <div class="badge variant-ghost rounded">{formatDateTime(data.project.updatedAt)}</div>
+            </div>
         </div>
     </div>
     <hr>
-    <InlineInput type="textarea" placeholder="Description..."/>
-    <hr>
-    <ul>
-        <li><b>ID:</b> {data.project.id}</li>
-        <li><b>Path:</b> {data.project.path}</li>
-        <li><b>File Name:</b> {data.project.fileName}</li>
-        <li><b>Build:</b> {data.project.build}</li>
-        <li><b>Addons:</b> {data.project.addons}</li>
-        <li><b>Tags:</b> {data.project.tags}</li>
-        <li><b>Version:</b> {data.project.version}</li>
-    </ul>
+    <InlineInput type="textarea" placeholder="Add description..."/>
     <hr>
     <div class="grid grid-cols-4 gap-4">
         <Media height="80" width="full" src="{resourcePath(data.project.splashPath)}" alt="" />

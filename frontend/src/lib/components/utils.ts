@@ -28,7 +28,7 @@ export function convertToEnum(value: string, enumType: { [key: number]: string }
     return null;
 }
 
-export function formatTime(dateInput: Date | string): string {
+const parseAndValidateDate = (dateInput: Date | string): Date | null => {
     let date: Date;
 
     if (typeof dateInput === 'string') {
@@ -36,13 +36,36 @@ export function formatTime(dateInput: Date | string): string {
     } else if (dateInput instanceof Date) {
         date = dateInput;
     } else {
-        return "Invalid input";
+        return null;
     }
 
-    // Check if 'date' is a valid Date object
     if (isNaN(date.getTime())) {
-        return "Invalid date";
+        return null;
     }
+
+    return date;
+}
+
+export const formatDateTime = (dateInput: Date | string): string => {
+    const date = parseAndValidateDate(dateInput);
+    if (!date) return "Invalid input or date";
+
+    const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+
+    return date.toLocaleString(undefined, options);
+};
+
+export const formatTime = (dateInput: Date | string): string => {
+    const date = parseAndValidateDate(dateInput);
+    if (!date) return "Invalid input or date";
 
     const options: Intl.DateTimeFormatOptions = {
         hour: '2-digit',
@@ -52,4 +75,4 @@ export function formatTime(dateInput: Date | string): string {
     };
 
     return date.toLocaleTimeString(undefined, options);
-}
+};
