@@ -131,6 +131,7 @@
                 on:input={handleInput}
                 on:blur={handleBlur}
                 on:keypress={handleKeyPress}
+                on:keydown={handleKeyDown}
             />
         {:else if currentInputType.textarea}
             <textarea
