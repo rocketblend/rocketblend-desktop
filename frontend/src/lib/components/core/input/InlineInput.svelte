@@ -1,8 +1,6 @@
 <script lang="ts">
     import { tick, createEventDispatcher } from 'svelte';
 
-    import { debounce } from '$lib/utils';
-
     const dispatch = createEventDispatcher();
     interface Option { label: string; value: string; }
     interface InputTypeState {
@@ -47,8 +45,8 @@
         return '';
     };
 
+    $: if (value && !editing) { label = computeLabel(); }
     $: currentInputType = getInputTypeState(type);
-    $: label = computeLabel();
 
     const focusInput = async () => {
         await tick();
