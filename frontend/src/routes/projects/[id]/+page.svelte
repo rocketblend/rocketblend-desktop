@@ -2,7 +2,7 @@
     import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
 
-    import { type ToastSettings, getToastStore } from '@skeletonlabs/skeleton';
+    import { type ToastSettings, getToastStore  } from '@skeletonlabs/skeleton';
 
     import { t } from '$lib/translations/translations';
     import { getSelectedProjectStore } from '$lib/stores';
@@ -11,12 +11,13 @@
     import { formatDateTime, resourcePath } from '$lib/components/utils';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
-	import Media from '$lib/components/core/media/Media.svelte';
+    import type { projectservice } from '$lib/wailsjs/go/models';
 	import { GetProject, UpdateProject } from '$lib/wailsjs/go/application/Driver';
+
+    import Media from '$lib/components/core/media/Media.svelte';
 	import InlineInput from '$lib/components/core/input/InlineInput.svelte';
 
     import IconEditFill from '~icons/ri/edit-fill';
-	import type { projectservice } from '$lib/wailsjs/go/models';
 
     const toastStore = getToastStore();
     const selectedProjectStore = getSelectedProjectStore();
@@ -118,6 +119,6 @@
     <InlineInput type="textarea" placeholder="Add description..."/> -->
     <hr>
     <div class="grid grid-cols-4 gap-4">
-        <Media height="80" width="full" src="{resourcePath(data.project.splashPath)}" alt="" />
+        <Media height="80" width="full" src={resourcePath(data.project.splashPath)} />
       </div>
 </main>

@@ -1,9 +1,6 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import { twMerge } from 'tailwind-merge';
     import { isVideo } from '$lib/components/utils';
-
-    const dispatch = createEventDispatcher();
 
     export let src: string = "";
     export let alt: string = "";
@@ -15,9 +12,9 @@
     export let height: string = "32";
     export let width: string = "32";
     export let simulateLatency: boolean = false;
-    export let interactable: boolean = true;
+    export let interactable: boolean = false;
 
-    let mediaLoaded = false;
+    let mediaLoaded: boolean = false;
 
     $: if (src || src == "") {mediaLoaded = false;}
     $: heightClass = `h-${height}`;
