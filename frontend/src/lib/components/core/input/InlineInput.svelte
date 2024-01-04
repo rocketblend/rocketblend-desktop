@@ -1,6 +1,8 @@
 <script lang="ts">
     import { tick, createEventDispatcher } from 'svelte';
 
+    import { debounce } from '$lib/utils';
+
     const dispatch = createEventDispatcher();
     interface Option { label: string; value: string; }
     interface InputTypeState {
@@ -32,8 +34,10 @@
     let selectedIndex: number = options.findIndex(o => o.value === value);
     let currentInputType: InputTypeState = getInputTypeState(type);
 
+    let lastConfirmedValue: string = value;
+    let isKeyPressHandled = false;
+
     const computeLabel = (): string => {
-        console.log('computeLabel', value);
         if (currentInputType.text || currentInputType.number || currentInputType.textarea) {
             return value || placeholder;
         } else if (currentInputType.select) {
@@ -52,16 +56,16 @@
     };
 
     const toggleEditing = () => {
-        editing = !editing;
-        if (editing) {
-            focusInput();
-            return;
+        if (!editing) {
+            lastConfirmedValue = value;
         }
 
-        const oldLabel = label;
-        label = computeLabel()
+        editing = !editing;
 
-        if (oldLabel !== label) {
+        if (editing) {
+            focusInput();
+        } else if (value !== lastConfirmedValue) {
+            label = computeLabel();
             dispatch('change', value);
         }
     };
@@ -71,14 +75,28 @@
     };
 
     const handleKeyPress = (event: KeyboardEvent) => {
-        if (event.key === 'Enter' || event.key === ' ') {
+        console.log(event.key);
+        if (event.key === 'Enter' && editing) {
             toggleEditing();
+            isKeyPressHandled = true;
+        }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+            value = lastConfirmedValue;
+            toggleEditing();
+            isKeyPressHandled = true;
         }
     };
 
     const handleBlur = () => {
-        toggleEditing();
-        dispatch('blur', value);
+        if (!isKeyPressHandled) {
+            toggleEditing();
+            dispatch('blur', value);
+        }
+
+        isKeyPressHandled = false;
     };
 
     const handleChange = (event: Event) => {
@@ -100,6 +118,8 @@
                 placeholder={placeholder}
                 on:input={handleInput}
                 on:blur={handleBlur}
+                on:keypress={handleKeyPress}
+                on:keydown={handleKeyDown}
             />
         {:else if currentInputType.number}
             <input
@@ -110,6 +130,7 @@
                 placeholder={placeholder}
                 on:input={handleInput}
                 on:blur={handleBlur}
+                on:keypress={handleKeyPress}
             />
         {:else if currentInputType.textarea}
             <textarea
