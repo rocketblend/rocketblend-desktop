@@ -10,6 +10,7 @@
 
 	import Media from '$lib/components/core/media/Media.svelte';
 	import { GetProject } from '$lib/wailsjs/go/application/Driver';
+	import InlineInput from '$lib/components/core/input/InlineInput.svelte';
 
     const selectedProjectStore = getSelectedProjectStore();
     const refreshProjectDebounced = debounce(refreshProject, EVENT_DEBOUNCE);
@@ -51,24 +52,24 @@
 </script>
 
 <main class="space-y-4"> 
-    <div class="flex gap-4">
+    <div class="flex gap-4 items-end">
         <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
         <div class="space-y-4">
-            <h2 class="h2 font-bold">{data.project.name}</h2>
-            <p class="text-sm text-surface-300">Last updated: {data.project.updatedAt}</p>
+            <InlineInput bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" />
+            <span class="text-sm text-surface-600-300-token">Last updated: {data.project.updatedAt}</span>
         </div>
     </div>
     <hr>
+    <InlineInput type="textarea" placeholder="Description..."/>
+    <hr>
     <ul>
-        <li>ID: {data.project.id}</li>
-        <li>Path: {data.project.path}</li>
-        <li>File Name: {data.project.fileName}</li>
-        <li>Thumbnail Path: {data.project.thumbnailPath}</li>
-        <li>Splash Path: {data.project.splashPath}</li>
-        <li>Build: {data.project.build}</li>
-        <li>Addons: {data.project.addons}</li>
-        <li>Tags: {data.project.tags}</li>
-        <li>Version: {data.project.version}</li>
+        <li><b>ID:</b> {data.project.id}</li>
+        <li><b>Path:</b> {data.project.path}</li>
+        <li><b>File Name:</b> {data.project.fileName}</li>
+        <li><b>Build:</b> {data.project.build}</li>
+        <li><b>Addons:</b> {data.project.addons}</li>
+        <li><b>Tags:</b> {data.project.tags}</li>
+        <li><b>Version:</b> {data.project.version}</li>
     </ul>
     <hr>
     <div class="grid grid-cols-4 gap-4">

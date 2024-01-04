@@ -1,18 +1,29 @@
 <script lang="ts">
     import { tick, createEventDispatcher } from 'svelte';
-    
-    const dispatch = createEventDispatcher();
 
-    interface Option {
-        label: string;
-        value: string;
+    // import IconEditFill from '~icons/ri/edit-fill';
+
+    const dispatch = createEventDispatcher();
+    interface Option { label: string; value: string; }
+    interface InputTypeState {
+        text: boolean;
+        number: boolean;
+        textarea: boolean;
+        select: boolean;
     }
+
+    const getInputTypeState = (type: string): InputTypeState => ({
+        text: type === 'text',
+        number: type === 'number',
+        textarea: type === 'textarea',
+        select: type === 'select'
+    });
 
     export let value: string = '';
     export let type: 'text' | 'number' | 'textarea' | 'select' = 'text';
     export let placeholder: string = '';
     export let labelClasses: string = '';
-    export let inputClasses: string = '';
+    export let inputClasses: string = 'input';
     export let rows: number = 2;
     export let cols: number = 20;
     export let options: Option[] = [];
@@ -21,103 +32,120 @@
     let inputEl: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
     let label: string;
     let selectedIndex: number = options.findIndex(o => o.value === value);
-    
-    $: isText = type === 'text';
-    $: isNumber = type === 'number';
-    $: isTextArea = type === 'textarea';
-    $: isSelect = type === 'select';
-    $: if (isNumber) {
-        label = value === '' ? placeholder : value;
-    } else if (isText || isTextArea) {
-        label = value ? value : placeholder;
-    } else {
-        label = selectedIndex === -1 ? placeholder : options[selectedIndex].label;
-    }
-    
-    const toggle = async () => {
-        editing = !editing;
+    let currentInputType: InputTypeState = getInputTypeState(type);
 
-        if (editing) {
-            await tick();
-            inputEl.focus();
+    const computeLabel = (): string => {
+        if (currentInputType.text || currentInputType.number || currentInputType.textarea) {
+            return value || placeholder;
+        } else if (currentInputType.select) {
+            return selectedIndex === -1 ? placeholder : options[selectedIndex].label;
+        }
+        
+        return '';
+    };
+
+    $: currentInputType = getInputTypeState(type);
+    $: label = computeLabel();
+
+    const focusInput = async () => {
+        await tick();
+        inputEl?.focus();
+    };
+
+    const toggleEditing = () => {
+        editing = !editing;
+        if (editing) focusInput();
+    };
+
+    const handleInput = (event: Event) => {
+        value = (event.target as HTMLInputElement).value;
+    };
+
+    const handleKeyPress = (event: KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            toggleEditing();
         }
     };
-    
-    const handleInput = (e: Event) => {
-        const target = e.target as HTMLInputElement;
-        value = isNumber ? target.value : target.value;
-    };
-    
-    const handleEnter = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') inputEl.blur();
-    };
-    
+
     const handleBlur = () => {
-        toggle();
+        toggleEditing();
         dispatch('blur', value);
     };
 
-    const handleKeyPress = (e: KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            toggle();
-        }
-    };
-    
-    const handleChange = (e: Event) => {
-        const target = e.target as HTMLSelectElement;
-        selectedIndex = placeholder ? target.selectedIndex - 1 : target.selectedIndex;
-        value = options[selectedIndex].value;
+    const handleChange = (event: Event) => {
+        const target = event.target as HTMLSelectElement;
+        selectedIndex = options.findIndex(option => option.value === target.value);
+        value = options[selectedIndex]?.value || '';
     };
 </script>
-    
-{#if editing && (isText || isNumber)}
-    <input
-        class={inputClasses}
-        bind:this={inputEl}
-        {type}
-        {value}
-        {placeholder}
-        on:input={handleInput}
-        on:keyup={handleEnter}
-        on:blur={handleBlur}
-    >
-{:else if editing && isTextArea}
-    <textarea
-        class={inputClasses}
-        bind:this={inputEl}
-        {placeholder}
-        {value}
-        {rows}
-        {cols}
-        on:input={handleInput}
-        on:blur={handleBlur}
-    />
-{:else if editing && isSelect}
-    <select
-        class={inputClasses}
-        bind:this={inputEl}
-        on:change={handleChange}
-        {value}
-        on:blur={handleBlur}
-    >
-    {#if placeholder}
-        <option selected value disabled>{placeholder}</option>
+
+<div>
+    {#if editing}
+        <!-- Split inputs to handle types correctly with two-way binding -->
+        {#if currentInputType.text}
+            <input
+                class={inputClasses}
+                bind:this={inputEl}
+                type="text"
+                bind:value
+                placeholder={placeholder}
+                on:input={handleInput}
+                on:blur={handleBlur}
+            />
+        {:else if currentInputType.number}
+            <input
+                class={inputClasses}
+                bind:this={inputEl}
+                type="number"
+                bind:value={value}
+                placeholder={placeholder}
+                on:input={handleInput}
+                on:blur={handleBlur}
+            />
+        {:else if currentInputType.textarea}
+            <textarea
+                class={inputClasses}
+                bind:this={inputEl}
+                bind:value
+                placeholder={placeholder}
+                rows={rows}
+                cols={cols}
+                on:input={handleInput}
+                on:blur={handleBlur}
+            />
+        {:else if currentInputType.select}
+            <select
+                class={inputClasses}
+                bind:this={inputEl}
+                bind:value
+                on:change={handleChange}
+                on:blur={handleBlur}
+            >
+                {#if placeholder}
+                    <option disabled>{placeholder}</option>
+                {/if}
+                {#each options as option}
+                    <option value={option.value}>
+                        {option.label}
+                    </option>
+                {/each}
+            </select>
+        {/if}
+    {:else}
+        <div
+            class="inline-flex justify-end items-center space-x-2 {labelClasses}"
+            on:click={toggleEditing}
+            on:keypress={handleKeyPress}
+            tabindex="0"
+            role="button"
+            aria-label="Interactive label"
+            aria-expanded={editing}
+        >
+            <div>
+                {label}
+            </div>
+            <!-- <slot name="editIcon"><div class="text-sm text-surface-600-300-token"><IconEditFill /></div></slot> -->
+            <slot name="selectCaret">{#if currentInputType.select}<span>&#9660;</span>{/if}</slot>
+        </div>
     {/if}
-    {#each options as { label, value }, i}
-        <option value={value}>
-            {label}
-        </option>
-    {/each}
-    </select>
-{:else}
-    <span
-        class={labelClasses}
-        on:click={toggle}
-        on:keypress={handleKeyPress}
-        tabindex="0"
-        role="button"
-        aria-label="Your descriptive label here"
-    >
-        {label}<slot name="selectCaret">{#if isSelect}<span>&#9660;</span>{/if}</slot>
-    </span>
-{/if}
+</div>
