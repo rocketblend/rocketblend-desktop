@@ -63,22 +63,22 @@
         <div>
             <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
         </div>
-        <div class="space-y-1">
+        <div class="space-y-2">
             <InlineInput bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" />
-            <div class="text-sm text-surface-800-100-token space-y-1">
+            <div class="flex flex-wrap text-sm text-surface-800-100-token gap-1">
                 <div class="badge variant-ghost rounded">{data.project.path}</div>
                 <div class="badge variant-ghost rounded">{data.project.fileName}</div>
-                <div class="badge variant-ghost-primary rounded">{data.project.build}</div>
+                <div class="badge variant-ghost rounded">{data.project.build}</div>
                 {#each data.project.tags || [] as tag}
-                    <div class="badge variant-ghost-success rounded">{tag}</div>
+                    <div class="badge variant-ghost-primary rounded">{tag}</div>
                 {/each}
                 <div class="badge variant-ghost-secondary rounded">{getDependenciesDisplay()}</div>
                 <div class="badge variant-ghost rounded">{formatDateTime(data.project.updatedAt)}</div>
             </div>
         </div>
     </div>
-    <hr>
-    <InlineInput type="textarea" placeholder="Add description..."/>
+    <!-- <hr>
+    <InlineInput type="textarea" placeholder="Add description..."/> -->
     <hr>
     <div class="grid grid-cols-4 gap-4">
         <Media height="80" width="full" src="{resourcePath(data.project.splashPath)}" alt="" />
