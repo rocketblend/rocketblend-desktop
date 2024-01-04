@@ -122,10 +122,6 @@ func Load(projectPath string) (*Project, error) {
 	}, nil
 }
 
-func Save(project *Project) error {
-	return nil
-}
-
 func ignoreProject(projectPath string) bool {
 	_, err := os.Stat(filepath.Join(projectPath, IgnoreFileName))
 	return !os.IsNotExist(err)

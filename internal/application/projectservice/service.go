@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsettings"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
@@ -206,7 +207,20 @@ func (s *service) Create(ctx context.Context, request *CreateProjectRequest) err
 }
 
 func (s *service) Update(ctx context.Context, request *UpdateProjectRequest) error {
-	return nil
+	project, err := s.get(ctx, request.ID)
+	if err != nil {
+		return err
+	}
+
+	project.Name = request.Name
+
+	return projectsettings.Save(&projectsettings.ProjectSettings{
+		ID:            project.ID,
+		Name:          project.Name,
+		Tags:          project.Tags,
+		ThumbnailPath: project.ThumbnailPath,
+		SplashPath:    project.SplashPath,
+	}, filepath.Join(project.Path, projectsettings.FileName))
 }
 
 func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error) {

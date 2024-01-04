@@ -25,12 +25,7 @@ type (
 	}
 
 	UpdateProjectRequest struct {
-		ID       uuid.UUID             `json:"id,omitempty"`
-		Name     string                `json:"name,omitempty"`
-		Tags     []string              `json:"tags,omitempty"`
-		Path     string                `json:"path,omitempty"`
-		FileName string                `json:"fileName,omitempty"`
-		Build    reference.Reference   `json:"build,omitempty"`
-		Addons   []reference.Reference `json:"addons,omitempty"`
+		ID   uuid.UUID `json:"id"`
+		Name string    `json:"name"`
 	}
 )

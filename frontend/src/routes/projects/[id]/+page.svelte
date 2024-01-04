@@ -2,6 +2,8 @@
     import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
 
+    import { type ToastSettings, getToastStore } from '@skeletonlabs/skeleton';
+
     import { t } from '$lib/translations/translations';
     import { getSelectedProjectStore } from '$lib/stores';
     import { debounce } from '$lib/utils';
@@ -10,11 +12,13 @@
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
 	import Media from '$lib/components/core/media/Media.svelte';
-	import { GetProject } from '$lib/wailsjs/go/application/Driver';
+	import { GetProject, UpdateProject } from '$lib/wailsjs/go/application/Driver';
 	import InlineInput from '$lib/components/core/input/InlineInput.svelte';
 
     import IconEditFill from '~icons/ri/edit-fill';
+	import type { projectservice } from '$lib/wailsjs/go/models';
 
+    const toastStore = getToastStore();
     const selectedProjectStore = getSelectedProjectStore();
     const refreshProjectDebounced = debounce(refreshProject, EVENT_DEBOUNCE);
 
@@ -31,6 +35,31 @@
         data = {...data, project};
     }
 
+    async function updateProject() {
+        const request: projectservice.UpdateProjectRequest = {
+            id: data.project.id,
+            name: data.project.name || "",
+        };
+
+        await UpdateProject(request)
+            .then(() => {
+                const updateProjectSuccessToast: ToastSettings = {
+                    message: t.get('home.toast.saving.save'),
+                    timeout: 1000
+                };
+                toastStore.trigger(updateProjectSuccessToast);
+            })
+            .catch((error) => {
+                const updateProjectErrorToast: ToastSettings = {
+                    message: t.get('home.toast.saving.error'),
+                    background: "variant-filled-error",
+                    timeout: 3000
+                };
+                toastStore.trigger(updateProjectErrorToast);
+                console.error(error);
+            });
+    }
+
     function setSelectedProject() {
         if (data.project.id) {
             selectedProjectStore.set([data.project.id.toString()]);
@@ -41,6 +70,10 @@
         const dependencies = data.project.addons || [];
         const buildDependencyCount = data.project.build ? 1 : 0;
         return t.get('home.project.tag.dependency', { number: dependencies.length + buildDependencyCount });
+    }
+
+    function handleChange(event: CustomEvent) {
+        updateProject();
     }
 
     setSelectedProject();
@@ -66,7 +99,7 @@
             <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
         </div>
         <div class="space-y-2">
-            <InlineInput bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input">
+            <InlineInput bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
                 <IconEditFill class="text-sm text-surface-600-300-token"/>
             </InlineInput>
             <div class="flex flex-wrap text-sm text-surface-800-100-token gap-1">

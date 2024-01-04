@@ -58,8 +58,12 @@
             return;
         }
 
+        const oldLabel = label;
         label = computeLabel()
-        dispatch('change', value);
+
+        if (oldLabel !== label) {
+            dispatch('change', value);
+        }
     };
 
     const handleInput = (event: Event) => {

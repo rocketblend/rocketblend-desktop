@@ -23,17 +23,17 @@ export namespace operationservice {
 
 export namespace pack {
 	
+	export enum PackageType {
+	    UNKNOWN = 0,
+	    ADDON = 1,
+	    BUILD = 2,
+	}
 	export enum PackageState {
 	    AVAILABLE = 0,
 	    DOWNLOADING = 1,
 	    CANCELLED = 2,
 	    INSTALLED = 3,
 	    ERROR = 4,
-	}
-	export enum PackageType {
-	    UNKNOWN = 0,
-	    ADDON = 1,
-	    BUILD = 2,
 	}
 	export class Package {
 	    id?: number[];
@@ -306,13 +306,8 @@ export namespace projectservice {
 		}
 	}
 	export class UpdateProjectRequest {
-	    id?: number[];
-	    name?: string;
-	    tags?: string[];
-	    path?: string;
-	    fileName?: string;
-	    build?: string;
-	    addons?: string[];
+	    id: number[];
+	    name: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new UpdateProjectRequest(source);
@@ -322,11 +317,6 @@ export namespace projectservice {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.name = source["name"];
-	        this.tags = source["tags"];
-	        this.path = source["path"];
-	        this.fileName = source["fileName"];
-	        this.build = source["build"];
-	        this.addons = source["addons"];
 	    }
 	}
 
