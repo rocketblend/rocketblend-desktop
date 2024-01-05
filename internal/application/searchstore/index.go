@@ -1,6 +1,8 @@
 package searchstore
 
 import (
+	"time"
+
 	"github.com/blevesearch/bleve/v2"
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/google/uuid"
@@ -17,7 +19,7 @@ type (
 		State      int                 `json:"state"`
 		Resources  []string            `json:"resources,omitempty"`
 		Operations []string            `json:"operations,omitempty"`
-		Error      string              `json:"error,omitempty"`
+		Date       time.Time           `json:"date,omitempty"`
 		Data       string              `json:"data,omitempty"`
 	}
 )
