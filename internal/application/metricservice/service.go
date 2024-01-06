@@ -28,30 +28,29 @@ type (
 		Value  int    `json:"value"`
 	}
 
-	AggregateOptions struct {
-		Domain    string
-		Name      string
-		StartTime time.Time
-		EndTime   time.Time
-		MinCount  int
+	FilterOptions struct {
+		Domain    string    `json:"domain"`
+		Name      string    `json:"name"`
+		StartTime time.Time `json:"startTime"`
+		EndTime   time.Time `json:"endTime"`
 	}
 
 	Aggregate struct {
-		Domain string
-		Name   string
-		Sum    int
-		Avg    float64
-		Count  int
-		Min    int
-		Max    int
+		Domain string  `json:"domain"`
+		Name   string  `json:"name"`
+		Sum    int     `json:"sum"`
+		Avg    float64 `json:"avg"`
+		Count  int     `json:"count"`
+		Min    int     `json:"min"`
+		Max    int     `json:"max"`
 	}
 
 	Service interface {
 		Get(ctx context.Context, id uuid.UUID) (*Metric, error)
-		List(ctx context.Context, opts ...listoption.ListOption) ([]*Metric, error)
+		List(ctx context.Context, options FilterOptions) ([]*Metric, error)
+		Aggregate(ctx context.Context, options FilterOptions) (*Aggregate, error)
 
 		Add(ctx context.Context, options AddOptions) error
-		Aggregate(ctx context.Context, options AggregateOptions) (*Aggregate, error)
 		Remove(ctx context.Context, id uuid.UUID) error
 	}
 
@@ -97,10 +96,6 @@ func New(options ...Option) Service {
 }
 
 func (s *service) Get(ctx context.Context, id uuid.UUID) (*Metric, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-
 	index, err := s.store.Get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -114,32 +109,8 @@ func (s *service) Get(ctx context.Context, id uuid.UUID) (*Metric, error) {
 	return metric, nil
 }
 
-func (s *service) List(ctx context.Context, opts ...listoption.ListOption) ([]*Metric, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-
-	opts = append(opts, listoption.WithType(indextype.Metric))
-	indexes, err := s.store.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	metrics := make([]*Metric, 0, len(indexes))
-	for _, index := range indexes {
-		if err := ctx.Err(); err != nil {
-			return nil, err
-		}
-
-		met, err := convertIndexToMetric(index)
-		if err != nil {
-			return nil, err
-		}
-
-		metrics = append(metrics, met)
-	}
-
-	return metrics, nil
+func (s *service) List(ctx context.Context, options FilterOptions) ([]*Metric, error) {
+	return s.list(ctx, options)
 }
 
 func (s *service) Add(ctx context.Context, options AddOptions) error {
@@ -175,20 +146,81 @@ func (s *service) Add(ctx context.Context, options AddOptions) error {
 	return nil
 }
 
-func (s *service) Aggregate(ctx context.Context, options AggregateOptions) (*Aggregate, error) {
+func (s *service) Aggregate(ctx context.Context, options FilterOptions) (*Aggregate, error) {
+	metrics, err := s.list(ctx, options)
+	if err != nil {
+		return nil, err
+	}
+
+	var sum, count, min, max int
+	var avg float64
+
+	for _, metric := range metrics {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
+		sum += metric.Value
+		count++
+		if min == 0 || metric.Value < min {
+			min = metric.Value
+		}
+		if metric.Value > max {
+			max = metric.Value
+		}
+	}
+
+	if count > 0 {
+		avg = float64(sum) / float64(count)
+	}
+
+	return &Aggregate{
+		Domain: options.Domain,
+		Name:   options.Name,
+		Sum:    sum,
+		Avg:    avg,
+		Count:  count,
+		Min:    min,
+		Max:    max,
+	}, nil
+}
+
+func (s *service) Remove(ctx context.Context, id uuid.UUID) error {
+	return s.store.Remove(ctx, id)
+}
+
+func (s *service) list(ctx context.Context, options FilterOptions) ([]*Metric, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
 
-	return nil, errors.New("not implemented")
-}
-
-func (s *service) Remove(ctx context.Context, id uuid.UUID) error {
-	if err := ctx.Err(); err != nil {
-		return err
+	opts := []listoption.ListOption{
+		listoption.WithType(indextype.Metric),
+		listoption.WithReference(options.Domain),
+		listoption.WithName(options.Name),
+		listoption.WithDateRange(options.StartTime, options.EndTime),
 	}
 
-	return s.store.Remove(ctx, id)
+	indexes, err := s.store.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	metrics := make([]*Metric, 0, len(indexes))
+	for _, index := range indexes {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
+		met, err := convertIndexToMetric(index)
+		if err != nil {
+			return nil, err
+		}
+
+		metrics = append(metrics, met)
+	}
+
+	return metrics, nil
 }
 
 func convertMetricToIndex(metric *Metric) (*searchstore.Index, error) {
