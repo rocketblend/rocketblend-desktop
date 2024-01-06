@@ -9,8 +9,10 @@ const (
 
 	PackageCountMetric = "package.count"
 
-	ProjectCountMetric = "project.count"
-	ProjectRunMetric   = "project.run"
+	ProjectCountMetric   = "project.count"
+	ProjectRunMetric     = "project.action.run"
+	ProjectExploreMetric = "project.action.explore"
+	ProjectUpdateMetric  = "project.action.update"
 
 	StoreInsertMetric = "store.insert"
 )

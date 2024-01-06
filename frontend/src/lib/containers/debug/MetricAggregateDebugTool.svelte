@@ -25,7 +25,7 @@
 <div class="flex flex-col card p-2 space-y-2">
     <input type="text" class="input" bind:value={domain} placeholder="Domain" />
     <input type="text" class="input" bind:value={name} placeholder="Name" />
-    <button class="btn variant-filled" on:click={fetchMetrics}>Fetch</button>
+    <button class="btn variant-filled" on:click={fetchMetrics}>Aggregate</button>
     <hr>
     <div>
         <pre>{JSON.stringify(aggregate, null, 2)}</pre>

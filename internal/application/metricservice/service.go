@@ -203,6 +203,7 @@ func (s *service) list(ctx context.Context, options FilterOptions) ([]*Metric, e
 		listoption.WithReference(options.Domain),
 		listoption.WithName(options.Name),
 		listoption.WithDateRange(options.StartTime, options.EndTime),
+		listoption.WithSize(10000),
 	}
 
 	indexes, err := s.store.List(ctx, opts...)
