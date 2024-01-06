@@ -6,8 +6,8 @@ export function AddPackage(arg1) {
   return window['go']['application']['Driver']['AddPackage'](arg1);
 }
 
-export function AggregateMetrics(arg1, arg2) {
-  return window['go']['application']['Driver']['AggregateMetrics'](arg1, arg2);
+export function AggregateMetrics(arg1) {
+  return window['go']['application']['Driver']['AggregateMetrics'](arg1);
 }
 
 export function CancelOperation(arg1) {
@@ -54,8 +54,8 @@ export function InstallPackageOperation(arg1) {
   return window['go']['application']['Driver']['InstallPackageOperation'](arg1);
 }
 
-export function ListMetrics(arg1, arg2) {
-  return window['go']['application']['Driver']['ListMetrics'](arg1, arg2);
+export function ListMetrics(arg1) {
+  return window['go']['application']['Driver']['ListMetrics'](arg1);
 }
 
 export function ListOperations() {

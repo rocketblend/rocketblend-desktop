@@ -7,6 +7,7 @@
     import RequestCancellationDebugTool from "$lib/containers/debug/RequestCancellationDebugTool.svelte";
     import LogFeed from "$lib/components/feed/LogFeed.svelte";
 	import OperationDebugTool from './debug/OperationDebugTool.svelte';
+	import MetricAggregateDebugTool from './debug/MetricAggregateDebugTool.svelte';
 
     const logStore = getLogStore();
 
@@ -38,6 +39,9 @@
                     </div>
                     <div>
                         <OperationDebugTool/>
+                    </div>
+                    <div>
+                        <MetricAggregateDebugTool/>
                     </div>
                 </div>
             </div>

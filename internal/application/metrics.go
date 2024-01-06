@@ -85,7 +85,7 @@ func (d *Driver) addPackageMetrics(metric metricservice.Service) error {
 
 	return metric.Add(d.ctx, metricservice.AddOptions{
 		Domain: Domain,
-		Name:   ProjectCountMetric,
+		Name:   PackageCountMetric,
 		Value:  len(result.Packages),
 	})
 }

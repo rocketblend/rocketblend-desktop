@@ -25,12 +25,12 @@ export namespace metricservice {
 	    }
 	}
 	export class FilterOptions {
-	    domain: string;
-	    name: string;
+	    domain?: string;
+	    name?: string;
 	    // Go type: time
-	    startTime: any;
+	    startTime?: any;
 	    // Go type: time
-	    endTime: any;
+	    endTime?: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new FilterOptions(source);

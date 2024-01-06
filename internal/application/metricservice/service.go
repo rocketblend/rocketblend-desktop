@@ -23,16 +23,16 @@ type (
 	}
 
 	AddOptions struct {
-		Domain string `json:"domain"`
-		Name   string `json:"Name"`
-		Value  int    `json:"value"`
+		Domain string `json:"domain,omitempty"`
+		Name   string `json:"Name,omitempty"`
+		Value  int    `json:"value,omitempty"`
 	}
 
 	FilterOptions struct {
-		Domain    string    `json:"domain"`
-		Name      string    `json:"name"`
-		StartTime time.Time `json:"startTime"`
-		EndTime   time.Time `json:"endTime"`
+		Domain    string    `json:"domain,omitempty"`
+		Name      string    `json:"name,omitempty"`
+		StartTime time.Time `json:"startTime,omitempty"`
+		EndTime   time.Time `json:"endTime,omitempty"`
 	}
 
 	Aggregate struct {
