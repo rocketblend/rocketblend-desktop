@@ -105,6 +105,7 @@
             </InlineInput>
             <div class="flex flex-wrap text-sm text-surface-800-100-token gap-1">
                 <div class="badge variant-ghost rounded">{data.project.path}</div>
+                <div class="badge variant-ghost rounded">{data.project.id}</div>
                 <div class="badge variant-ghost rounded">{data.project.fileName}</div>
                 <div class="badge variant-ghost rounded">{data.project.build}</div>
                 {#each data.project.tags || [] as tag}
