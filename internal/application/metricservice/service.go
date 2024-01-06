@@ -80,7 +80,7 @@ func WithStore(store searchstore.Store) Option {
 	}
 }
 
-func New(options ...Option) Service {
+func New(options ...Option) (Service, error) {
 	opts := &Options{
 		Logger: logger.NoOp(),
 	}
@@ -89,10 +89,14 @@ func New(options ...Option) Service {
 		option(opts)
 	}
 
+	if opts.Store == nil {
+		return nil, errors.New("store is required")
+	}
+
 	return &service{
 		logger: opts.Logger,
 		store:  opts.Store,
-	}
+	}, nil
 }
 
 func (s *service) Get(ctx context.Context, id uuid.UUID) (*Metric, error) {

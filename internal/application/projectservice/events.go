@@ -6,8 +6,11 @@ import (
 )
 
 const (
-	RunEventChannel      = "projectservice.run"
-	ExoploreEventChannel = "projectservice.explore"
+	CreateEventChannel = "projectservice.create"
+	UpdateEventChannel = "projectservice.update"
+
+	RunEventChannel     = "projectservice.run"
+	ExploreEventChannel = "projectservice.explore"
 )
 
 type (

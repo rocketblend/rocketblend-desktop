@@ -392,23 +392,17 @@ func (d *Driver) startup(ctx context.Context) {
 	// Start listening to log events
 	go d.listenToLogEvents()
 
-	runtime.EventsOn(ctx, "operation.cancel", func(optionalData ...interface{}) {
-		if len(optionalData) > 0 {
-			if cidStr, ok := optionalData[0].(string); ok {
-				cid, err := uuid.Parse(cidStr)
-				if err != nil {
-					d.logger.Error("invalid operation ID format for cancellation", map[string]interface{}{"error": err.Error()})
-					return
-				}
-				d.cancelTokens.Store(cid.String(), true)
-				d.logger.Debug("cancellation requested", map[string]interface{}{"cid": cid})
-			} else {
-				d.logger.Error("invalid data type for operation ID", map[string]interface{}{"type": fmt.Sprintf("%T", optionalData[0])})
-			}
-		} else {
-			d.logger.Error("no operation ID provided for cancellation")
-		}
-	})
+	// Setup driver event handlers (backend)
+	if err := d.setupDriverEventHandlers(ctx); err != nil {
+		d.logger.Error("failed to setup driver event handlers", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	// Setup runtime event handlers (frontend)
+	if err := d.setupRuntimeEventHandlers(ctx); err != nil {
+		d.logger.Error("failed to setup runtime event handlers", map[string]interface{}{"error": err.Error()})
+		return
+	}
 
 	// Preloads all the data
 	if err := d.factory.Preload(); err != nil {

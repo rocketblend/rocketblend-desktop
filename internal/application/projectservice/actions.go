@@ -60,7 +60,7 @@ func (s *service) Explore(ctx context.Context, id uuid.UUID) error {
 		}
 	}()
 
-	s.EmitEvent(ctx, id, RunEventChannel)
+	s.EmitEvent(ctx, id, ExploreEventChannel)
 
 	return nil
 }

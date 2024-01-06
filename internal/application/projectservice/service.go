@@ -217,6 +217,12 @@ func (s *service) Close() error {
 }
 
 func (s *service) Create(ctx context.Context, request *CreateProjectRequest) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
+	s.EmitEvent(ctx, uuid.New(), CreateEventChannel)
+
 	return nil
 }
 
@@ -226,15 +232,22 @@ func (s *service) Update(ctx context.Context, request *UpdateProjectRequest) err
 		return err
 	}
 
-	project.Name = request.Name
-
-	return projectsettings.Save(&projectsettings.ProjectSettings{
+	filePath := filepath.Join(project.Path, projectsettings.FileName)
+	settings := projectsettings.ProjectSettings{
 		ID:            project.ID,
-		Name:          project.Name,
+		Name:          request.Name,
 		Tags:          project.Tags,
 		ThumbnailPath: project.ThumbnailPath,
 		SplashPath:    project.SplashPath,
-	}, filepath.Join(project.Path, projectsettings.FileName))
+	}
+
+	if err := projectsettings.Save(&settings, filePath); err != nil {
+		return err
+	}
+
+	s.EmitEvent(ctx, project.ID, UpdateEventChannel)
+
+	return nil
 }
 
 func (s *service) Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error) {
