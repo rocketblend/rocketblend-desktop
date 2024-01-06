@@ -14,12 +14,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/eventservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
@@ -379,6 +377,12 @@ func (d *Driver) LongRunningRequestWithCancellation(cid uuid.UUID) error {
 // Quit quits the application
 func (d *Driver) Quit() {
 	d.logger.Debug("quitting application")
+
+	if err := d.addApplicationMetrics(); err != nil {
+		d.logger.Error("failed to add application metrics", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
 	runtime.Quit(d.ctx)
 }
 
@@ -392,21 +396,21 @@ func (d *Driver) startup(ctx context.Context) {
 	// Start listening to log events
 	go d.listenToLogEvents()
 
+	// Preloads all the data
+	if err := d.factory.Preload(); err != nil {
+		d.logger.Error("failed to preload", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
 	// Setup driver event handlers (backend)
-	if err := d.setupDriverEventHandlers(ctx); err != nil {
+	if err := d.setupDriverEventHandlers(); err != nil {
 		d.logger.Error("failed to setup driver event handlers", map[string]interface{}{"error": err.Error()})
 		return
 	}
 
 	// Setup runtime event handlers (frontend)
-	if err := d.setupRuntimeEventHandlers(ctx); err != nil {
+	if err := d.setupRuntimeEventHandlers(); err != nil {
 		d.logger.Error("failed to setup runtime event handlers", map[string]interface{}{"error": err.Error()})
-		return
-	}
-
-	// Preloads all the data
-	if err := d.factory.Preload(); err != nil {
-		d.logger.Error("failed to preload", map[string]interface{}{"error": err.Error()})
 		return
 	}
 }
@@ -440,25 +444,8 @@ func (d *Driver) onDomReady(ctx context.Context) {
 func (d *Driver) onLayoutReady(ctx context.Context) {
 	d.logger.Debug("main layout is ready")
 
-	eventService, err := d.factory.GetEventService()
-	if err != nil {
-		d.logger.Error("failed to get event service", map[string]interface{}{"error": err.Error()})
-		return
-	}
-
-	// Register the event listener for the searchstore
-	_, err = eventService.Subscribe(ctx, searchstore.InsertEventChannel, func(e eventservice.Eventer) error {
-		ev, ok := e.(*searchstore.Event)
-		if !ok {
-			return errors.New("invalid event type")
-		}
-
-		d.logger.Debug("store insert event received", map[string]interface{}{"event": ev})
-		runtime.EventsEmit(ctx, searchstore.InsertEventChannel, e)
-		return nil
-	}, 0)
-	if err != nil {
-		d.logger.Error("failed to subscribe to store insert event", map[string]interface{}{"error": err.Error()})
+	if err := d.addApplicationMetrics(); err != nil {
+		d.logger.Error("failed to add application metrics", map[string]interface{}{"error": err.Error()})
 		return
 	}
 
