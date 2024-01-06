@@ -310,7 +310,7 @@ func (f *factory) GetSearchStore() (searchstore.Store, error) {
 	defer f.searchstoreMutex.Unlock()
 	store, err := searchstore.New(
 		searchstore.WithLogger(f.logger),
-		searchstore.WithEventService(event),
+		searchstore.WithDispatcherService(event),
 	)
 	if err != nil {
 		return nil, err
@@ -353,6 +353,11 @@ func (f *factory) GetProjectService() (projectservice.Service, error) {
 		return nil, err
 	}
 
+	dispatcher, err := f.GetEventService()
+	if err != nil {
+		return nil, err
+	}
+
 	store, err := f.GetSearchStore()
 	if err != nil {
 		return nil, err
@@ -368,6 +373,7 @@ func (f *factory) GetProjectService() (projectservice.Service, error) {
 		projectservice.WithRocketBlendInstallationService(rocketblendInstallationService),
 		projectservice.WithRocketBlendPackageService(rocketblendPackageService),
 		projectservice.WithStore(store),
+		projectservice.WithDispatcher(dispatcher),
 	)
 	if err != nil {
 		return nil, err
@@ -405,6 +411,11 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 		return nil, err
 	}
 
+	dispatcher, err := f.GetEventService()
+	if err != nil {
+		return nil, err
+	}
+
 	store, err := f.GetSearchStore()
 	if err != nil {
 		return nil, err
@@ -419,6 +430,7 @@ func (f *factory) GetPackageService() (packageservice.Service, error) {
 		packageservice.WithRocketBlendInstallationService(rocketblendInstallationService),
 		packageservice.WithRocketBlendConfigService(rocketblendConfigService),
 		packageservice.WithStore(store),
+		packageservice.WithDispatcher(dispatcher),
 	)
 	if err != nil {
 		return nil, err
@@ -441,6 +453,11 @@ func (f *factory) GetOperationService() (operationservice.Service, error) {
 	}
 	f.operationMutex.RUnlock()
 
+	dispatcher, err := f.GetEventService()
+	if err != nil {
+		return nil, err
+	}
+
 	store, err := f.GetSearchStore()
 	if err != nil {
 		return nil, err
@@ -451,6 +468,7 @@ func (f *factory) GetOperationService() (operationservice.Service, error) {
 	operationService, err := operationservice.New(
 		operationservice.WithLogger(f.logger),
 		operationservice.WithStore(store),
+		operationservice.WithDispatcher(dispatcher),
 	)
 	if err != nil {
 		return nil, err

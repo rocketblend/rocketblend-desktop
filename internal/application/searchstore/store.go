@@ -31,12 +31,12 @@ type (
 		logger logger.Logger
 		index  bleve.Index
 
-		event eventservice.Service
+		dispatcher eventservice.Service
 	}
 
 	Options struct {
-		Logger logger.Logger
-		Event  eventservice.Service
+		Logger     logger.Logger
+		Dispatcher eventservice.Service
 	}
 
 	Option func(*Options)
@@ -48,9 +48,9 @@ func WithLogger(logger logger.Logger) Option {
 	}
 }
 
-func WithEventService(event eventservice.Service) Option {
+func WithDispatcherService(dispatcher eventservice.Service) Option {
 	return func(o *Options) {
-		o.Event = event
+		o.Dispatcher = dispatcher
 	}
 }
 
@@ -63,8 +63,8 @@ func New(opts ...Option) (Store, error) {
 		o(options)
 	}
 
-	if options.Event == nil {
-		return nil, errors.New("event service is required")
+	if options.Dispatcher == nil {
+		return nil, errors.New("dispatcher service is required")
 	}
 
 	indexMapping := newIndexMapping()
@@ -74,9 +74,9 @@ func New(opts ...Option) (Store, error) {
 	}
 
 	return &store{
-		logger: options.Logger,
-		index:  index,
-		event:  options.Event,
+		logger:     options.Logger,
+		index:      index,
+		dispatcher: options.Dispatcher,
 	}, nil
 }
 
@@ -94,7 +94,7 @@ func (s *store) Insert(ctx context.Context, index *Index) error {
 
 	if existing != nil {
 		event := NewEvent(index.ID, index.Type)
-		if err := s.event.EmitEvent(ctx, InsertEventChannel, event); err != nil {
+		if err := s.dispatcher.EmitEvent(ctx, InsertEventChannel, event); err != nil {
 			s.logger.Error("error emitting event", map[string]interface{}{
 				"err": err,
 			})
@@ -173,7 +173,7 @@ func (s *store) remove(ctx context.Context, id uuid.UUID) error {
 	}
 
 	event := NewEvent(index.ID, index.Type)
-	if err := s.event.EmitEvent(ctx, RemoveEventChannel, event); err != nil {
+	if err := s.dispatcher.EmitEvent(ctx, RemoveEventChannel, event); err != nil {
 		s.logger.Error("error emitting event", map[string]interface{}{
 			"err": err,
 		})

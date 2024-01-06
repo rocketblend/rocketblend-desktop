@@ -9,6 +9,7 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/eventservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
@@ -29,7 +30,9 @@ type (
 
 	service struct {
 		logger logger.Logger
-		store  searchstore.Store
+
+		store      searchstore.Store
+		dispatcher eventservice.Service
 
 		operations    map[uuid.UUID]*operation
 		operationsMux sync.RWMutex
@@ -37,7 +40,9 @@ type (
 
 	Options struct {
 		Logger logger.Logger
-		Store  searchstore.Store
+
+		Store      searchstore.Store
+		Dispatcher eventservice.Service
 	}
 
 	Option func(*Options)
@@ -52,6 +57,12 @@ func WithLogger(logger logger.Logger) Option {
 func WithStore(store searchstore.Store) Option {
 	return func(o *Options) {
 		o.Store = store
+	}
+}
+
+func WithDispatcher(dispatcher eventservice.Service) Option {
+	return func(o *Options) {
+		o.Dispatcher = dispatcher
 	}
 }
 
@@ -72,6 +83,7 @@ func New(opts ...Option) (Service, error) {
 		logger:     options.Logger,
 		operations: make(map[uuid.UUID]*operation),
 		store:      options.Store,
+		dispatcher: options.Dispatcher,
 	}, nil
 }
 

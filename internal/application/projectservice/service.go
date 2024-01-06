@@ -10,6 +10,7 @@ import (
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/eventservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsettings"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
@@ -49,8 +50,9 @@ type (
 		rocketblendInstallationService rocketblendInstallation.Service
 		rocketblendBlendFileService    rocketblendBlendFile.Service
 
-		store   searchstore.Store
-		watcher watcher.Watcher
+		store      searchstore.Store
+		watcher    watcher.Watcher
+		dispatcher eventservice.Service
 	}
 
 	Options struct {
@@ -62,7 +64,8 @@ type (
 		RocketblendInstallationService rocketblendInstallation.Service
 		RocketblendBlendFileService    rocketblendBlendFile.Service
 
-		Store searchstore.Store
+		Store      searchstore.Store
+		Dispatcher eventservice.Service
 
 		WatcherDebounceDuration time.Duration
 	}
@@ -112,6 +115,12 @@ func WithStore(store searchstore.Store) Option {
 	}
 }
 
+func WithDispatcher(dispatcher eventservice.Service) Option {
+	return func(o *Options) {
+		o.Dispatcher = dispatcher
+	}
+}
+
 func New(opts ...Option) (Service, error) {
 	options := &Options{
 		Logger:                  logger.NoOp(),
@@ -140,6 +149,10 @@ func New(opts ...Option) (Service, error) {
 
 	if options.Store == nil {
 		return nil, fmt.Errorf("store is required")
+	}
+
+	if options.Dispatcher == nil {
+		return nil, fmt.Errorf("dispatcher is required")
 	}
 
 	config, err := options.ApplicationConfigService.Get()
@@ -194,6 +207,7 @@ func New(opts ...Option) (Service, error) {
 		rocketblendInstallationService: options.RocketblendInstallationService,
 		rocketblendBlendFileService:    options.RocketblendBlendFileService,
 		store:                          options.Store,
+		dispatcher:                     options.Dispatcher,
 		watcher:                        watcher,
 	}, nil
 }
