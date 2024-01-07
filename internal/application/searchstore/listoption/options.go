@@ -2,6 +2,7 @@ package listoption
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/blevesearch/bleve/v2"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
@@ -11,12 +12,16 @@ type (
 	ListOptions struct {
 		Query     string
 		Type      indextype.IndexType
+		Reference string
+		Name      string
 		Category  string
 		Resource  string
 		Operation string
 		State     *int
 		Size      int
 		From      int
+		StartTime time.Time
+		EndTime   time.Time
 	}
 
 	ListOption func(*ListOptions)
@@ -31,6 +36,18 @@ func WithQuery(query string) ListOption {
 func WithType(indexType indextype.IndexType) ListOption {
 	return func(o *ListOptions) {
 		o.Type = indexType
+	}
+}
+
+func WithReference(reference string) ListOption {
+	return func(o *ListOptions) {
+		o.Reference = reference
+	}
+}
+
+func WithName(name string) ListOption {
+	return func(o *ListOptions) {
+		o.Name = name
 	}
 }
 
@@ -70,12 +87,31 @@ func WithFrom(from int) ListOption {
 	}
 }
 
+func WithDateRange(startTime, endTime time.Time) ListOption {
+	return func(o *ListOptions) {
+		o.StartTime = startTime
+		o.EndTime = endTime
+	}
+}
+
 func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	query := bleve.NewConjunctionQuery()
 
 	if so.Type != indextype.Unknown {
 		typeQuery := bleve.NewQueryStringQuery("type:" + strconv.Itoa(int(so.Type)))
 		query.AddQuery(typeQuery)
+	}
+
+	if so.Reference != "" {
+		referenceQuery := bleve.NewMatchPhraseQuery(so.Reference)
+		referenceQuery.SetField("reference")
+		query.AddQuery(referenceQuery)
+	}
+
+	if so.Name != "" {
+		nameQuery := bleve.NewMatchPhraseQuery(so.Name)
+		nameQuery.SetField("name")
+		query.AddQuery(nameQuery)
 	}
 
 	if so.Category != "" {
@@ -99,6 +135,12 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	if so.State != nil {
 		stateQuery := bleve.NewQueryStringQuery("state:" + strconv.Itoa(*so.State))
 		query.AddQuery(stateQuery)
+	}
+
+	if !so.StartTime.IsZero() && !so.EndTime.IsZero() {
+		dateRangeQuery := bleve.NewDateRangeQuery(so.StartTime, so.EndTime)
+		dateRangeQuery.SetField("date")
+		query.AddQuery(dateRangeQuery)
 	}
 
 	if so.Query != "" {

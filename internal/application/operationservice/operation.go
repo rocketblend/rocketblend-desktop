@@ -33,7 +33,6 @@ func (o Operation) ToSearchIndex() (*searchstore.Index, error) {
 		ID:    o.ID,
 		Type:  indextype.Operation,
 		State: state,
-		Error: o.ErrorMsg,
 		Data:  string(data),
 	}, nil
 }

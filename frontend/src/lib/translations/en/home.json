@@ -3,7 +3,8 @@
     "greeting": "Welcome to RocketBlend Desktop!",
     "soon": "Coming Soon!",
     "navigation": {
-        "root": "Projects"
+        "root": "Projects",
+        "metric": "Metrics"
     },
     "sidebar": {
         "title": "Local Packages",
@@ -32,6 +33,9 @@
             "save": "Saving...",
             "error": "An error occurred while saving."
         }
+    },
+    "metric": {
+        "title": "Metrics"
     },
     "project": {
         "query": {

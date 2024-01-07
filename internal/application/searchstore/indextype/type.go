@@ -9,10 +9,11 @@ const (
 	Project
 	Package
 	Operation
+	Metric
 )
 
 func (p IndexType) String() string {
-	return [...]string{"unknown", "project", "package", "operation"}[p]
+	return [...]string{"unknown", "project", "package", "operation", "metric"}[p]
 }
 
 func (p IndexType) Int() int {
@@ -40,6 +41,7 @@ func PackageTypeFromString(str string) IndexType {
 		"project":   Project,
 		"package":   Package,
 		"operation": Operation,
+		"metric":    Metric,
 	}
 
 	packageType, ok := packageTypeMap[str]

@@ -19,6 +19,7 @@
     import IconSubtractFill from '~icons/ri/subtract-fill'
     import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
     import IconHomeFill from '~icons/ri/home-fill'
+    import IconBrainFill from '~icons/ri/brain-fill'
 
     import Footer from "$lib/containers/Footer.svelte";
     import Sidebar from "$lib/containers/Sidebar.svelte";
@@ -33,6 +34,10 @@
 
     function handleViewHome(): void {
         goto(`/`);
+    }
+
+    function handleViewMetric(): void {
+        goto(`/metrics`);
     }
 
     onMount(() => {
@@ -80,11 +85,19 @@
         </div>
     </svelte:fragment>
     <svelte:fragment slot="sidebarLeft" >
-        <div class="card flex-shrink-0 p-4 shadow-none">
-            <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" on:click={handleViewHome}>
-                <IconHomeFill/>
-                <span class="font-bold">{$t('home.navigation.root')}</span>
-            </button>
+        <div class="card flex-shrink-0 flex-col p-4 shadow-none">
+            <div>
+                <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" on:click={handleViewHome}>
+                    <IconHomeFill/>
+                    <span class="font-bold">{$t('home.navigation.root')}</span>
+                </button>
+            </div>
+            <!-- <div>
+                <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" on:click={handleViewMetric}>
+                    <IconBrainFill/>
+                    <span class="font-bold">{$t('home.navigation.metric')}</span>
+                </button>
+            </div> -->
         </div>
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
             <Sidebar/>

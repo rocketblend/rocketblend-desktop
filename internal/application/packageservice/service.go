@@ -10,6 +10,7 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/eventservice"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
@@ -45,8 +46,9 @@ type (
 		rocketblendPackageService      rocketblendPackage.Service
 		rocketblendInstallationService rocketblendInstallation.Service
 
-		store   searchstore.Store
-		watcher watcher.Watcher
+		store      searchstore.Store
+		watcher    watcher.Watcher
+		dispatcher eventservice.Service
 	}
 
 	Options struct {
@@ -56,7 +58,9 @@ type (
 		RocketblendPackageService      rocketblendPackage.Service
 		RocketblendInstallationService rocketblendInstallation.Service
 
-		Store                   searchstore.Store
+		Store      searchstore.Store
+		Dispatcher eventservice.Service
+
 		WatcherDebounceDuration time.Duration
 	}
 
@@ -93,6 +97,12 @@ func WithStore(store searchstore.Store) Option {
 	}
 }
 
+func WithDispatcher(dispatcher eventservice.Service) Option {
+	return func(o *Options) {
+		o.Dispatcher = dispatcher
+	}
+}
+
 func WithWatcherDebounceDuration(duration time.Duration) Option {
 	return func(o *Options) {
 		o.WatcherDebounceDuration = duration
@@ -111,6 +121,10 @@ func New(opts ...Option) (Service, error) {
 
 	if options.Store == nil {
 		return nil, fmt.Errorf("store service is required")
+	}
+
+	if options.Dispatcher == nil {
+		return nil, fmt.Errorf("dispatcher service is required")
 	}
 
 	if options.RocketblendConfigService == nil {
@@ -167,6 +181,7 @@ func New(opts ...Option) (Service, error) {
 		rocketblendPackageService:      options.RocketblendPackageService,
 		rocketblendInstallationService: options.RocketblendInstallationService,
 		store:                          options.Store,
+		dispatcher:                     options.Dispatcher,
 		watcher:                        watcher,
 	}, nil
 }
