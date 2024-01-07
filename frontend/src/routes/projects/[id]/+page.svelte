@@ -18,6 +18,7 @@
 	import InlineInput from '$lib/components/core/input/InlineInput.svelte';
 
     import IconEditFill from '~icons/ri/edit-fill';
+	import HeatMap from '$lib/components/metric/HeatMap.svelte';
 
     const toastStore = getToastStore();
     const selectedProjectStore = getSelectedProjectStore();

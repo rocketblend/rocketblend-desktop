@@ -38,8 +38,9 @@
     $: updateChart(data);
 
     onMount(() => {
+        console.log(data)
         chart = new Chart(chartRef, {
-            data,
+            data: data,
             title,
             type,
             height,
@@ -62,5 +63,5 @@
     });
 </script>
 
-<div bind:this={chartRef} on:data-select>
+<div class="overflow-x-auto" bind:this={chartRef} on:data-select>
 </div>

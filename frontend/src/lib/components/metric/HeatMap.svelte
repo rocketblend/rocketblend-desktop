@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Chart from "$lib/components/core/chart/Chart.svelte";
-    import type { HeatmapData, ChartType } from 'frappe-charts';
+    import type { HeatmapData } from 'frappe-charts';
 
     const dateToUnix = (dateString: string | Date): number => {
-        return new Date(dateString).getTime();
+        return new Date(dateString).getTime() / 1000;
     };
 
     let data: HeatmapData = {
@@ -24,10 +24,12 @@
     const chartType = 'heatmap';
 </script>
 
-<Chart
-    data={data}
-    type={chartType}
-    height={175}
-    radius={1}
-    discreteDomains={1}
-/>
+<div class="flex card p-2">
+    <Chart
+        data={data}
+        type={chartType}
+        height={175}
+        radius={1}
+        discreteDomains={1}
+    />
+</div>
