@@ -92,12 +92,12 @@
                     <span class="font-bold">{$t('home.navigation.root')}</span>
                 </button>
             </div>
-            <div>
+            <!-- <div>
                 <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" on:click={handleViewMetric}>
                     <IconBrainFill/>
                     <span class="font-bold">{$t('home.navigation.metric')}</span>
                 </button>
-            </div>
+            </div> -->
         </div>
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
             <Sidebar/>
