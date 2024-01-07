@@ -17,7 +17,6 @@
 
     import ProjectListView from '$lib/components/project/ProjectListView.svelte';
 	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
-	import HeatMap from '$lib/components/metric/HeatMap.svelte';
 
     const selectedProjectStore = getSelectedProjectStore();
     const fetchProjectsDebounced = debounce(refreshProjects, EVENT_DEBOUNCE);
@@ -98,8 +97,6 @@
     <div>
         <h2 class="h2 font-bold">{$t('home.title')}</h2>
     </div>
-
-    <HeatMap />
 
     <div class="space-y-4">
         <ProjectFilter
