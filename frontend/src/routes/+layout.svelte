@@ -31,14 +31,6 @@
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
-    function handleViewHome(): void {
-        goto(`/`);
-    }
-
-    function handleViewMetric(): void {
-        goto(`/metrics`);
-    }
-
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);
     });
@@ -86,22 +78,22 @@
     <svelte:fragment slot="sidebarLeft" >
         <div class="card flex-shrink-0 flex-col p-4 shadow-none">
             <div>
-                <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" on:click={handleViewHome}>
+                <a type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" href="/">
                     <IconHomeFill/>
                     <span class="font-bold">{$t('home.navigation.root')}</span>
-                </button>
+                </a>
             </div>
             <div>
-                <a type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" href="/preferences/">
+                <a type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" href="/preferences">
                     <IconSettingsFill/>
                     <span class="font-bold">{$t('home.navigation.preference')}</span>
                 </a>
             </div>
             <!-- <div>
-                <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" on:click={handleViewMetric}>
+                <a type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" href="/metrics">
                     <IconBrainFill/>
                     <span class="font-bold">{$t('home.navigation.metric')}</span>
-                </button>
+                </a>
             </div> -->
         </div>
         <div class="card flex-grow shadow-none p-4 overflow-hidden">

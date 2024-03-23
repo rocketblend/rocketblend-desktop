@@ -1,3 +1,14 @@
 {
-    "title": "Preferences"
+    "title": "Preferences",
+    "category": {
+        "general": {
+            "title": "General"
+        },
+        "rocketblend": {
+            "title": "RocketBlend"
+        },
+        "developer": {
+            "title": "Developer"
+        }
+    }
 }
