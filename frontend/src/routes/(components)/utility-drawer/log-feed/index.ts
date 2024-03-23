@@ -1,0 +1,1 @@
+export { default as LogFeed } from "./log-feed.svelte"

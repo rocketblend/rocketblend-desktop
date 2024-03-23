@@ -7,13 +7,13 @@
     import { EventsOn } from '$lib/wailsjs/runtime';
     import type { project } from '$lib/wailsjs/go/models';
     import { GetProject, ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
-    import { debounce } from '$lib/utils';
 
     import { resourcePath } from '$lib/components/utils';
     import { getSelectedProjectStore } from '$lib/stores';
+    import { SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
+    import { debounce } from '$lib/utils';
 
-    import FooterContent from '$lib/components/ui/footer/FooterContent.svelte';
-	import { SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
+    import FooterContent from './footer-content.svelte';
 
     const selectedProjectStore = getSelectedProjectStore();
     const drawerStore = getDrawerStore();

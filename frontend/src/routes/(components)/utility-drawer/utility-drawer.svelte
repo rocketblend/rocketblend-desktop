@@ -4,10 +4,12 @@
 
     import { getLogStore } from '$lib/stores';
 
-    import RequestCancellationDebugTool from "$lib/containers/debug/RequestCancellationDebugTool.svelte";
-    import LogFeed from "$lib/components/ui/feed/LogFeed.svelte";
-	import OperationDebugTool from './debug/OperationDebugTool.svelte';
-	import MetricAggregateDebugTool from './debug/MetricAggregateDebugTool.svelte';
+    import { LogFeed } from "./log-feed"
+    import {
+        DebugToolMetrics,
+        DebugToolOperations,
+        DebugToolRequests
+    } from "./debug-tool";
 
     const logStore = getLogStore();
 
@@ -35,13 +37,13 @@
             <div class="h-full" hidden={!(drawTabSet == 2)}>
                 <div class="overflow-auto grid grid-cols-2 md:grid-cols-3 gap-4 h-full">
                     <div>
-                        <RequestCancellationDebugTool/>
+                        <DebugToolRequests/>
                     </div>
                     <div>
-                        <OperationDebugTool/>
+                        <DebugToolOperations/>
                     </div>
                     <div>
-                        <MetricAggregateDebugTool/>
+                        <DebugToolMetrics/>
                     </div>
                 </div>
             </div>

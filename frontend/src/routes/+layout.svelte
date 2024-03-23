@@ -21,9 +21,7 @@
     import IconHomeFill from '~icons/ri/home-fill'
     import IconBrainFill from '~icons/ri/brain-fill'
 
-    import Footer from "$lib/containers/Footer.svelte";
-    import Sidebar from "$lib/containers/Sidebar.svelte";
-	import UtilityDrawer from "$lib/containers/UtilityDrawer.svelte";
+    import { Footer, Sidebar, UtilityDrawer } from "./(components)"
 
     initializeStores();
 
