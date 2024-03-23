@@ -4,6 +4,7 @@
     "soon": "Coming Soon!",
     "navigation": {
         "root": "Projects",
+        "preference": "Preferences",
         "metric": "Metrics"
     },
     "sidebar": {

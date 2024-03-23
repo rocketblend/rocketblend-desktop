@@ -20,6 +20,7 @@
     import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
     import IconHomeFill from '~icons/ri/home-fill'
     import IconBrainFill from '~icons/ri/brain-fill'
+    import IconSettingsFill from '~icons/ri/settings-4-fill'
 
     import { Footer, Sidebar, UtilityDrawer } from "./(components)"
 
@@ -89,6 +90,12 @@
                     <IconHomeFill/>
                     <span class="font-bold">{$t('home.navigation.root')}</span>
                 </button>
+            </div>
+            <div>
+                <a type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" href="/preferences/">
+                    <IconSettingsFill/>
+                    <span class="font-bold">{$t('home.navigation.preference')}</span>
+                </a>
             </div>
             <!-- <div>
                 <button type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" on:click={handleViewMetric}>

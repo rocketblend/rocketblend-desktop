@@ -2,7 +2,7 @@ import { locale, loadTranslations } from '$lib/translations/translations';
 import type { LayoutLoad } from './$types';
 
 export const ssr = false;
-export const prerender = false;
+export const prerender = "auto";
 
 export const load: LayoutLoad = async ({ url }: { url: URL }) => {
   const { pathname } = url;
