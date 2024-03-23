@@ -1,9 +1,11 @@
 <script lang="ts">
-    import ProjectTable from './project-table.svelte';
-    import GalleryGrid from '$lib/components/ui/core/gallery/GalleryGrid.svelte';
     import type { project } from '$lib/wailsjs/go/models';
+
     import { DisplayType, type MediaInfo } from '$lib/types';
     import { resourcePath } from '$lib/components/utils';
+    import { GalleryGrid } from '$lib/components/ui/gallery';
+    
+    import ProjectTable from "./project-table.svelte";
 
     export let projects: project.Project[] = [];
     export let selectedProjectIds: string[] = [];

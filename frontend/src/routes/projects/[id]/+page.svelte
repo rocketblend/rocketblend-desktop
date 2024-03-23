@@ -14,8 +14,8 @@
     import type { projectservice } from '$lib/wailsjs/go/models';
 	import { GetProject, UpdateProject } from '$lib/wailsjs/go/application/Driver';
 
-    import Media from '$lib/components/ui/core/media/Media.svelte';
-	import InlineInput from '$lib/components/ui/core/input/InlineInput.svelte';
+    import { Media } from '$lib/components/ui/media';
+    import { InputInline } from '$lib/components/ui/input';
 
     import IconEditFill from '~icons/ri/edit-fill';
 
@@ -100,9 +100,9 @@
             <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
         </div>
         <div class="space-y-2">
-            <InlineInput bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
+            <InputInline bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
                 <IconEditFill class="text-sm text-surface-600-300-token"/>
-            </InlineInput>
+            </InputInline>
             <div class="flex flex-wrap text-sm text-surface-800-100-token gap-1">
                 <div class="badge variant-ghost rounded">{data.project.path}</div>
                 <div class="badge variant-ghost rounded">{data.project.id}</div>

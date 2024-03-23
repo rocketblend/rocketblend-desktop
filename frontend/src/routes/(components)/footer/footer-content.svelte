@@ -7,7 +7,7 @@
     import IconBookmark3Fill from '~icons/ri/bookmark-3-fill';
     import IconTerminalBoxFill from '~icons/ri/terminal-box-fill';
 
-	import Media from '../../../lib/components/ui/core/media/Media.svelte';
+    import { Media } from '$lib/components/ui/media';
 
     const dispatch = createEventDispatcher();
 

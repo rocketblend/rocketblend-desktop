@@ -1,12 +1,13 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import { tableA11y } from './actions.js';
 
     import type { CssClasses } from "@skeletonlabs/skeleton";
     import type { TableSource, TableRow, TableColumn } from './types.js';
 
     import IconArrowUpFill from '~icons/ri/arrow-up-s-fill';
     import IconArrowDownFill from '~icons/ri/arrow-down-s-fill';
+
+    import { tableA11y } from "./table-action.js"
 
     const dispatch = createEventDispatcher();
 

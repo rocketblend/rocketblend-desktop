@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import SearchInput from '$lib/components/ui/core/input/SearchInput.svelte';
+
     import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 
     import IconListUnordered from '~icons/ri/list-unordered';
@@ -10,6 +10,7 @@
     import { DisplayType, type OptionGroup } from '$lib/types';
 
 	import { ButtonOption } from "$lib/components/ui/button"
+    import { InputSearch } from "$lib/components/ui/input"
 
     export let form: HTMLFormElement;
     export let searchQuery: string;
@@ -29,7 +30,7 @@
 
 <form bind:this={form} class="inline-flex space-x-2 w-full" data-sveltekit-keepfocus>
     <div class="flex-grow">
-        <SearchInput name="query" value={searchQuery} on:input={handleChange} placeholder={searchPlaceholder} debounceDelay={500} />
+        <InputSearch name="query" value={searchQuery} on:input={handleChange} placeholder={searchPlaceholder} debounceDelay={500} />
     </div>
     <ButtonOption {optionsGroups} bind:selectedOptions on:optionChange={handleChange}>
         <svelte:fragment slot="buttonContent">

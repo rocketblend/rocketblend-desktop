@@ -2,7 +2,8 @@
     import { createEventDispatcher } from 'svelte';
     import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
     import type { RadioOption } from '$lib/types';
-    import SearchInput from '$lib/components/ui/core/input/SearchInput.svelte';
+
+    import { InputSearch } from '$lib/components/ui/input';
 
     export let selectedFilterType: number;
     export let searchQuery: string;
@@ -26,7 +27,7 @@
             </RadioItem>
         {/each}
     </RadioGroup>
-    <SearchInput bind:value={searchQuery} placeholder={searchPlaceholder} debounceDelay={500} on:input={handleFilterChange} class="text-sm"/>
+    <InputSearch bind:value={searchQuery} placeholder={searchPlaceholder} debounceDelay={500} on:input={handleFilterChange} class="text-sm"/>
     <SlideToggle name="slider-label" size="sm" active="bg-surface-200" class="text-sm" border="ring-outline-token" bind:checked={filterInstalled} on:change={handleFilterChange}>
         {installedLabel}
     </SlideToggle>

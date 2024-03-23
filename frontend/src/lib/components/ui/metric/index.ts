@@ -1,1 +1,1 @@
-export { default as HeatMap } from "./heat-map.svelte";
+export { default as MetricHeatMap } from "./metric-heat-map.svelte";

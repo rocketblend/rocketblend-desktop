@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Chart from "$lib/components/ui/core/chart/Chart.svelte";
+	import Chart from "$lib/components/ui/chart/chart.svelte";
     import type { HeatmapData } from 'frappe-charts';
 
     const dateToUnix = (dateString: string | Date): number => {

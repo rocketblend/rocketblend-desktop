@@ -1,9 +1,9 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-
-    import Media from '$lib/components/ui/core/media/Media.svelte';
-    import type { MediaInfo } from '$lib/types';
     import { twMerge } from 'tailwind-merge';
+
+    import type { MediaInfo } from '$lib/types';
+    import { Media } from '$lib/components/ui/media';
 
     export let items: MediaInfo[] = [];
     export let group: string[] = [];
