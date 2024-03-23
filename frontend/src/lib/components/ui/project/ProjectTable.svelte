@@ -1,9 +1,9 @@
 <script lang="ts">
     import type { project } from '$lib/wailsjs/go/models';
-    import { tableMapperValues } from '$lib/components/core'
+    import { tableMapperValues } from '$lib/components/ui/core'
 
-    import Table from '$lib/components/core/table/Table.svelte';
-    import type { TableSource, TableColumn } from '$lib/components/core/table/types.js';
+    import Table from '$lib/components/ui/core/table/Table.svelte';
+    import type { TableSource, TableColumn } from '$lib/components/ui/core/table/types.js';
 
     export let sourceData: project.Project[];
     export let selectedProjectIds: string[] = [];

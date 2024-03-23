@@ -15,9 +15,9 @@
     import { getSelectedProjectStore, createPackageStore } from '$lib/stores';
     import { debounce } from '$lib/utils';
 
-    import SidebarHeader from '$lib/components/sidebar/SidebarHeader.svelte';
-    import PackageListView from '$lib/components/package/PackageListView.svelte';
-    import PackageFilter from '$lib/components/package/PackageFilter.svelte';
+    import SidebarHeader from '$lib/components/ui/sidebar/SidebarHeader.svelte';
+    import PackageListView from '$lib/components/ui/package/PackageListView.svelte';
+    import PackageFilter from '$lib/components/ui/package/PackageFilter.svelte';
 
     const packageStore = createPackageStore();
     const selectedProjectStore = getSelectedProjectStore();

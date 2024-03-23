@@ -1,7 +1,7 @@
 <script lang="ts">
     import { tick } from 'svelte';
 	import type { LogEvent } from "$lib/types";
-	import { formatTime } from "../utils";
+	import { formatTime } from "../../utils";
 
     export let feed: LogEvent[] = [];
 

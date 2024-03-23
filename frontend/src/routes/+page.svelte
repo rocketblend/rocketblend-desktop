@@ -15,8 +15,8 @@
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
     
 
-    import ProjectListView from '$lib/components/project/ProjectListView.svelte';
-	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
+    import ProjectListView from '$lib/components/ui/project/ProjectListView.svelte';
+	import ProjectFilter from '$lib/components/ui/project/ProjectFilter.svelte';
 
     const selectedProjectStore = getSelectedProjectStore();
     const fetchProjectsDebounced = debounce(refreshProjects, EVENT_DEBOUNCE);

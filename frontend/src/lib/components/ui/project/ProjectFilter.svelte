@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import SearchInput from '$lib/components/core/input/SearchInput.svelte';
+    import SearchInput from '$lib/components/ui/core/input/SearchInput.svelte';
     import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
 
     import IconListUnordered from '~icons/ri/list-unordered';

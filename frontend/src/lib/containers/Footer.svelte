@@ -12,7 +12,7 @@
     import { resourcePath } from '$lib/components/utils';
     import { getSelectedProjectStore } from '$lib/stores';
 
-    import FooterContent from '$lib/components/footer/FooterContent.svelte';
+    import FooterContent from '$lib/components/ui/footer/FooterContent.svelte';
 	import { SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
     const selectedProjectStore = getSelectedProjectStore();

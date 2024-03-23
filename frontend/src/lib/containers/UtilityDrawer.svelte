@@ -5,7 +5,7 @@
     import { getLogStore } from '$lib/stores';
 
     import RequestCancellationDebugTool from "$lib/containers/debug/RequestCancellationDebugTool.svelte";
-    import LogFeed from "$lib/components/feed/LogFeed.svelte";
+    import LogFeed from "$lib/components/ui/feed/LogFeed.svelte";
 	import OperationDebugTool from './debug/OperationDebugTool.svelte';
 	import MetricAggregateDebugTool from './debug/MetricAggregateDebugTool.svelte';
 

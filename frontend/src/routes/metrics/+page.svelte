@@ -1,7 +1,7 @@
 <script lang="ts">
     import { t } from '$lib/translations/translations';
 
-    import HeatMap from '$lib/components/metric/HeatMap.svelte';
+    import HeatMap from '$lib/components/ui/metric/HeatMap.svelte';
 </script>
 
 <main class="space-y-4">

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
 
-    import Media from '$lib/components/core/media/Media.svelte';
+    import Media from '$lib/components/ui/core/media/Media.svelte';
     import type { MediaInfo } from '$lib/types';
     import { twMerge } from 'tailwind-merge';
 

@@ -14,11 +14,11 @@
     import type { projectservice } from '$lib/wailsjs/go/models';
 	import { GetProject, UpdateProject } from '$lib/wailsjs/go/application/Driver';
 
-    import Media from '$lib/components/core/media/Media.svelte';
-	import InlineInput from '$lib/components/core/input/InlineInput.svelte';
+    import Media from '$lib/components/ui/core/media/Media.svelte';
+	import InlineInput from '$lib/components/ui/core/input/InlineInput.svelte';
 
     import IconEditFill from '~icons/ri/edit-fill';
-	import HeatMap from '$lib/components/metric/HeatMap.svelte';
+	import HeatMap from '$lib/components/ui/metric/HeatMap.svelte';
 
     const toastStore = getToastStore();
     const selectedProjectStore = getSelectedProjectStore();

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import ProjectTable from '$lib/components/project/ProjectTable.svelte';
-    import GalleryGrid from '$lib/components/core/gallery/GalleryGrid.svelte';
+    import ProjectTable from '$lib/components/ui/project/ProjectTable.svelte';
+    import GalleryGrid from '$lib/components/ui/core/gallery/GalleryGrid.svelte';
     import type { project } from '$lib/wailsjs/go/models';
     import { DisplayType, type MediaInfo } from '$lib/types';
     import { resourcePath } from '$lib/components/utils';

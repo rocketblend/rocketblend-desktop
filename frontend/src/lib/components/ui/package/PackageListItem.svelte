@@ -1,7 +1,7 @@
 <script lang="ts">
     import { ProgressBar } from '@skeletonlabs/skeleton';
 
-    //import ProgressBar from '$lib/components/core/progress/ProgressBar.svelte';
+    //import ProgressBar from '$lib/components/ui/core/progress/ProgressBar.svelte';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
     import PackageBadge from './PackageBadge.svelte';
     import PackageActionButton from './PackageActionButton.svelte';

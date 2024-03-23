@@ -2,7 +2,7 @@
     import { createEventDispatcher } from 'svelte';
     import { RadioGroup, RadioItem, SlideToggle } from '@skeletonlabs/skeleton';
     import type { RadioOption } from '$lib/types';
-    import SearchInput from '$lib/components/core/input/SearchInput.svelte';
+    import SearchInput from '$lib/components/ui/core/input/SearchInput.svelte';
 
     export let selectedFilterType: number;
     export let searchQuery: string;
