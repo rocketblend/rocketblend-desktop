@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ProjectTable from '$lib/components/ui/project/ProjectTable.svelte';
+    import ProjectTable from './project-table.svelte';
     import GalleryGrid from '$lib/components/ui/core/gallery/GalleryGrid.svelte';
     import type { project } from '$lib/wailsjs/go/models';
     import { DisplayType, type MediaInfo } from '$lib/types';
