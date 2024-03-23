@@ -15,9 +15,7 @@
     import { getSelectedProjectStore, createPackageStore } from '$lib/stores';
     import { debounce } from '$lib/utils';
 
-    import PackageListView from '$lib/components/ui/package/PackageListView.svelte';
-    import PackageFilter from '$lib/components/ui/package/PackageFilter.svelte';
-
+    import { PackageFilter, PackageList } from './package';
     import SidebarHeader from './sidebar-header.svelte';
 
     const packageStore = createPackageStore();
@@ -159,7 +157,7 @@
 
     <div class="overflow-y-auto h-full">
         {#if $packageStore && $packageStore.length > 0}
-            <PackageListView
+            <PackageList
                 on:download={handlePackageDownload}
                 on:cancel={handlePackageCancel}
                 on:delete={handlePackageDelete}

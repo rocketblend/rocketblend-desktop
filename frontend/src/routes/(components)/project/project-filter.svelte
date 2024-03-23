@@ -8,7 +8,8 @@
     import IconTableView from '~icons/ri/table-view';
 
     import { DisplayType, type OptionGroup } from '$lib/types';
-	import OptionButton from '../button/OptionButton.svelte';
+
+	import { ButtonOption } from "$lib/components/ui/button"
 
     export let form: HTMLFormElement;
     export let searchQuery: string;
@@ -30,12 +31,12 @@
     <div class="flex-grow">
         <SearchInput name="query" value={searchQuery} on:input={handleChange} placeholder={searchPlaceholder} debounceDelay={500} />
     </div>
-    <OptionButton {optionsGroups} bind:selectedOptions on:optionChange={handleChange}>
+    <ButtonOption {optionsGroups} bind:selectedOptions on:optionChange={handleChange}>
         <svelte:fragment slot="buttonContent">
             <IconListUnordered />
             <span class="capitalize">{filterLabel}</span>
         </svelte:fragment>
-    </OptionButton>
+    </ButtonOption>
     <RadioGroup display="flex items-center">
         <RadioItem bind:group={displayType} name="display" value={DisplayType.Table} on:change={handleChange}><IconTableView/></RadioItem>
         <RadioItem bind:group={displayType} name="display" value={DisplayType.Gallery} on:change={handleChange}><IconGalleryView/></RadioItem>

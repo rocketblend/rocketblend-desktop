@@ -14,9 +14,7 @@
 	import { convertToEnum, debounce } from '$lib/components/utils';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
     
-
-    import ProjectListView from '$lib/components/ui/project/project-list.svelte';
-	import ProjectFilter from '$lib/components/ui/project/project-filter.svelte';
+    import { ProjectList, ProjectFilter } from "./(components)"
 
     const selectedProjectStore = getSelectedProjectStore();
     const fetchProjectsDebounced = debounce(refreshProjects, EVENT_DEBOUNCE);
@@ -108,7 +106,7 @@
             optionsGroups={optionGroups}
             searchPlaceholder={$t('home.project.query.placeholder')}
             on:change={handleFilterChangeEvent} />
-        <ProjectListView
+        <ProjectList
             bind:projects={data.projects}
             bind:displayType={displayType}
             bind:selectedProjectIds={$selectedProjectStore}

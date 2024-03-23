@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
-    import PackageListItem from './PackageListItem.svelte';
+    import PackageListItem from './package-list-item.svelte';
     import type { pack } from '$lib/wailsjs/go/models';
 
     const dispatch = createEventDispatcher();

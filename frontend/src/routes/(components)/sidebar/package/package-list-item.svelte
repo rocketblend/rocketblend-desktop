@@ -3,8 +3,8 @@
 
     //import ProgressBar from '$lib/components/ui/core/progress/ProgressBar.svelte';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
-    import PackageBadge from './PackageBadge.svelte';
-    import PackageActionButton from './PackageActionButton.svelte';
+    import PackageBadge from './package-badge.svelte';
+    import PackageActionButton from './package-action-button.svelte';
     import { pack } from '$lib/wailsjs/go/models';
 
     const downloadHost = "download.blender.org"; // TODO: Remove this prop once the backend is ready
