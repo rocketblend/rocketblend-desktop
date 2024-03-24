@@ -7,7 +7,7 @@
     export let data: PageData;
 </script>
 
-<main class="space-y-4">
+<main class="h-full overflow-auto space-y-4">
     <div>
         <h2 class="h2 font-bold">{$t('preference.title')}</h2>
     </div>
@@ -35,7 +35,7 @@
                 </button>
             </div>
         </div>
-        
+
         <div class="space-y-3">
             <h5 class="h6 font-bold">RocketBlend</h5>
             <div class="flex justify-between items-center gap-6">

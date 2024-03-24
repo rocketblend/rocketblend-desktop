@@ -22,6 +22,9 @@
     import IconBrainFill from '~icons/ri/brain-fill'
     import IconSettingsFill from '~icons/ri/settings-4-fill'
 
+    import IconArrowLeftFile from '~icons/ri/arrow-left-s-line'
+    import IconArrowRightFile from '~icons/ri/arrow-right-s-line'
+
     import { Footer, Sidebar, UtilityDrawer } from "./(components)"
 
     initializeStores();
@@ -52,7 +55,7 @@
     class="mx-4 mt-10 mb-24"
 />
 
-<AppShell slotSidebarLeft="flex flex-col overflow-y-hidden space-y-2 pl-2 w-96 h-full">
+<AppShell slotSidebarLeft="flex flex-col overflow-y-hidden space-y-2 pl-2 w-96 h-full" slotPageContent="overflow-hidden h-full">
     <svelte:fragment slot="header">
         <div style="--wails-draggable:drag">
             <AppBar background="bg-surface-50-900-token" padding="p0" slotTrail="space-x-0 -mt-3">
@@ -100,8 +103,16 @@
             <Sidebar/>
         </div>
     </svelte:fragment>
+    <svelte:fragment slot="pageHeader">
+        <div class="h-full p-2 pt-0">
+            <div class="shadow-none card px-6 py-4 h-full">
+                <button type="button" class="btn btn-sm variant-filled-surface"><IconArrowLeftFile/></button>
+                <button type="button" class="btn btn-sm variant-filled-surface"><IconArrowRightFile/></button>
+            </div>
+        </div>
+    </svelte:fragment>
     <div class="h-full p-2 py-0">
-        <div class="shadow-none card p-6 h-full">
+        <div class="shadow-none card p-6 h-full overflow-hidden">
             <slot />
         </div>
     </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { MediaInfo } from '$lib/types';
-    import Gallery from "./Gallery.svelte";
+    import { Gallery } from '$lib/components/ui/gallery';
 
     export let items: MediaInfo[] = [];
     export let columnCount: number = 4;

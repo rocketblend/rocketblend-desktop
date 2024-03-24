@@ -23,21 +23,23 @@
     $: galleryItems = convertProjectsToGalleryItems(projects);
 </script>
 
-{#if projects === undefined || projects.length === 0}
-    <div class="flex items-center justify-center h-64">
-        <h4>No projects found.</h4>
-    </div>
-{:else}
-    {#if displayType === DisplayType.Gallery}
-        <GalleryGrid
-            on:itemDoubleClick
-            bind:items={galleryItems}
-            bind:selectedIds={selectedProjectIds}/>
-    {:else }
-        <ProjectTable
-            on:sortChanged
-            on:itemDoubleClick
-            bind:sourceData={projects}
-            bind:selectedProjectIds={selectedProjectIds} />
+<div class="overflow-auto h-full p-1">
+    {#if projects === undefined || projects.length === 0}
+        <div class="flex items-center justify-center h-64">
+            <h4>No projects found.</h4>
+        </div>
+    {:else}
+        {#if displayType === DisplayType.Gallery}
+            <GalleryGrid
+                on:itemDoubleClick
+                bind:items={galleryItems}
+                bind:selectedIds={selectedProjectIds}/>
+        {:else }
+            <ProjectTable
+                on:sortChanged
+                on:itemDoubleClick
+                bind:sourceData={projects}
+                bind:selectedProjectIds={selectedProjectIds} />
+        {/if}
     {/if}
-{/if}
+</div>

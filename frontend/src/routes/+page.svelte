@@ -91,26 +91,21 @@
     $: optionLabel = optionGroups[primaryOptionGroup].options[selectedOptions[optionGroups[primaryOptionGroup].label]].display;
 </script>
 
-<main class="space-y-4">
-    <div>
-        <h2 class="h2 font-bold">{$t('home.title')}</h2>
-    </div>
-
-    <div class="space-y-4">
-        <ProjectFilter
-            bind:form={form}
-            bind:searchQuery={searchQuery}
-            bind:displayType={displayType}
-            bind:selectedOptions={selectedOptions}
-            bind:filterLabel={optionLabel}
-            optionsGroups={optionGroups}
-            searchPlaceholder={$t('home.project.query.placeholder')}
-            on:change={handleFilterChangeEvent} />
-        <ProjectList
-            bind:projects={data.projects}
-            bind:displayType={displayType}
-            bind:selectedProjectIds={$selectedProjectStore}
-            on:itemDoubleClick={handleProjectDoubleClick}
-            on:sortChanged={handleSortChange}/>
-    </div>
+<main class="flex flex-col h-full space-y-4">
+    <h2 class="h2 font-bold">{$t('home.title')}</h2>
+    <ProjectFilter
+        bind:form={form}
+        bind:searchQuery={searchQuery}
+        bind:displayType={displayType}
+        bind:selectedOptions={selectedOptions}
+        bind:filterLabel={optionLabel}
+        optionsGroups={optionGroups}
+        searchPlaceholder={$t('home.project.query.placeholder')}
+        on:change={handleFilterChangeEvent} />
+    <ProjectList
+        bind:projects={data.projects}
+        bind:displayType={displayType}
+        bind:selectedProjectIds={$selectedProjectStore}
+        on:itemDoubleClick={handleProjectDoubleClick}
+        on:sortChanged={handleSortChange}/>
 </main>

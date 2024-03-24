@@ -63,13 +63,13 @@
             />
         {/if}
             {#if interactable}
-                <div class="overlay absolute inset-0 flex justify-center items-center text-white hover:variant-glass-surface group-hover:flex hidden">
+                <div class="overlay absolute inset-0 flex justify-center items-center text-white hover:variant-glass-surface group-hover:flex hidden rounded-container-token">
                     <h6 class="font-bold">{title}</h6>
                 </div>
             {/if}
     {:else}
         {#if interactable}
-            <div class="overlay flex justify-center items-center h-full hover:variant-glass-surface group-hover:flex hidden">
+            <div class="overlay flex justify-center items-center h-full hover:variant-glass-surface group-hover:flex hidden rounded-container-token">
                 <h6 class="font-bold">{title}</h6>
             </div>
         {/if}
