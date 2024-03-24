@@ -164,7 +164,7 @@
                             <IconSettingsFill/>
                         </a>
                         <button class="chip bg-gradient-to-br variant-gradient-primary-secondary text-white">
-                            <span class="font-medium">v0.0.1</span>
+                            <span>v0.0.1</span>
                         </button>
                         <!-- <button class="chip bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white">
                             <span>v0.0.1</span>

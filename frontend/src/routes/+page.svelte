@@ -13,7 +13,7 @@
 	import { DisplayType, type OptionGroup } from '$lib/types';
 	import { convertToEnum, debounce } from '$lib/components/utils';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
-    
+
     import { ProjectList, ProjectFilter } from "./(components)"
 
     const selectedProjectStore = getSelectedProjectStore();
@@ -92,7 +92,12 @@
 </script>
 
 <main class="flex flex-col h-full space-y-4">
-    <h2 class="h2 font-bold">{$t('home.title')}</h2>
+    <div class="flex justify-between items-center">
+        <h2 class="h2 font-bold">{$t('home.title')}</h2>
+        <button type="button" class="btn btn-sm variant-filled px-6 font-medium">
+            New project
+        </button>
+    </div>
     <ProjectFilter
         bind:form={form}
         bind:searchQuery={searchQuery}
