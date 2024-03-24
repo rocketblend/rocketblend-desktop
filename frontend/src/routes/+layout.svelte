@@ -5,7 +5,7 @@
     import { goto } from '$app/navigation';
 
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-    import { initializeStores, storePopup, getToastStore } from '@skeletonlabs/skeleton';
+    import { initializeStores, storePopup, getToastStore, getDrawerStore } from '@skeletonlabs/skeleton';
     import { Toast, AppBar, AppShell } from '@skeletonlabs/skeleton';
 
     import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
@@ -19,6 +19,7 @@
     import IconSubtractFill from '~icons/ri/subtract-fill'
     import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
     import IconHomeFill from '~icons/ri/home-fill'
+    import IconTerminalBoxFill from '~icons/ri/terminal-box-fill';
     import IconBrainFill from '~icons/ri/brain-fill'
     import IconSettingsFill from '~icons/ri/settings-4-fill'
 
@@ -27,12 +28,35 @@
 
     import { Footer, Sidebar, UtilityDrawer } from "./(components)"
 
+    import Logo from "$lib/assets/images/logo-slim-bw.png?enhanced"
+
     initializeStores();
 
     const logStore = getLogStore();
     const toastStore = getToastStore();
+    const drawerStore = getDrawerStore();
+
+    const myBreadcrumbs = [
+        { label: 'Home', link: '/' },
+        { label: 'Bar', link: '/bar' },
+        { label: 'Foo', link: '/foo' },
+    ];
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
+
+    // Function to navigate back
+    function goBack() {
+        window.history.back();
+    }
+
+    // Function to navigate forward
+    function goForward() {
+        window.history.forward();
+    }
+
+    function openTerminal() {
+        drawerStore.open();
+    }
 
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);
@@ -79,26 +103,29 @@
         </div>
     </svelte:fragment>
     <svelte:fragment slot="sidebarLeft" >
-        <div class="card flex-shrink-0 flex-col p-4 shadow-none">
-            <div>
-                <a type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" href="/">
-                    <IconHomeFill/>
-                    <span class="font-bold">{$t('home.navigation.root')}</span>
-                </a>
+        <div class="h-24">
+            <div class="relative rounded-container-token overflow-hidden h-full">
+                <div class="absolute w-full h-full">
+                    <a class="flex items-center h-full px-4 gap-2" href="/">
+                        <!-- <IconHomeFill/> -->
+                        <div>
+                            <span class="h4 font-bold text-white">RocketBlend</span><br>
+                            <span class="h6 font-medium">Desktop</span>
+                        </div>
+
+                    </a>
+                </div>
+                <enhanced:img src={Logo} alt=""/>
             </div>
-            <div>
-                <a type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" href="/preferences">
-                    <IconSettingsFill/>
-                    <span class="font-bold">{$t('home.navigation.preference')}</span>
-                </a>
-            </div>
-            <!-- <div>
-                <a type="button" class="btn btn-sm py-2 px-4 pl-0 text-lg text-surface-200" href="/metrics">
-                    <IconBrainFill/>
-                    <span class="font-bold">{$t('home.navigation.metric')}</span>
-                </a>
-            </div> -->
         </div>
+        <!-- <div class="card flex-shrink-0 flex-col px-4 py-2 shadow-none">
+            <div>
+                <a class="btn py-2 px-4 pl-0" href="/">
+                    <IconHomeFill/>
+                    <span class="h5 font-bold text-surface-200">RocketBlend</span>
+                </a>
+            </div>
+        </div> -->
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
             <Sidebar/>
         </div>
@@ -106,8 +133,45 @@
     <svelte:fragment slot="pageHeader">
         <div class="h-full p-2 pt-0">
             <div class="shadow-none card px-6 py-4 h-full">
-                <button type="button" class="btn btn-sm variant-filled-surface"><IconArrowLeftFile/></button>
-                <button type="button" class="btn btn-sm variant-filled-surface"><IconArrowRightFile/></button>
+                <div class="flex flex-wrap justify-between items-center gap-6">
+                    <div class="flex justify-between items-center gap-6">
+                        <div>
+                            <button type="button" class="btn btn-sm variant-filled-surface" on:click={goBack}><IconArrowLeftFile/></button>
+                            <button type="button" class="btn btn-sm variant-filled-surface" on:click={goForward}><IconArrowRightFile/></button>
+                        </div>
+                        <div class="flex">
+                            <ol class="breadcrumb text-sm text-surface-800-100-token truncate">
+                                {#each myBreadcrumbs as crumb, i}
+                                    <!-- If crumb index is less than the breadcrumb length minus 1 -->
+                                    {#if i < myBreadcrumbs.length - 1}
+                                        <li class="crumb"><a class="" href={crumb.link}>{crumb.label}</a></li>
+                                        <li class="crumb-separator" aria-hidden>&rsaquo;</li>
+                                    {:else}
+                                        <li class="crumb font-medium">{crumb.label}</li>
+                                    {/if}
+                                {/each}
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <button type="button" class="btn text-lg text-surface-700-200-token p-1" on:click={openTerminal}>
+                            <IconTerminalBoxFill/>
+                        </button>
+                        <!-- <a class="btn text-lg text-surface-700-200-token px-2" href="/metrics">
+                            <IconBrainFill/>
+                        </a> -->
+                        <a class="btn text-lg text-surface-700-200-token p-1" href="/preferences">
+                            <IconSettingsFill/>
+                        </a>
+                        <button class="chip variant-filled-surface">
+                            <span class="font-medium">v0.0.1</span>
+                        </button>
+                        <!-- <button class="chip bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white">
+                            <span>v0.0.1</span>
+                        </button> -->
+                    </div>
+                </div>
             </div>
         </div>
     </svelte:fragment>

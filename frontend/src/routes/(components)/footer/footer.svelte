@@ -2,8 +2,6 @@
     import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
 
-    import { getDrawerStore } from '@skeletonlabs/skeleton';
-
     import { EventsOn } from '$lib/wailsjs/runtime';
     import type { project } from '$lib/wailsjs/go/models';
     import { GetProject, ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
@@ -16,7 +14,6 @@
     import FooterContent from './footer-content.svelte';
 
     const selectedProjectStore = getSelectedProjectStore();
-    const drawerStore = getDrawerStore();
     const refreshProjectDebounced = debounce(loadProject, 1000);
 
     let selectedProject: project.Project | undefined = undefined;
@@ -25,10 +22,6 @@
 
     $: if ($selectedProjectStore) {
         loadProject();
-    }
-
-    function handleViewTerminal() {
-        drawerStore.open();
     }
 
     async function loadProject() {
@@ -79,7 +72,6 @@
     fileName={selectedProject?.fileName}
     imagePath={resourcePath(selectedProject?.thumbnailPath)}
     isLoading={!selectedProject}
-    on:viewTerminal={handleViewTerminal}
     on:viewProject={handleViewProject}
     on:runProject={handleRunProject}
     on:exploreProject={handleExploreProject}
