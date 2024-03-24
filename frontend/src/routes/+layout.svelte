@@ -28,7 +28,7 @@
 
     import { Footer, Sidebar, UtilityDrawer } from "./(components)"
 
-    import Logo from "$lib/assets/images/logo-slim-bw.png?enhanced"
+    import Logo from "$lib/assets/images/logo-slim.png?enhanced"
 
     initializeStores();
 
@@ -107,7 +107,6 @@
             <div class="relative rounded-container-token overflow-hidden h-full">
                 <div class="absolute w-full h-full">
                     <a class="flex items-center h-full px-4 gap-2" href="/">
-                        <!-- <IconHomeFill/> -->
                         <div>
                             <span class="h4 font-bold text-white">RocketBlend</span><br>
                             <span class="h6 font-medium">Desktop</span>
@@ -164,7 +163,7 @@
                         <a class="btn text-lg text-surface-700-200-token p-1" href="/preferences">
                             <IconSettingsFill/>
                         </a>
-                        <button class="chip variant-filled-surface">
+                        <button class="chip bg-gradient-to-br variant-gradient-primary-secondary text-white">
                             <span class="font-medium">v0.0.1</span>
                         </button>
                         <!-- <button class="chip bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white">
