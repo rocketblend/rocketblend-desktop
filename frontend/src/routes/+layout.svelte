@@ -38,7 +38,7 @@
 
     const myBreadcrumbs = [
         { label: 'Home', link: '/' },
-        { label: 'Bar', link: '/bar' },
+        { label: 'Project', link: '/bar' },
         { label: 'Foo', link: '/foo' },
     ];
 
@@ -103,28 +103,20 @@
         </div>
     </svelte:fragment>
     <svelte:fragment slot="sidebarLeft" >
-        <div class="h-24">
+        <div class="h-32">
             <div class="relative rounded-container-token overflow-hidden h-full">
                 <div class="absolute w-full h-full">
                     <a class="flex items-center h-full px-4 gap-2" href="/">
                         <div>
-                            <span class="h4 font-bold text-white">RocketBlend</span><br>
-                            <span class="h6 font-medium">Desktop</span>
+                            <span class="h4 font-bold">RocketBlend</span><br>
+                            <span class="h5 text-surface-800-100-token">Desktop</span><br>
+                            <span class="text-sm text-surface-500-400-token">v0.1.0</span>
                         </div>
-
                     </a>
                 </div>
                 <enhanced:img src={Logo} alt=""/>
             </div>
         </div>
-        <!-- <div class="card flex-shrink-0 flex-col px-4 py-2 shadow-none">
-            <div>
-                <a class="btn py-2 px-4 pl-0" href="/">
-                    <IconHomeFill/>
-                    <span class="h5 font-bold text-surface-200">RocketBlend</span>
-                </a>
-            </div>
-        </div> -->
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
             <Sidebar/>
         </div>
@@ -137,6 +129,7 @@
                         <div>
                             <button type="button" class="btn btn-sm variant-filled-surface" on:click={goBack}><IconArrowLeftFile/></button>
                             <button type="button" class="btn btn-sm variant-filled-surface" on:click={goForward}><IconArrowRightFile/></button>
+                            <a class="btn btn-sm variant-filled-surface" href="/"><IconHomeFill/></a>
                         </div>
                         <div class="flex">
                             <ol class="breadcrumb text-sm text-surface-800-100-token truncate">
@@ -163,12 +156,6 @@
                         <a class="btn text-lg text-surface-700-200-token p-1" href="/preferences">
                             <IconSettingsFill/>
                         </a>
-                        <button class="chip bg-gradient-to-br variant-gradient-primary-secondary text-white">
-                            <span>v0.0.1</span>
-                        </button>
-                        <!-- <button class="chip bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white">
-                            <span>v0.0.1</span>
-                        </button> -->
                     </div>
                 </div>
             </div>
