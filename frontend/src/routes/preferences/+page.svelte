@@ -1,10 +1,27 @@
 <script lang="ts">
     import type { PageData } from "./$types";
 
+    import { SlideToggle } from "@skeletonlabs/skeleton";
+
     import { t } from '$lib/translations/translations';
-	import { SlideToggle } from "@skeletonlabs/skeleton";
+
+    import { application } from "$lib/wailsjs/go/models"
+    import { OpenDirectoryDialog } from '$lib/wailsjs/go/application/Driver'
 
     export let data: PageData;
+
+    async function handleChangeProjectWatchDirectory() {
+        let opts = new application.OpenDialogOptions({
+            defaultDirectory: "",
+            title: "Select project watch directory",
+        });
+
+        OpenDirectoryDialog(opts).then((result) => {
+            console.log(result);
+        });
+
+        console.log('Change project watch directory');
+    }
 </script>
 
 <main class="h-full overflow-auto space-y-4">
@@ -20,7 +37,7 @@
                     <span class="font-medium">Project watch directory</span><br>
                     <span class="text-surface-200 ">C:\Users\user\Documents\Projects</span>
                 </div>
-                <button class="btn variant-filled-surface text-sm font-medium">
+                <button class="btn variant-filled-surface text-sm font-medium" on:click={handleChangeProjectWatchDirectory}>
                     Change location
                 </button>
             </div>

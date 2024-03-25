@@ -1,6 +1,8 @@
 package application
 
-import "github.com/rocketblend/rocketblend-desktop/internal/application/metricservice"
+import (
+	"github.com/rocketblend/rocketblend-desktop/internal/application/metricservice"
+)
 
 const (
 	Domain = "development"
@@ -16,6 +18,24 @@ const (
 
 	StoreInsertMetric = "store.insert"
 )
+
+func (d *Driver) ListMetrics(options metricservice.FilterOptions) ([]*metricservice.Metric, error) {
+	metric, err := d.factory.GetMetricService()
+	if err != nil {
+		return nil, err
+	}
+
+	return metric.List(d.ctx, options)
+}
+
+func (d *Driver) AggregateMetrics(options metricservice.FilterOptions) (*metricservice.Aggregate, error) {
+	metric, err := d.factory.GetMetricService()
+	if err != nil {
+		return nil, err
+	}
+
+	return metric.Aggregate(d.ctx, options)
+}
 
 func (d *Driver) addApplicationMetrics() error {
 	if err := d.ctx.Err(); err != nil {

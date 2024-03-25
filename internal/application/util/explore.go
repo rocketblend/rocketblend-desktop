@@ -1,4 +1,4 @@
-package projectservice
+package util
 
 import (
 	"context"
@@ -7,7 +7,8 @@ import (
 	"runtime"
 )
 
-func openInFileExplorer(ctx context.Context, path string) error {
+// Explore opens the file explorer at the specified path
+func Explore(ctx context.Context, path string) error {
 	var cmd *exec.Cmd
 
 	switch runtime.GOOS {

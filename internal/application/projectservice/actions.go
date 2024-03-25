@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
 	"github.com/rocketblend/rocketblend/pkg/driver"
 )
 
@@ -55,7 +56,7 @@ func (s *service) Explore(ctx context.Context, id uuid.UUID) error {
 	}
 
 	go func() {
-		if err := openInFileExplorer(ctx, project.Path); err != nil {
+		if err := util.Explore(ctx, project.Path); err != nil {
 			s.logger.Debug("failed to open project in file explorer", map[string]interface{}{"error": err})
 		}
 	}()

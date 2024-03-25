@@ -78,6 +78,18 @@ export function LongRunningRequestWithCancellation(arg1) {
   return window['go']['application']['Driver']['LongRunningRequestWithCancellation'](arg1);
 }
 
+export function OpenDirectoryDialog(arg1) {
+  return window['go']['application']['Driver']['OpenDirectoryDialog'](arg1);
+}
+
+export function OpenExplorer(arg1) {
+  return window['go']['application']['Driver']['OpenExplorer'](arg1);
+}
+
+export function OpenFileDialog(arg1) {
+  return window['go']['application']['Driver']['OpenFileDialog'](arg1);
+}
+
 export function Quit() {
   return window['go']['application']['Driver']['Quit']();
 }

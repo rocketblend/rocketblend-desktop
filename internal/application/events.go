@@ -27,24 +27,6 @@ type (
 	}
 )
 
-func (d *Driver) ListMetrics(options metricservice.FilterOptions) ([]*metricservice.Metric, error) {
-	metric, err := d.factory.GetMetricService()
-	if err != nil {
-		return nil, err
-	}
-
-	return metric.List(context.Background(), options)
-}
-
-func (d *Driver) AggregateMetrics(options metricservice.FilterOptions) (*metricservice.Aggregate, error) {
-	metric, err := d.factory.GetMetricService()
-	if err != nil {
-		return nil, err
-	}
-
-	return metric.Aggregate(context.Background(), options)
-}
-
 func (d *Driver) setupDriverEventHandlers() error {
 	if err := d.ctx.Err(); err != nil {
 		return err

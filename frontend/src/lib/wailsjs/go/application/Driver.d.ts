@@ -8,6 +8,7 @@ import {operationservice} from '../models';
 import {packageservice} from '../models';
 import {runtime} from '../models';
 import {pack} from '../models';
+import {application} from '../models';
 
 export function AddPackage(arg1:string):Promise<void>;
 
@@ -46,6 +47,12 @@ export function ListProjects(arg1:string):Promise<projectservice.ListProjectsRes
 export function LongRunningOperation():Promise<uuid.UUID>;
 
 export function LongRunningRequestWithCancellation(arg1:uuid.UUID):Promise<void>;
+
+export function OpenDirectoryDialog(arg1:application.OpenDialogOptions):Promise<string>;
+
+export function OpenExplorer(arg1:application.OpenExplorerOptions):Promise<void>;
+
+export function OpenFileDialog(arg1:application.OpenDialogOptions):Promise<string>;
 
 export function Quit():Promise<void>;
 
