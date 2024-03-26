@@ -1,37 +1,52 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
+    import { invalidateAll } from '$app/navigation';
     import type { PageData } from "./$types";
 
     import { SlideToggle } from "@skeletonlabs/skeleton";
 
     import { t } from '$lib/translations/translations';
-
-    import { application } from "$lib/wailsjs/go/models"
-    import { OpenDirectoryDialog, OpenExplorer } from '$lib/wailsjs/go/application/Driver'
+    import { application } from "$lib/wailsjs/go/models";
+    import { OpenDirectoryDialog, OpenExplorer, UpdatePreferences } from '$lib/wailsjs/go/application/Driver';
 
     export let data: PageData;
 
+    async function savePreferences() {
+        try {
+            const opts = new application.UpdatePreferencesOpts({
+                watchPath: data.preferences.watchPath,
+                feature: data.preferences.feature
+            });
+
+            await UpdatePreferences(opts);
+            await refreshData();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function refreshData() {
+        await invalidateAll();
+    }
+
     async function handleChangeProjectWatchDirectory() {
         const opts = new application.OpenDialogOptions({
-            defaultDirectory: "",
             title: "Select project watch directory",
         });
 
-        OpenDirectoryDialog(opts).then((result) => {
-            console.log(result);
-        });
-
-        console.log('Change project watch directory');
-    }
-
-    async function handleExplore(path: string) {
-        if (!path) {
+        const result = await OpenDirectoryDialog(opts);
+        if (!result) {
             return;
         }
 
-        const opts = new application.OpenExplorerOptions({
-            path: path,
-        });
+        data.preferences.watchPath = result;
+        await savePreferences();
+    }
 
+    async function handleExplore(path: string) {
+        if (!path) return;
+
+        const opts = new application.OpenExplorerOptions({ path });
         await OpenExplorer(opts);
     }
 </script>
@@ -47,7 +62,7 @@
             <div class="flex justify-between items-center gap-6">
                 <div class="text-sm text-left">
                     <span class="font-medium">Project watch directory</span><br>
-                    <span class="text-surface-200 ">{data.preferences.watchPaths}</span>
+                    <span class="text-surface-200 ">{data.preferences.watchPath}</span>
                 </div>
                 <button class="btn variant-filled-surface text-sm font-medium" on:click={handleChangeProjectWatchDirectory}>
                     Change location
@@ -90,13 +105,25 @@
                 <div class="text-sm text-left">
                     Addons - <span class="text-surface-200">Configure and install blender addons for projects.</span>
                 </div>
-                <SlideToggle name="" size="sm" active="bg-secondary-500" value={data.preferences.feature.addon}/>
+                <SlideToggle
+                    name="addon"
+                    size="sm"
+                    active="bg-secondary-500"
+                    bind:checked={data.preferences.feature.addon}
+                    on:change={savePreferences}
+                />
             </div>
             <div class="flex justify-between items-center gap-6">
                 <div class="text-sm text-left">
                     Developer mode - <span class="text-surface-200">Access advanced settings and features for development purposes.</span>
                 </div>
-                <SlideToggle name="" size="sm" active="bg-secondary-500" value={data.preferences.feature.developer}/>
+                <SlideToggle
+                    name="developer"
+                    size="sm"
+                    active="bg-secondary-500"
+                    bind:checked={data.preferences.feature.developer}
+                    on:change={savePreferences}
+                />
             </div>
         </div>
     </div>

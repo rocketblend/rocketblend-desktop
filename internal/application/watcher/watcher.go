@@ -129,6 +129,10 @@ func (s *service) setPaths(paths ...string) error {
 	// Convert newPaths to a map for efficient lookup
 	pathMap := make(map[string]struct{}, len(paths))
 	for _, path := range paths {
+		if path == "" {
+			continue
+		}
+
 		pathMap[path] = struct{}{}
 	}
 

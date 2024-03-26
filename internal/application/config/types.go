@@ -16,7 +16,6 @@ type (
 
 	Feature struct {
 		Addon     bool `mapstructure:"addon"`
-		Terminal  bool `mapstructure:"terminal"`
 		Developer bool `mapstructure:"developer"`
 	}
 

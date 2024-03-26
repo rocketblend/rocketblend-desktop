@@ -16,6 +16,12 @@
     export let developer: boolean = false;
 
     let drawTabSet: number = 0;
+
+    $: {
+        if (!developer) {
+            drawTabSet = 0;
+        }
+    }
 </script>
 
 <Drawer

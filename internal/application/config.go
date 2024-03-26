@@ -9,7 +9,6 @@ import (
 type (
 	Feature struct {
 		Addon     bool `json:"addon"`
-		Terminal  bool `json:"terminal"`
 		Developer bool `json:"developer"`
 	}
 
@@ -23,8 +22,8 @@ type (
 	}
 
 	Preferences struct {
-		WatchPaths string  `json:"watchPaths"`
-		Feature    Feature `json:"feature"`
+		WatchPath string  `json:"watchPath"`
+		Feature   Feature `json:"feature"`
 	}
 
 	UpdatePreferencesOpts Preferences
@@ -42,10 +41,9 @@ func (d *Driver) GetPreferences() (*Preferences, error) {
 	}
 
 	return &Preferences{
-		WatchPaths: watchPath,
+		WatchPath: watchPath,
 		Feature: Feature{
 			Addon:     aConfig.Feature.Addon,
-			Terminal:  aConfig.Feature.Terminal,
 			Developer: aConfig.Feature.Developer,
 		},
 	}, nil
@@ -62,9 +60,8 @@ func (d *Driver) UpdatePreferences(opts UpdatePreferencesOpts) error {
 		return err
 	}
 
-	aConfig.Project.Paths = []string{opts.WatchPaths}
+	aConfig.Project.Paths = []string{opts.WatchPath}
 	aConfig.Feature.Addon = opts.Feature.Addon
-	aConfig.Feature.Terminal = opts.Feature.Terminal
 	aConfig.Feature.Developer = opts.Feature.Developer
 
 	if err := aConfigService.Save(aConfig); err != nil {

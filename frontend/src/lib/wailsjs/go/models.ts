@@ -24,7 +24,6 @@ export namespace application {
 	}
 	export class Feature {
 	    addon: boolean;
-	    terminal: boolean;
 	    developer: boolean;
 	
 	    static createFrom(source: any = {}) {
@@ -34,7 +33,6 @@ export namespace application {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.addon = source["addon"];
-	        this.terminal = source["terminal"];
 	        this.developer = source["developer"];
 	    }
 	}
@@ -101,7 +99,7 @@ export namespace application {
 	    }
 	}
 	export class Preferences {
-	    watchPaths: string;
+	    watchPath: string;
 	    feature: Feature;
 	
 	    static createFrom(source: any = {}) {
@@ -110,7 +108,7 @@ export namespace application {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.watchPaths = source["watchPaths"];
+	        this.watchPath = source["watchPath"];
 	        this.feature = this.convertValues(source["feature"], Feature);
 	    }
 	
@@ -133,7 +131,7 @@ export namespace application {
 		}
 	}
 	export class UpdatePreferencesOpts {
-	    watchPaths: string;
+	    watchPath: string;
 	    feature: Feature;
 	
 	    static createFrom(source: any = {}) {
@@ -142,7 +140,7 @@ export namespace application {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.watchPaths = source["watchPaths"];
+	        this.watchPath = source["watchPath"];
 	        this.feature = this.convertValues(source["feature"], Feature);
 	    }
 	
