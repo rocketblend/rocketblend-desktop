@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import { invalidateAll } from '$app/navigation';
     import type { PageData } from "./$types";
 
