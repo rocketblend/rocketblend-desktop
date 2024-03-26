@@ -13,18 +13,14 @@ import (
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend/pkg/driver/reference"
-	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-
-	rocketblendConfig "github.com/rocketblend/rocketblend/pkg/rocketblend/config"
 )
 
 // Driver struct
@@ -54,54 +50,6 @@ func NewDriver(factory factory.Factory, events buffermanager.BufferManager, args
 		logger:            logger,
 		args:              args,
 	}, nil
-}
-
-func (d *Driver) GetPlatform() (*rbruntime.Platform, error) {
-	configService, err := d.factory.GetConfigService()
-	if err != nil {
-		d.logger.Error("failed to get config service", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	config, err := configService.Get()
-	if err != nil {
-		d.logger.Error("failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	return &config.Platform, nil
-}
-
-func (d *Driver) GetApplicationConfig() (*config.Config, error) {
-	configService, err := d.factory.GetApplicationConfigService()
-	if err != nil {
-		d.logger.Error("failed to get application config service", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	config, err := configService.Get()
-	if err != nil {
-		d.logger.Error("failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	return config, nil
-}
-
-func (d *Driver) GetRocketBlendConfig() (*rocketblendConfig.Config, error) {
-	configService, err := d.factory.GetConfigService()
-	if err != nil {
-		d.logger.Error("failed to get rocketblend config service", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	config, err := configService.Get()
-	if err != nil {
-		d.logger.Error("failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	return config, nil
 }
 
 // GetProject gets a project by id

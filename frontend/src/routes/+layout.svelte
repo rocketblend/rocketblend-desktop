@@ -1,6 +1,7 @@
 <script lang="ts">
     import "../app.postcss";
     
+    import type { LayoutData } from "./$types";
     import { onMount, onDestroy } from 'svelte';
     import { goto } from '$app/navigation';
 
@@ -44,6 +45,8 @@
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
+    export let data: LayoutData;
+
     // Function to navigate back
     function goBack() {
         window.history.back();
@@ -68,7 +71,7 @@
 
 </script>
 
-<UtilityDrawer/>
+<UtilityDrawer developer={data.preferences.feature.developer}/>
 
 <Toast
     zIndex="z-40"
@@ -110,7 +113,7 @@
                         <div>
                             <span class="h4 font-bold">RocketBlend</span><br>
                             <span class="h5 text-surface-800-100-token">Desktop</span><br>
-                            <span class="text-sm text-surface-500-400-token">v0.1.0</span>
+                            <span class="text-sm text-surface-500-400-token">{data.details.version}</span>
                         </div>
                     </a>
                 </div>

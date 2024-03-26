@@ -3,12 +3,10 @@
 import {metricservice} from '../models';
 import {uuid} from '../models';
 import {projectservice} from '../models';
-import {config} from '../models';
+import {application} from '../models';
 import {operationservice} from '../models';
 import {packageservice} from '../models';
-import {runtime} from '../models';
 import {pack} from '../models';
-import {application} from '../models';
 
 export function AddPackage(arg1:string):Promise<void>;
 
@@ -22,17 +20,15 @@ export function DeleteProject(arg1:uuid.UUID):Promise<void>;
 
 export function ExploreProject(arg1:uuid.UUID):Promise<void>;
 
-export function GetApplicationConfig():Promise<config.Config>;
+export function GetDetails():Promise<application.Details>;
 
 export function GetOperation(arg1:uuid.UUID):Promise<operationservice.Operation>;
 
 export function GetPackage(arg1:uuid.UUID):Promise<packageservice.GetPackageResponse>;
 
-export function GetPlatform():Promise<runtime.Platform>;
+export function GetPreferences():Promise<application.Preferences>;
 
 export function GetProject(arg1:uuid.UUID):Promise<projectservice.GetProjectResponse>;
-
-export function GetRocketBlendConfig():Promise<config.Config>;
 
 export function InstallPackageOperation(arg1:uuid.UUID):Promise<uuid.UUID>;
 
@@ -63,5 +59,7 @@ export function RenderProject(arg1:uuid.UUID):Promise<void>;
 export function RunProject(arg1:uuid.UUID):Promise<void>;
 
 export function UninstallPackage(arg1:uuid.UUID):Promise<void>;
+
+export function UpdatePreferences(arg1:application.UpdatePreferencesOpts):Promise<void>;
 
 export function UpdateProject(arg1:projectservice.UpdateProjectRequest):Promise<void>;

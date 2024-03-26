@@ -163,7 +163,7 @@ func New(opts ...Option) (Service, error) {
 	watcher, err := watcher.New(
 		watcher.WithLogger(options.Logger),
 		watcher.WithEventDebounceDuration(options.WatcherDebounceDuration),
-		watcher.WithPaths(config.Project.Watcher.Paths...),
+		watcher.WithPaths(config.Project.Paths...),
 		watcher.WithIsWatchableFileFunc(func(path string) bool {
 			for _, ext := range config.Project.Watcher.FileExtensions {
 				if filepath.Ext(path) == ext {
@@ -297,18 +297,12 @@ func (s *service) Refresh(ctx context.Context) error {
 		return err
 	}
 
-	registeredPaths := s.watcher.GetRegisteredPaths()
-
-	if err := s.watcher.UnregisterPaths(registeredPaths...); err != nil {
-		return err
-	}
-
 	config, err := s.applicationConfigService.Get()
 	if err != nil {
 		return err
 	}
 
-	if err := s.watcher.RegisterPaths(config.Project.Watcher.Paths...); err != nil {
+	if err := s.watcher.SetPaths(config.Project.Paths...); err != nil {
 		return err
 	}
 

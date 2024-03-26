@@ -13,6 +13,8 @@
 
     const logStore = getLogStore();
 
+    export let developer: boolean = false;
+
     let drawTabSet: number = 0;
 </script>
 
@@ -23,8 +25,10 @@
     zIndex="z-50">
     <TabGroup class="flex flex-col h-full overflow-hidden" active="border-b-2 border-primary-400-500-token" rounded="" regionPanel="px-4 pb-4 flex-grow overflow-hidden h-full" regionList="flex flex-none">
         <Tab bind:group={drawTabSet} name="tab1" value={0}>{$t('home.drawer.tab.output')}</Tab>
-        <Tab bind:group={drawTabSet} name="tab2" value={1}>{$t('home.drawer.tab.terminal')}</Tab>
-        <Tab bind:group={drawTabSet} name="tab3" value={2}>{$t('home.drawer.tab.debug')}</Tab>
+        {#if developer}
+            <Tab bind:group={drawTabSet} name="tab2" value={1}>{$t('home.drawer.tab.terminal')}</Tab>
+            <Tab bind:group={drawTabSet} name="tab3" value={2}>{$t('home.drawer.tab.debug')}</Tab>
+        {/if}
         <svelte:fragment slot="panel">
             <div class="h-full" hidden={!(drawTabSet == 0)}>
                 <LogFeed feed={$logStore} />

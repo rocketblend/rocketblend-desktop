@@ -2,21 +2,22 @@ package config
 
 type (
 	Watcher struct {
-		Paths          []string `mapstructure:"paths"`
 		FileExtensions []string `mapstructure:"fileExtensions"`
 	}
 
 	Project struct {
-		Watcher Watcher `mapstructure:"watcher"`
+		Paths   []string `mapstructure:"paths"`
+		Watcher Watcher  `mapstructure:"watcher"`
 	}
 
 	Package struct {
+		Watcher Watcher `mapstructure:"watcher"`
 	}
 
 	Feature struct {
-		Addons        bool `mapstructure:"addons"`
-		Terminal      bool `mapstructure:"terminal"`
-		DeveloperMode bool `mapstructure:"developerMode"`
+		Addon     bool `mapstructure:"addon"`
+		Terminal  bool `mapstructure:"terminal"`
+		Developer bool `mapstructure:"developer"`
 	}
 
 	Config struct {

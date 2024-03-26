@@ -1,6 +1,8 @@
 package application
 
 import (
+	"path/filepath"
+
 	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -45,7 +47,7 @@ func (d *Driver) OpenFileDialog(opts OpenDialogOptions) (string, error) {
 }
 
 func (d *Driver) OpenExplorer(opts OpenExplorerOptions) error {
-	if err := util.Explore(d.ctx, opts.Path); err != nil {
+	if err := util.Explore(d.ctx, filepath.Dir(opts.Path)); err != nil {
 		return err
 	}
 

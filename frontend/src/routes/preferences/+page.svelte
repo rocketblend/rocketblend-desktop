@@ -6,12 +6,12 @@
     import { t } from '$lib/translations/translations';
 
     import { application } from "$lib/wailsjs/go/models"
-    import { OpenDirectoryDialog } from '$lib/wailsjs/go/application/Driver'
+    import { OpenDirectoryDialog, OpenExplorer } from '$lib/wailsjs/go/application/Driver'
 
     export let data: PageData;
 
     async function handleChangeProjectWatchDirectory() {
-        let opts = new application.OpenDialogOptions({
+        const opts = new application.OpenDialogOptions({
             defaultDirectory: "",
             title: "Select project watch directory",
         });
@@ -21,6 +21,18 @@
         });
 
         console.log('Change project watch directory');
+    }
+
+    async function handleExplore(path: string) {
+        if (!path) {
+            return;
+        }
+
+        const opts = new application.OpenExplorerOptions({
+            path: path,
+        });
+
+        await OpenExplorer(opts);
     }
 </script>
 
@@ -35,7 +47,7 @@
             <div class="flex justify-between items-center gap-6">
                 <div class="text-sm text-left">
                     <span class="font-medium">Project watch directory</span><br>
-                    <span class="text-surface-200 ">C:\Users\user\Documents\Projects</span>
+                    <span class="text-surface-200 ">{data.preferences.watchPaths}</span>
                 </div>
                 <button class="btn variant-filled-surface text-sm font-medium" on:click={handleChangeProjectWatchDirectory}>
                     Change location
@@ -45,9 +57,9 @@
             <div class="flex justify-between items-center gap-6">
                 <div class="text-sm text-left">
                     <span class="font-medium">Configuration file</span><br>
-                    <span class="text-surface-200 ">C:\Users\user\appdata\roaming\rocketblend-desktop\settings.json</span>
+                    <span class="text-surface-200 ">{data.details.applicationConfigPath}</span>
                 </div>
-                <button class="btn variant-filled-surface text-sm font-medium">
+                <button class="btn variant-filled-surface text-sm font-medium" on:click={() => { handleExplore(data.details.applicationConfigPath);}}>
                     View location
                 </button>
             </div>
@@ -58,9 +70,9 @@
             <div class="flex justify-between items-center gap-6">
                 <div class="text-sm text-left">
                     <span class="font-medium">Configuration file</span><br>
-                    <span class="text-surface-200 ">C:\Users\user\appdata\roaming\rocketblend\settings.json</span>
+                    <span class="text-surface-200 ">{data.details.rocketblendConfigPath}</span>
                 </div>
-                <button class="btn variant-filled-surface text-sm font-medium">
+                <button class="btn variant-filled-surface text-sm font-medium" on:click={() => { handleExplore(data.details.rocketblendConfigPath);}}>
                     View location
                 </button>
             </div>
@@ -78,13 +90,13 @@
                 <div class="text-sm text-left">
                     Addons - <span class="text-surface-200">Configure and install blender addons for projects.</span>
                 </div>
-                <SlideToggle name="" size="sm" active="bg-secondary-500"/>
+                <SlideToggle name="" size="sm" active="bg-secondary-500" value={data.preferences.feature.addon}/>
             </div>
             <div class="flex justify-between items-center gap-6">
                 <div class="text-sm text-left">
                     Developer mode - <span class="text-surface-200">Access advanced settings and features for development purposes.</span>
                 </div>
-                <SlideToggle name="" size="sm" active="bg-secondary-500"/>
+                <SlideToggle name="" size="sm" active="bg-secondary-500" value={data.preferences.feature.developer}/>
             </div>
         </div>
     </div>
