@@ -81,7 +81,7 @@ func (d *Driver) GetDetails() (*Details, error) {
 		return nil, err
 	}
 
-	rbConfig, err := d.getRocketBlendConfig()
+	rbConfigPath, rbConfig, err := d.getRocketBlendConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -92,6 +92,7 @@ func (d *Driver) GetDetails() (*Details, error) {
 		InstallationPath:      rbConfig.InstallationsPath,
 		PackagePath:           rbConfig.PackagesPath,
 		ApplicationConfigPath: aConfigPath,
+		RocketBlendConfigPath: rbConfigPath,
 	}, nil
 }
 
@@ -111,20 +112,20 @@ func (d *Driver) getApplicationConfig() (string, *config.Config, error) {
 	return configService.Path(), config, nil
 }
 
-func (d *Driver) getRocketBlendConfig() (*rbconfig.Config, error) {
+func (d *Driver) getRocketBlendConfig() (string, *rbconfig.Config, error) {
 	configService, err := d.factory.GetConfigService()
 	if err != nil {
 		d.logger.Error("failed to get rocketblend config service", map[string]interface{}{"error": err.Error()})
-		return nil, err
+		return "", nil, err
 	}
 
 	config, err := configService.Get()
 	if err != nil {
 		d.logger.Error("failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil, err
+		return "", nil, err
 	}
 
-	return config, nil
+	return configService.Path(), config, nil
 }
 
 func (d *Driver) refresh() error {
