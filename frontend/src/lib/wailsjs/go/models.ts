@@ -1,3 +1,170 @@
+export namespace application {
+	
+	export class Details {
+	    version: string;
+	    platform: string;
+	    installationPath: string;
+	    packagePath: string;
+	    applicationConfigPath: string;
+	    rocketblendConfigPath: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Details(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.version = source["version"];
+	        this.platform = source["platform"];
+	        this.installationPath = source["installationPath"];
+	        this.packagePath = source["packagePath"];
+	        this.applicationConfigPath = source["applicationConfigPath"];
+	        this.rocketblendConfigPath = source["rocketblendConfigPath"];
+	    }
+	}
+	export class Feature {
+	    addon: boolean;
+	    developer: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Feature(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.addon = source["addon"];
+	        this.developer = source["developer"];
+	    }
+	}
+	export class FileFilter {
+	    displayName: string;
+	    pattern: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new FileFilter(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.displayName = source["displayName"];
+	        this.pattern = source["pattern"];
+	    }
+	}
+	export class OpenDialogOptions {
+	    defaultDirectory?: string;
+	    defaultFilename?: string;
+	    title?: string;
+	    filters?: FileFilter[];
+	
+	    static createFrom(source: any = {}) {
+	        return new OpenDialogOptions(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.defaultDirectory = source["defaultDirectory"];
+	        this.defaultFilename = source["defaultFilename"];
+	        this.title = source["title"];
+	        this.filters = this.convertValues(source["filters"], FileFilter);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class OpenExplorerOptions {
+	    path: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new OpenExplorerOptions(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.path = source["path"];
+	    }
+	}
+	export class Preferences {
+	    watchPath: string;
+	    feature: Feature;
+	
+	    static createFrom(source: any = {}) {
+	        return new Preferences(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.watchPath = source["watchPath"];
+	        this.feature = this.convertValues(source["feature"], Feature);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class UpdatePreferencesOpts {
+	    watchPath: string;
+	    feature: Feature;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdatePreferencesOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.watchPath = source["watchPath"];
+	        this.feature = this.convertValues(source["feature"], Feature);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
 export namespace metricservice {
 	
 	export class Aggregate {

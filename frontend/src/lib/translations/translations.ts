@@ -25,9 +25,15 @@ const config: Config<Params> = {
     {
       locale: 'en',
       key: 'home',
-      routes: ['/'],
       loader: async () => (
         await import('./en/home.json')
+      ).default,
+    },
+    {
+      locale: 'en',
+      key: 'preference',
+      loader: async () => (
+        await import('./en/preference.json')
       ).default,
     },
   ],

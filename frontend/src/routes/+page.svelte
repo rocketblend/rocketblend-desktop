@@ -13,24 +13,23 @@
 	import { DisplayType, type OptionGroup } from '$lib/types';
 	import { convertToEnum, debounce } from '$lib/components/utils';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
-    
 
-    import ProjectListView from '$lib/components/project/ProjectListView.svelte';
-	import ProjectFilter from '$lib/components/project/ProjectFilter.svelte';
+    import { ProjectList, ProjectFilter } from "./(components)"
 
     const selectedProjectStore = getSelectedProjectStore();
     const fetchProjectsDebounced = debounce(refreshProjects, EVENT_DEBOUNCE);
-    const optionGroups: OptionGroup[] = [
-        {
-            label: 'sort',
-            display: t.get('home.project.filter.group.sort.title'),
-            options: [
-                { value: 0, display: t.get('home.project.filter.group.sort.option.name') },
-                { value: 1, display: t.get('home.project.filter.group.sort.option.file') },
-                { value: 2, display: t.get('home.project.filter.group.sort.option.build') }
-            ]
-        }
-    ];
+
+    // const optionGroups: OptionGroup[] = [
+    //     {
+    //         label: 'sort',
+    //         display: t.get('home.project.filter.group.sort.title'),
+    //         options: [
+    //             { value: 0, display: t.get('home.project.filter.group.sort.option.name') },
+    //             { value: 1, display: t.get('home.project.filter.group.sort.option.file') },
+    //             { value: 2, display: t.get('home.project.filter.group.sort.option.build') }
+    //         ]
+    //     }
+    // ];
     
     export let data: PageData;
 
@@ -42,9 +41,9 @@
 
     let form : HTMLFormElement;
 
-    let primaryOptionGroup: number = 0;
-    let selectedOptions: Record<string, number> = {'sort': 0};
-    let optionLabel: string = t.get('home.project.filter.group.title');
+    // let primaryOptionGroup: number = 0;
+    // let selectedOptions: Record<string, number> = {'sort': 0};
+    // let optionLabel: string = t.get('home.project.filter.group.title');
 
     let cancelListener: () => void;
 
@@ -90,29 +89,26 @@
 
     $: displayType = convertToEnum(displayTypeParam, DisplayType) || DisplayType.Table;
 
-    $: optionLabel = optionGroups[primaryOptionGroup].options[selectedOptions[optionGroups[primaryOptionGroup].label]].display;
+    // $: optionLabel = optionGroups[primaryOptionGroup].options[selectedOptions[optionGroups[primaryOptionGroup].label]].display;
 </script>
 
-<main class="space-y-4">
-    <div>
+<main class="flex flex-col h-full space-y-4">
+    <div class="flex justify-between items-center">
         <h2 class="h2 font-bold">{$t('home.title')}</h2>
+        <button type="button" class="btn btn-sm variant-filled px-6 font-medium">
+            New project
+        </button>
     </div>
-
-    <div class="space-y-4">
-        <ProjectFilter
-            bind:form={form}
-            bind:searchQuery={searchQuery}
-            bind:displayType={displayType}
-            bind:selectedOptions={selectedOptions}
-            bind:filterLabel={optionLabel}
-            optionsGroups={optionGroups}
-            searchPlaceholder={$t('home.project.query.placeholder')}
-            on:change={handleFilterChangeEvent} />
-        <ProjectListView
-            bind:projects={data.projects}
-            bind:displayType={displayType}
-            bind:selectedProjectIds={$selectedProjectStore}
-            on:itemDoubleClick={handleProjectDoubleClick}
-            on:sortChanged={handleSortChange}/>
-    </div>
+    <ProjectFilter
+        bind:form={form}
+        bind:searchQuery={searchQuery}
+        bind:displayType={displayType}
+        searchPlaceholder={$t('home.project.query.placeholder')}
+        on:change={handleFilterChangeEvent} />
+    <ProjectList
+        bind:projects={data.projects}
+        bind:displayType={displayType}
+        bind:selectedProjectIds={$selectedProjectStore}
+        on:itemDoubleClick={handleProjectDoubleClick}
+        on:sortChanged={handleSortChange}/>
 </main>

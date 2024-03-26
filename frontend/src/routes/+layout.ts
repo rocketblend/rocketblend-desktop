@@ -1,16 +1,21 @@
 import { locale, loadTranslations } from '$lib/translations/translations';
 import type { LayoutLoad } from './$types';
 
+import { GetDetails, GetPreferences } from '$lib/wailsjs/go/application/Driver'
+
 export const ssr = false;
-//export const prerender = true
+export const prerender = "auto";
 
 export const load: LayoutLoad = async ({ url }: { url: URL }) => {
-  const { pathname } = url;
-  const defaultLocale = 'en'; // get from cookie / user session etc...
-  const initLocale: string = locale.get() || defaultLocale;
+    const { pathname } = url;
+    const defaultLocale = 'en'; // get from cookie / user session etc...
+    const initLocale: string = locale.get() || defaultLocale;
 
-  await loadTranslations(initLocale, pathname); // keep this just before the `return`
+    await loadTranslations(initLocale, pathname); // keep this just before the `return`
 
-  return {}
+    return {
+        details: GetDetails(),
+        preferences: await GetPreferences(),
+    }
 };
 

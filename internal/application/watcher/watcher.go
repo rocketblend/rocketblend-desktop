@@ -15,9 +15,7 @@ import (
 type (
 	Watcher interface {
 		Close() error
-		RegisterPaths(path ...string) error
-		UnregisterPaths(path ...string) error
-		GetRegisteredPaths() []string
+		SetPaths(paths ...string) error
 	}
 
 	UpdateObjectFunc      func(path string) error
@@ -26,8 +24,8 @@ type (
 	IsWatchableFileFunc   func(path string) bool
 
 	service struct {
-		logger          logger.Logger
-		registeredPaths []string
+		logger logger.Logger
+		paths  map[string]struct{}
 
 		updateObjectFunc      UpdateObjectFunc
 		removeObjectFunc      RemoveObjectFunc
@@ -106,75 +104,57 @@ func New(opts ...Option) (Watcher, error) {
 		debounceDuration:      options.DebounceDuration,
 		watchers:              make(map[string]*watcher),
 		events:                make(map[string]*projectEvent),
-		registeredPaths:       make([]string, 0),
+		paths:                 make(map[string]struct{}),
 		updateObjectFunc:      options.UpdateObjectFunc,
 		removeObjectFunc:      options.RemoveObjectFunc,
 		resolveObjectPathFunc: options.ResolveObjectPathFunc,
 		isWatchableFileFunc:   options.IsWatchableFileFunc,
 	}
 
-	if err := s.RegisterPaths(options.Paths...); err != nil {
+	if err := s.setPaths(options.Paths...); err != nil {
 		return nil, err
 	}
 
 	return s, nil
 }
 
-func (s *service) RegisterPaths(paths ...string) error {
-	errChan := make(chan error, len(paths))
-	var wg sync.WaitGroup
-	wg.Add(len(paths))
-
-	for _, path := range paths {
-		go func(path string) {
-			defer wg.Done()
-
-			if err := s.registerPath(path); err != nil {
-				errChan <- fmt.Errorf("failed to register path %s: %w", path, err)
-			}
-		}(path)
-	}
-
-	wg.Wait()
-	close(errChan)
-
-	if err := <-errChan; err != nil {
-		return err
-	}
-
-	return nil
+func (s *service) SetPaths(newPaths ...string) error {
+	return s.setPaths(newPaths...)
 }
 
-func (s *service) UnregisterPaths(paths ...string) error {
-	errChan := make(chan error, len(paths))
-	var wg sync.WaitGroup
-	wg.Add(len(paths))
+func (s *service) setPaths(paths ...string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
+	// Convert newPaths to a map for efficient lookup
+	pathMap := make(map[string]struct{}, len(paths))
 	for _, path := range paths {
-		go func(path string) {
-			defer wg.Done()
+		if path == "" {
+			continue
+		}
 
+		pathMap[path] = struct{}{}
+	}
+
+	// Unregister paths not in the new set of paths
+	for path := range s.paths {
+		if _, exists := pathMap[path]; !exists {
 			if err := s.unregisterPath(path); err != nil {
-				errChan <- fmt.Errorf("failed to unregister path %s: %w", path, err)
+				s.logger.Error("failed to unregister path", map[string]interface{}{"path": path, "error": err})
 			}
-		}(path)
+		}
 	}
 
-	wg.Wait()
-	close(errChan)
-
-	if err := <-errChan; err != nil {
-		return err
+	// Register new paths
+	for path := range pathMap {
+		if _, alreadyRegistered := s.paths[path]; !alreadyRegistered {
+			if err := s.registerPath(path); err != nil {
+				s.logger.Error("failed to register path", map[string]interface{}{"path": path, "error": err})
+			}
+		}
 	}
 
 	return nil
-}
-
-func (s *service) GetRegisteredPaths() []string {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	return append([]string(nil), s.registeredPaths...) // return copy of slice
 }
 
 func (s *service) Close() error {
@@ -182,20 +162,19 @@ func (s *service) Close() error {
 	defer s.mu.Unlock()
 
 	var closeErrors []string
-	s.logger.Debug("Closing watcher")
+	s.logger.Debug("closing watcher")
 
-	paths := s.registeredPaths
-	for _, path := range paths {
-		if err := s.unregisterPathLocked(path); err != nil {
+	for path := range s.paths {
+		if err := s.unregisterPath(path); err != nil {
 			closeErrors = append(closeErrors, fmt.Sprintf("path %s: %v", path, err))
-			s.logger.Error("Failed to unregister path", map[string]interface{}{
+			s.logger.Error("failed to unregister path", map[string]interface{}{
 				"path": path,
 				"err":  err,
 			})
 		}
 	}
 
-	s.registeredPaths = []string{}
+	s.paths = make(map[string]struct{})
 
 	if len(closeErrors) > 0 {
 		return fmt.Errorf("close completed with errors: %s", strings.Join(closeErrors, "; "))
@@ -205,17 +184,12 @@ func (s *service) Close() error {
 }
 
 func (s *service) registerPath(path string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	// Check if the path is already registered or it is a subpath of a registered path
-	for _, registeredPath := range s.registeredPaths {
+	for registeredPath := range s.paths {
 		rel, err := filepath.Rel(registeredPath, path)
-		if err != nil || strings.HasPrefix(rel, "..") {
-			continue
+		if err != nil || !strings.HasPrefix(rel, "..") {
+			return fmt.Errorf("path %s is already registered or is a subpath of a registered path", path)
 		}
-
-		return fmt.Errorf("path %s is already registered or is a subpath of a registered path", path)
 	}
 
 	// Walk the file tree starting at 'path'
@@ -224,20 +198,21 @@ func (s *service) registerPath(path string) error {
 			return fmt.Errorf("error accessing path %s: %w", path, err)
 		}
 
-		if s.isWatchableFile(path) {
+		if s.isWatchableFileFunc != nil && s.isWatchableFileFunc(path) {
+			objectPath := s.resolveObjectPath(path)
+
+			// Assume handleEventDebounced and updateObject are appropriately adjusted to handle the map-based structure
 			s.handleEventDebounced(&objectEventInfo{
-				ObjectPath: s.resolveObjectPath(path),
+				ObjectPath: objectPath,
 				EventInfo: eventInfo{
 					path:  path,
 					event: notify.Write,
 				},
 			})
 
-			objectPath := s.resolveObjectPath(path)
-
 			// Trigger initial update
 			if err := s.updateObject(objectPath); err != nil {
-				s.logger.Debug("Failed to load object", map[string]interface{}{
+				s.logger.Debug("failed to load object", map[string]interface{}{
 					"err":  err,
 					"path": path,
 				})
@@ -254,32 +229,19 @@ func (s *service) registerPath(path string) error {
 		return fmt.Errorf("failed to watch path %s: %w", path, err)
 	}
 
-	// Add the path to the registered paths
-	s.registeredPaths = append(s.registeredPaths, path)
+	// Add the path to the registered paths map
+	s.paths[path] = struct{}{}
 
 	return nil
 }
 
 func (s *service) unregisterPath(path string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	return s.unregisterPathLocked(path)
-}
-
-// unregisterPathLocked unregisters a path without locking the mutex.
-func (s *service) unregisterPathLocked(path string) error {
-	pathIndex := -1
-	for i, registeredPath := range s.registeredPaths {
-		if registeredPath == path {
-			pathIndex = i
-			break
-		}
-	}
-
-	if pathIndex == -1 {
+	if _, exists := s.paths[path]; !exists {
 		return fmt.Errorf("path %s not found", path)
 	}
+
+	// Remove the path from the registered paths
+	delete(s.paths, path)
 
 	// Remove indexed projects within unregistered path.
 	if err := s.removeObject(path); err != nil {
@@ -290,9 +252,6 @@ func (s *service) unregisterPathLocked(path string) error {
 	if err := s.unwatchPath(path); err != nil {
 		return fmt.Errorf("failed to unwatch path %s: %w", path, err)
 	}
-
-	// Remove the path from the registered paths
-	s.registeredPaths = append(s.registeredPaths[:pathIndex], s.registeredPaths[pathIndex+1:]...)
 
 	return nil
 }

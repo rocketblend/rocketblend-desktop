@@ -2,10 +2,16 @@ package config
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
+)
+
+const (
+	FileName      = "settings"
+	FileExtension = "json"
 )
 
 type (
@@ -15,6 +21,7 @@ type (
 		GetValueByString(key string) string
 		SetValueByString(key string, value string) error
 		Save(config *Config) error
+		Path() string
 	}
 
 	service struct {
@@ -94,14 +101,18 @@ func (srv *service) validate(config *Config) error {
 	return nil
 }
 
+func (srv *service) Path() string {
+	return fmt.Sprintf("%s.%s", filepath.Join(srv.rootPath, FileName), FileExtension)
+}
+
 func load(rootPath string) (*viper.Viper, error) {
 	v := viper.New()
 
 	v.SetDefault("project.watcher.fileExtensions", []string{".blend", ".yaml"})
 
-	v.SetConfigName("settings")
+	v.SetConfigName(FileName)
 	v.AddConfigPath(rootPath)
-	v.SetConfigType("json")
+	v.SetConfigType(FileExtension)
 
 	v.SafeWriteConfig()
 

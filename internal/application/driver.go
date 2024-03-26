@@ -13,18 +13,14 @@ import (
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend/pkg/driver/reference"
-	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-
-	rocketblendConfig "github.com/rocketblend/rocketblend/pkg/rocketblend/config"
 )
 
 // Driver struct
@@ -54,54 +50,6 @@ func NewDriver(factory factory.Factory, events buffermanager.BufferManager, args
 		logger:            logger,
 		args:              args,
 	}, nil
-}
-
-func (d *Driver) GetPlatform() (*rbruntime.Platform, error) {
-	configService, err := d.factory.GetConfigService()
-	if err != nil {
-		d.logger.Error("failed to get config service", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	config, err := configService.Get()
-	if err != nil {
-		d.logger.Error("failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	return &config.Platform, nil
-}
-
-func (d *Driver) GetApplicationConfig() (*config.Config, error) {
-	configService, err := d.factory.GetApplicationConfigService()
-	if err != nil {
-		d.logger.Error("failed to get application config service", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	config, err := configService.Get()
-	if err != nil {
-		d.logger.Error("failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	return config, nil
-}
-
-func (d *Driver) GetRocketBlendConfig() (*rocketblendConfig.Config, error) {
-	configService, err := d.factory.GetConfigService()
-	if err != nil {
-		d.logger.Error("failed to get rocketblend config service", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	config, err := configService.Get()
-	if err != nil {
-		d.logger.Error("failed to get config", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
-
-	return config, nil
 }
 
 // GetProject gets a project by id
@@ -471,10 +419,9 @@ func (d *Driver) onSecondInstanceLaunch(secondInstanceData options.SecondInstanc
 	})
 }
 
-//TODO: Create a background context with cancel and store it against an ID, rather then true/false.
-
 // runWithCancellation is a helper function that allows to have request cancellation.
 // Wails doesn't support context cancellation yet, so we have to do it ourselves.
+// TODO: This can be simplified massivly. Can create a background context with cancel and store it against an ID, rather then true/false. Also don't need heartbeat.
 func (d *Driver) runWithCancellation(cid uuid.UUID, requestFunc func(ctx context.Context) (interface{}, error)) (interface{}, error) {
 	d.cancelTokens.Store(cid.String(), false)
 	defer d.cancelTokens.Delete(cid.String())

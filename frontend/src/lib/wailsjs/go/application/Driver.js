@@ -26,8 +26,8 @@ export function ExploreProject(arg1) {
   return window['go']['application']['Driver']['ExploreProject'](arg1);
 }
 
-export function GetApplicationConfig() {
-  return window['go']['application']['Driver']['GetApplicationConfig']();
+export function GetDetails() {
+  return window['go']['application']['Driver']['GetDetails']();
 }
 
 export function GetOperation(arg1) {
@@ -38,16 +38,12 @@ export function GetPackage(arg1) {
   return window['go']['application']['Driver']['GetPackage'](arg1);
 }
 
-export function GetPlatform() {
-  return window['go']['application']['Driver']['GetPlatform']();
+export function GetPreferences() {
+  return window['go']['application']['Driver']['GetPreferences']();
 }
 
 export function GetProject(arg1) {
   return window['go']['application']['Driver']['GetProject'](arg1);
-}
-
-export function GetRocketBlendConfig() {
-  return window['go']['application']['Driver']['GetRocketBlendConfig']();
 }
 
 export function InstallPackageOperation(arg1) {
@@ -78,6 +74,18 @@ export function LongRunningRequestWithCancellation(arg1) {
   return window['go']['application']['Driver']['LongRunningRequestWithCancellation'](arg1);
 }
 
+export function OpenDirectoryDialog(arg1) {
+  return window['go']['application']['Driver']['OpenDirectoryDialog'](arg1);
+}
+
+export function OpenExplorer(arg1) {
+  return window['go']['application']['Driver']['OpenExplorer'](arg1);
+}
+
+export function OpenFileDialog(arg1) {
+  return window['go']['application']['Driver']['OpenFileDialog'](arg1);
+}
+
 export function Quit() {
   return window['go']['application']['Driver']['Quit']();
 }
@@ -96,6 +104,10 @@ export function RunProject(arg1) {
 
 export function UninstallPackage(arg1) {
   return window['go']['application']['Driver']['UninstallPackage'](arg1);
+}
+
+export function UpdatePreferences(arg1) {
+  return window['go']['application']['Driver']['UpdatePreferences'](arg1);
 }
 
 export function UpdateProject(arg1) {
