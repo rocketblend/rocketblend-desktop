@@ -18,17 +18,18 @@
 
     const selectedProjectStore = getSelectedProjectStore();
     const fetchProjectsDebounced = debounce(refreshProjects, EVENT_DEBOUNCE);
-    const optionGroups: OptionGroup[] = [
-        {
-            label: 'sort',
-            display: t.get('home.project.filter.group.sort.title'),
-            options: [
-                { value: 0, display: t.get('home.project.filter.group.sort.option.name') },
-                { value: 1, display: t.get('home.project.filter.group.sort.option.file') },
-                { value: 2, display: t.get('home.project.filter.group.sort.option.build') }
-            ]
-        }
-    ];
+
+    // const optionGroups: OptionGroup[] = [
+    //     {
+    //         label: 'sort',
+    //         display: t.get('home.project.filter.group.sort.title'),
+    //         options: [
+    //             { value: 0, display: t.get('home.project.filter.group.sort.option.name') },
+    //             { value: 1, display: t.get('home.project.filter.group.sort.option.file') },
+    //             { value: 2, display: t.get('home.project.filter.group.sort.option.build') }
+    //         ]
+    //     }
+    // ];
     
     export let data: PageData;
 
@@ -40,9 +41,9 @@
 
     let form : HTMLFormElement;
 
-    let primaryOptionGroup: number = 0;
-    let selectedOptions: Record<string, number> = {'sort': 0};
-    let optionLabel: string = t.get('home.project.filter.group.title');
+    // let primaryOptionGroup: number = 0;
+    // let selectedOptions: Record<string, number> = {'sort': 0};
+    // let optionLabel: string = t.get('home.project.filter.group.title');
 
     let cancelListener: () => void;
 
@@ -88,7 +89,7 @@
 
     $: displayType = convertToEnum(displayTypeParam, DisplayType) || DisplayType.Table;
 
-    $: optionLabel = optionGroups[primaryOptionGroup].options[selectedOptions[optionGroups[primaryOptionGroup].label]].display;
+    // $: optionLabel = optionGroups[primaryOptionGroup].options[selectedOptions[optionGroups[primaryOptionGroup].label]].display;
 </script>
 
 <main class="flex flex-col h-full space-y-4">
@@ -102,9 +103,6 @@
         bind:form={form}
         bind:searchQuery={searchQuery}
         bind:displayType={displayType}
-        bind:selectedOptions={selectedOptions}
-        bind:filterLabel={optionLabel}
-        optionsGroups={optionGroups}
         searchPlaceholder={$t('home.project.query.placeholder')}
         on:change={handleFilterChangeEvent} />
     <ProjectList
