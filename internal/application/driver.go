@@ -92,25 +92,6 @@ func (d *Driver) ListProjects(query string) (*projectservice.ListProjectsRespons
 	return response, nil
 }
 
-// CreateProject creates a new project
-func (d *Driver) CreateProject(request *projectservice.CreateProjectRequest) error {
-	ctx := context.Background()
-
-	projectService, err := d.factory.GetProjectService()
-	if err != nil {
-		d.logger.Error("failed to get project service", map[string]interface{}{"error": err.Error()})
-		return err
-	}
-
-	if err := projectService.Create(ctx, request); err != nil {
-		d.logger.Error("failed to create project", map[string]interface{}{"error": err.Error()})
-		return err
-	}
-
-	d.logger.Debug("project created")
-	return nil
-}
-
 // UpdateProject updates a project
 func (d *Driver) UpdateProject(request *projectservice.UpdateProjectRequest) error {
 	ctx := context.Background()

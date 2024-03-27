@@ -46,9 +46,11 @@ func (p *Project) GetBlendFile() *blendconfig.BlendConfig {
 
 func (p *Project) GetSettings() *projectsettings.ProjectSettings {
 	return &projectsettings.ProjectSettings{
-		ID:   p.ID,
-		Name: p.Name,
-		Tags: p.Tags,
+		ID:            p.ID,
+		Name:          p.Name,
+		Tags:          p.Tags,
+		ThumbnailPath: p.ThumbnailPath,
+		SplashPath:    p.SplashPath,
 	}
 }
 

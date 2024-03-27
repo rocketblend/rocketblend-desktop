@@ -97,6 +97,7 @@ func (d *Driver) GetDetails() (*Details, error) {
 }
 
 func (d *Driver) getApplicationConfig() (string, *config.Config, error) {
+	// TODO: create new struct that just includes the path and the config.
 	configService, err := d.factory.GetApplicationConfigService()
 	if err != nil {
 		d.logger.Error("failed to get application config service", map[string]interface{}{"error": err.Error()})
@@ -113,6 +114,7 @@ func (d *Driver) getApplicationConfig() (string, *config.Config, error) {
 }
 
 func (d *Driver) getRocketBlendConfig() (string, *rbconfig.Config, error) {
+	// TODO: create new struct that just includes the path and the config.
 	configService, err := d.factory.GetConfigService()
 	if err != nil {
 		d.logger.Error("failed to get rocketblend config service", map[string]interface{}{"error": err.Error()})

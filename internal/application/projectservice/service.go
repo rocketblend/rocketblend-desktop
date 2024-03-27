@@ -28,7 +28,7 @@ type (
 		Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error)
 		List(ctx context.Context, opts ...listoption.ListOption) (*ListProjectsResponse, error)
 
-		Create(ctx context.Context, request *CreateProjectRequest) error
+		Create(ctx context.Context, opts CreateProjectOpts) (*CreateProjectResult, error)
 		Update(ctx context.Context, request *UpdateProjectRequest) error
 
 		Render(ctx context.Context, id uuid.UUID) error
@@ -214,16 +214,6 @@ func New(opts ...Option) (Service, error) {
 
 func (s *service) Close() error {
 	return s.watcher.Close()
-}
-
-func (s *service) Create(ctx context.Context, request *CreateProjectRequest) error {
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-
-	s.EmitEvent(ctx, uuid.New(), CreateEventChannel)
-
-	return nil
 }
 
 func (s *service) Update(ctx context.Context, request *UpdateProjectRequest) error {
