@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -127,11 +128,14 @@ func (d *Driver) CreateProjectOperation(opts CreateProjectOperationOpts) (uuid.U
 		return uuid.Nil, err
 	}
 
+	blendFileName := util.DisplayNameToFilename(opts.Name)
+	path := filepath.Join(projectPath, blendFileName)
+
 	opid, err := operationservice.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
 		result, err := projectService.Create(ctx, projectservice.CreateProjectOpts{
 			DisplayName:   opts.Name,
-			BlendFileName: util.DisplayNameToFilename(opts.Name),
-			Path:          projectPath,
+			BlendFileName: blendFileName,
+			Path:          path,
 			Build:         defaultBuild,
 		})
 		if err != nil {

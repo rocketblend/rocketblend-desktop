@@ -26,7 +26,7 @@ func FilenameToDisplayName(filename string) string {
 
 // DisplayNameToFilename converts a display name into a filename
 func DisplayNameToFilename(displayName string) string {
-	name := strings.ReplaceAll(displayName, " ", "_")
+	name := strings.ReplaceAll(displayName, " ", "-")
 	name = strings.ToLower(name)
 	return cleanFileName(name)
 }

@@ -1,6 +1,9 @@
 <script lang="ts">
     import { getModalStore } from "@skeletonlabs/skeleton";
     import type { ModalSettings } from "@skeletonlabs/skeleton";
+
+    import { CreateProjectOperation } from "$lib/wailsjs/go/application/Driver";
+    import { application } from "$lib/wailsjs/go/models"
 			
     const modalStore = getModalStore();
 
@@ -18,9 +21,17 @@
                 }
             };
             modalStore.trigger(modal);
-        }).then((r: any) => {
-            // Call Create project endpoint
-            console.log("resolved response:", r);
+        }).then(async (name: string) => {
+            if (!name) {
+                return;
+            }
+
+            console.log("resolved response:", name);
+
+            const opts = application.CreateProjectOperationOpts.createFrom({ name: name });
+            await CreateProjectOperation(opts);
+
+            console.log("Project creation started!")
         });
     }
 </script>

@@ -185,6 +185,10 @@ func removeIgnoreFile(path string) error {
 }
 
 func ensureBlendExtension(filename string) string {
+	if filename == "" {
+		return "untitled.blend"
+	}
+
 	if !strings.HasSuffix(filename, ".blend") {
 		filename += ".blend"
 	}
