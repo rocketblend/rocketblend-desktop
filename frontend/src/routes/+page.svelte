@@ -15,6 +15,7 @@
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
     import { ProjectList, ProjectFilter } from "./(components)"
+	import ProjectCreateButton from './(components)/project/project-create-button.svelte';
 
     const selectedProjectStore = getSelectedProjectStore();
     const fetchProjectsDebounced = debounce(refreshProjects, EVENT_DEBOUNCE);
@@ -95,9 +96,7 @@
 <main class="flex flex-col h-full space-y-4">
     <div class="flex justify-between items-center">
         <h2 class="h2 font-bold">{$t('home.title')}</h2>
-        <button type="button" class="btn btn-sm variant-filled px-6 font-medium">
-            New project
-        </button>
+        <ProjectCreateButton />
     </div>
     <ProjectFilter
         bind:form={form}
