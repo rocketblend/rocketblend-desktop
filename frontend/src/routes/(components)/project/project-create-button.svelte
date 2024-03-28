@@ -26,12 +26,8 @@
                 return;
             }
 
-            console.log("resolved response:", name);
-
             const opts = application.CreateProjectOperationOpts.createFrom({ name: name });
             await CreateProjectOperation(opts);
-
-            console.log("Project creation started!")
         });
     }
 </script>
