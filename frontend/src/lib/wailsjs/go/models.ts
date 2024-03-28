@@ -1,5 +1,17 @@
 export namespace application {
 	
+	export class CreateProjectOperationOpts {
+	    name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CreateProjectOperationOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	    }
+	}
 	export class Details {
 	    version: string;
 	    platform: string;
@@ -496,28 +508,6 @@ export namespace project {
 
 export namespace projectservice {
 	
-	export class CreateProjectRequest {
-	    name?: string;
-	    tags?: string[];
-	    path?: string;
-	    fileName?: string;
-	    build?: string;
-	    addons?: string[];
-	
-	    static createFrom(source: any = {}) {
-	        return new CreateProjectRequest(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
-	        this.tags = source["tags"];
-	        this.path = source["path"];
-	        this.fileName = source["fileName"];
-	        this.build = source["build"];
-	        this.addons = source["addons"];
-	    }
-	}
 	export class GetProjectResponse {
 	    project?: project.Project;
 	

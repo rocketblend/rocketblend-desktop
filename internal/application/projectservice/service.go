@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -28,7 +29,7 @@ type (
 		Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error)
 		List(ctx context.Context, opts ...listoption.ListOption) (*ListProjectsResponse, error)
 
-		Create(ctx context.Context, request *CreateProjectRequest) error
+		Create(ctx context.Context, opts CreateProjectOpts) (*CreateProjectResult, error)
 		Update(ctx context.Context, request *UpdateProjectRequest) error
 
 		Render(ctx context.Context, id uuid.UUID) error
@@ -187,13 +188,16 @@ func New(opts ...Option) (Service, error) {
 				return err
 			}
 
+			options.Logger.Debug("updating project index", map[string]interface{}{
+				"id":        index.ID,
+				"reference": index.Reference,
+			})
+
 			// TODO: Pass context from watcher
-			ctx := context.Background()
-			return options.Store.Insert(ctx, index)
+			return options.Store.Insert(context.Background(), index)
 		}),
-		watcher.WithRemoveObjectFunc(func(path string) error {
-			ctx := context.Background()
-			return options.Store.RemoveByReference(ctx, path)
+		watcher.WithRemoveObjectFunc(func(removePath string) error {
+			return options.Store.RemoveByReference(context.Background(), path.Clean(removePath))
 		}),
 	)
 	if err != nil {
@@ -214,16 +218,6 @@ func New(opts ...Option) (Service, error) {
 
 func (s *service) Close() error {
 	return s.watcher.Close()
-}
-
-func (s *service) Create(ctx context.Context, request *CreateProjectRequest) error {
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-
-	s.EmitEvent(ctx, uuid.New(), CreateEventChannel)
-
-	return nil
 }
 
 func (s *service) Update(ctx context.Context, request *UpdateProjectRequest) error {
@@ -323,19 +317,6 @@ func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, erro
 	return project, nil
 }
 
-// func (s *service) update(ctx context.Context, project *project.Project) error {
-// 	if err := ctx.Err(); err != nil {
-// 		return err
-// 	}
-
-// 	index, err := convertToIndex(project)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return s.store.Insert(index)
-// }
-
 func convertFromIndex(index *searchstore.Index) (*project.Project, error) {
 	var result project.Project
 	if err := json.Unmarshal([]byte(index.Data), &result); err != nil {
@@ -361,7 +342,7 @@ func convertToIndex(project *project.Project) (*searchstore.Index, error) {
 		ID:        project.ID,
 		Name:      project.Name,
 		Type:      indextype.Project,
-		Reference: project.Path,
+		Reference: path.Clean(project.Path),
 		Resources: resources,
 		Data:      string(data),
 	}, nil

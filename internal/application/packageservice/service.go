@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -163,12 +164,10 @@ func New(opts ...Option) (Service, error) {
 			}
 
 			// TODO: Pass context from watcher
-			ctx := context.Background()
-			return options.Store.Insert(ctx, index)
+			return options.Store.Insert(context.Background(), index)
 		}),
-		watcher.WithRemoveObjectFunc(func(path string) error {
-			ctx := context.Background()
-			return options.Store.RemoveByReference(ctx, path)
+		watcher.WithRemoveObjectFunc(func(removePath string) error {
+			return options.Store.RemoveByReference(context.Background(), path.Clean(removePath))
 		}),
 	)
 	if err != nil {
@@ -287,7 +286,7 @@ func convertToIndex(pack *pack.Package) (*searchstore.Index, error) {
 		ID:         pack.ID,
 		Name:       pack.Name,
 		Type:       indextype.Package,
-		Reference:  pack.Path,
+		Reference:  path.Clean(pack.Path),
 		Category:   strconv.Itoa(int(pack.Type)),
 		State:      int(pack.State),
 		Operations: pack.Operations,

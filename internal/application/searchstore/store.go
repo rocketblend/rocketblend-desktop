@@ -115,9 +115,12 @@ func (s *store) Remove(ctx context.Context, id uuid.UUID) error {
 }
 
 func (s *store) RemoveByReference(ctx context.Context, path string) error {
-	query := bleve.NewMatchQuery(path)
-	query.SetField("reference")
-	searchResults, err := s.index.SearchInContext(ctx, bleve.NewSearchRequest(query))
+	listOpts := listoption.ListOptions{
+		Reference: path,
+		Size:      10000, // TODO: Have the search request function ignore the size if it is 0
+	}
+
+	searchResults, err := s.index.SearchInContext(ctx, listOpts.SearchRequest())
 	if err != nil {
 		s.logger.Error("error searching for indexes with reference", map[string]interface{}{
 			"err": err,
@@ -126,7 +129,19 @@ func (s *store) RemoveByReference(ctx context.Context, path string) error {
 		return err
 	}
 
+	s.logger.Debug("searched indexes with reference", map[string]interface{}{
+		"path":  path,
+		"total": searchResults.Total,
+		"took":  searchResults.Took,
+		"hits":  len(searchResults.Hits),
+	})
+
 	for _, hit := range searchResults.Hits {
+		s.logger.Debug("found index for deletion", map[string]interface{}{
+			"key":  hit.ID,
+			"path": path,
+		})
+
 		id, err := uuid.Parse(hit.ID)
 		if err != nil {
 			s.logger.Error("error parsing id", map[string]interface{}{
@@ -134,19 +149,16 @@ func (s *store) RemoveByReference(ctx context.Context, path string) error {
 				"key":  hit.ID,
 				"path": path,
 			})
-		} else {
-			if err := s.remove(ctx, id); err != nil {
-				s.logger.Error("error deleting index from id", map[string]interface{}{
-					"err":  err,
-					"key":  hit.ID,
-					"path": path,
-				})
-			} else {
-				s.logger.Info("deleted index from id", map[string]interface{}{
-					"key":  hit.ID,
-					"path": path,
-				})
-			}
+
+			continue
+		}
+
+		if err := s.remove(ctx, id); err != nil {
+			s.logger.Error("error deleting index from id", map[string]interface{}{
+				"err":  err,
+				"key":  hit.ID,
+				"path": path,
+			})
 		}
 	}
 
@@ -167,6 +179,13 @@ func (s *store) remove(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
+	s.logger.Debug("removing index", map[string]interface{}{
+		"id":        id,
+		"reference": index.Reference,
+		"type":      index.Type,
+		"resources": index.Resources,
+	})
+
 	err = s.index.Delete(id.String())
 	if err != nil {
 		return err
@@ -179,7 +198,7 @@ func (s *store) remove(ctx context.Context, id uuid.UUID) error {
 		})
 	}
 
-	s.logger.Debug("Removed successful", map[string]interface{}{
+	s.logger.Debug("removed successful", map[string]interface{}{
 		"id": id,
 	})
 

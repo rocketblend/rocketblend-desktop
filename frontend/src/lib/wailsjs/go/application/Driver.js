@@ -14,8 +14,8 @@ export function CancelOperation(arg1) {
   return window['go']['application']['Driver']['CancelOperation'](arg1);
 }
 
-export function CreateProject(arg1) {
-  return window['go']['application']['Driver']['CreateProject'](arg1);
+export function CreateProjectOperation(arg1) {
+  return window['go']['application']['Driver']['CreateProjectOperation'](arg1);
 }
 
 export function DeleteProject(arg1) {

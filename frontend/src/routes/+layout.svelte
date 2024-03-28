@@ -3,11 +3,10 @@
     
     import type { LayoutData } from "./$types";
     import { onMount, onDestroy } from 'svelte';
-    import { goto } from '$app/navigation';
 
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
     import { initializeStores, storePopup, getToastStore, getDrawerStore } from '@skeletonlabs/skeleton';
-    import { Toast, AppBar, AppShell } from '@skeletonlabs/skeleton';
+    import { Toast, AppBar, AppShell, Modal } from '@skeletonlabs/skeleton';
 
     import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
 
@@ -30,6 +29,7 @@
     import { Footer, Sidebar, UtilityDrawer } from "./(components)"
 
     import Logo from "$lib/assets/images/logo-slim.png?enhanced"
+	import { fade, fly, slide } from "svelte/transition";
 
     initializeStores();
 
@@ -68,8 +68,11 @@
     onDestroy(() => {
         tearDownGlobalEventListeners();
     });
-
 </script>
+
+<Modal
+    rounded="rounded"
+/>
 
 <UtilityDrawer developer={data.preferences.feature.developer}/>
 
