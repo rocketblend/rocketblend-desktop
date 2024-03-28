@@ -3,6 +3,7 @@ package searchstore
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strconv"
 
 	"github.com/blevesearch/bleve/v2/document"
@@ -11,6 +12,8 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 )
+
+var ErrNotFound = errors.New("index not found")
 
 func (s *store) List(ctx context.Context, opts ...listoption.ListOption) ([]*Index, error) {
 	if err := ctx.Err(); err != nil {
@@ -70,6 +73,10 @@ func (s *store) get(ctx context.Context, id uuid.UUID) (*Index, error) {
 	doc, err := s.index.Document(id.String())
 	if err != nil {
 		return nil, err
+	}
+
+	if doc == nil {
+		return nil, ErrNotFound
 	}
 
 	var result Index

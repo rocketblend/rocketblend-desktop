@@ -144,8 +144,9 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	}
 
 	if so.Query != "" {
-		textQuery := bleve.NewMatchPhraseQuery(so.Query)
-		// textQuery.Fuzziness = 1
+		textQuery := bleve.NewMatchQuery(so.Query)
+		textQuery.SetFuzziness(2)
+		//textQuery.SetPrefix(2)
 
 		query.AddQuery(textQuery)
 	} else {

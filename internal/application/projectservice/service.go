@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -187,13 +188,16 @@ func New(opts ...Option) (Service, error) {
 				return err
 			}
 
+			options.Logger.Debug("updating project index", map[string]interface{}{
+				"id":        index.ID,
+				"reference": index.Reference,
+			})
+
 			// TODO: Pass context from watcher
-			ctx := context.Background()
-			return options.Store.Insert(ctx, index)
+			return options.Store.Insert(context.Background(), index)
 		}),
-		watcher.WithRemoveObjectFunc(func(path string) error {
-			ctx := context.Background()
-			return options.Store.RemoveByReference(ctx, path)
+		watcher.WithRemoveObjectFunc(func(removePath string) error {
+			return options.Store.RemoveByReference(context.Background(), path.Clean(removePath))
 		}),
 	)
 	if err != nil {
@@ -313,19 +317,6 @@ func (s *service) get(ctx context.Context, id uuid.UUID) (*project.Project, erro
 	return project, nil
 }
 
-// func (s *service) update(ctx context.Context, project *project.Project) error {
-// 	if err := ctx.Err(); err != nil {
-// 		return err
-// 	}
-
-// 	index, err := convertToIndex(project)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return s.store.Insert(index)
-// }
-
 func convertFromIndex(index *searchstore.Index) (*project.Project, error) {
 	var result project.Project
 	if err := json.Unmarshal([]byte(index.Data), &result); err != nil {
@@ -351,7 +342,7 @@ func convertToIndex(project *project.Project) (*searchstore.Index, error) {
 		ID:        project.ID,
 		Name:      project.Name,
 		Type:      indextype.Project,
-		Reference: project.Path,
+		Reference: path.Clean(project.Path),
 		Resources: resources,
 		Data:      string(data),
 	}, nil
