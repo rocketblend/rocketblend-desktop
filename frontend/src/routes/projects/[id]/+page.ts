@@ -14,6 +14,7 @@ export const load: PageLoad = async ({ params }) => {
     }
 
     return {
+        label: result.project.name,
         project: result.project
     };
 };

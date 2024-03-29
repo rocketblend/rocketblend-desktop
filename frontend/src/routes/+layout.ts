@@ -14,6 +14,7 @@ export const load: LayoutLoad = async ({ url }: { url: URL }) => {
     await loadTranslations(initLocale, pathname); // keep this just before the `return`
 
     return {
+        showBreadcrumb: true,
         details: GetDetails(),
         preferences: await GetPreferences(),
     }
