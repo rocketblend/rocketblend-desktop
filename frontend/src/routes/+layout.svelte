@@ -26,7 +26,7 @@
     import IconArrowLeftFile from '~icons/ri/arrow-left-s-line'
     import IconArrowRightFile from '~icons/ri/arrow-right-s-line'
 
-    import { Footer, Sidebar, UtilityDrawer } from "./(components)"
+    import { Footer, Sidebar, UtilityDrawer, Breadcrumb } from "./(components)"
 
     import Logo from "$lib/assets/images/logo-slim.png?enhanced"
 	import { fade, fly, slide } from "svelte/transition";
@@ -36,12 +36,6 @@
     const logStore = getLogStore();
     const toastStore = getToastStore();
     const drawerStore = getDrawerStore();
-
-    const myBreadcrumbs = [
-        { label: 'Home', link: '/' },
-        { label: 'Project', link: '/bar' },
-        { label: 'Foo', link: '/foo' },
-    ];
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -138,17 +132,7 @@
                             <a class="btn btn-sm variant-filled-surface" href="/"><IconHomeFill/></a>
                         </div>
                         <div class="flex">
-                            <ol class="breadcrumb text-sm text-surface-800-100-token truncate">
-                                {#each myBreadcrumbs as crumb, i}
-                                    <!-- If crumb index is less than the breadcrumb length minus 1 -->
-                                    {#if i < myBreadcrumbs.length - 1}
-                                        <li class="crumb"><a class="" href={crumb.link}>{crumb.label}</a></li>
-                                        <li class="crumb-separator" aria-hidden>&rsaquo;</li>
-                                    {:else}
-                                        <li class="crumb font-medium">{crumb.label}</li>
-                                    {/if}
-                                {/each}
-                            </ol>
+                            <Breadcrumb />
                         </div>
                     </div>
 
