@@ -118,7 +118,7 @@
             </div>
         </div>
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
-            <Sidebar/>
+            <Sidebar addon={data.preferences.feature.addon}/>
         </div>
     </svelte:fragment>
     <svelte:fragment slot="pageHeader">

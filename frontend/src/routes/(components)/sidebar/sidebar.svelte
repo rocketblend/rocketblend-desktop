@@ -1,19 +1,21 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     
-    import type {  ToastSettings } from '@skeletonlabs/skeleton';
-    import { getToastStore } from '@skeletonlabs/skeleton';
-
-    import { t } from '$lib/translations/translations';
+    import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
     import { EventsOn } from '$lib/wailsjs/runtime';
     import { pack } from '$lib/wailsjs/go/models';
-    import { GetProject, ListPackages, InstallPackageOperation } from '$lib/wailsjs/go/application/Driver';
+    import {
+        GetProject,
+        ListPackages,
+        InstallPackageOperation
+    } from '$lib/wailsjs/go/application/Driver';
 
-    import type { RadioOption } from '$lib/types';
+    import { t } from '$lib/translations/translations';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
     import { getSelectedProjectStore, createPackageStore } from '$lib/stores';
     import { debounce } from '$lib/utils';
+    import type { RadioOption } from '$lib/types';
 
     import { PackageFilter, PackageList } from './package';
     import SidebarHeader from './sidebar-header.svelte';
@@ -22,7 +24,7 @@
     const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
 
-    const filterRadioOptions: RadioOption[] = [
+    const defaultFilterRadioOptions: RadioOption[] = [
         { value: pack.PackageType.UNKNOWN, display: $t('home.sidebar.filter.option.all') },
         { value: pack.PackageType.BUILD, display: $t('home.sidebar.filter.option.build') },
         { value: pack.PackageType.ADDON, display: $t('home.sidebar.filter.option.addon') },
@@ -30,9 +32,12 @@
 
     const fetchPackagesDebounced = debounce(fetchPackages, EVENT_DEBOUNCE);
 
+    export let addon: boolean = false;
+
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
     let filterInstalled: boolean = false;
+    let filterRadioOptions: RadioOption[] = [];
     let dependencies: string[] = [];
 
     let initialLoad: boolean = true;
@@ -137,8 +142,14 @@
             cancelListener();
         }
     });
+
+    $: {
+        filterRadioOptions = addon ? defaultFilterRadioOptions : [];
+        selectedFilterType = addon ? 0 : 2;
+        fetchPackages();
+    }
 </script>
-  
+
 <div class="flex flex-col h-full space-y-4">
     <SidebarHeader 
         title={$t('home.sidebar.title')}

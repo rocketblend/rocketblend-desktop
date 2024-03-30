@@ -1,18 +1,23 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
 
-    import { ProgressRadial, getToastStore } from '@skeletonlabs/skeleton';
+    import { ProgressRadial } from '@skeletonlabs/skeleton';
 
-    import { t } from '$lib/translations/translations';
-    import { LongRunningOperation, CancelOperation, ListOperations, GetOperation } from '$lib/wailsjs/go/application/Driver';
     import type { operationservice } from '$lib/wailsjs/go/models';
     import { EventsOn } from '$lib/wailsjs/runtime';
+    import {
+        LongRunningOperation,
+        CancelOperation,
+        ListOperations,
+        GetOperation
+    } from '$lib/wailsjs/go/application/Driver';
+
+    import { t } from '$lib/translations/translations';
     import { createOperationStore } from '$lib/stores';
     import { debounce } from '$lib/utils';
 	import { EVENT_DEBOUNCE } from '$lib/events';
 
     const operationStore = createOperationStore();
-    const toastStore = getToastStore();
     const debounceFetchOperations = debounce(fetchOperations, EVENT_DEBOUNCE);
 
     let cooldown = false;

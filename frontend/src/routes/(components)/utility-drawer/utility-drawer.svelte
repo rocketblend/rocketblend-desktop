@@ -2,16 +2,12 @@
     import { t } from '$lib/translations/translations';
     import { Drawer, TabGroup, Tab } from '@skeletonlabs/skeleton';
 
-    import { getLogStore } from '$lib/stores';
-
     import { LogFeed } from "./log-feed"
     import {
         DebugToolMetrics,
         DebugToolOperations,
         DebugToolRequests
     } from "./debug-tool";
-
-    const logStore = getLogStore();
 
     export let developer: boolean = false;
 
@@ -37,7 +33,7 @@
         {/if}
         <svelte:fragment slot="panel">
             <div class="h-full" hidden={!(drawTabSet == 0)}>
-                <LogFeed feed={$logStore} />
+                <LogFeed />
             </div>
             <div class="h-full" hidden={!(drawTabSet == 1)}>
                 <div class="flex justify-center items-center h-full">

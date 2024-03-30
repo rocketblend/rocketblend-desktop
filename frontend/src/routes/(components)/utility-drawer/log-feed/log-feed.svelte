@@ -1,9 +1,10 @@
 <script lang="ts">
     import { tick } from 'svelte';
-	import type { LogEvent } from "$lib/types";
 	import { formatTime } from "$lib/components/utils";
 
-    export let feed: LogEvent[] = [];
+    import { getLogStore } from '$lib/stores';
+
+    const logStore = getLogStore();
 
     let elemFeed: HTMLElement;
     let isFirstMount = true;
@@ -38,7 +39,7 @@
         return key.toLowerCase() === 'err' ? 'text-error-500-400-token' : '';
     }
 
-    $: if (feed.length) {
+    $: if ($logStore.length) {
         tick().then(() => {
             scrollChatBottom();
         });
@@ -46,7 +47,7 @@
 </script>
 
 <section bind:this={elemFeed} class="h-full overflow-y-auto space-y-1 text-sm lowercase text-surface-900-50-token">
-	{#each feed as log}
+	{#each $logStore as log}
         <div class="w-full">
             <span class="text-surface-600-300-token">{formatTime(log.time)}</span>
             <span> | </span>

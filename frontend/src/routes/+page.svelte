@@ -31,7 +31,7 @@
                     <h5 class="h5 font-medium">Preferences</h5>
                 </div>
             </a>
-            <a class="flex items-center justify-center card p-4" href="/getting-started">
+            <!-- <a class="flex items-center justify-center card p-4" href="/getting-started">
                 <div class="p-4">
                     <h5 class="h5 font-medium">Getting Started</h5>
                 </div>
@@ -41,11 +41,11 @@
                     <h5 class="h5 font-medium">About</h5>
                 </div>
             </a>
-            <!-- <a class="flex items-center justify-center card p-4" href="/projects">
+            <a class="flex items-center justify-center card p-4" href="/projects">
                 <div class="p-4">
                     <h5 class="h5 font-medium">New Project</h5>
                 </div>
-            </a> -->
-        </div>
+            </a>
+        </div> -->
     </div>
 </main>
