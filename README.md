@@ -11,7 +11,7 @@ RocketBlend Desktop is designed to elevate your [Blender](https://www.blender.or
 It streamlines the management of Blender builds and addons, ensures smooth handling of project dependencies powered by [RocketBlend](https://github.com/rocketblend/rocketblend), and provides tools to efficiently organize and access your `.blend` projects. Project data is conveniently stored in `.yaml` files alongside your `.blend` files, enabling easy project sharing and synchronization.
 
 > [!NOTE]  
-> Important: RocketBlend Desktop is currently under active development and still evolving. As such, expect significant changes, potential bugs, and incomplete features. We recommend holding off on using it until it reaches a more stable release.
+> **Important:** RocketBlend Desktop is currently under active development and still evolving. As such, expect significant changes, potential bugs, and incomplete features. We recommend holding off on using it until it reaches a more stable release.
 
 ![Image of RocketBlend desktop application](docs/assets/rocketblend-desktop-dev.png)
 
