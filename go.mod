@@ -8,6 +8,7 @@ require (
 	github.com/flowshot-io/x v0.0.0-20240102003836-a3532f1d23dd
 	github.com/go-playground/validator/v10 v10.13.0
 	github.com/google/uuid v1.3.0
+	github.com/magefile/mage v1.15.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rjeczalik/notify v0.9.3
 	github.com/rocketblend/rocketblend v0.8.2-0.20240326195318-e1abe410b03b
