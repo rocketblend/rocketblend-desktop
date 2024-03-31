@@ -11,7 +11,7 @@ A streamlined desktop app designed to enhance your [Blender](https://www.blender
 Data is stored locally as `.yaml` files alongside your `.blend` files, facilitating easy sharing and syncing of project information.
 
 > [!NOTE]  
-> Please note that RocketBlend Desktop is still in development and may undergo significant changes as it continues to evolve and is not yet ready for general use.
+> Important: RocketBlend Desktop is currently under active development and still evolving. As such, expect significant changes, potential bugs, and incomplete features. We recommend holding off on using it until it reaches a more stable release.
 
 ![Image of RocketBlend desktop application](docs/assets/rocketblend-desktop-dev.png)
 
