@@ -48,7 +48,7 @@ To build a redistributable, production mode package, use `wails build`.
 - [Sveltekit](https://kit.svelte.dev/) - The framework that powers the frontend of RocketBlend Desktop.
 - [Skeleton](https://www.skeleton.dev/) - UI toolkit for Svelte and Tailwind.
 - [Bleve](https://github.com/blevesearch/bleve) - A modern text indexing library for Go.
-- [Abjrcode](https://github.com/abjrcode) - For the pipeline and build system with wails.
+- [Abjrcode](https://github.com/abjrcode) - For providing a good example pipeline and cross platform build system for wails applications.
 
 ## License
 
