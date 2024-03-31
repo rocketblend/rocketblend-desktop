@@ -7,8 +7,8 @@
   "frontend:dev:serverUrl": "auto",
   "wailsjsdir": "./frontend/src/lib",
   "author": {
-    "name": "Elliot",
-    "email": "git@lazercube.com"
+    "name": "Lazer",
+    "email": "rocketblend@lazercube.com"
   },
   "info": {
     "fileAssociations": [
