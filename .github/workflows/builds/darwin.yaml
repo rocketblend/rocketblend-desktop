@@ -1,0 +1,98 @@
+name: Build Darwin
+
+on:
+  workflow_call:
+    inputs:
+      BUILD_TYPE:
+        type: string
+        description: "Build type: debug or release"
+        required: true
+      GO_VERSION:
+        type: string
+        description: "Full Go version to use, e.g. 1.21.1"
+        required: true
+      NODE_VERSION:
+        type: string
+        description: "Node version to use, e.g. 18, 20 etc"
+        required: true
+      WAILS_VERSION:
+        type: string
+        description: "Wails version to use, e.g. v2.7.0"
+        required: true
+    outputs:
+      ReleaseTag:
+        value: ${{ jobs.Build.outputs.releaseTag }}
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    timeout-minutes: 10
+
+    outputs:
+      releaseTag: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ inputs.GO_VERSION }}
+
+      - name: Install Wails
+        env:
+          WAILS_VERSION: ${{ inputs.WAILS_VERSION }}
+        run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@$WAILS_VERSION
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+
+      - name: Install Dependencies
+        run: |
+          brew install create-dmg
+
+      - name: Generate Build Timestamp ISO 8601
+        id: generateBuildTimestamp
+        run: |
+          BUILD_TIMESTAMP=$(date +'%Y-%m-%dT%H:%M:%S') && echo "BUILD_TIMESTAMP=$BUILD_TIMESTAMP" >> $GITHUB_OUTPUT
+
+      - name: Calculate Release Tag
+        id: calculateReleaseTag
+        run: |
+          RELEASE_TAG=$(git describe --tags) && echo $RELEASE_TAG && echo "releaseTag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          key: ${{ runner.os }}-${{ runner.arch }}-node_modules-${{ hashFiles('./frontend/package-lock.json') }}
+          path: "./frontend/node_modules"
+
+      - name: Build Wails Application
+        env:
+          RELEASE_TAG: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
+          BUILD_TYPE: ${{ inputs.BUILD_TYPE }}
+          BUILD_TIMESTAMP: ${{ steps.generateBuildTimestamp.outputs.BUILD_TIMESTAMP }}
+          COMMIT_SHA: ${{ github.sha }}
+          BUILD_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          CGO_ENABLED: 1
+        run: |
+          go run mage.go build $BUILD_TYPE $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK
+
+      - name: Run Go Tests
+        run: |
+          go test -v ./...
+
+      - name: Upload Build Arifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release_bins
+          path: ./build/bin/*
+          if-no-files-found: error
+          retention-days: 1
