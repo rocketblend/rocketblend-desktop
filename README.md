@@ -1,6 +1,6 @@
 ### [Discussions](https://github.com/rocketblend/rocketblend-desktop/discussions) │ [Latest Release](https://github.com/rocketblend/rocketblend-desktop/releases/latest)
 
-# Rocketblend Desktop
+# RocketBlend Desktop
 
 [![Github tag](https://badgen.net/github/tag/rocketblend/rocketblend-desktop)](https://github.com/rocketblend/rocketblend-desktop/tags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rocketblend/rocketblend-desktop)](https://goreportcard.com/report/github.com/rocketblend/rocketblend-desktop)
