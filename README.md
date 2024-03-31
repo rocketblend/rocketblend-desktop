@@ -6,6 +6,10 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/rocketblend/rocketblend-desktop)](https://goreportcard.com/report/github.com/rocketblend/rocketblend-desktop)
 [![GitHub](https://img.shields.io/github/license/rocketblend/rocketblend-desktop)](https://github.com/rocketblend/rocketblend-desktop/blob/master/LICENSE)
 
+A streamlined desktop app designed to enhance your [Blender](https://www.blender.org/) workflow through [RocketBlend](https://github.com/rocketblend/rocketblend). Simplify the discovery, installation, and management of Blender builds, projects, and addons.
+
+Data is stored locally as `.yaml` files alongside your `.blend` files, facilitating easy sharing and syncing of project information.
+
 > [!NOTE]  
 > Please note that RocketBlend Desktop is still in development and may undergo significant changes as it continues to evolve and is not yet ready for general use.
 
