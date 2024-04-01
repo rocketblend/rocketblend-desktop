@@ -36,6 +36,10 @@ dist/
 *.syso
 
 build/*
+!build/darwin/
+build/darwin/*
+!build/darwin/seticon.swift
+!build/appicon.png
 
 frontend/dist
 frontend/node_modules
@@ -52,6 +56,3 @@ frontend/.output
 frontend/vite.config.js.timestamp-*
 frontend/vite.config.ts.timestamp-*
 frontend/build
-
-!build/appicon.png
-!build/darwin/seticon.swift
