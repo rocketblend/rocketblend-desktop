@@ -35,6 +35,11 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      # Display all files and directories including hidden ones (debugging purposes only)
+      - name: List All Files and Directories
+        run: |
+          ls -alR
+
       - name: Generate Build Timestamp ISO 8601
         id: generateBuildTimestamp
         run: |
