@@ -16,7 +16,7 @@ on:
         value: ${{ jobs.Build.outputs.releaseTag }}
 
 jobs:
-  Build:
+  build:
     runs-on: ubuntu-latest
 
     timeout-minutes: 15
