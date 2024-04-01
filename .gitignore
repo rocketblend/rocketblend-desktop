@@ -54,3 +54,4 @@ frontend/vite.config.ts.timestamp-*
 frontend/build
 
 !build/appicon.png
+!build/darwin/seticon.swift
