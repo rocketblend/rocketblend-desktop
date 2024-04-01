@@ -11,11 +11,20 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  pull-requests: write
+
 concurrency:
   group: rocketblend-desktop-pr-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  validate-pr-title:
+    if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/validate-pr-title.yaml
+    permissions:
+      pull-requests: write
+
   build-cross-platform:
     if: ${{ !github.event.pull_request.draft }}
     uses: ./.github/workflows/build-cross-platform.yaml
