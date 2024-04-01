@@ -23,7 +23,7 @@ jobs:
   build-darwin:
     uses: ./.github/workflows/build-darwin.yaml
     with:
-      GO_VERSION: "v1.21.5"
+      GO_VERSION: "v1.22.1"
       NODE_VERSION: "20"
       WAILS_VERSION: "v2.7.1"
       BUILD_TYPE: "release"
