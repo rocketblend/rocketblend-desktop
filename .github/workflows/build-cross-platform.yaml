@@ -33,6 +33,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          lfs: true
 
       - name: Generate Build Timestamp ISO 8601
         id: generateBuildTimestamp
