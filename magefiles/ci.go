@@ -46,6 +46,7 @@ type (
 		FrontendBuild        string `json:"frontend:build"`
 		FrontendDevWatcher   string `json:"frontend:dev:watcher"`
 		FrontendDevServerUrl string `json:"frontend:dev:serverUrl"`
+		WailsJSDir           string `json:"wailsjsdir"`
 		Author               Author `json:"author"`
 		Info                 Info   `json:"info"`
 	}
