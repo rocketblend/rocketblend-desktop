@@ -16,8 +16,6 @@ ARG BUILD_TIMESTAMP=NOW
 ARG COMMIT_SHA=docker
 ARG BUILD_LINK=http://docker.local
 
-RUN ls -alR
-
 RUN go run mage.go build ${BUILD_TYPE} ${RELEASE_TAG} ${BUILD_TIMESTAMP} ${COMMIT_SHA} ${BUILD_LINK}
 
 RUN go test -v ./...
