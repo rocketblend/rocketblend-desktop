@@ -1,6 +1,8 @@
 module github.com/rocketblend/rocketblend-desktop
 
-go 1.19
+go 1.21
+
+toolchain go1.22.1
 
 require (
 	github.com/blevesearch/bleve/v2 v2.3.9
