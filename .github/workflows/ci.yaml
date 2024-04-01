@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   build-cross-platform:
-    uses: ./.github/workflows/builds/cross-platform.yaml
+    uses: ./.github/workflows/build-cross-platform.yaml
     permissions:
       contents: read
       packages: write
@@ -21,7 +21,7 @@ jobs:
       BUILD_TYPE: "release"
 
   build-darwin:
-    uses: ./.github/workflows/builds/darwin.yaml
+    uses: ./.github/workflows/build-darwin.yaml
     with:
       GO_VERSION: "v1.21.5"
       NODE_VERSION: "20"

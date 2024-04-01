@@ -18,7 +18,7 @@ concurrency:
 jobs:
   build-cross-platform:
     if: ${{ !github.event.pull_request.draft }}
-    uses: ./.github/workflows/builds/cross-platform.yaml
+    uses: ./.github/workflows/build-cross-platform.yaml
     permissions:
       contents: read
       packages: write
@@ -28,7 +28,7 @@ jobs:
 
   build-darwin:
     if: ${{ !github.event.pull_request.draft }}
-    uses: ./.github/workflows/builds/darwin.yaml
+    uses: ./.github/workflows/build-darwin.yaml
     with:
       GO_VERSION: "1.21.5"
       NODE_VERSION: "20"
