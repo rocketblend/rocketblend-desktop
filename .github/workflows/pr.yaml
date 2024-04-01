@@ -30,7 +30,7 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
     uses: ./.github/workflows/build-darwin.yaml
     with:
-      GO_VERSION: "1.21.5"
+      GO_VERSION: "1.22.1"
       NODE_VERSION: "20"
       WAILS_VERSION: "v2.7.1"
       BUILD_TYPE: "debug"
