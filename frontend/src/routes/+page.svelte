@@ -7,7 +7,6 @@
         <h2 class="h2 font-bold">Welcome!</h2>
         <hr>
     </div>
-
     <!-- <div class="flex flex-col gap-2">
         <h3 class="text-sm text-surface-800-100-token">Recent projects</h3>
         <div class="grid gap-2 grid-cols-2 lg:grid-cols-3">

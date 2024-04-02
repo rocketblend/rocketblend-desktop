@@ -18,13 +18,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     timeout-minutes: 15
-
     permissions:
       contents: read
       packages: write
-
     outputs:
       releaseTag: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
 

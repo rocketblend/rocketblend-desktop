@@ -7,6 +7,8 @@
 			
     const modalStore = getModalStore();
 
+    export let disabled = false;
+
     async function handleCreateProject() {
         new Promise<string>((resolve) => {
             const modal: ModalSettings = {
@@ -32,6 +34,6 @@
     }
 </script>
 
-<button type="button" class="btn btn-sm variant-filled px-6 font-medium" on:click={handleCreateProject}>
+<button type="button" class="btn btn-sm variant-filled px-6 font-medium" on:click={handleCreateProject} disabled={disabled}>
     New project
 </button>
