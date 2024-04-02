@@ -1,0 +1,6 @@
+.DS_Store
+.github
+build/bin
+frontend/node_modules
+frontend/dist
+build/windows/installer/tmp/MicrosoftEdgeWebview2Setup.exe

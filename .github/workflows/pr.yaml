@@ -1,0 +1,46 @@
+name: PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+
+concurrency:
+  group: rocketblend-desktop-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-pr-title:
+    uses: ./.github/workflows/validate-pr-title.yaml
+    permissions:
+      pull-requests: write
+
+  build-cross-platform:
+    if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/build-cross-platform.yaml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      BASE_IMAGE: ghcr.io/abjrcode/cross-wails:v2.7.1
+      BUILD_TYPE: "debug"
+
+  build-darwin:
+    if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/build-darwin.yaml
+    permissions:
+      contents: read
+    with:
+      GO_VERSION: "v1.21.5"
+      NODE_VERSION: "20"
+      WAILS_VERSION: "v2.7.1"
+      BUILD_TYPE: "debug"
