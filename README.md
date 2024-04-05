@@ -19,8 +19,9 @@ It streamlines the management of Blender builds and addons, ensures smooth handl
 
 - [Golang 1.21.x](https://go.dev/dl/)
 - [NodeJS 20.x.x](https://nodejs.org/en/) Recommended to use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) or [windows-nvm](https://github.com/coreybutler/nvm-windows#installation--upgrades) to manage NodeJS versions.
-- [Wails 2.7.1](https://wails.io/docs/gettingstarted/installation#platform-specific-dependencies)
+- [Wails 2.8.0](https://wails.io/docs/gettingstarted/installation#platform-specific-dependencies)
   - Then run `wails doctor` to ensure you have all the correct system-level dependencies installed.
+- [Git LFS](https://git-lfs.com/) to manage binary files (images/fonts).
 - [Mage](https://magefile.org/)
 
 ### Developing Locally

@@ -17,7 +17,7 @@ jobs:
       contents: read
       packages: write
     with:
-      BASE_IMAGE: ghcr.io/abjrcode/cross-wails:v2.7.1
+      BASE_IMAGE: ghcr.io/abjrcode/cross-wails:v2.8.0
       BUILD_TYPE: "release"
 
   build-darwin:
@@ -25,7 +25,7 @@ jobs:
     with:
       GO_VERSION: "v1.21.5"
       NODE_VERSION: "20"
-      WAILS_VERSION: "v2.7.1"
+      WAILS_VERSION: "v2.8.0"
       BUILD_TYPE: "release"
 
   prepare-release-notes:
