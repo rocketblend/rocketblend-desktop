@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   validate-pr-title:
-    uses: ./.github/workflows/validate-pr-title.yaml
+    uses: rocketblend/github-workflows/.github/workflows/validate-pr-title.yaml@main
     permissions:
       pull-requests: write
 
@@ -31,7 +31,7 @@ jobs:
       contents: read
       packages: write
     with:
-      BASE_IMAGE: ghcr.io/abjrcode/cross-wails:v2.7.1
+      BASE_IMAGE: ghcr.io/rocketblend/cross-wails:v2.8.0
       BUILD_TYPE: "debug"
 
   build-darwin:
@@ -40,7 +40,7 @@ jobs:
     permissions:
       contents: read
     with:
-      GO_VERSION: "v1.21.5"
+      GO_VERSION: "v1.22.1"
       NODE_VERSION: "20"
-      WAILS_VERSION: "v2.7.1"
+      WAILS_VERSION: "v2.8.0"
       BUILD_TYPE: "debug"
