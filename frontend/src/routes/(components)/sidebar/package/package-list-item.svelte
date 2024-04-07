@@ -6,9 +6,11 @@
     import PackageBadge from './package-badge.svelte';
     import PackageActionButton from './package-action-button.svelte';
     import { pack } from '$lib/wailsjs/go/models';
+	import { goto } from '$app/navigation';
 
     const downloadHost = "download.blender.org"; // TODO: Remove this prop once the backend is ready
 
+    export let id: string;
     export let name: string;
     export let tag: string;
     export let verified: boolean;
@@ -27,6 +29,11 @@
         variantTo: string;
     }
 
+    function handleClick() {
+        console.log('clicked');
+        goto(`/packages/${id}`);
+    }
+
     function getBackgroundVariants(type: pack.PackageType): BackgroundVariant {
         switch (type) {
             case pack.PackageType.BUILD:
@@ -43,7 +50,7 @@
 </script>
 
 <div class="flex gap-2 rounded p-2 {selectedClass}"
-    on:click|stopPropagation
+    on:click|stopPropagation={handleClick}
     on:dblclick|stopPropagation
     on:keydown|stopPropagation
     on:mouseenter|stopPropagation={() => active = true}
@@ -54,11 +61,7 @@
 >
     <div class="flex-shrink-0">
         <PackageActionButton 
-            on:download
-            on:cancel
-            on:delete
-            state={state}
-            open={active}
+            active={active}
             variantFrom={variant.variantFrom}
             variantTo={variant.variantTo}
         />

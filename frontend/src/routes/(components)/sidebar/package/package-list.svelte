@@ -40,6 +40,7 @@
             on:cancel={() => handleItemCancel(pkg.id?.toString())}
             on:delete={() => handleItemDelete(pkg.id?.toString())}
             selected={dependencies.includes(pkg.reference?.toString() || "")}
+            id={pkg.id?.toString() || ""}
             name={pkg.name?.toString() || ""}
             tag={pkg.tag?.toString() || ""}
             verified={pkg.verified? true : false}
