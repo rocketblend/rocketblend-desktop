@@ -18,18 +18,18 @@ import (
 
 type (
 	CreateProjectOpts struct {
-		DisplayName   string              `json:"name"`
-		BlendFileName string              `json:"blendFileName"`
-		Path          string              `json:"path"`
-		Build         reference.Reference `json:"build"`
+		DisplayName   string
+		BlendFileName string
+		Path          string
+		Build         reference.Reference
 	}
 
 	CreateProjectResult struct {
-		ID uuid.UUID `json:"id"`
+		ID uuid.UUID
 	}
 )
 
-func (s *service) Create(ctx context.Context, opts CreateProjectOpts) (*CreateProjectResult, error) {
+func (s *service) Create(ctx context.Context, opts *CreateProjectOpts) (*CreateProjectResult, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (s *service) EmitEvent(ctx context.Context, id uuid.UUID, channel string) {
 	}
 }
 
-func (s *service) create(ctx context.Context, opts CreateProjectOpts) (uuid.UUID, error) {
+func (s *service) create(ctx context.Context, opts *CreateProjectOpts) (uuid.UUID, error) {
 	blendConfig, err := blendconfig.New(
 		opts.Path,
 		ensureBlendExtension(opts.BlendFileName),
