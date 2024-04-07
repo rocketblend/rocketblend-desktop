@@ -11,6 +11,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
+	"github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -25,10 +26,11 @@ type (
 	}
 
 	application struct {
-		id      uuid.UUID
-		driver  *Driver
-		handler http.Handler
-		assets  fs.FS
+		id       uuid.UUID
+		platform runtime.Platform
+		driver   *Driver
+		handler  http.Handler
+		assets   fs.FS
 	}
 )
 
@@ -55,11 +57,18 @@ func New(assets fs.FS) (Application, error) {
 		return nil, err
 	}
 
-	driver, err := NewDriver(factory, events)
+	platform := runtime.DetectPlatform()
+	if platform == runtime.Undefined {
+		return nil, fmt.Errorf("unsupported platform")
+	}
+
+	// TOOD: use options.
+	driver, err := NewDriver(factory, events, platform)
 	if err != nil {
 		return nil, err
 	}
 
+	// TOOD: just pass in service needed.
 	cacheTimeout := 3600 // 1 hour
 	handler, err := NewFileLoader(logger, factory, cacheTimeout)
 	if err != nil {
@@ -67,14 +76,20 @@ func New(assets fs.FS) (Application, error) {
 	}
 
 	return &application{
-		id:      id,
-		assets:  assets,
-		driver:  driver,
-		handler: handler,
+		id:       id,
+		platform: platform,
+		assets:   assets,
+		driver:   driver,
+		handler:  handler,
 	}, nil
 }
 
 func (a *application) Execute() error {
+	frameless := false
+	if a.platform == runtime.Windows {
+		frameless = true
+	}
+
 	// Create application with options
 	return wails.Run(&options.App{
 		Title:  "RocketBlend Desktop",
@@ -85,6 +100,13 @@ func (a *application) Execute() error {
 			Handler: a.handler,
 		},
 		Mac: &mac.Options{
+			TitleBar:             mac.TitleBarHiddenInset(),
+			Appearance:           mac.DefaultAppearance,
+			WebviewIsTransparent: true,
+			About: &mac.AboutInfo{
+				Title:   "RocketBlend Desktop",
+				Message: "© 2024 RocketBlend",
+			},
 			OnFileOpen: func(filePath string) { fmt.Println(filePath) },
 		},
 		SingleInstanceLock: &options.SingleInstanceLock{
@@ -101,7 +123,7 @@ func (a *application) Execute() error {
 		OnStartup:        a.driver.startup,
 		OnShutdown:       a.driver.shutdown,
 		OnDomReady:       a.driver.onDomReady,
-		Frameless:        true,
+		Frameless:        frameless,
 		Bind: []interface{}{
 			a.driver,
 		},
