@@ -60,8 +60,12 @@
             <h5 class="h6 font-bold">General</h5>
             <div class="flex justify-between items-center gap-6">
                 <div class="text-sm text-left">
-                    <span class="font-medium">Project watch directory</span><br>
-                    <span class="text-surface-200 ">{data.preferences.watchPath}</span>
+                    <span class="font-medium" id="project-watch-directory">Project watch directory</span><br>
+                    {#if data.preferences.watchPath === ""}
+                        <span class="text-error-300-600-token"><span class="font-medium">No directory set</span> - To begin, please select a project directory using the adjacent button.</span>
+                    {:else}
+                        <span class="text-surface-200">{data.preferences.watchPath}</span>
+                    {/if}
                 </div>
                 <button class="btn variant-filled-surface text-sm font-medium" on:click={handleChangeProjectWatchDirectory}>
                     Change location
@@ -71,7 +75,7 @@
             <div class="flex justify-between items-center gap-6">
                 <div class="text-sm text-left">
                     <span class="font-medium">Configuration file</span><br>
-                    <span class="text-surface-200 ">{data.details.applicationConfigPath}</span>
+                    <span class="text-surface-200">{data.details.applicationConfigPath}</span>
                 </div>
                 <button class="btn variant-filled-surface text-sm font-medium" on:click={() => { handleExplore(data.details.applicationConfigPath);}}>
                     View location

@@ -53,7 +53,7 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
     const initialToast: ToastSettings = {
         message: t.get('home.greeting'),
         background: 'bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white',
-        timeout: 5000,
+        timeout: 10000,
     };
     toastStore.trigger(initialToast);
 };

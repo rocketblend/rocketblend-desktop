@@ -14,7 +14,12 @@
 	import { convertToEnum, debounce } from '$lib/components/utils';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
-    import { ProjectList, ProjectFilter, ProjectCreateButton } from "./(components)"
+    import {
+        ProjectList,
+        ProjectFilter,
+        ProjectCreateButton,
+        AlertNoProjectDirectory
+    } from "./(components)"
 
     const selectedProjectStore = getSelectedProjectStore();
     const fetchProjectsDebounced = debounce(refreshProjects, EVENT_DEBOUNCE);
@@ -32,6 +37,8 @@
     // ];
     
     export let data: PageData;
+
+    let enabled = data.preferences.watchPath !== "";
 
     let displayTypeParam = "";
     let sortByParam = "";
@@ -83,6 +90,7 @@
         }
     });
 
+    $: enabled = data.preferences.watchPath !== "";
     $: searchQuery = $page.url.searchParams.get("query") || "";
     $: displayTypeParam = $page.url.searchParams.get("display") || "";
     $: sortByParam = $page.url.searchParams.get("sortBy") || "";
@@ -95,18 +103,23 @@
 <main class="flex flex-col h-full space-y-4">
     <div class="flex justify-between items-center">
         <h2 class="h2 font-bold">{$t('home.title')}</h2>
-        <ProjectCreateButton />
+        <ProjectCreateButton disabled={!enabled}/>
     </div>
-    <ProjectFilter
-        bind:form={form}
-        bind:searchQuery={searchQuery}
-        bind:displayType={displayType}
-        searchPlaceholder={$t('home.project.query.placeholder')}
-        on:change={handleFilterChangeEvent} />
-    <ProjectList
-        bind:projects={data.projects}
-        bind:displayType={displayType}
-        bind:selectedProjectIds={$selectedProjectStore}
-        on:itemDoubleClick={handleProjectDoubleClick}
-        on:sortChanged={handleSortChange}/>
+    <hr>
+    {#if enabled}
+        <ProjectFilter
+            bind:form={form}
+            bind:searchQuery={searchQuery}
+            bind:displayType={displayType}
+            searchPlaceholder={$t('home.project.query.placeholder')}
+            on:change={handleFilterChangeEvent} />
+        <ProjectList
+            bind:projects={data.projects}
+            bind:displayType={displayType}
+            bind:selectedProjectIds={$selectedProjectStore}
+            on:itemDoubleClick={handleProjectDoubleClick}
+            on:sortChanged={handleSortChange}/>
+    {:else}
+        <AlertNoProjectDirectory />
+    {/if}
 </main>

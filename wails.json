@@ -7,10 +7,13 @@
   "frontend:dev:serverUrl": "auto",
   "wailsjsdir": "./frontend/src/lib",
   "author": {
-    "name": "Lazer",
-    "email": "rocketblend@lazercube.com"
+    "name": "LazerCube"
   },
   "info": {
+    "companyName": "RocketBlend",
+    "productVersion": "0.0.0.0",
+    "copyright": "Copyright (c) 2024 RocketBlend",
+    "comments": "RocketBlend Desktop Application",
     "fileAssociations": [
       {
         "ext": "blend",

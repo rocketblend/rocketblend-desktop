@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: rocketblend-desktop-ci
+  cancel-in-progress: true
+
+jobs:
+  build-cross-platform:
+    uses: ./.github/workflows/build-cross-platform.yaml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      BASE_IMAGE: ghcr.io/rocketblend/cross-wails:v2.8.0
+      BUILD_TYPE: "release"
+
+  build-darwin:
+    uses: ./.github/workflows/build-darwin.yaml
+    with:
+      GO_VERSION: "v1.22.1"
+      NODE_VERSION: "20"
+      WAILS_VERSION: "v2.8.0"
+      BUILD_TYPE: "release"
