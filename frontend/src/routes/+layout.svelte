@@ -29,7 +29,6 @@
     import { Footer, Sidebar, UtilityDrawer, Breadcrumb } from "./(components)"
 
     import Logo from "$lib/assets/images/logo-slim.png?enhanced"
-	import { fade, fly, slide } from "svelte/transition";
 
     initializeStores();
 
@@ -82,24 +81,28 @@
 <AppShell slotSidebarLeft="flex flex-col overflow-y-hidden space-y-2 pl-2 w-96 h-full" slotPageContent="overflow-hidden h-full">
     <svelte:fragment slot="header">
         <div style="--wails-draggable:drag">
-            <AppBar background="bg-surface-50-900-token" padding="p0" slotTrail="space-x-0 -mt-3">
-                <svelte:fragment slot="lead">
-                <button type="button" class="btn btn-sm py-2 px-4 rounded-none text-2xl">
-                    <IconMoreFill/>
-                </button>
-                </svelte:fragment>
-                <svelte:fragment slot="trail">
-                <button type="button" class="btn btn-sm py-2 px-4 hover:bg-stone-700 rounded-none" on:click={WindowMinimise}>
-                    <IconSubtractFill/>
-                </button>
-                <button type="button" class="btn btn-sm py-2 px-4 hover:bg-stone-700 rounded-none" on:click={WindowToggleMaximise}>
-                    <IconCheckboxMultipleBlankLine/>
-                </button>
-                <button type="button" class="btn btn-sm py-2 px-4 hover:bg-red-700 rounded-none" on:click={Quit}>
-                    <IconCloseFill/>
-                </button>
-                </svelte:fragment>
-            </AppBar>
+            {#if data.details.platform !== "macos/intel" && data.details.platform !== "macos/apple" }
+                <AppBar background="bg-surface-50-900-token" padding="p0" slotTrail="space-x-0 -mt-3">
+                    <svelte:fragment slot="lead">
+                    <button type="button" class="btn btn-sm py-2 px-4 rounded-none text-2xl">
+                        <IconMoreFill/>
+                    </button>
+                    </svelte:fragment>
+                    <svelte:fragment slot="trail">
+                    <button type="button" class="btn btn-sm py-2 px-4 hover:bg-stone-700 rounded-none" on:click={WindowMinimise}>
+                        <IconSubtractFill/>
+                    </button>
+                    <button type="button" class="btn btn-sm py-2 px-4 hover:bg-stone-700 rounded-none" on:click={WindowToggleMaximise}>
+                        <IconCheckboxMultipleBlankLine/>
+                    </button>
+                    <button type="button" class="btn btn-sm py-2 px-4 hover:bg-red-700 rounded-none" on:click={Quit}>
+                        <IconCloseFill/>
+                    </button>
+                    </svelte:fragment>
+                </AppBar>
+            {:else}
+                <div class="h-9 p-0"></div>
+            {/if}
         </div>
     </svelte:fragment>
     <svelte:fragment slot="sidebarLeft" >

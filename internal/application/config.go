@@ -88,7 +88,7 @@ func (d *Driver) GetDetails() (*Details, error) {
 
 	return &Details{
 		Version:               build.Version,
-		Platform:              rbConfig.Platform.String(),
+		Platform:              d.platform.String(), // TODO: Convert to wails enum.
 		InstallationPath:      rbConfig.InstallationsPath,
 		PackagePath:           rbConfig.PackagesPath,
 		ApplicationConfigPath: aConfigPath,

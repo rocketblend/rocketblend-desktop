@@ -19,6 +19,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend/pkg/driver/reference"
+	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -34,10 +35,12 @@ type Driver struct {
 	events       buffermanager.BufferManager
 	cancelTokens sync.Map
 
+	platform rbruntime.Platform
+
 	args []string
 }
 
-func NewDriver(factory factory.Factory, events buffermanager.BufferManager, args ...string) (*Driver, error) {
+func NewDriver(factory factory.Factory, events buffermanager.BufferManager, platform rbruntime.Platform, args ...string) (*Driver, error) {
 	logger, err := factory.GetLogger()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get logger: %w", err)
@@ -48,6 +51,7 @@ func NewDriver(factory factory.Factory, events buffermanager.BufferManager, args
 		heartbeatInterval: 5000 * time.Millisecond, // 1 second
 		events:            events,
 		logger:            logger,
+		platform:          platform,
 		args:              args,
 	}, nil
 }
