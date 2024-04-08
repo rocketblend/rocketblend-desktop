@@ -12,7 +12,7 @@ export const load: PageLoad = async ({ params }) => {
     }
 
     return {
-        label: result.package.name,
+        label: result.package.name+" "+result.package.tag,
         package: result.package
     };
 };

@@ -109,7 +109,7 @@
         <div class="h-32">
             <div class="relative rounded-container-token overflow-hidden h-full">
                 <div class="absolute w-full h-full">
-                    <a class="flex items-center h-full px-4 gap-2" href="/">
+                    <a class="flex items-center h-full px-4 gap-2" href="/projects">
                         <div>
                             <span class="h4 font-bold">RocketBlend</span><br>
                             <span class="h5 text-surface-800-100-token">Desktop</span><br>

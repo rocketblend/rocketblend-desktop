@@ -11,7 +11,7 @@
     import { formatDateTime, resourcePath } from '$lib/components/utils';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
-    import type { projectservice } from '$lib/wailsjs/go/models';
+    import type { application } from '$lib/wailsjs/go/models';
 	import { GetProject, UpdateProject } from '$lib/wailsjs/go/application/Driver';
 
     import { Media } from '$lib/components/ui/media';
@@ -37,7 +37,7 @@
     }
 
     async function updateProject() {
-        const request: projectservice.UpdateProjectRequest = {
+        const request: application.UpdateProjectOpts = {
             id: data.project.id,
             name: data.project.name || "",
         };
