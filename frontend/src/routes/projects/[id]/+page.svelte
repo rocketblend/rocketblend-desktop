@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import type { PageData } from './$types';
 
     import { type ToastSettings, getToastStore  } from '@skeletonlabs/skeleton';
@@ -57,10 +58,12 @@
 
     function setSelectedProject() {
         selectedProjectStore.set([data.project.id.toString()]);
-        invalidate("app:layout")
+        invalidate("app:layout");
     }
 
-    setSelectedProject();
+    onMount(() => {
+        setSelectedProject();
+    });
 </script>
 
 <main class="space-y-4"> 

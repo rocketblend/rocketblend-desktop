@@ -19,6 +19,10 @@
 
     const selectedProjectStore = getSelectedProjectStore();
 
+    const refresh = debounce(() => {
+        invalidate("app:layout");    
+    }, 100);
+
     // const optionGroups: OptionGroup[] = [
     //     {
     //         label: 'sort',
@@ -71,7 +75,7 @@
 
     $: displayType = convertToEnum(displayTypeParam, DisplayType) || DisplayType.Table;
 
-    $: $selectedProjectStore ? invalidate("app:layout"): null;
+    $: $selectedProjectStore ? refresh(): null;
 
     // $: optionLabel = optionGroups[primaryOptionGroup].options[selectedOptions[optionGroups[primaryOptionGroup].label]].display;
 </script>
