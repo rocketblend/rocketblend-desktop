@@ -160,6 +160,6 @@
         </div>
     </div>
     <svelte:fragment slot="footer">
-        <Footer/>
+        <Footer selectedProject={data.selectedProject?.project}/>
     </svelte:fragment>
 </AppShell>

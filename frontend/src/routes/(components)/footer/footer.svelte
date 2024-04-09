@@ -16,7 +16,7 @@
     const selectedProjectStore = getSelectedProjectStore();
     const refreshProjectDebounced = debounce(loadProject, 1000);
 
-    let selectedProject: project.Project | undefined = undefined;
+    export let selectedProject: project.Project | undefined;
 
     let cancelListener: () => void;
 

@@ -10,6 +10,18 @@ import (
 )
 
 type (
+	Selected struct {
+		ID uuid.UUID `json:"id"`
+	}
+
+	GetSelectedOpts struct {
+		ID uuid.UUID `json:"id"`
+	}
+
+	UpdateSelectedOpts struct {
+		ID uuid.UUID `json:"id"`
+	}
+
 	AddProjectPackageOpts struct {
 		ID        uuid.UUID           `json:"id"`
 		Reference reference.Reference `json:"reference"`
