@@ -1,18 +1,14 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte';
     import type { PageData } from './$types';
-
-    import { goto } from '$app/navigation';
+    import { goto, invalidate } from '$app/navigation';
     import { page } from '$app/stores';
 
-    import { EventsOn } from '$lib/wailsjs/runtime';
     import { t } from '$lib/translations/translations';
-    import { RunProject, ListProjects } from '$lib/wailsjs/go/application/Driver';
+    import { RunProject } from '$lib/wailsjs/go/application/Driver';
 
     import { getSelectedProjectStore } from '$lib/stores';
 	import { DisplayType, type OptionGroup } from '$lib/types';
 	import { convertToEnum, debounce } from '$lib/components/utils';
-    import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
 
     import {
         ProjectList,
@@ -22,7 +18,6 @@
     } from "./(components)"
 
     const selectedProjectStore = getSelectedProjectStore();
-    const fetchProjectsDebounced = debounce(refreshProjects, EVENT_DEBOUNCE);
 
     // const optionGroups: OptionGroup[] = [
     //     {
@@ -52,8 +47,6 @@
     // let selectedOptions: Record<string, number> = {'sort': 0};
     // let optionLabel: string = t.get('home.project.filter.group.title');
 
-    let cancelListener: () => void;
-
     function handleProjectDoubleClick(event: CustomEvent<{ event: MouseEvent, item: string }>) {
         if (event.detail.event.ctrlKey) {
             RunProject(event.detail.item)
@@ -71,31 +64,14 @@
         return;
     }
 
-    async function refreshProjects() {
-        const projects = (await ListProjects(searchQuery)).projects;
-        data = {...data, projects};
-    }
-
-    onMount(() => {
-        cancelListener = EventsOn(SEARCH_STORE_INSERT_CHANNEL, (data: { id: string, indexType: string }) => {
-            if (data.indexType === "project") {
-                fetchProjectsDebounced();
-            }
-        });
-    });
-
-    onDestroy(() => {
-        if (cancelListener) {
-            cancelListener();
-        }
-    });
-
     $: enabled = data.preferences.watchPath !== "";
     $: searchQuery = $page.url.searchParams.get("query") || "";
     $: displayTypeParam = $page.url.searchParams.get("display") || "";
     $: sortByParam = $page.url.searchParams.get("sortBy") || "";
 
     $: displayType = convertToEnum(displayTypeParam, DisplayType) || DisplayType.Table;
+
+    $: $selectedProjectStore ? invalidate("app:layout"): null;
 
     // $: optionLabel = optionGroups[primaryOptionGroup].options[selectedOptions[optionGroups[primaryOptionGroup].label]].display;
 </script>

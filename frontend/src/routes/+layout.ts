@@ -24,4 +24,3 @@ export const load: LayoutLoad = async ({ url, depends }) => {
         preferences: await GetPreferences(),
     }
 };
-

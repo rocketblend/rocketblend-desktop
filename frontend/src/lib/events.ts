@@ -1,10 +1,10 @@
+import { invalidateAll } from '$app/navigation';
+
 import type { ToastSettings, ToastStore } from '@skeletonlabs/skeleton';
 
 import { t } from '$lib/translations/translations';
-
 import type { LogStore, LogEvent } from '$lib/types';
 import {debounce} from '$lib/utils';
-import { resourcePath } from '$lib/components/utils';
 import { EventsOn, EventsOff, EventsEmit } from '$lib/wailsjs/runtime';
 
 export const EVENT_DEBOUNCE = 250;
@@ -12,6 +12,7 @@ export const SEARCH_STORE_INSERT_CHANNEL = 'searchstore.insert';
 
 export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastStore) => {
     const changeDetectedDebounce = debounce(() => {
+        invalidateAll(); // Invalidate all routes (force a re-render of the app)        
         const changeDetectedToast: ToastSettings = {
             message: t.get('home.toast.changeDetected'),
             timeout: 3000
@@ -38,7 +39,7 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
     });
 
     // Setup search store listener
-    EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
+    EventsOn(SEARCH_STORE_INSERT_CHANNEL, (data: { id: string, indexType: string }) => {
         if (data.indexType === 'operation') {
             return;
         }
