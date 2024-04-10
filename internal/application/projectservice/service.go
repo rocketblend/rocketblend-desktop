@@ -3,6 +3,7 @@ package projectservice
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -256,10 +257,47 @@ func (s *service) Update(ctx context.Context, opts *UpdateProjectOpts) error {
 }
 
 func (s *service) AddPackage(ctx context.Context, opts *AddProjectPackageOpts) error {
+	project, err := s.get(ctx, opts.ID)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Check should be done on the driver function.
+	if project.HasDependency(opts.Reference) {
+		return errors.New("package already exists on project")
+	}
+
+	driver, err := s.createDriver(project.BlendFile())
+	if err != nil {
+		return err
+	}
+
+	if err := driver.AddDependencies(ctx, false, opts.Reference); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (s *service) RemovePackage(ctx context.Context, opts *RemoveProjectPackageOpts) error {
+	project, err := s.get(ctx, opts.ID)
+	if err != nil {
+		return err
+	}
+
+	if !project.HasDependency(opts.Reference) {
+		return errors.New("package does not exist on project")
+	}
+
+	driver, err := s.createDriver(project.BlendFile())
+	if err != nil {
+		return err
+	}
+
+	if err := driver.RemoveDependencies(ctx, opts.Reference); err != nil {
+		return err
+	}
+
 	return nil
 }
 

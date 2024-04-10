@@ -34,6 +34,20 @@ type (
 	}
 )
 
+func (p *Project) HasDependency(dep reference.Reference) bool {
+	if p.Build == dep {
+		return true
+	}
+
+	for _, addon := range p.Addons {
+		if addon == dep {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (p *Project) BlendFile() *blendconfig.BlendConfig {
 	return &blendconfig.BlendConfig{
 		ProjectPath:   p.Path,
