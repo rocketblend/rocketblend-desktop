@@ -5,15 +5,11 @@
 
     import { EventsOn } from '$lib/wailsjs/runtime';
     import { pack } from '$lib/wailsjs/go/models';
-    import {
-        GetProject,
-        ListPackages,
-        InstallPackageOperation
-    } from '$lib/wailsjs/go/application/Driver';
+    import { ListPackages } from '$lib/wailsjs/go/application/Driver';
 
     import { t } from '$lib/translations/translations';
+    import { createPackageStore } from '$lib/stores';
     import { EVENT_DEBOUNCE, SEARCH_STORE_INSERT_CHANNEL } from '$lib/events';
-    import { getSelectedProjectStore, createPackageStore } from '$lib/stores';
     import { debounce } from '$lib/utils';
     import type { RadioOption } from '$lib/types';
 
@@ -31,8 +27,9 @@
 
     const fetchPackagesDebounced = debounce(fetchPackages, EVENT_DEBOUNCE);
 
-    export let addon: boolean;
+    export let projectId: string | undefined;
     export let dependencies: string[];
+    export let addonFeature: boolean;
 
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
@@ -63,43 +60,6 @@
         toastStore.trigger(refreshPackageToast);
     }
 
-    function handlePackageDownload(event: CustomEvent<{ packageId: string }>) {
-        const packageId = event.detail.packageId;
-
-        InstallPackageOperation(packageId).then((result) => {
-            const downloadPackageToast: ToastSettings = {
-                message: `Downloading Package: ${packageId}`,
-            };
-
-            toastStore.trigger(downloadPackageToast);
-        }).catch(error => {
-            const downloadPackageToast: ToastSettings = {
-                message: `Error starting package download: ${error}`,
-                background: "variant-filled-error"
-            };
-
-            toastStore.trigger(downloadPackageToast);
-        });
-    }
-
-    function handlePackageCancel(event: CustomEvent<{ packageId: string }>) {
-        const packageId = event.detail.packageId;
-        //var item = $packageStore.find((pack) => pack.id?.toString() === packageId);
-
-        const cancelledPackageToast = {
-            message: `Cancelled ${packageId}!`,
-        };
-        toastStore.trigger(cancelledPackageToast);
-    }
-
-    function handlePackageDelete(event: CustomEvent<{ packageId: string }>) {
-        const deletePackageToast: ToastSettings = {
-            message: `Deleted Package: ${event.detail.packageId}`,
-        };
-
-        toastStore.trigger(deletePackageToast);
-    }
-
     function fetchPackages() {
         error = false;
         ListPackages(searchQuery, selectedFilterType, filterInstalled).then(result => {
@@ -128,8 +88,8 @@
     });
 
     $: {
-        filterRadioOptions = addon ? defaultFilterRadioOptions : [];
-        selectedFilterType = addon ? 0 : 2;
+        filterRadioOptions = addonFeature ? defaultFilterRadioOptions : [];
+        selectedFilterType = addonFeature ? 0 : 2;
         fetchPackages();
     }
 </script>
@@ -153,9 +113,7 @@
     <div class="overflow-y-auto h-full">
         {#if $packageStore && $packageStore.length > 0}
             <PackageList
-                on:download={handlePackageDownload}
-                on:cancel={handlePackageCancel}
-                on:delete={handlePackageDelete}
+                projectId={projectId}
                 packages={$packageStore}
                 dependencies={dependencies}    
             />

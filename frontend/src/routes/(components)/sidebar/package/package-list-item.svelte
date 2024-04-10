@@ -12,8 +12,9 @@
 
     const downloadHost = "download.blender.org"; // TODO: Remove this prop once the backend is ready
 
+    export let projectId: string | undefined;
     export let pack: packtype.Package;
-    export let dependencies: string[] = [];
+    export let dependencies: string[];
 
     let active = false;
 
@@ -23,7 +24,6 @@
     }
 
     function handleClick() {
-        console.log('clicked');
         goto(`/packages/${pack.id}`);
     }
 
@@ -55,6 +55,8 @@
 >
     <div class="flex-shrink-0">
         <PackageActionButton 
+            projectId={projectId}
+            packageRef={pack.reference?.toString() || ""}
             active={active}
             variantFrom={variant.variantFrom}
             variantTo={variant.variantTo}

@@ -1,6 +1,12 @@
 <script lang="ts">
+    import { AddProjectPackage, RemoveProjectPackage } from '$lib/wailsjs/go/application/Driver'
+    import { application } from '$lib/wailsjs/go/models';
+
     import IconAddFill from '~icons/ri/add-fill';
     import IconSubtractFill from '~icons/ri/subtract-fill';
+
+    export let projectId: string | undefined;
+    export let packageRef: string;
 
     export let assigned: boolean = false;
     export let variantFrom: string = 'secondary';
@@ -8,13 +14,29 @@
     export let active: boolean = false;
     export let rounded: boolean = true;
 
-    function handleAction() {
-        assigned = !assigned;
+    async function togglePackage() {
+        if (projectId === undefined) {
+            return;
+        };
+
+        if (assigned) {
+            await RemoveProjectPackage(application.RemoveProjectPackageOpts.createFrom({
+                id: projectId,
+                reference: packageRef,
+            }));
+            
+            return;
+        }
+
+        await AddProjectPackage(application.AddProjectPackageOpts.createFrom({
+            id: projectId,
+            reference: packageRef,
+        }));
     }
 
-    function handleUserInteraction(event: KeyboardEvent | MouseEvent) {
+    async function handleUserInteraction(event: KeyboardEvent | MouseEvent) {
         if (event.type === 'click' || (event instanceof KeyboardEvent && event.key === 'Enter')) {
-            handleAction();
+            await togglePackage();
         }
     }
 </script>

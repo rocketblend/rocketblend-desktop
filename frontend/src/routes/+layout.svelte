@@ -128,8 +128,9 @@
         </div>
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
             <Sidebar
-                addon={data.preferences.feature.addon}
+                projectId={data.selectedProject?.project?.id.toString() || undefined}
                 dependencies={dependencies}
+                addonFeature={data.preferences.feature.addon}
             />
         </div>
     </svelte:fragment>
