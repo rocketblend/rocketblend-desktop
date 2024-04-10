@@ -21,7 +21,6 @@
     import SidebarHeader from './sidebar-header.svelte';
 
     const packageStore = createPackageStore();
-    const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
 
     const defaultFilterRadioOptions: RadioOption[] = [
@@ -32,32 +31,17 @@
 
     const fetchPackagesDebounced = debounce(fetchPackages, EVENT_DEBOUNCE);
 
-    export let addon: boolean = false;
+    export let addon: boolean;
+    export let dependencies: string[];
 
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
     let filterInstalled: boolean = false;
     let filterRadioOptions: RadioOption[] = [];
-    let dependencies: string[] = [];
 
     let initialLoad: boolean = true;
     let error: boolean = false;
     let cancelListener: () => void;
-
-    $: if ($selectedProjectStore) {
-        loadDependencies();
-    }
-
-    async function loadDependencies() {
-        var id = selectedProjectStore.latest();
-        if (!id) {
-            return;
-        }
-
-        var result = await GetProject(id);
-        dependencies = result.project?.addons || [];
-        dependencies.push(result.project?.build || '');
-    }
 
     function handleInputChange(): void {
         fetchPackages();
@@ -173,7 +157,7 @@
                 on:cancel={handlePackageCancel}
                 on:delete={handlePackageDelete}
                 packages={$packageStore}
-                bind:dependencies={dependencies}    
+                dependencies={dependencies}    
             />
         {:else}
             {#if initialLoad}

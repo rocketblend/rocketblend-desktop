@@ -40,6 +40,8 @@
 
     export let data: LayoutData;
 
+    let dependencies: string[] = [];
+
     // Function to navigate back
     function goBack() {
         window.history.back();
@@ -53,6 +55,10 @@
     function openTerminal() {
         drawerStore.open();
     }
+
+    $: build = data.selectedProject?.project?.build || "";
+    $: addons = data.selectedProject?.project?.addons || [];
+    $: dependencies = build === "" ? addons : [build, ...addons];
 
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);
@@ -121,7 +127,10 @@
             </div>
         </div>
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
-            <Sidebar addon={data.preferences.feature.addon}/>
+            <Sidebar
+                addon={data.preferences.feature.addon}
+                dependencies={dependencies}
+            />
         </div>
     </svelte:fragment>
     <svelte:fragment slot="pageHeader">

@@ -1,26 +1,19 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
     import { ProgressBar } from '@skeletonlabs/skeleton';
 
-    //import ProgressBar from '$lib/components/ui/core/progress/ProgressBar.svelte';
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
+
+    import { pack as packnamespace } from '$lib/wailsjs/go/models';
+    import type { pack as packtype } from '$lib/wailsjs/go/models';
+
     import PackageBadge from './package-badge.svelte';
     import PackageActionButton from './package-action-button.svelte';
-    import { pack } from '$lib/wailsjs/go/models';
-	import { goto } from '$app/navigation';
 
     const downloadHost = "download.blender.org"; // TODO: Remove this prop once the backend is ready
 
-    export let id: string;
-    export let name: string;
-    export let tag: string;
-    export let verified: boolean;
-    export let reference: string;
-    export let platform: string;
-    export let version: string;
-    export let author: string;
-    export let type: pack.PackageType = pack.PackageType.UNKNOWN;
-    export let state: pack.PackageState = pack.PackageState.ERROR;
-    export let selected = false;
+    export let pack: packtype.Package;
+    export let dependencies: string[] = [];
 
     let active = false;
 
@@ -31,21 +24,22 @@
 
     function handleClick() {
         console.log('clicked');
-        goto(`/packages/${id}`);
+        goto(`/packages/${pack.id}`);
     }
 
-    function getBackgroundVariants(type: pack.PackageType): BackgroundVariant {
+    function getBackgroundVariants(type: packtype.PackageType): BackgroundVariant {
         switch (type) {
-            case pack.PackageType.BUILD:
+            case packnamespace.PackageType.BUILD:
                 return { variantFrom: 'primary', variantTo: 'secondary' };
-            case pack.PackageType.ADDON:
+            case packnamespace.PackageType.ADDON:
                 return { variantFrom: 'tertiary', variantTo: 'primary' };
             default:
                 return { variantFrom: 'secondary', variantTo: 'tertiary' };
         }
     }
 
-    $: variant = getBackgroundVariants(type);
+    $: selected = dependencies.includes(pack.reference?.toString() || "");
+    $: variant = getBackgroundVariants(pack.type);
     $: selectedClass = selected ? "variant-ghost-primary" : "hover:variant-filled-surface";
 </script>
 
@@ -70,14 +64,14 @@
         class="flex-col gap-2 overflow-hidden"
     >
         <div class="inline-flex items-center gap-2 w-full">
-            <span class="font-medium truncate">{name}</span>
-            <span class="text-sm truncate">{tag}</span>
-            {#if verified}
+            <span class="font-medium truncate">{pack.name}</span>
+            <span class="text-sm truncate">{pack.tag}</span>
+            {#if !!pack.verified}
                 <IconVerifiedBadgeFill class="text-sm text-primary-500" />
             {/if}
         </div>
-        <div class="text-sm text-surface-800-100-token truncate">{reference}</div>
-        {#if state === pack.PackageState.DOWNLOADING }
+        <div class="text-sm text-surface-800-100-token truncate">{pack.reference}</div>
+        {#if pack.state === packnamespace.PackageState.DOWNLOADING }
         <div class="py-2">
             <ProgressBar />
             <!-- <ProgressBar /> -->
@@ -85,11 +79,11 @@
         {/if}
         <div class="flex-wrap gap-2 space-y-1 w-full">
             <PackageBadge label={downloadHost} variant="soft-success"/>
-            <PackageBadge label={platform?.toString()}/>
-            <PackageBadge label={version}/>
-            <PackageBadge label={author}/>
-            <PackageBadge label={pack.PackageType[type].toLocaleLowerCase()}/>
-            <PackageBadge label={pack.PackageState[state].toLocaleLowerCase()} />
+            <PackageBadge label={pack.platform?.toString()}/>
+            <PackageBadge label={pack.version}/>
+            <PackageBadge label={pack.author}/>
+            <PackageBadge label={packnamespace.PackageType[pack.type].toLocaleLowerCase()}/>
+            <PackageBadge label={packnamespace.PackageState[pack.state].toLocaleLowerCase()} />
         </div>
     </div>
 </div>
