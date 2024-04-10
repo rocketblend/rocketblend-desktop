@@ -228,7 +228,7 @@ func (s *service) Update(ctx context.Context, opts *UpdateProjectOpts) error {
 		return err
 	}
 
-	settings := project.GetSettings()
+	settings := project.Settings()
 	if opts.Name != nil {
 		settings.Name = *opts.Name
 	}

@@ -11,7 +11,9 @@
 
     export let data: PageData;
 
-    let active = false;
+    $: isActiveBuild = data.selectedProject?.project?.build === data.package.reference;
+    $: isActiveAddon = !!data.selectedProject?.project?.addons?.some(ref => ref === data.package.reference);
+    $: isActive = isActiveBuild || isActiveAddon;
 </script>
 
 <main class="flex flex-col h-full space-y-4"> 
@@ -38,6 +40,6 @@
     </div>
     <hr>
 
-    <PackageToggle state={data.package.state} active={active}/>
+    <PackageToggle state={data.package.state} active={isActive}/>
     <PackageActions state={data.package.state}/>
 </main>

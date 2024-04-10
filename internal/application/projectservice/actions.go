@@ -52,7 +52,7 @@ func (s *service) Render(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	driver, err := s.createDriver(project.GetBlendFile())
+	driver, err := s.createDriver(project.BlendFile())
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (s *service) Run(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	driver, err := s.createDriver(project.GetBlendFile())
+	driver, err := s.createDriver(project.BlendFile())
 	if err != nil {
 		return err
 	}
