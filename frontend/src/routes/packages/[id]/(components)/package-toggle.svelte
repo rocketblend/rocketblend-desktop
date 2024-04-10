@@ -13,10 +13,6 @@
 
     export let active = false;
     export let state: pack.PackageState = pack.PackageState.AVAILABLE;
-
-    function toggle() {
-        active = !active;
-    }
 </script>
 
 {#if active}
@@ -30,7 +26,7 @@
             </svelte:fragment>
             <AlertDescription message="Package is current enabled on the selected project."/>
             <svelte:fragment slot="actions">
-                <AlertAction text="Disable" variant="glass-surface" on:click={toggle}/>
+                <AlertAction text="Disable" variant="glass-surface" on:click/>
             </svelte:fragment>
         </Alert>
     {:else}
@@ -43,7 +39,7 @@
             </svelte:fragment>
             <AlertDescription message="Package is current enabled on the selected project, but is not downloaded and installed ready for use. See status below."/>
             <svelte:fragment slot="actions">
-                <AlertAction text="Disable" variant="glass-surface" on:click={toggle}/>
+                <AlertAction text="Disable" variant="glass-surface" on:click/>
             </svelte:fragment>
         </Alert>
     {/if}
@@ -57,7 +53,7 @@
         </svelte:fragment>
         <AlertDescription message="Package is currently disabled on the selected project"/>
         <svelte:fragment slot="actions">
-            <AlertAction text="Enable" on:click={toggle}/>
+            <AlertAction text="Enable" on:click/>
         </svelte:fragment>
     </Alert>
 {/if}

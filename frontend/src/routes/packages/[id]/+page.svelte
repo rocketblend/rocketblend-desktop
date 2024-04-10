@@ -3,13 +3,34 @@
 
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
 
-    import { pack } from '$lib/wailsjs/go/models';
+    import { pack, application } from '$lib/wailsjs/go/models';
+    import { AddProjectPackage, RemoveProjectPackage } from '$lib/wailsjs/go/application/Driver'
     import { formatDateTime } from '$lib/components/utils';
     import { t } from '$lib/translations/translations';
     
 	import { PackageToggle, PackageActions } from './(components)';
 
     export let data: PageData;
+
+    async function togglePackage() {
+        if (data.selectedProject?.project === undefined) {
+            return;
+        };
+
+        if (isActive) {
+            await RemoveProjectPackage(application.RemoveProjectPackageOpts.createFrom({
+                id: data.selectedProject.project.id,
+                reference: data.package.reference,
+            }));
+            
+            return;
+        }
+
+        await AddProjectPackage(application.AddProjectPackageOpts.createFrom({
+            id: data.selectedProject.project.id,
+            reference: data.package.reference,
+        }));
+    }
 
     $: isActiveBuild = data.selectedProject?.project?.build === data.package.reference;
     $: isActiveAddon = !!data.selectedProject?.project?.addons?.some(ref => ref === data.package.reference);
@@ -40,6 +61,6 @@
     </div>
     <hr>
 
-    <PackageToggle state={data.package.state} active={isActive}/>
+    <PackageToggle state={data.package.state} active={isActive} on:click={togglePackage}/>
     <PackageActions state={data.package.state}/>
 </main>

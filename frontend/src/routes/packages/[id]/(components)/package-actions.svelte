@@ -19,7 +19,6 @@
     function cycleState() {
         state = (state + 1) % 5;
     }
-
 </script>
 
 {#if state === pack.PackageState.AVAILABLE}
