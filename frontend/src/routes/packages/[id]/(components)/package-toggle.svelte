@@ -1,59 +1,46 @@
 <script lang="ts">
-    import IconCloseFill from '~icons/ri/close-fill';
-    import IconInfoFill from '~icons/ri/check-double-fill';
-    import IconWarningFill from '~icons/ri/error-warning-fill'
+    import { AddProjectPackage, RemoveProjectPackage } from '$lib/wailsjs/go/application/Driver'
+    import { pack, application } from '$lib/wailsjs/go/models';
 
-    import {
-        Alert,
-        AlertTitle,
-        AlertDescription,
-        AlertAction
-    } from '$lib/components/ui/alert';
-    import { pack } from '$lib/wailsjs/go/models';
+    import { AlertEnabled, AlertDisabled, AlertNotReady } from './alert';
 
-    export let active = false;
-    export let state: pack.PackageState = pack.PackageState.AVAILABLE;
+    export let projectId: string | undefined;
+    export let projectBuildRef: string | undefined;
+    export let projectAddonRefs: string[] | undefined;
+    export let packageRef: string;
+    export let packageState: pack.PackageState;
+
+    async function togglePackage() {
+        if (projectId === undefined) {
+            return;
+        };
+
+        if (isActive) {
+            await RemoveProjectPackage(application.RemoveProjectPackageOpts.createFrom({
+                id: projectId,
+                reference: packageRef,
+            }));
+            
+            return;
+        }
+
+        await AddProjectPackage(application.AddProjectPackageOpts.createFrom({
+            id: projectId,
+            reference: packageRef,
+        }));
+    }
+
+    $: isActiveBuild = projectBuildRef=== packageRef;
+    $: isActiveAddon = !!projectAddonRefs?.some(ref => ref === packageRef);
+    $: isActive = isActiveBuild || isActiveAddon;
 </script>
 
-{#if active}
-    {#if state === pack.PackageState.INSTALLED}
-        <Alert variant="ghost-primary">
-            <svelte:fragment slot="icon">
-                <IconInfoFill class="text-2xl"/>
-            </svelte:fragment>
-            <svelte:fragment slot="title">
-                <AlertTitle title="Enabled"/>
-            </svelte:fragment>
-            <AlertDescription message="Package is current enabled on the selected project."/>
-            <svelte:fragment slot="actions">
-                <AlertAction text="Disable" variant="glass-surface" on:click/>
-            </svelte:fragment>
-        </Alert>
+{#if isActive}
+    {#if packageState === pack.PackageState.INSTALLED}
+        <AlertEnabled on:click={togglePackage}/>
     {:else}
-        <Alert variant="ghost-warning">
-            <svelte:fragment slot="icon">
-                <IconWarningFill class="text-2xl"/>
-            </svelte:fragment>
-            <svelte:fragment slot="title">
-                <AlertTitle title="Not Ready"/>
-            </svelte:fragment>
-            <AlertDescription message="Package is current enabled on the selected project, but is not downloaded and installed ready for use. See status below."/>
-            <svelte:fragment slot="actions">
-                <AlertAction text="Disable" variant="glass-surface" on:click/>
-            </svelte:fragment>
-        </Alert>
+        <AlertNotReady on:click={togglePackage}/>
     {/if}
 {:else}
-    <Alert>
-        <svelte:fragment slot="icon">
-            <IconCloseFill class="text-2xl"/>
-        </svelte:fragment>
-        <svelte:fragment slot="title">
-            <AlertTitle title="Disabled"/>
-        </svelte:fragment>
-        <AlertDescription message="Package is currently disabled on the selected project"/>
-        <svelte:fragment slot="actions">
-            <AlertAction text="Enable" on:click/>
-        </svelte:fragment>
-    </Alert>
+    <AlertDisabled on:click={togglePackage}/>
 {/if}
