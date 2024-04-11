@@ -9,11 +9,12 @@
         AlertError
     } from './alert';
 
+    export let packageId: string;
     export let state: pack.PackageState = pack.PackageState.AVAILABLE;
 </script>
 
 {#if state === pack.PackageState.AVAILABLE}
-    <AlertAvailable />
+    <AlertAvailable packageId={packageId}/>
 {:else if state === pack.PackageState.DOWNLOADING}
     <AlertDownloading />
 {:else if state === pack.PackageState.CANCELLED}

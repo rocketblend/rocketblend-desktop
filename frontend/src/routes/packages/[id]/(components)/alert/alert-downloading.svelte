@@ -12,6 +12,6 @@
     </svelte:fragment>
     <AlertDescription message="Package is currently downloading."/>
     <svelte:fragment slot="actions">
-        <AlertAction text="Pause" on:click/>
+        <AlertAction text="Pause" disabled/>
     </svelte:fragment>
 </Alert>

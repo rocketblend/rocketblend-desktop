@@ -12,7 +12,7 @@
     </svelte:fragment>
     <AlertDescription message="Package is ready to be used."/>
     <svelte:fragment slot="actions">
-        <AlertAction text="Delete" on:click/>
-        <AlertAction text="View Location"/>
+        <AlertAction text="Delete" disabled/>
+        <AlertAction text="View Location" disabled/>
     </svelte:fragment>
 </Alert>

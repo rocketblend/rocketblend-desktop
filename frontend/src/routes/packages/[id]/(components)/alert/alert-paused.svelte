@@ -13,6 +13,6 @@
     <AlertDescription message="Download of package has been paused."/>
     <svelte:fragment slot="actions">
         <AlertAction text="Cancel"/>
-        <AlertAction text="Resume" on:click/>
+        <AlertAction text="Resume" disabled/>
     </svelte:fragment>
 </Alert>

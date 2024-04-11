@@ -12,6 +12,6 @@
     </svelte:fragment>
     <AlertDescription message="An error occurred while downloading the package."/>
     <svelte:fragment slot="actions">
-        <AlertAction text="Retry" on:click/>
+        <AlertAction text="Retry" disabled/>
     </svelte:fragment>
 </Alert>
