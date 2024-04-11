@@ -19,21 +19,36 @@ const IgnoreFileName = ".rocketignore"
 
 type (
 	Project struct {
-		ID            uuid.UUID             `json:"id"`
-		Name          string                `json:"name,omitempty"`
-		Tags          []string              `json:"tags,omitempty"`
-		Path          string                `json:"path,omitempty"`
-		FileName      string                `json:"fileName,omitempty"`
-		Build         reference.Reference   `json:"build,omitempty"`
-		Addons        []reference.Reference `json:"addons,omitempty"`
-		SplashPath    string                `json:"splashPath,omitempty"`
-		ThumbnailPath string                `json:"thumbnailPath,omitempty"`
-		Version       string                `json:"version,omitempty"`
-		UpdatedAt     time.Time             `json:"updatedAt,omitempty"`
+		ID       uuid.UUID             `json:"id"`
+		Name     string                `json:"name,omitempty"`
+		Tags     []string              `json:"tags,omitempty"`
+		Path     string                `json:"path,omitempty"`
+		FileName string                `json:"fileName,omitempty"`
+		Build    reference.Reference   `json:"build,omitempty"`
+		Addons   []reference.Reference `json:"addons,omitempty"`
+
+		SplashPath    string    `json:"splashPath,omitempty"`
+		ThumbnailPath string    `json:"thumbnailPath,omitempty"`
+		Version       string    `json:"version,omitempty"`
+		UpdatedAt     time.Time `json:"updatedAt,omitempty"`
 	}
 )
 
-func (p *Project) GetBlendFile() *blendconfig.BlendConfig {
+func (p *Project) HasDependency(dep reference.Reference) bool {
+	if p.Build == dep {
+		return true
+	}
+
+	for _, addon := range p.Addons {
+		if addon == dep {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (p *Project) BlendFile() *blendconfig.BlendConfig {
 	return &blendconfig.BlendConfig{
 		ProjectPath:   p.Path,
 		BlendFileName: p.FileName,
@@ -44,7 +59,7 @@ func (p *Project) GetBlendFile() *blendconfig.BlendConfig {
 	}
 }
 
-func (p *Project) GetSettings() *projectsettings.ProjectSettings {
+func (p *Project) Settings() *projectsettings.ProjectSettings {
 	return &projectsettings.ProjectSettings{
 		ID:            p.ID,
 		Name:          p.Name,

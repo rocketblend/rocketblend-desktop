@@ -3,6 +3,7 @@ package projectservice
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -29,8 +30,10 @@ type (
 		Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error)
 		List(ctx context.Context, opts ...listoption.ListOption) (*ListProjectsResponse, error)
 
-		Create(ctx context.Context, opts CreateProjectOpts) (*CreateProjectResult, error)
-		Update(ctx context.Context, request *UpdateProjectRequest) error
+		Create(ctx context.Context, opts *CreateProjectOpts) (*CreateProjectResult, error)
+		Update(ctx context.Context, opts *UpdateProjectOpts) error
+		AddPackage(ctx context.Context, opts *AddProjectPackageOpts) error
+		RemovePackage(ctx context.Context, opts *RemoveProjectPackageOpts) error
 
 		Render(ctx context.Context, id uuid.UUID) error
 		Run(ctx context.Context, id uuid.UUID) error
@@ -220,26 +223,80 @@ func (s *service) Close() error {
 	return s.watcher.Close()
 }
 
-func (s *service) Update(ctx context.Context, request *UpdateProjectRequest) error {
-	project, err := s.get(ctx, request.ID)
+func (s *service) Update(ctx context.Context, opts *UpdateProjectOpts) error {
+	project, err := s.get(ctx, opts.ID)
 	if err != nil {
 		return err
 	}
 
-	filePath := filepath.Join(project.Path, projectsettings.FileName)
-	settings := projectsettings.ProjectSettings{
-		ID:            project.ID,
-		Name:          request.Name,
-		Tags:          project.Tags,
-		ThumbnailPath: project.ThumbnailPath,
-		SplashPath:    project.SplashPath,
+	settings := project.Settings()
+	if opts.Name != nil {
+		settings.Name = *opts.Name
 	}
 
-	if err := projectsettings.Save(&settings, filePath); err != nil {
+	if opts.Tags != nil {
+		settings.Tags = *opts.Tags
+	}
+
+	if opts.ThumbnailPath != nil {
+		settings.ThumbnailPath = *opts.ThumbnailPath
+	}
+
+	if opts.SplashPath != nil {
+		settings.SplashPath = *opts.SplashPath
+	}
+
+	filePath := filepath.Join(project.Path, projectsettings.FileName)
+	if err := projectsettings.Save(settings, filePath); err != nil {
 		return err
 	}
 
 	s.EmitEvent(ctx, project.ID, UpdateEventChannel)
+
+	return nil
+}
+
+func (s *service) AddPackage(ctx context.Context, opts *AddProjectPackageOpts) error {
+	project, err := s.get(ctx, opts.ID)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Check should be done on the driver function.
+	if project.HasDependency(opts.Reference) {
+		return errors.New("package already exists on project")
+	}
+
+	driver, err := s.createDriver(project.BlendFile())
+	if err != nil {
+		return err
+	}
+
+	if err := driver.AddDependencies(ctx, false, opts.Reference); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *service) RemovePackage(ctx context.Context, opts *RemoveProjectPackageOpts) error {
+	project, err := s.get(ctx, opts.ID)
+	if err != nil {
+		return err
+	}
+
+	if !project.HasDependency(opts.Reference) {
+		return errors.New("package does not exist on project")
+	}
+
+	driver, err := s.createDriver(project.BlendFile())
+	if err != nil {
+		return err
+	}
+
+	if err := driver.RemoveDependencies(ctx, opts.Reference); err != nil {
+		return err
+	}
 
 	return nil
 }

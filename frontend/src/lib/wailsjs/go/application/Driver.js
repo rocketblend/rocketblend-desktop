@@ -6,6 +6,10 @@ export function AddPackage(arg1) {
   return window['go']['application']['Driver']['AddPackage'](arg1);
 }
 
+export function AddProjectPackage(arg1) {
+  return window['go']['application']['Driver']['AddProjectPackage'](arg1);
+}
+
 export function AggregateMetrics(arg1) {
   return window['go']['application']['Driver']['AggregateMetrics'](arg1);
 }
@@ -92,6 +96,10 @@ export function Quit() {
 
 export function RefreshPackages() {
   return window['go']['application']['Driver']['RefreshPackages']();
+}
+
+export function RemoveProjectPackage(arg1) {
+  return window['go']['application']['Driver']['RemoveProjectPackage'](arg1);
 }
 
 export function RenderProject(arg1) {

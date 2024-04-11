@@ -132,7 +132,7 @@ func (d *Driver) CreateProjectOperation(opts CreateProjectOperationOpts) (uuid.U
 	path := filepath.Join(projectPath, blendFileName)
 
 	opid, err := operationservice.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
-		result, err := projectService.Create(ctx, projectservice.CreateProjectOpts{
+		result, err := projectService.Create(ctx, &projectservice.CreateProjectOpts{
 			DisplayName:   opts.Name,
 			BlendFileName: blendFileName,
 			Path:          path,

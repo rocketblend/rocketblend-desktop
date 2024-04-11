@@ -40,6 +40,8 @@
 
     export let data: LayoutData;
 
+    let dependencies: string[] = [];
+
     // Function to navigate back
     function goBack() {
         window.history.back();
@@ -53,6 +55,10 @@
     function openTerminal() {
         drawerStore.open();
     }
+
+    $: build = data.selectedProject?.project?.build || "";
+    $: addons = data.selectedProject?.project?.addons || [];
+    $: dependencies = build === "" ? addons : [build, ...addons];
 
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);
@@ -109,7 +115,7 @@
         <div class="h-32">
             <div class="relative rounded-container-token overflow-hidden h-full">
                 <div class="absolute w-full h-full">
-                    <a class="flex items-center h-full px-4 gap-2" href="/">
+                    <a class="flex items-center h-full px-4 gap-2" href="/projects">
                         <div>
                             <span class="h4 font-bold">RocketBlend</span><br>
                             <span class="h5 text-surface-800-100-token">Desktop</span><br>
@@ -121,7 +127,11 @@
             </div>
         </div>
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
-            <Sidebar addon={data.preferences.feature.addon}/>
+            <Sidebar
+                projectId={data.selectedProject?.project?.id.toString() || undefined}
+                dependencies={dependencies}
+                addonFeature={data.preferences.feature.addon}
+            />
         </div>
     </svelte:fragment>
     <svelte:fragment slot="pageHeader">
@@ -160,6 +170,6 @@
         </div>
     </div>
     <svelte:fragment slot="footer">
-        <Footer/>
+        <Footer selected={data.selectedProject?.project}/>
     </svelte:fragment>
 </AppShell>

@@ -3,6 +3,7 @@ package projectservice
 import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/project"
+	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 )
 
 type (
@@ -14,8 +15,21 @@ type (
 		Projects []*project.Project `json:"projects,omitempty"`
 	}
 
-	UpdateProjectRequest struct {
-		ID   uuid.UUID `json:"id"`
-		Name string    `json:"name"`
+	UpdateProjectOpts struct {
+		ID            uuid.UUID
+		Name          *string
+		Tags          *[]string
+		ThumbnailPath *string
+		SplashPath    *string
+	}
+
+	AddProjectPackageOpts struct {
+		ID        uuid.UUID
+		Reference reference.Reference
+	}
+
+	RemoveProjectPackageOpts struct {
+		ID        uuid.UUID
+		Reference reference.Reference
 	}
 )

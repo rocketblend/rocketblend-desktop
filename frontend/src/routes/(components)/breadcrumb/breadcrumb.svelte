@@ -25,7 +25,7 @@
 </script>
 
 {#if $page.data.showBreadcrumb}
-    <ol class="breadcrumb text-sm text-surface-800-100-token truncate">
+    <ol class="breadcrumb text-sm text-surface-800-100-token truncate capitalize">
         {#each crumbs as crumb, i}
             {#if i < crumbs.length - 1}
                 <li class="crumb"><a href={crumb.href}>{crumb.label}</a></li>
