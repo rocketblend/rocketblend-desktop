@@ -33,7 +33,7 @@
 
     let selectedFilterType: number = 0;
     let searchQuery: string = "";
-    let filterInstalled: boolean = false;
+    let filterInstalled: boolean = true;
     let filterRadioOptions: RadioOption[] = [];
 
     let initialLoad: boolean = true;
