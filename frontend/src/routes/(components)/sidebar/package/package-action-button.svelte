@@ -11,7 +11,7 @@
     export let assigned: boolean = false;
     export let variantFrom: string = 'secondary';
     export let variantTo: string = 'tertiary';
-    export let active: boolean = false;
+    export let hovered: boolean = false;
     export let rounded: boolean = true;
 
     async function togglePackage() {
@@ -46,7 +46,7 @@
     on:click|stopPropagation={handleUserInteraction}
     on:keydown|stopPropagation={handleUserInteraction}
 >
-    {#if active}
+    {#if hovered}
         {#if assigned}
             <IconSubtractFill class="w-5 h-5" />
         {:else}

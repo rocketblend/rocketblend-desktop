@@ -16,7 +16,7 @@
     export let pack: packtype.Package;
     export let dependencies: string[];
 
-    let active = false;
+    let hovered = false;
 
     type BackgroundVariant = {
         variantFrom: string;
@@ -47,19 +47,20 @@
     on:click|stopPropagation={handleClick}
     on:dblclick|stopPropagation
     on:keydown|stopPropagation
-    on:mouseenter|stopPropagation={() => active = true}
-    on:mouseleave|stopPropagation={() => active = false}
+    on:mouseenter|stopPropagation={() => hovered = true}
+    on:mouseleave|stopPropagation={() => hovered = false}
     role="button" 
     tabindex="0"
     aria-label="Interactive element"
 >
     <div class="flex-shrink-0">
-        <PackageActionButton 
+        <PackageActionButton
             projectId={projectId}
             packageRef={pack.reference?.toString() || ""}
-            active={active}
+            hovered={hovered}
             variantFrom={variant.variantFrom}
             variantTo={variant.variantTo}
+            assigned={selected}
         />
     </div>
     <div
