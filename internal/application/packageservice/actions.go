@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
-	"github.com/rocketblend/rocketblend/pkg/driver/reference"
+	"github.com/rocketblend/rocketblend/pkg/reference"
 )
 
 func (s *service) Add(ctx context.Context, reference reference.Reference) error {

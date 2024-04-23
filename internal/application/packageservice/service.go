@@ -19,8 +19,8 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
 
 	rocketblendInstallation "github.com/rocketblend/rocketblend/pkg/driver/installation"
-	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	rocketblendPackage "github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
+	"github.com/rocketblend/rocketblend/pkg/reference"
 	rocketblendConfig "github.com/rocketblend/rocketblend/pkg/rocketblend/config"
 )
 

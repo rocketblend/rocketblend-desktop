@@ -8,7 +8,7 @@ import (
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/packageservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
-	"github.com/rocketblend/rocketblend/pkg/driver/reference"
+	"github.com/rocketblend/rocketblend/pkg/reference"
 )
 
 func (d *Driver) GetPackage(id uuid.UUID) (*packageservice.GetPackageResponse, error) {

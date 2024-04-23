@@ -11,8 +11,8 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectsettings"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
 	"github.com/rocketblend/rocketblend/pkg/driver/blendconfig"
-	"github.com/rocketblend/rocketblend/pkg/driver/reference"
 	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
+	"github.com/rocketblend/rocketblend/pkg/reference"
 )
 
 const IgnoreFileName = ".rocketignore"

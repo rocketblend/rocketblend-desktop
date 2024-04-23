@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
-	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
+	rbruntime "github.com/rocketblend/rocketblend/pkg/runtime"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )

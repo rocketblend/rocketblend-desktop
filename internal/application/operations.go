@@ -10,7 +10,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/operationservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
-	"github.com/rocketblend/rocketblend/pkg/driver/reference"
+	"github.com/rocketblend/rocketblend/pkg/reference"
 )
 
 type (

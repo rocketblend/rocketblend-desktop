@@ -9,10 +9,10 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rocketblend/rocketblend-desktop/internal/application"
-	"github.com/rocketblend/rocketblend/pkg/driver"
-	"github.com/rocketblend/rocketblend/pkg/driver/blendconfig"
-	"github.com/rocketblend/rocketblend/pkg/driver/rocketfile"
-	"github.com/rocketblend/rocketblend/pkg/rocketblend/factory"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/build"
+	"github.com/rocketblend/rocketblend/pkg/container"
+	"github.com/rocketblend/rocketblend/pkg/helpers"
+	"github.com/rocketblend/rocketblend/pkg/types"
 )
 
 // 'wails dev' should properly launch vite to serve the site
@@ -58,45 +58,55 @@ func run(args []string) error {
 }
 
 func open(ctx context.Context, blendFilePath string, logger logger.Logger) error {
-	factory, err := factory.New()
-	if err != nil {
-		return err
+	development := false
+	if build.Version == "dev" {
+		development = true
 	}
 
-	if err := factory.SetLogger(logger); err != nil {
-		return err
-	}
-
-	rocketPackService, err := factory.GetRocketPackService()
-	if err != nil {
-		return fmt.Errorf("failed to get rocket pack service: %w", err)
-	}
-
-	installationService, err := factory.GetInstallationService()
-	if err != nil {
-		return fmt.Errorf("failed to get installation service: %w", err)
-	}
-
-	blendFileService, err := factory.GetBlendFileService()
-	if err != nil {
-		return fmt.Errorf("failed to get blend file service: %w", err)
-	}
-
-	blendFile, err := blendconfig.Load(blendFilePath, filepath.Join(filepath.Dir(blendFilePath), rocketfile.FileName))
-	if err != nil {
-		return fmt.Errorf("failed to load project: %w", err)
-	}
-
-	driver, err := driver.New(
-		driver.WithLogger(logger),
-		driver.WithRocketPackService(rocketPackService),
-		driver.WithInstallationService(installationService),
-		driver.WithBlendFileService(blendFileService),
-		driver.WithBlendConfig(blendFile),
+	container, err := container.New(
+		container.WithLogger(logger),
+		container.WithApplicationName(types.ApplicationName),
+		container.WithDevelopmentMode(development),
 	)
 	if err != nil {
-		return fmt.Errorf("failed to create project driver: %w", err)
+		return fmt.Errorf("failed to create container: %w", err)
 	}
 
-	return driver.Run(ctx)
+	driver, err := container.GetDriver()
+	if err != nil {
+		return err
+	}
+
+	profiles, err := driver.LoadProfiles(ctx, &types.LoadProfilesOpts{
+		Paths: []string{filepath.Dir(blendFilePath)},
+	})
+	if err != nil {
+		return err
+	}
+
+	resolve, err := driver.ResolveProfiles(ctx, &types.ResolveProfilesOpts{
+		Profiles: profiles.Profiles,
+	})
+	if err != nil {
+		return err
+	}
+
+	blender, err := container.GetBlender()
+	if err != nil {
+		return err
+	}
+
+	if err := blender.Run(ctx, &types.RunOpts{
+		BlenderOpts: types.BlenderOpts{
+			BlendFile: &types.BlendFile{
+				Name:         helpers.ExtractName(blendFilePath),
+				Path:         blendFilePath,
+				Dependencies: resolve.Installations[0],
+			},
+		},
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
