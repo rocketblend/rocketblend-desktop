@@ -10,7 +10,7 @@ import (
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
-func (r *repository) Install(ctx context.Context, opts *types.InstallPackageOpts) (err error) {
+func (r *repository) InstallPackage(ctx context.Context, opts *types.InstallPackageOpts) (err error) {
 	if err := r.install(ctx, opts.ID); err != nil {
 		return fmt.Errorf("error installing package: %w", err)
 	}

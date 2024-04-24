@@ -13,30 +13,30 @@ import (
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
-func (r *repository) load(path string) (*types.Package, error) {
-	definition, err := helpers.Load[types.Definition](r.validator, path)
+func load(configurator types.RBConfigurator, validator types.Validator, path string) (*types.Package, error) {
+	definition, err := helpers.Load[types.Definition](validator, path)
 	if err != nil {
 		return nil, err
 	}
 
-	config, err := r.rbConfigurator.Get()
+	config, err := configurator.Get()
 	if err != nil {
 		return nil, err
 	}
 
 	reference, err := convertPathToReference(config.PackagesPath, path)
 	if err != nil {
-		return nil, fmt.Errorf("error converting package definition path to reference: %w", err)
+		return nil, fmt.Errorf("failed to convert path to reference: %w", err)
 	}
 
 	modTime, err := util.GetModTime(path)
 	if err != nil {
-		return nil, fmt.Errorf("error getting package definition modification time: %w", err)
+		return nil, fmt.Errorf("failed to get mod time: %w", err)
 	}
 
 	id, err := util.StringToUUID(reference.String())
 	if err != nil {
-		return nil, fmt.Errorf("error generating package id: %w", err)
+		return nil, fmt.Errorf("failed to convert reference to UUID: %w", err)
 	}
 
 	source := definition.Source(rbtypes.Platform(config.Platform.String()))

@@ -64,16 +64,16 @@ type (
 	}
 
 	PackageRepoistory interface {
-		Get(ctx context.Context, opts *GetPackageOpts) (*GetPackageResponse, error)
-		List(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error) // TODO: Change opts struct.
+		GetPackage(ctx context.Context, opts *GetPackageOpts) (*GetPackageResponse, error)
+		ListPackages(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error) // TODO: Change opts struct.
 
 		//AppendOperation(ctx context.Context, id uuid.UUID, opid uuid.UUID) error
 
-		Add(ctx context.Context, opts *AddPackageOpts) error
-		Install(ctx context.Context, opts *InstallPackageOpts) error
-		Uninstall(ctx context.Context, opts *UninstallPackageOpts) error
+		AddPackage(ctx context.Context, opts *AddPackageOpts) error
+		InstallPackage(ctx context.Context, opts *InstallPackageOpts) error
+		UninstallPackage(ctx context.Context, opts *UninstallPackageOpts) error
 
-		Refresh(ctx context.Context) error
+		RefreshPackages(ctx context.Context) error
 
 		Close() error
 	}

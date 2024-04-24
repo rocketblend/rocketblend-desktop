@@ -5,6 +5,6 @@ import (
 	"errors"
 )
 
-func (r *repository) Refresh(ctx context.Context) error {
+func (r *repository) RefreshPackages(ctx context.Context) error {
 	return errors.New("not implemented")
 }

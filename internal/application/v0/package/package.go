@@ -129,20 +129,17 @@ func New(opts ...Option) (*repository, error) {
 			return filepath.Base(path) == types.PackageFileName
 		}),
 		watcher.WithUpdateObjectFunc(func(path string) error {
-			// pack, err := pack.Load(config.PackagesPath, config.InstallationsPath, path, config.Platform)
-			// if err != nil {
-			// 	return fmt.Errorf("failed to load package %s: %w", path, err)
-			// }
+			pack, err := load(options.rbConfigurator, options.Validator, path)
+			if err != nil {
+				return fmt.Errorf("failed to load package %s: %w", path, err)
+			}
 
-			// index, err := convertToIndex(pack)
-			// if err != nil {
-			// 	return err
-			// }
+			index, err := convertToIndex(pack)
+			if err != nil {
+				return err
+			}
 
-			// // TODO: Pass context from watcher
-			// return options.Store.Insert(context.Background(), index)
-
-			return nil
+			return options.Store.Insert(context.Background(), index)
 		}),
 		watcher.WithRemoveObjectFunc(func(removePath string) error {
 			return options.Store.RemoveByReference(context.Background(), path.Clean(removePath))
