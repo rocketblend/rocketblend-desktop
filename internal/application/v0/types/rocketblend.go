@@ -18,4 +18,12 @@ type (
 	RBRepository interface {
 		types.Repository
 	}
+
+	Blender interface {
+		types.Blender
+	}
+
+	RBDriver interface {
+		types.Driver
+	}
 )
