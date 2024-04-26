@@ -2,14 +2,44 @@ package project
 
 import (
 	"context"
+	"errors"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
+	"github.com/rocketblend/rocketblend/pkg/reference"
+	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
 func (r *repository) Create(ctx context.Context, opts *types.CreateProjectOpts) (*types.CreateProjectResult, error) {
-	id, err := r.create(ctx, opts)
+	profile, err := r.newProfile(ctx, opts.Build)
 	if err != nil {
+		return nil, err
+	}
+
+	// We create a temporary ignore file to avoid adding the project to the index before it is fully created.
+	if err := createIgnoreFile(opts.Path); err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		err := removeIgnoreFile(opts.Path)
+		if err != nil {
+			r.logger.Error("failed to remove temporarily project ignore file", map[string]interface{}{"error": err})
+		}
+	}()
+
+	if err := r.createBlendFile(ctx, filepath.Join(opts.Path, opts.BlendFileName), profile); err != nil {
+		return nil, err
+	}
+
+	id := uuid.New()
+	if err := r.saveDetail(opts.Path, &types.Detail{
+		ID:   id,
+		Name: opts.DisplayName,
+	}); err != nil {
 		return nil, err
 	}
 
@@ -20,46 +50,68 @@ func (r *repository) Create(ctx context.Context, opts *types.CreateProjectOpts) 
 	}, nil
 }
 
-func (r *repository) create(ctx context.Context, opts *types.CreateProjectOpts) (uuid.UUID, error) {
-	// blendConfig, err := blendconfig.New(
-	// 	opts.Path,
-	// 	ensureBlendExtension(opts.BlendFileName),
-	// 	rocketfile.New(opts.Build),
-	// )
-	// if err != nil {
-	// 	return uuid.Nil, err
-	// }
+func (r *repository) newProfile(ctx context.Context, build reference.Reference) (*rbtypes.Profile, error) {
+	profiles := []*rbtypes.Profile{
+		{
+			Dependencies: []*rbtypes.Dependency{
+				{
+					Reference: build,
+					Type:      rbtypes.PackageBuild,
+				},
+			},
+		},
+	}
 
-	// driver, err := s.createDriver(blendConfig)
-	// if err != nil {
-	// 	return uuid.Nil, err
-	// }
+	if err := r.rbDriver.TidyProfiles(ctx, &rbtypes.TidyProfilesOpts{
+		Profiles: profiles,
+	}); err != nil {
+		return nil, err
+	}
 
-	// // We create a temporary ignore file to avoid adding the project to the index before it is fully created.
-	// if err := createIgnoreFile(opts.Path); err != nil {
-	// 	return uuid.Nil, err
-	// }
+	return profiles[0], nil
+}
 
-	// defer func() {
-	// 	err := removeIgnoreFile(opts.Path)
-	// 	if err != nil {
-	// 		s.logger.Error("failed to remove temporarily project ignore file", map[string]interface{}{"error": err})
-	// 	}
-	// }()
+func (r *repository) createBlendFile(ctx context.Context, filePath string, profile *rbtypes.Profile) error {
+	if !strings.HasSuffix(filePath, ".blend") {
+		return errors.New("filename must have .blend extension")
+	}
 
-	// if err := driver.Create(ctx); err != nil {
-	// 	return uuid.Nil, err
-	// }
+	resolved, err := r.rbDriver.ResolveProfiles(ctx, &rbtypes.ResolveProfilesOpts{
+		Profiles: []*rbtypes.Profile{profile},
+	})
+	if err != nil {
+		return err
+	}
 
-	// id := uuid.New()
-	// if err := projectsettings.Save(&projectsettings.ProjectSettings{
-	// 	ID:   id,
-	// 	Name: opts.DisplayName,
-	// }, filepath.Join(opts.Path, projectsettings.FileName)); err != nil {
-	// 	return uuid.Nil, err
-	// }
+	if err := r.blender.Create(ctx, &rbtypes.CreateOpts{
+		BlenderOpts: rbtypes.BlenderOpts{
+			BlendFile: &rbtypes.BlendFile{
+				Path:         filePath,
+				Dependencies: resolved.Installations[0],
+			},
+			Background: true,
+		},
+	}); err != nil {
+		return err
+	}
 
-	// return id, nil
+	return nil
+}
 
-	return uuid.New(), nil
+func createIgnoreFile(path string) error {
+	if err := os.MkdirAll(path, os.ModePerm); err != nil {
+		return err
+	}
+
+	file, err := os.Create(filepath.Join(path, types.IgnoreFileName))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return nil
+}
+
+func removeIgnoreFile(path string) error {
+	return os.Remove(filepath.Join(path, types.IgnoreFileName))
 }

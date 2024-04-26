@@ -7,7 +7,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend/pkg/reference"
+	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
+
+const IgnoreFileName = ".rocketignore"
 
 type (
 	Project struct {
@@ -84,3 +87,46 @@ type (
 		Close() error
 	}
 )
+
+func (p *Project) Profile() *rbtypes.Profile {
+	dependencies := make([]*rbtypes.Dependency, 0, len(p.Addons)+1)
+	dependencies = append(dependencies, &rbtypes.Dependency{
+		Reference: p.Build,
+		Type:      rbtypes.PackageBuild,
+	})
+
+	for _, addon := range p.Addons {
+		dependencies = append(dependencies, &rbtypes.Dependency{
+			Reference: addon,
+			Type:      rbtypes.PackageAddon,
+		})
+	}
+
+	return &rbtypes.Profile{
+		Dependencies: dependencies,
+	}
+}
+
+func (p *Project) Detail() *Detail {
+	return &Detail{
+		ID:            p.ID,
+		Name:          p.Name,
+		Tags:          p.Tags,
+		ThumbnailPath: p.ThumbnailPath,
+		SplashPath:    p.SplashPath,
+	}
+}
+
+func (p *Project) HasDependency(dep reference.Reference) bool {
+	if p.Build == dep {
+		return true
+	}
+
+	for _, addon := range p.Addons {
+		if addon == dep {
+			return true
+		}
+	}
+
+	return false
+}

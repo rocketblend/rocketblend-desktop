@@ -12,27 +12,26 @@ func (r *repository) UpdateProject(ctx context.Context, opts *types.UpdateProjec
 		return err
 	}
 
-	// settings := project.Settings()
-	// if opts.Name != nil {
-	// 	settings.Name = *opts.Name
-	// }
+	detail := project.Detail()
+	if opts.Name != nil {
+		detail.Name = *opts.Name
+	}
 
-	// if opts.Tags != nil {
-	// 	settings.Tags = *opts.Tags
-	// }
+	if opts.Tags != nil {
+		detail.Tags = *opts.Tags
+	}
 
-	// if opts.ThumbnailPath != nil {
-	// 	settings.ThumbnailPath = *opts.ThumbnailPath
-	// }
+	if opts.ThumbnailPath != nil {
+		detail.ThumbnailPath = *opts.ThumbnailPath
+	}
 
-	// if opts.SplashPath != nil {
-	// 	settings.SplashPath = *opts.SplashPath
-	// }
+	if opts.SplashPath != nil {
+		detail.SplashPath = *opts.SplashPath
+	}
 
-	// filePath := filepath.Join(project.Path, projectsettings.FileName)
-	// if err := projectsettings.Save(settings, filePath); err != nil {
-	// 	return err
-	// }
+	if err := r.saveDetail(project.Path, detail); err != nil {
+		return err
+	}
 
 	r.emitEvent(ctx, project.ID, UpdateEventChannel)
 
