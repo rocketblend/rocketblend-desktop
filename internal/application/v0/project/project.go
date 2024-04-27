@@ -184,10 +184,7 @@ func New(opts ...Option) (*repository, error) {
 				"reference": index.Reference,
 			})
 
-			// TODO: Pass context from watcher
 			return options.Store.Insert(context.Background(), index)
-
-			return nil
 		}),
 		watcher.WithRemoveObjectFunc(func(removePath string) error {
 			return options.Store.RemoveByReference(context.Background(), path.Clean(removePath))

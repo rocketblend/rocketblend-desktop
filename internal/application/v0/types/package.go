@@ -63,7 +63,7 @@ type (
 		ID uuid.UUID `json:"id"`
 	}
 
-	PackageRepoistory interface {
+	Catalog interface {
 		GetPackage(ctx context.Context, opts *GetPackageOpts) (*GetPackageResponse, error)
 		ListPackages(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error) // TODO: Change opts struct.
 

@@ -70,17 +70,17 @@ type (
 		ID uuid.UUID `json:"id"`
 	}
 
-	ProjectRepository interface {
-		Get(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error)
-		List(ctx context.Context, opts ...listoption.ListOption) (*ListProjectsResponse, error)
+	Portfolio interface {
+		GetProject(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error)
+		ListProjects(ctx context.Context, opts ...listoption.ListOption) (*ListProjectsResponse, error)
 
-		Create(ctx context.Context, opts *CreateProjectOpts) (*CreateProjectResult, error)
-		Update(ctx context.Context, opts *UpdateProjectOpts) error
-		AddPackage(ctx context.Context, opts *AddProjectPackageOpts) error
-		RemovePackage(ctx context.Context, opts *RemoveProjectPackageOpts) error
+		CreateProject(ctx context.Context, opts *CreateProjectOpts) (*CreateProjectResult, error)
+		UpdateProject(ctx context.Context, opts *UpdateProjectOpts) error
+		AddProjectPackage(ctx context.Context, opts *AddProjectPackageOpts) error
+		RemoveProjectPackage(ctx context.Context, opts *RemoveProjectPackageOpts) error
 
-		//Render(ctx context.Context, id uuid.UUID) error
-		Run(ctx context.Context, opts *RunProjectOpts) error
+		//RenderProject(ctx context.Context, id uuid.UUID) error
+		RunProject(ctx context.Context, opts *RunProjectOpts) error
 
 		Refresh(ctx context.Context) error
 
