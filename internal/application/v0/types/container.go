@@ -1,27 +1,20 @@
 package types
 
-import (
-	"github.com/rocketblend/rocketblend-desktop/internal/application/eventservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/metricservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/operationservice"
-	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
-)
-
 type (
 	Container interface {
-		GetApplicationConfigurator() (Configurator, error)
+		// GetLogger() (Logger, error)
+		// GetValidator() (Validator, error)
 
-		GetDispatcher() (eventservice.Service, error)
-		GetTracker() (metricservice.Service, error)
+		GetDispatcher() (Dispatcher, error)
+		GetTracker() (Tracker, error)
+		GetOperator() (Operator, error)
 
+		GetConfigurator() (Configurator, error)
 		GetStore() (Store, error)
 		GetPortfolio() (Portfolio, error)
 		GetCatalog() (Catalog, error)
-		GetOperator() (operationservice.Service, error)
 
-		Preload() error
+		//Preload() error
 		Close() error
-
-		rbtypes.Container
 	}
 )
