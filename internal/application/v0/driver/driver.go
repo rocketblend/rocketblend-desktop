@@ -4,44 +4,33 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"sync"
 	"time"
 
-	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/configurator"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/dispatcher"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/operator"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/project"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/tracker"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
-	rbcontainer "github.com/rocketblend/rocketblend/pkg/container"
 	rbruntime "github.com/rocketblend/rocketblend/pkg/runtime"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
-	rbvalidator "github.com/rocketblend/rocketblend/pkg/validator"
 )
 
 type (
+	dependecies struct {
+		logger    types.Logger
+		validator types.Validator
+
+		dispatcher types.Dispatcher
+		tracker    types.Tracker
+		operator   types.Operator
+
+		portfolio types.Portfolio
+		catalog   types.Catalog
+
+		configurator   types.Configurator
+		rbConfigurator rbtypes.Configurator
+	}
+
 	Options struct {
-		Logger    types.Logger
-		Validator types.Validator
-		Store     types.Store
-
-		// Dispatcher types.Dispatcher
-		// Tracker    types.Tracker
-		// Operator   types.Operator
-
-		// RBConfigurator rbtypes.Configurator
-
-		// Configurator types.Configurator
-
-		// Portfolio    types.Portfolio
-		// Catalog      types.Catalog
-
-		ApplicationName string
-		Development     bool
+		Container types.Container
 
 		Writer   buffermanager.BufferManager // TODO: Improve this
 		Platform rbruntime.Platform
@@ -56,13 +45,12 @@ type (
 
 		dispatcher types.Dispatcher
 		tracker    types.Tracker
-		store      types.Store
+		operator   types.Operator
 
-		operator     types.Operator
-		configurator types.Configurator
-		portfolio    types.Portfolio
-		catalog      types.Catalog
+		portfolio types.Portfolio
+		catalog   types.Catalog
 
+		configurator   types.Configurator
 		rbConfigurator rbtypes.Configurator
 
 		ctx               context.Context
@@ -75,98 +63,31 @@ type (
 )
 
 func New(opts ...Option) (*Driver, error) {
-	options := &Options{
-		Logger:          logger.NoOp(),
-		Validator:       rbvalidator.New(),
-		ApplicationName: types.ApplicationName,
-	}
+	options := &Options{}
 
 	for _, opt := range opts {
 		opt(options)
 	}
 
-	if options.Store == nil {
-		return nil, errors.New("store is required")
+	if options.Container == nil {
+		return nil, errors.New("container is required")
 	}
 
-	dispatcher, err := dispatcher.New(
-		dispatcher.WithLogger(options.Logger),
-	)
+	dependencies, err := setupDependencies(options.Container)
 	if err != nil {
-		return nil, err
-	}
-
-	tracker, err := tracker.New(
-		tracker.WithLogger(options.Logger),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	operator, err := operator.New(
-		operator.WithLogger(options.Logger),
-		operator.WithDispatcher(dispatcher),
-		operator.WithStore(options.Store),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	applicationDir, err := setupApplicationDir(options.ApplicationName, options.Development)
-	if err != nil {
-		return nil, fmt.Errorf("failed to setup application directory: %w", err)
-	}
-
-	configurator, err := configurator.New(
-		configurator.WithLogger(options.Logger),
-		configurator.WithValidator(options.Validator),
-		configurator.WithLocation(applicationDir),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	container, err := rbcontainer.New(
-		rbcontainer.WithLogger(options.Logger),
-		rbcontainer.WithValidator(options.Validator),
-		rbcontainer.WithDevelopmentMode(options.Development),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create rocketblend container: %w", err)
-	}
-
-	rbConfigurator, err := container.GetConfigurator()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get rocketblend configurator: %w", err)
-	}
-
-	rbRepository, err := container.GetRepository()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get rocketblend repository: %w", err)
-	}
-
-	portfolio, err := project.New(
-		project.WithLogger(options.Logger),
-		project.WithValidator(options.Validator),
-		project.WithConfigurator(configurator),
-		project.WithRocketBlendConfigurator(rbConfigurator),
-		project.WithStore(options.Store),
-	)
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to setup dependencies: %w", err)
 	}
 
 	return &Driver{
-		logger:            options.Logger,
-		validator:         options.Validator,
-		store:             options.Store,
-		dispatcher:        dispatcher,
-		tracker:           tracker,
-		operator:          operator,
-		configurator:      configurator,
-		rbConfigurator:    rbConfigurator,
-		portfolio:         portfolio,
-		catalog:           options.Catalog,
+		logger:            dependencies.logger,
+		validator:         dependencies.validator,
+		dispatcher:        dependencies.dispatcher,
+		tracker:           dependencies.tracker,
+		operator:          dependencies.operator,
+		portfolio:         dependencies.portfolio,
+		catalog:           dependencies.catalog,
+		configurator:      dependencies.configurator,
+		rbConfigurator:    dependencies.rbConfigurator,
 		events:            options.Writer,
 		platform:          options.Platform,
 		args:              options.Args,
@@ -174,20 +95,61 @@ func New(opts ...Option) (*Driver, error) {
 	}, nil
 }
 
-func setupApplicationDir(name string, development bool) (string, error) {
-	userConfigDir, err := os.UserConfigDir()
+func setupDependencies(container types.Container) (*dependecies, error) {
+	logger, err := container.GetLogger()
 	if err != nil {
-		return "", fmt.Errorf("cannot find config directory: %v", err)
+		return nil, err
 	}
 
-	appDir := filepath.Join(userConfigDir, name)
-	if development {
-		appDir = filepath.Join(appDir, "dev")
+	validator, err := container.GetValidator()
+	if err != nil {
+		return nil, err
 	}
 
-	if err := os.MkdirAll(appDir, os.ModePerm); err != nil {
-		return "", fmt.Errorf("failed to create app directory: %w", err)
+	dispatcher, err := container.GetDispatcher()
+	if err != nil {
+		return nil, err
 	}
 
-	return appDir, nil
+	tracker, err := container.GetTracker()
+	if err != nil {
+		return nil, err
+	}
+
+	operator, err := container.GetOperator()
+	if err != nil {
+		return nil, err
+	}
+
+	configurator, err := container.GetConfigurator()
+	if err != nil {
+		return nil, err
+	}
+
+	portfolio, err := container.GetPortfolio()
+	if err != nil {
+		return nil, err
+	}
+
+	catalog, err := container.GetCatalog()
+	if err != nil {
+		return nil, err
+	}
+
+	rbConfigurator, err := container.GetRBConfigurator()
+	if err != nil {
+		return nil, err
+	}
+
+	return &dependecies{
+		logger:         logger,
+		validator:      validator,
+		dispatcher:     dispatcher,
+		tracker:        tracker,
+		operator:       operator,
+		configurator:   configurator,
+		rbConfigurator: rbConfigurator,
+		portfolio:      portfolio,
+		catalog:        catalog,
+	}, nil
 }

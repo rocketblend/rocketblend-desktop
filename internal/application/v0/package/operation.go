@@ -6,16 +6,16 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
-// func (r *Repository) AppendOperation(ctx context.Context, id uuid.UUID, opid uuid.UUID) error {
-// 	pack, err := r.get(ctx, id)
-// 	if err != nil {
-// 		return err
-// 	}
+func (r *Repository) AddPackageOperation(ctx context.Context, opts *types.AddPackageOperationOpts) error {
+	pack, err := r.get(ctx, opts.ID)
+	if err != nil {
+		return err
+	}
 
-// 	pack.Operations = append(pack.Operations, opid.String())
+	pack.Operations = append(pack.Operations, opts.OperationID.String())
 
-// 	return r.insert(ctx, pack)
-// }
+	return r.insert(ctx, pack)
+}
 
 func (r *Repository) insert(ctx context.Context, pack *types.Package) error {
 	if err := ctx.Err(); err != nil {
