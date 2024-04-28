@@ -3,6 +3,11 @@ package types
 import "context"
 
 type (
+	Eventer interface {
+		StopPropagation()
+		IsPropagationStopped() bool
+	}
+
 	EventListener struct {
 		ID    string
 		Count *int

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/events"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 	"github.com/rocketblend/rocketblend/pkg/reference"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
@@ -43,7 +44,7 @@ func (r *Repository) CreateProject(ctx context.Context, opts *types.CreateProjec
 		return nil, err
 	}
 
-	r.emitEvent(ctx, id, CreateEventChannel)
+	r.emitEvent(ctx, id, events.ProjectCreateChannel)
 
 	return &types.CreateProjectResult{
 		ID: id,

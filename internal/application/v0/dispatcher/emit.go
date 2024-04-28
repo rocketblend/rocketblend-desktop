@@ -8,6 +8,10 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
+type (
+	handle = func(types.Eventer) error
+)
+
 // EmitEvent fires an event
 func (d *Dispatcher) EmitEvent(ctx context.Context, name string, params ...interface{}) (err error) {
 	d.logger.Trace("firing event", map[string]interface{}{"event": name})
@@ -91,7 +95,7 @@ func (d *Dispatcher) callHandle(f handle, params ...interface{}) (bool, error) {
 		return false, errors.New("handle function requires exactly one parameter")
 	}
 
-	event, ok := params[0].(Eventer)
+	event, ok := params[0].(types.Eventer)
 	if !ok {
 		return false, errors.New("parameter is not of type Eventer")
 	}

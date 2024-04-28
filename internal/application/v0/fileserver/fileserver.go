@@ -7,8 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/flowshot-io/x/pkg/logger"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
@@ -26,9 +25,13 @@ var validExtensions = map[string]bool{
 }
 
 type (
+	dependecies struct {
+		logger types.Logger
+		store  types.Store
+	}
+
 	Options struct {
-		Logger       types.Logger
-		Store        types.Store
+		Container    types.Container
 		CacheTimeout int
 	}
 
@@ -41,15 +44,9 @@ type (
 	}
 )
 
-func WithLogger(logger types.Logger) Option {
+func WithContainer(container types.Container) Option {
 	return func(o *Options) {
-		o.Logger = logger
-	}
-}
-
-func WithStore(store types.Store) Option {
-	return func(o *Options) {
-		o.Store = store
+		o.Container = container
 	}
 }
 
@@ -61,7 +58,6 @@ func WithCacheTimeout(timeout int) Option {
 
 func New(opts ...Option) (*Handler, error) {
 	options := &Options{
-		Logger:       logger.NoOp(),
 		CacheTimeout: 3600, // 1 hour
 	}
 
@@ -69,13 +65,18 @@ func New(opts ...Option) (*Handler, error) {
 		opt(options)
 	}
 
-	if options.Store == nil {
-		return nil, errors.New("store is required")
+	if options.Container == nil {
+		return nil, errors.New("container is required")
+	}
+
+	dependencies, err := setupDependencies(options.Container)
+	if err != nil {
+		return nil, fmt.Errorf("failed to setup dependencies: %w", err)
 	}
 
 	return &Handler{
-		logger:       options.Logger,
-		store:        options.Store,
+		logger:       dependencies.logger,
+		store:        dependencies.store,
 		cacheTimeout: options.CacheTimeout,
 	}, nil
 }
@@ -137,4 +138,21 @@ func (h *Handler) respondWithError(w http.ResponseWriter, statusCode int, messag
 func isValidWebImage(filePath string) bool {
 	ext := strings.ToLower(filepath.Ext(filePath))
 	return validExtensions[ext]
+}
+
+func setupDependencies(container types.Container) (*dependecies, error) {
+	logger, err := container.GetLogger()
+	if err != nil {
+		return nil, err
+	}
+
+	store, err := container.GetStore()
+	if err != nil {
+		return nil, err
+	}
+
+	return &dependecies{
+		logger: logger,
+		store:  store,
+	}, nil
 }

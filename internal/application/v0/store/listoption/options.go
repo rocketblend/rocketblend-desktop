@@ -5,9 +5,10 @@ import (
 	"time"
 
 	"github.com/blevesearch/bleve/v2"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/indextype"
 )
 
+// TODO: This package should be moved/changed.
 type (
 	ListOptions struct {
 		Query     string

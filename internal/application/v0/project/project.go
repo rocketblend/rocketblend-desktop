@@ -11,10 +11,10 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
-	"github.com/rocketblend/rocketblend/pkg/helpers"
+	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
+	rbhelpers "github.com/rocketblend/rocketblend/pkg/helpers"
 	"github.com/rocketblend/rocketblend/pkg/reference"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
@@ -224,7 +224,7 @@ func (r *Repository) Close() error {
 }
 
 func (r *Repository) saveDetail(path string, detail *types.Detail) error {
-	if err := helpers.Save(r.validator, filepath.Join(path, types.DetailFileName), detail); err != nil {
+	if err := rbhelpers.Save(r.validator, filepath.Join(path, types.DetailFileName), detail); err != nil {
 		return err
 	}
 
@@ -257,7 +257,7 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		return nil, err
 	}
 
-	modTime, err := util.GetModTime(path)
+	modTime, err := helpers.GetModTime(path)
 	if err != nil {
 		return nil, err
 	}
@@ -290,7 +290,7 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 
 func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild reference.Reference) (*rbtypes.Profile, error) {
 	profileFilePath := filepath.Join(path, rbtypes.ProfileFileName)
-	profile, err := helpers.Load[rbtypes.Profile](validator, profileFilePath)
+	profile, err := rbhelpers.Load[rbtypes.Profile](validator, profileFilePath)
 	if err == nil {
 		return profile, nil
 	}
@@ -300,7 +300,7 @@ func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild 
 			Dependencies: []*rbtypes.Dependency{{Reference: defaultBuild, Type: rbtypes.PackageBuild}},
 		}
 
-		if err := helpers.Save(validator, profileFilePath, profile); err != nil {
+		if err := rbhelpers.Save(validator, profileFilePath, profile); err != nil {
 			return nil, err
 		}
 
@@ -312,7 +312,7 @@ func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild 
 
 func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath string) (*types.Detail, error) {
 	detailFilePath := filepath.Join(path, types.DetailFileName)
-	detail, err := helpers.Load[types.Detail](validator, detailFilePath)
+	detail, err := rbhelpers.Load[types.Detail](validator, detailFilePath)
 	if err == nil {
 		return detail, nil
 	}
@@ -320,10 +320,10 @@ func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath 
 	if errors.Is(err, os.ErrNotExist) {
 		detail = &types.Detail{
 			ID:   uuid.New(),
-			Name: util.FilenameToDisplayName(blendFilePath),
+			Name: helpers.FilenameToDisplayName(blendFilePath),
 		}
 
-		if err := helpers.Save(validator, detailFilePath, detail); err != nil {
+		if err := rbhelpers.Save(validator, detailFilePath, detail); err != nil {
 			return nil, err
 		}
 

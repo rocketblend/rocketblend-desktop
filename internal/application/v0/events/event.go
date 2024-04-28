@@ -1,16 +1,9 @@
-package eventservice
+package events
 
 type (
-	Eventer interface {
-		StopPropagation()
-		IsPropagationStopped() bool
-	}
-
 	Event struct {
 		stopped bool
 	}
-
-	handle = func(Eventer) error
 )
 
 // StopPropagation Stops the propagation of the event to further event listeners

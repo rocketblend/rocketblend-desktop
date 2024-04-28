@@ -1,4 +1,4 @@
-package application
+package eventwriter
 
 import (
 	"encoding/json"
@@ -6,18 +6,27 @@ import (
 	"io"
 	"time"
 
-	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
+	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
 )
 
-type EventBufferWriter struct {
-	bufferManager buffermanager.BufferManager
+type (
+	Event struct {
+		Level   string                 `json:"level"`
+		Message string                 `json:"message"`
+		Time    time.Time              `json:"time"`
+		Fields  map[string]interface{} `json:"fields"`
+	}
+
+	EventWriter struct {
+		bufferManager buffer.BufferManager
+	}
+)
+
+func New(bm buffer.BufferManager) io.Writer {
+	return &EventWriter{bufferManager: bm}
 }
 
-func BufferWriter(bm buffermanager.BufferManager) io.Writer {
-	return &EventBufferWriter{bufferManager: bm}
-}
-
-func (cw *EventBufferWriter) Write(p []byte) (n int, err error) {
+func (cw *EventWriter) Write(p []byte) (n int, err error) {
 	var logData map[string]interface{}
 	if err := json.Unmarshal(p, &logData); err != nil {
 		return 0, err
@@ -39,7 +48,7 @@ func (cw *EventBufferWriter) Write(p []byte) (n int, err error) {
 		return 0, err
 	}
 
-	cw.bufferManager.AddData(LogEvent{
+	cw.bufferManager.AddData(Event{
 		Level:   level,
 		Message: message,
 		Time:    parsedTime,

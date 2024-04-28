@@ -4,8 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
@@ -66,20 +65,19 @@ func (d *Driver) ListPackages(opts ListPackagesOpts) (*ListPackagesResult, error
 
 	category := ""
 	if opts.PackageType != "" {
-		// TODO: Might not work after refactor.
 		category = opts.PackageType
 	}
 
-	var state *int = nil
-	if opts.Installed {
-		stateInt := int(pack.Installed)
-		state = &stateInt
-	}
+	// var state *int = nil
+	// if opts.Installed {
+	// 	stateInt := int(pack.Installed)
+	// 	state = &stateInt
+	// }
 
 	response, err := d.catalog.ListPackages(ctx, []listoption.ListOption{
 		listoption.WithQuery(opts.Query),
 		listoption.WithCategory(category),
-		listoption.WithState(state),
+		//listoption.WithState(state),
 	}...)
 	if err != nil {
 		d.logger.Error("failed to find all packages", map[string]interface{}{"error": err.Error()})

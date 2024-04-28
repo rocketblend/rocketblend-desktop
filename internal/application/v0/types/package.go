@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/listoption"
 	"github.com/rocketblend/rocketblend/pkg/reference"
 	"github.com/rocketblend/rocketblend/pkg/semver"
 	"github.com/rocketblend/rocketblend/pkg/types"

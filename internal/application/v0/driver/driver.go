@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
 	rbruntime "github.com/rocketblend/rocketblend/pkg/runtime"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
@@ -32,7 +32,7 @@ type (
 	Options struct {
 		Container types.Container
 
-		Writer   buffermanager.BufferManager // TODO: Improve this
+		Writer   buffer.BufferManager // TODO: Improve this
 		Platform rbruntime.Platform
 		Args     []string
 	}
@@ -55,7 +55,7 @@ type (
 
 		ctx               context.Context
 		heartbeatInterval time.Duration // TODO: Remove this
-		events            buffermanager.BufferManager
+		events            buffer.BufferManager
 		cancelTokens      sync.Map
 		platform          rbruntime.Platform
 		args              []string

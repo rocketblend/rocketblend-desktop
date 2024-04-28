@@ -7,13 +7,9 @@ import (
 	"github.com/blevesearch/bleve/v2"
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/events"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
-)
-
-const (
-	InsertEventChannel = "searchstore.insert"
-	RemoveEventChannel = "searchstore.remove"
 )
 
 type (
@@ -84,7 +80,7 @@ func (s *Store) Insert(ctx context.Context, index *types.Index) error {
 
 	if existing != nil {
 		event := newEvent(index.ID, index.Type)
-		if err := s.dispatcher.EmitEvent(ctx, InsertEventChannel, event); err != nil {
+		if err := s.dispatcher.EmitEvent(ctx, events.StoreInsertChannel, event); err != nil {
 			s.logger.Error("error emitting event", map[string]interface{}{
 				"err": err,
 			})
@@ -182,7 +178,7 @@ func (s *Store) remove(ctx context.Context, id uuid.UUID) error {
 	}
 
 	event := newEvent(index.ID, index.Type)
-	if err := s.dispatcher.EmitEvent(ctx, RemoveEventChannel, event); err != nil {
+	if err := s.dispatcher.EmitEvent(ctx, events.StoreRemoveChannel, event); err != nil {
 		s.logger.Error("error emitting event", map[string]interface{}{
 			"err": err,
 		})

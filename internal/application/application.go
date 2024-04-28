@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
-	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/container"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/fileserver"
+	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
+	"github.com/rocketblend/rocketblend-desktop/internal/eventwriter"
 	"github.com/rocketblend/rocketblend/pkg/runtime"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -35,24 +36,16 @@ type (
 )
 
 func New(assets fs.FS) (Application, error) {
-	events := buffermanager.New(buffermanager.WithMaxBufferSize(50))
+	events := buffer.New(buffer.WithMaxBufferSize(50))
 	logger := logger.New(
 		logger.WithLogLevel("debug"),
 		logger.WithWriters(
 			logger.PrettyWriter(),
-			BufferWriter(events),
+			eventwriter.New(events),
 		),
 	)
 
 	id, err := uuid.Parse(id)
-	if err != nil {
-		return nil, err
-	}
-
-	factory, err := factory.New(
-		factory.WithLogger(logger),
-		factory.WithWatcherDebounceDuration(250*time.Millisecond),
-	)
 	if err != nil {
 		return nil, err
 	}
@@ -62,15 +55,23 @@ func New(assets fs.FS) (Application, error) {
 		return nil, fmt.Errorf("unsupported platform")
 	}
 
-	// TOOD: use options.
-	driver, err := NewDriver(factory, events, platform)
+	container, err := container.New(
+		container.WithLogger(logger),
+		container.WithDevelopmentMode(true), // TODO: use build flag.
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	// TOOD: just pass in service needed.
-	cacheTimeout := 3600 // 1 hour
-	handler, err := NewFileLoader(logger, factory, cacheTimeout)
+	handler, err := fileserver.New(
+		fileserver.WithContainer(container),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// TOOD: use options.
+	driver, err := NewDriver(factory, events, platform)
 	if err != nil {
 		return nil, err
 	}

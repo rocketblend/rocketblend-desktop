@@ -7,23 +7,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/eventservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/events"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/eventwriter"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type (
 	LaunchEvent struct {
 		Args []string `json:"args"`
-	}
-
-	LogEvent struct {
-		Level   string                 `json:"level"`
-		Message string                 `json:"message"`
-		Time    time.Time              `json:"time"`
-		Fields  map[string]interface{} `json:"fields"`
 	}
 )
 
@@ -32,18 +24,18 @@ func (d *Driver) setupDriverEventHandlers() error {
 		return err
 	}
 
-	if err := d.subscribeToEvent(searchstore.InsertEventChannel, d.handleStoreInsertEvent); err != nil {
+	if err := d.subscribeToEvent(events.StoreInsertChannel, d.handleStoreInsertEvent); err != nil {
 		return err
 	}
 
-	if err := d.subscribeToEvent(projectservice.RunEventChannel, d.handleProjectRunEvent); err != nil {
+	if err := d.subscribeToEvent(events.ProjectRunChannel, d.handleProjectRunEvent); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (d *Driver) subscribeToEvent(channel string, handler func(eventservice.Eventer) error) error {
+func (d *Driver) subscribeToEvent(channel string, handler func(types.Eventer) error) error {
 	if err := d.ctx.Err(); err != nil {
 		return err
 	}
@@ -60,8 +52,8 @@ func (d *Driver) subscribeToEvent(channel string, handler func(eventservice.Even
 	return nil
 }
 
-func (d *Driver) handleProjectRunEvent(e eventservice.Eventer) error {
-	ev, ok := e.(*projectservice.Event)
+func (d *Driver) handleProjectRunEvent(e types.Eventer) error {
+	ev, ok := e.(*events.ProjectEvent)
 	if !ok {
 		return errors.New("invalid event type")
 	}
@@ -77,13 +69,13 @@ func (d *Driver) handleProjectRunEvent(e eventservice.Eventer) error {
 	return nil
 }
 
-func (d *Driver) handleStoreInsertEvent(e eventservice.Eventer) error {
-	ev, ok := e.(*searchstore.Event)
+func (d *Driver) handleStoreInsertEvent(e types.Eventer) error {
+	ev, ok := e.(*events.StoreEvent)
 	if !ok {
 		return errors.New("invalid event type")
 	}
 
-	runtime.EventsEmit(d.ctx, searchstore.InsertEventChannel, ev)
+	runtime.EventsEmit(d.ctx, events.StoreInsertChannel, ev)
 	return nil
 }
 
@@ -132,7 +124,7 @@ func (d *Driver) listenToLogEvents() {
 		default:
 			data, ok := d.events.GetNextData()
 			if ok {
-				if logEvent, isLogEvent := data.(LogEvent); isLogEvent {
+				if logEvent, isLogEvent := data.(eventwriter.Event); isLogEvent {
 					runtime.EventsEmit(d.ctx, "debug.log", logEvent)
 				}
 			} else {

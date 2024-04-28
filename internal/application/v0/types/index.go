@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/indextype"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/listoption"
 )
 
 type (

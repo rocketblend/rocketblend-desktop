@@ -6,15 +6,15 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
-	"github.com/rocketblend/rocketblend/pkg/helpers"
+	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
+	rbhelpers "github.com/rocketblend/rocketblend/pkg/helpers"
 	"github.com/rocketblend/rocketblend/pkg/reference"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
 func load(configurator types.RBConfigurator, validator types.Validator, path string) (*types.Package, error) {
-	definition, err := helpers.Load[types.Definition](validator, path)
+	definition, err := rbhelpers.Load[types.Definition](validator, path)
 	if err != nil {
 		return nil, err
 	}
@@ -29,12 +29,12 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 		return nil, fmt.Errorf("failed to convert path to reference: %w", err)
 	}
 
-	modTime, err := util.GetModTime(path)
+	modTime, err := helpers.GetModTime(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get mod time: %w", err)
 	}
 
-	id, err := util.StringToUUID(reference.String())
+	id, err := helpers.StringToUUID(reference.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert reference to UUID: %w", err)
 	}

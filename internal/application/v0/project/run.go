@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/events"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
@@ -45,7 +46,7 @@ func (r *Repository) run(ctx context.Context, id uuid.UUID) error {
 		}
 	}()
 
-	r.emitEvent(ctx, id, RunEventChannel)
+	r.emitEvent(ctx, id, events.ProjectRunChannel)
 
 	return nil
 }

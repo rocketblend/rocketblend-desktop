@@ -3,6 +3,7 @@ package project
 import (
 	"context"
 
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/events"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
@@ -33,7 +34,7 @@ func (r *Repository) UpdateProject(ctx context.Context, opts *types.UpdateProjec
 		return err
 	}
 
-	r.emitEvent(ctx, project.ID, UpdateEventChannel)
+	r.emitEvent(ctx, project.ID, events.ProjectUpdateChannel)
 
 	return nil
 }

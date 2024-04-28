@@ -3,8 +3,8 @@ package project
 import (
 	"context"
 
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/indextype"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 

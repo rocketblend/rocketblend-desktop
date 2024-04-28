@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/configurator"
@@ -31,6 +32,7 @@ type (
 		Validator       types.Validator
 		ApplicationName string
 		Development     bool
+		WatcherDebounce time.Duration
 	}
 
 	Option func(*Options)
@@ -51,6 +53,8 @@ type (
 		configuratorHolder *holder[configurator.Configurator]
 		portfolioHolder    *holder[project.Repository]
 		catalogHolder      *holder[pack.Repository]
+
+		watcherDebounce time.Duration
 	}
 )
 
@@ -83,6 +87,7 @@ func New(opts ...Option) (*Container, error) {
 		Logger:          logger.NoOp(),
 		Validator:       validator.New(),
 		ApplicationName: types.ApplicationName,
+		WatcherDebounce: 250 * time.Millisecond,
 	}
 
 	for _, opt := range opts {
@@ -114,6 +119,7 @@ func New(opts ...Option) (*Container, error) {
 		validator:          options.Validator,
 		rbContainer:        rbContainer,
 		applicationDir:     applicationDir,
+		watcherDebounce:    options.WatcherDebounce,
 		dispatcherHolder:   &holder[dispatcher.Dispatcher]{}, // TODO: Must be a better way to do all these.
 		trackerHolder:      &holder[tracker.Tracker]{},
 		operatorHolder:     &holder[operator.Operator]{},

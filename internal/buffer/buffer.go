@@ -1,4 +1,4 @@
-package buffermanager
+package buffer
 
 type (
 	Data interface {

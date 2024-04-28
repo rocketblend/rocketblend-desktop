@@ -153,6 +153,7 @@ func (c *Container) GetPortfolio() (types.Portfolio, error) {
 			project.WithRocketBlendRepository(rbRepository),
 			project.WithRocketBlendDriver(rbDriver),
 			project.WithBlender(blender),
+			project.WithWatcherDebounceDuration(c.watcherDebounce),
 		)
 	})
 	if err != nil {
@@ -196,6 +197,7 @@ func (c *Container) GetCatalog() (types.Catalog, error) {
 			pack.WithDispatcher(dispatcher),
 			pack.WithRocketBlendRepository(rbRepository),
 			pack.WithRocketBlendConfigurator(rbConfigurator),
+			pack.WithWatcherDebounceDuration(c.watcherDebounce),
 		)
 	})
 	if err != nil {

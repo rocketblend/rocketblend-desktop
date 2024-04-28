@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
 	"github.com/rocketblend/rocketblend/pkg/reference"
 )
 
@@ -113,7 +113,7 @@ func (d *Driver) CreateProject(opts CreateProjectOpts) (*CreateProjectResult, er
 		return nil, err
 	}
 
-	blendFileName := util.DisplayNameToFilename(opts.Name)
+	blendFileName := helpers.DisplayNameToFilename(opts.Name)
 	path := filepath.Join(projectPath, blendFileName)
 
 	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
