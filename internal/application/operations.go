@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 )
 
 type (

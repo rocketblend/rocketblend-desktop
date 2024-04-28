@@ -1,7 +1,7 @@
 package application
 
 import (
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 )
 
 const (

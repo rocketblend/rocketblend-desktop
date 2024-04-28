@@ -7,8 +7,8 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/container"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/fileserver"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/container"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/fileserver"
 	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
 	"github.com/rocketblend/rocketblend-desktop/internal/eventwriter"
 	"github.com/rocketblend/rocketblend/pkg/runtime"

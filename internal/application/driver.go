@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
 	rbruntime "github.com/rocketblend/rocketblend/pkg/runtime"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
