@@ -7,9 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/rocketblend/rocketblend-desktop/internal/application"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/build"
 	"github.com/rocketblend/rocketblend/pkg/container"
 	"github.com/rocketblend/rocketblend/pkg/helpers"
 	"github.com/rocketblend/rocketblend/pkg/types"
@@ -26,6 +24,8 @@ import (
 //go:embed all:frontend/build
 var assets embed.FS
 
+var version = "dev"
+
 func main() {
 	if err := run(os.Args); err != nil {
 		fmt.Println("Error:", err)
@@ -33,11 +33,9 @@ func main() {
 }
 
 func run(args []string) error {
-	logger := logger.NoOp()
-
 	if len(os.Args) > 1 {
 		var err error
-		if err = open(context.Background(), os.Args[1], logger); err == nil {
+		if err = open(context.Background(), os.Args[1]); err == nil {
 			// If we successfully launched a project, we're done.
 			return nil
 		}
@@ -45,7 +43,11 @@ func run(args []string) error {
 		// If we failed to launch a project directly, open with application.
 	}
 
-	app, err := application.New(assets)
+	app, err := application.New(application.ApplicationOpts{
+		Assets:  assets,
+		Version: version,
+		Args:    args,
+	})
 	if err != nil {
 		return err
 	}
@@ -57,16 +59,9 @@ func run(args []string) error {
 	return nil
 }
 
-func open(ctx context.Context, blendFilePath string, logger logger.Logger) error {
-	development := false
-	if build.Version == "dev" {
-		development = true
-	}
-
+func open(ctx context.Context, blendFilePath string) error {
 	container, err := container.New(
-		container.WithLogger(logger),
 		container.WithApplicationName(types.ApplicationName),
-		container.WithDevelopmentMode(development),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create container: %w", err)

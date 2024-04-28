@@ -18,14 +18,19 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 )
 
-const id = "3088d60d-70ae-47e5-bf1f-cad698da3620"
+const (
+	id    = "3088d60d-70ae-47e5-bf1f-cad698da3620"
+	title = "RocketBlend Desktop"
+)
 
 type (
-	Application interface {
-		Execute() error
+	ApplicationOpts struct {
+		Assets  fs.FS
+		Version string
+		Args    []string
 	}
 
-	application struct {
+	Application struct {
 		id       uuid.UUID
 		platform runtime.Platform
 		driver   *Driver
@@ -34,10 +39,21 @@ type (
 	}
 )
 
-func New(assets fs.FS) (Application, error) {
+func New(opts ApplicationOpts) (*Application, error) {
+	if opts.Assets == nil {
+		return nil, fmt.Errorf("assets are required")
+	}
+
+	logLevel := "info"
+	development := false
+	if opts.Version == "dev" {
+		development = true
+		logLevel = "debug"
+	}
+
 	events := buffer.New(buffer.WithMaxBufferSize(50))
 	logger := logger.New(
-		logger.WithLogLevel("debug"),
+		logger.WithLogLevel(logLevel),
 		logger.WithWriters(
 			logger.PrettyWriter(),
 			eventwriter.New(events),
@@ -56,7 +72,7 @@ func New(assets fs.FS) (Application, error) {
 
 	container, err := container.New(
 		container.WithLogger(logger),
-		container.WithDevelopmentMode(true), // TODO: use build flag.
+		container.WithDevelopmentMode(development),
 	)
 	if err != nil {
 		return nil, err
@@ -73,21 +89,23 @@ func New(assets fs.FS) (Application, error) {
 		WithContainer(container),
 		WithWriter(events),
 		WithPlatform(platform),
+		WithVersion(opts.Version),
+		WithArgs(opts.Args...),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return &application{
+	return &Application{
 		id:       id,
 		platform: platform,
-		assets:   assets,
+		assets:   opts.Assets,
 		driver:   driver,
 		handler:  handler,
 	}, nil
 }
 
-func (a *application) Execute() error {
+func (a *Application) Execute() error {
 	frameless := false
 	if a.platform == runtime.Windows {
 		frameless = true
@@ -95,7 +113,7 @@ func (a *application) Execute() error {
 
 	// Create application with options
 	return wails.Run(&options.App{
-		Title:  "RocketBlend Desktop",
+		Title:  title,
 		Width:  1400,
 		Height: 800,
 		AssetServer: &assetserver.Options{
@@ -107,7 +125,7 @@ func (a *application) Execute() error {
 			Appearance:           mac.DefaultAppearance,
 			WebviewIsTransparent: true,
 			About: &mac.AboutInfo{
-				Title:   "RocketBlend Desktop",
+				Title:   title,
 				Message: "© 2024 RocketBlend",
 			},
 			OnFileOpen: func(filePath string) { fmt.Println(filePath) },

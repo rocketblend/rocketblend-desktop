@@ -34,6 +34,7 @@ type (
 
 		Writer   buffer.BufferManager // TODO: Improve this
 		Platform rbruntime.Platform
+		Version  string
 		Args     []string
 	}
 
@@ -54,6 +55,7 @@ type (
 		rbConfigurator rbtypes.Configurator
 
 		ctx               context.Context
+		version           string
 		heartbeatInterval time.Duration // TODO: Remove this
 		events            buffer.BufferManager
 		cancelTokens      sync.Map
@@ -77,6 +79,12 @@ func WithWriter(writer buffer.BufferManager) Option {
 func WithPlatform(platform rbruntime.Platform) Option {
 	return func(o *Options) {
 		o.Platform = platform
+	}
+}
+
+func WithVersion(version string) Option {
+	return func(o *Options) {
+		o.Version = version
 	}
 }
 
@@ -114,6 +122,7 @@ func NewDriver(opts ...Option) (*Driver, error) {
 		rbConfigurator:    dependencies.rbConfigurator,
 		events:            options.Writer,
 		platform:          options.Platform,
+		version:           options.Version,
 		args:              options.Args,
 		heartbeatInterval: 5000 * time.Millisecond, // 5 seconds
 	}, nil

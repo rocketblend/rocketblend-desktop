@@ -1,7 +1,6 @@
 package application
 
 import (
-	"github.com/rocketblend/rocketblend-desktop/internal/application/build"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
@@ -82,7 +81,7 @@ func (d *Driver) GetDetails() (*Details, error) {
 	}
 
 	return &Details{
-		Version:               build.Version,
+		Version:               d.version,
 		Platform:              d.platform.String(), // TODO: Convert to wails enum.
 		InstallationPath:      rbConfig.InstallationsPath,
 		PackagePath:           rbConfig.PackagesPath,
