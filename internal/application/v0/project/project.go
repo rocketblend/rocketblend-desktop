@@ -11,7 +11,6 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
@@ -30,7 +29,7 @@ type (
 		rbConfigurator types.RBConfigurator
 
 		blender      types.Blender
-		configurator config.Service
+		configurator types.Configurator
 
 		store      types.Store
 		watcher    types.Watcher
@@ -46,7 +45,7 @@ type (
 		RBConfigurator types.RBConfigurator
 
 		Blender      types.Blender
-		Configurator config.Service
+		Configurator types.Configurator
 
 		Store      types.Store
 		Dispatcher types.Dispatcher
@@ -69,13 +68,19 @@ func WithValidator(validator types.Validator) Option {
 	}
 }
 
+func WithStore(store types.Store) Option {
+	return func(o *Options) {
+		o.Store = store
+	}
+}
+
 func WithWatcherDebounceDuration(duration time.Duration) Option {
 	return func(o *Options) {
 		o.WatcherDebounceDuration = duration
 	}
 }
 
-func WithConfigurator(configurator config.Service) Option {
+func WithConfigurator(configurator types.Configurator) Option {
 	return func(o *Options) {
 		o.Configurator = configurator
 	}

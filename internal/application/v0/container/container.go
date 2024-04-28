@@ -70,7 +70,6 @@ func New(opts ...Option) (*Container, error) {
 	rbContainer, err := container.New(
 		container.WithLogger(options.Logger),
 		container.WithValidator(options.Validator),
-		container.WithApplicationName(options.ApplicationName),
 		container.WithDevelopmentMode(options.Development),
 	)
 	if err != nil {
