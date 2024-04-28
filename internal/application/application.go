@@ -7,7 +7,6 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
-	pack "github.com/rocketblend/rocketblend-desktop/internal/application/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/container"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/fileserver"
 	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
@@ -70,8 +69,11 @@ func New(assets fs.FS) (Application, error) {
 		return nil, err
 	}
 
-	// TOOD: use options.
-	driver, err := NewDriver(factory, events, platform)
+	driver, err := NewDriver(
+		WithContainer(container),
+		WithWriter(events),
+		WithPlatform(platform),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -115,8 +117,8 @@ func (a *application) Execute() error {
 			OnSecondInstanceLaunch: a.driver.onSecondInstanceLaunch,
 		},
 		EnumBind: []interface{}{
-			pack.AllPackageTypes,
-			pack.AllPackageStates,
+			//pack.AllPackageTypes,
+			//pack.AllPackageStates,
 		},
 		MinHeight:        580,
 		MinWidth:         800,
