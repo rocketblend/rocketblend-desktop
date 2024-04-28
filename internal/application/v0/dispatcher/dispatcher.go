@@ -15,7 +15,7 @@ type (
 		cancel context.CancelFunc
 	}
 
-	dispatcher struct {
+	Dispatcher struct {
 		logger logger.Logger
 
 		sync.RWMutex
@@ -39,7 +39,7 @@ func WithLogger(logger logger.Logger) Option {
 }
 
 // New creates a new event service
-func New(opts ...Option) (*dispatcher, error) {
+func New(opts ...Option) (*Dispatcher, error) {
 	options := &Options{
 		Logger: logger.NoOp(),
 	}
@@ -48,14 +48,14 @@ func New(opts ...Option) (*dispatcher, error) {
 		o(options)
 	}
 
-	return &dispatcher{
+	return &Dispatcher{
 		logger: options.Logger,
 		events: make(map[string][]types.EventListener),
 	}, nil
 }
 
 // EventExists checks if an event exists
-func (d *dispatcher) EventExists(name string) bool {
+func (d *Dispatcher) EventExists(name string) bool {
 	d.RLock()
 	defer d.RUnlock()
 	_, ok := d.events[name]
@@ -63,7 +63,7 @@ func (d *dispatcher) EventExists(name string) bool {
 }
 
 // ListEvents returns a list of all events
-func (d *dispatcher) ListEvents() []string {
+func (d *Dispatcher) ListEvents() []string {
 	d.RLock()
 	defer d.RUnlock()
 	list := make([]string, 0, len(d.events))
@@ -74,7 +74,7 @@ func (d *dispatcher) ListEvents() []string {
 }
 
 // FilterEvents returns a list of events filtered by a filter function
-func (d *dispatcher) FilterEvents(filterFunc func(string, []types.EventListener) bool) []string {
+func (d *Dispatcher) FilterEvents(filterFunc func(string, []types.EventListener) bool) []string {
 	d.RLock()
 	defer d.RUnlock()
 	var filteredEvents []string
@@ -88,7 +88,7 @@ func (d *dispatcher) FilterEvents(filterFunc func(string, []types.EventListener)
 }
 
 // CountListeners returns the number of listeners for an event
-func (d *dispatcher) CountListeners(eventName string) int {
+func (d *Dispatcher) CountListeners(eventName string) int {
 	d.RLock()
 	defer d.RUnlock()
 	if eventName != "" {
@@ -103,11 +103,11 @@ func (d *dispatcher) CountListeners(eventName string) int {
 }
 
 // Close closes the event service
-func (d *dispatcher) Close() error {
+func (d *Dispatcher) Close() error {
 	// TODO: Wait for all listeners to finish exiting.
 	return nil
 }
 
-func (d *dispatcher) generateListenerID() string {
+func (d *Dispatcher) generateListenerID() string {
 	return uuid.New().String()
 }

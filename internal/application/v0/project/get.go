@@ -3,6 +3,7 @@ package project
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"path"
 	"path/filepath"
 
@@ -11,7 +12,18 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
-func (r *repository) get(ctx context.Context, id uuid.UUID) (*types.Project, error) {
+func (r *Repository) GetProject(ctx context.Context, opts *types.GetProjectOpts) (*types.GetProjectResponse, error) {
+	result, err := r.get(ctx, opts.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get project: %w", err)
+	}
+
+	return &types.GetProjectResponse{
+		Project: result,
+	}, nil
+}
+
+func (r *Repository) get(ctx context.Context, id uuid.UUID) (*types.Project, error) {
 	index, err := r.store.Get(ctx, id)
 	if err != nil {
 		return nil, err

@@ -29,6 +29,10 @@ type (
 		UpdatedAt     time.Time `json:"updatedAt"`
 	}
 
+	GetProjectOpts struct {
+		ID uuid.UUID `json:"id"`
+	}
+
 	GetProjectResponse struct {
 		Project *Project `json:"project,omitempty"`
 	}
@@ -71,7 +75,7 @@ type (
 	}
 
 	Portfolio interface {
-		GetProject(ctx context.Context, id uuid.UUID) (*GetProjectResponse, error)
+		GetProject(ctx context.Context, opts *GetProjectOpts) (*GetProjectResponse, error)
 		ListProjects(ctx context.Context, opts ...listoption.ListOption) (*ListProjectsResponse, error)
 
 		CreateProject(ctx context.Context, opts *CreateProjectOpts) (*CreateProjectResult, error)

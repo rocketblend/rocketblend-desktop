@@ -9,7 +9,7 @@ import (
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
-func (r *repository) Run(ctx context.Context, opts *types.RunProjectOpts) error {
+func (r *Repository) RunProject(ctx context.Context, opts *types.RunProjectOpts) error {
 	if err := r.run(ctx, opts.ID); err != nil {
 		return err
 	}
@@ -17,7 +17,7 @@ func (r *repository) Run(ctx context.Context, opts *types.RunProjectOpts) error 
 	return nil
 }
 
-func (r *repository) run(ctx context.Context, id uuid.UUID) error {
+func (r *Repository) run(ctx context.Context, id uuid.UUID) error {
 	project, err := r.get(ctx, id)
 	if err != nil {
 		return err

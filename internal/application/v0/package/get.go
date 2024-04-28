@@ -7,7 +7,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
-func (r *repository) GetPackage(ctx context.Context, opts *types.GetPackageOpts) (*types.GetPackageResponse, error) {
+func (r *Repository) GetPackage(ctx context.Context, opts *types.GetPackageOpts) (*types.GetPackageResponse, error) {
 	pack, err := r.get(ctx, opts.ID)
 	if err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func (r *repository) GetPackage(ctx context.Context, opts *types.GetPackageOpts)
 	}, nil
 }
 
-func (r *repository) get(ctx context.Context, id uuid.UUID) (*types.Package, error) {
+func (r *Repository) get(ctx context.Context, id uuid.UUID) (*types.Package, error) {
 	index, err := r.store.Get(ctx, id)
 	if err != nil {
 		return nil, err

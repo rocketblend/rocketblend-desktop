@@ -9,7 +9,7 @@ import (
 )
 
 // EmitEvent fires an event
-func (d *dispatcher) EmitEvent(ctx context.Context, name string, params ...interface{}) (err error) {
+func (d *Dispatcher) EmitEvent(ctx context.Context, name string, params ...interface{}) (err error) {
 	d.logger.Trace("firing event", map[string]interface{}{"event": name})
 
 	listeners := d.copyListeners(name)
@@ -26,7 +26,7 @@ func (d *dispatcher) EmitEvent(ctx context.Context, name string, params ...inter
 }
 
 // Broadcast fires an event to all listeners
-func (d *dispatcher) Broadcast(ctx context.Context, params ...interface{}) error {
+func (d *Dispatcher) Broadcast(ctx context.Context, params ...interface{}) error {
 	d.RLock()
 	eventNames := make([]string, 0, len(d.events))
 	for name := range d.events {
@@ -43,7 +43,7 @@ func (d *dispatcher) Broadcast(ctx context.Context, params ...interface{}) error
 	return nil
 }
 
-func (d *dispatcher) copyListeners(name string) []types.EventListener {
+func (d *Dispatcher) copyListeners(name string) []types.EventListener {
 	d.RLock()
 	defer d.RUnlock()
 
@@ -54,7 +54,7 @@ func (d *dispatcher) copyListeners(name string) []types.EventListener {
 	return copied
 }
 
-func (d *dispatcher) processListener(ctx context.Context, listener *types.EventListener, name string, params ...interface{}) error {
+func (d *Dispatcher) processListener(ctx context.Context, listener *types.EventListener, name string, params ...interface{}) error {
 	select {
 	case <-ctx.Done():
 		d.logger.Debug("event processing canceled", map[string]interface{}{"event": name})
@@ -77,7 +77,7 @@ func (d *dispatcher) processListener(ctx context.Context, listener *types.EventL
 	}
 }
 
-func (d *dispatcher) call(fn interface{}, params ...interface{}) (stopped bool, err error) {
+func (d *Dispatcher) call(fn interface{}, params ...interface{}) (stopped bool, err error) {
 	switch f := fn.(type) {
 	case handle:
 		return d.callHandle(f, params...)
@@ -86,7 +86,7 @@ func (d *dispatcher) call(fn interface{}, params ...interface{}) (stopped bool, 
 	}
 }
 
-func (d *dispatcher) callHandle(f handle, params ...interface{}) (bool, error) {
+func (d *Dispatcher) callHandle(f handle, params ...interface{}) (bool, error) {
 	if len(params) != 1 {
 		return false, errors.New("handle function requires exactly one parameter")
 	}
@@ -100,7 +100,7 @@ func (d *dispatcher) callHandle(f handle, params ...interface{}) (bool, error) {
 	return event.IsPropagationStopped(), err
 }
 
-func (d *dispatcher) callWithReflection(fn interface{}, params ...interface{}) (bool, error) {
+func (d *Dispatcher) callWithReflection(fn interface{}, params ...interface{}) (bool, error) {
 	f := reflect.ValueOf(fn)
 	t := f.Type()
 
@@ -118,7 +118,7 @@ func (d *dispatcher) callWithReflection(fn interface{}, params ...interface{}) (
 	return d.invokeFunction(f, in)
 }
 
-func (d *dispatcher) validateFunctionParams(t reflect.Type, params []interface{}) error {
+func (d *Dispatcher) validateFunctionParams(t reflect.Type, params []interface{}) error {
 	expected := t.NumIn()
 	if t.IsVariadic() {
 		if len(params) < expected-1 {
@@ -131,7 +131,7 @@ func (d *dispatcher) validateFunctionParams(t reflect.Type, params []interface{}
 	return nil
 }
 
-func (d *dispatcher) prepareVariadicParams(t reflect.Type, params []interface{}) []reflect.Value {
+func (d *Dispatcher) prepareVariadicParams(t reflect.Type, params []interface{}) []reflect.Value {
 	numIn := t.NumIn()
 	in := make([]reflect.Value, 0, numIn)
 
@@ -148,7 +148,7 @@ func (d *dispatcher) prepareVariadicParams(t reflect.Type, params []interface{})
 	return in
 }
 
-func (d *dispatcher) prepareNonVariadicParams(t reflect.Type, params []interface{}) []reflect.Value {
+func (d *Dispatcher) prepareNonVariadicParams(t reflect.Type, params []interface{}) []reflect.Value {
 	in := make([]reflect.Value, len(params))
 	for i, param := range params {
 		in[i] = reflect.ValueOf(param)
@@ -157,7 +157,7 @@ func (d *dispatcher) prepareNonVariadicParams(t reflect.Type, params []interface
 	return in
 }
 
-func (d *dispatcher) invokeFunction(f reflect.Value, in []reflect.Value) (bool, error) {
+func (d *Dispatcher) invokeFunction(f reflect.Value, in []reflect.Value) (bool, error) {
 	results := f.Call(in)
 
 	var err error
@@ -174,7 +174,7 @@ func (d *dispatcher) invokeFunction(f reflect.Value, in []reflect.Value) (bool, 
 	return false, err
 }
 
-func (d *dispatcher) updateListenerCount(listener *types.EventListener) {
+func (d *Dispatcher) updateListenerCount(listener *types.EventListener) {
 	if listener.Count != nil {
 		*listener.Count--
 		if *listener.Count <= 0 {
@@ -183,7 +183,7 @@ func (d *dispatcher) updateListenerCount(listener *types.EventListener) {
 	}
 }
 
-func (d *dispatcher) unregisterListener(eventListener *types.EventListener) {
+func (d *Dispatcher) unregisterListener(eventListener *types.EventListener) {
 	if val, ok := d.register.Load(eventListener.ID); ok {
 		if lstnr, ok := val.(eventContext); ok {
 			lstnr.cancel()
@@ -191,7 +191,7 @@ func (d *dispatcher) unregisterListener(eventListener *types.EventListener) {
 	}
 }
 
-func (d *dispatcher) updateListeners(name string, listeners []types.EventListener) {
+func (d *Dispatcher) updateListeners(name string, listeners []types.EventListener) {
 	d.Lock()
 	defer d.Unlock()
 

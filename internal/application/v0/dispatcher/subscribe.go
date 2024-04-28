@@ -9,7 +9,7 @@ import (
 )
 
 // Subscribe registers a listener for an event with optional max call limit
-func (d *dispatcher) Subscribe(ctx context.Context, name string, fn interface{}, maxTrigger int) (context.CancelFunc, error) {
+func (d *Dispatcher) Subscribe(ctx context.Context, name string, fn interface{}, maxTrigger int) (context.CancelFunc, error) {
 	listenerID, err := d.subscribe(name, fn, maxTrigger)
 	if err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func (d *dispatcher) Subscribe(ctx context.Context, name string, fn interface{},
 	return d.setupListenerCancellation(ctx, listenerID, name), nil
 }
 
-func (d *dispatcher) setupListenerCancellation(ctx context.Context, listenerID, name string) context.CancelFunc {
+func (d *Dispatcher) setupListenerCancellation(ctx context.Context, listenerID, name string) context.CancelFunc {
 	lctx, lcancel := context.WithCancel(ctx)
 	d.register.Store(listenerID, eventContext{name: name, cancel: lcancel})
 
@@ -27,13 +27,13 @@ func (d *dispatcher) setupListenerCancellation(ctx context.Context, listenerID, 
 	return lcancel
 }
 
-func (d *dispatcher) listenerCleanupRoutine(ctx context.Context, listenerID string) {
+func (d *Dispatcher) listenerCleanupRoutine(ctx context.Context, listenerID string) {
 	<-ctx.Done()
 	d.logger.Debug("listener context canceled", map[string]interface{}{"id": listenerID})
 	d.unsubscribe(listenerID)
 }
 
-func (d *dispatcher) subscribe(name string, fn interface{}, maxTrigger int) (string, error) {
+func (d *Dispatcher) subscribe(name string, fn interface{}, maxTrigger int) (string, error) {
 	if err := d.validateFunction(fn); err != nil {
 		return "", err
 	}
@@ -54,7 +54,7 @@ func (d *dispatcher) subscribe(name string, fn interface{}, maxTrigger int) (str
 	return id, nil
 }
 
-func (d *dispatcher) validateFunction(fn interface{}) error {
+func (d *Dispatcher) validateFunction(fn interface{}) error {
 	if fn == nil {
 		return errors.New("fn is nil")
 	}
@@ -73,7 +73,7 @@ func (d *dispatcher) validateFunction(fn interface{}) error {
 	return nil
 }
 
-func (d *dispatcher) initializeCount(maxTrigger int) *int {
+func (d *Dispatcher) initializeCount(maxTrigger int) *int {
 	if maxTrigger > 0 {
 		count := new(int)
 		*count = maxTrigger
@@ -83,7 +83,7 @@ func (d *dispatcher) initializeCount(maxTrigger int) *int {
 	return nil
 }
 
-func (d *dispatcher) checkFunctionCompatibility(name string, fn interface{}) error {
+func (d *Dispatcher) checkFunctionCompatibility(name string, fn interface{}) error {
 	if list, ok := d.events[name]; ok && len(list) > 0 {
 		t := reflect.TypeOf(fn)
 		tt := reflect.TypeOf(list[0].FN)
@@ -100,7 +100,7 @@ func (d *dispatcher) checkFunctionCompatibility(name string, fn interface{}) err
 	return nil
 }
 
-func (d *dispatcher) unsubscribe(id string) {
+func (d *Dispatcher) unsubscribe(id string) {
 	value, exists := d.register.Load(id)
 	if !exists {
 		return

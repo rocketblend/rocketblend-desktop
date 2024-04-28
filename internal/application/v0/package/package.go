@@ -16,7 +16,7 @@ import (
 )
 
 type (
-	repository struct {
+	Repository struct {
 		logger    types.Logger
 		validator types.Validator
 
@@ -86,7 +86,7 @@ func WithWatcherDebounceDuration(duration time.Duration) Option {
 	}
 }
 
-func New(opts ...Option) (*repository, error) {
+func New(opts ...Option) (*Repository, error) {
 	options := &Options{
 		Logger:                  logger.NoOp(),
 		WatcherDebounceDuration: 2 * time.Second,
@@ -149,7 +149,7 @@ func New(opts ...Option) (*repository, error) {
 		return nil, err
 	}
 
-	return &repository{
+	return &Repository{
 		logger:         options.Logger,
 		validator:      options.Validator,
 		rbRepository:   options.rbRepository,
@@ -160,7 +160,7 @@ func New(opts ...Option) (*repository, error) {
 	}, nil
 }
 
-func (r *repository) Close() error {
+func (r *Repository) Close() error {
 	return r.watcher.Close()
 }
 

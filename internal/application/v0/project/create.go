@@ -13,7 +13,7 @@ import (
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
-func (r *repository) Create(ctx context.Context, opts *types.CreateProjectOpts) (*types.CreateProjectResult, error) {
+func (r *Repository) CreateProject(ctx context.Context, opts *types.CreateProjectOpts) (*types.CreateProjectResult, error) {
 	profile, err := r.newProfile(ctx, opts.Build)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (r *repository) Create(ctx context.Context, opts *types.CreateProjectOpts) 
 	}, nil
 }
 
-func (r *repository) newProfile(ctx context.Context, build reference.Reference) (*rbtypes.Profile, error) {
+func (r *Repository) newProfile(ctx context.Context, build reference.Reference) (*rbtypes.Profile, error) {
 	profiles := []*rbtypes.Profile{
 		{
 			Dependencies: []*rbtypes.Dependency{
@@ -71,7 +71,7 @@ func (r *repository) newProfile(ctx context.Context, build reference.Reference) 
 	return profiles[0], nil
 }
 
-func (r *repository) createBlendFile(ctx context.Context, filePath string, profile *rbtypes.Profile) error {
+func (r *Repository) createBlendFile(ctx context.Context, filePath string, profile *rbtypes.Profile) error {
 	if !strings.HasSuffix(filePath, ".blend") {
 		return errors.New("filename must have .blend extension")
 	}

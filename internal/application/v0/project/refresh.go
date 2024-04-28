@@ -2,7 +2,7 @@ package project
 
 import "context"
 
-func (r *repository) RefreshProjects(ctx context.Context) error {
+func (r *Repository) Refresh(ctx context.Context) error {
 	if err := r.refresh(ctx); err != nil {
 		return err
 	}
@@ -10,7 +10,7 @@ func (r *repository) RefreshProjects(ctx context.Context) error {
 	return nil
 }
 
-func (r *repository) refresh(ctx context.Context) error {
+func (r *Repository) refresh(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}

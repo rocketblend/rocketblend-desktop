@@ -10,7 +10,7 @@ import (
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
-func (r *repository) AddPackage(ctx context.Context, opts *types.AddProjectPackageOpts) error {
+func (r *Repository) AddProjectPackage(ctx context.Context, opts *types.AddProjectPackageOpts) error {
 	if err := r.addPackage(ctx, opts.ID, opts.Reference); err != nil {
 		return err
 	}
@@ -18,7 +18,7 @@ func (r *repository) AddPackage(ctx context.Context, opts *types.AddProjectPacka
 	return nil
 }
 
-func (r *repository) addPackage(ctx context.Context, id uuid.UUID, reference reference.Reference) error {
+func (r *Repository) addPackage(ctx context.Context, id uuid.UUID, reference reference.Reference) error {
 	project, err := r.get(ctx, id)
 	if err != nil {
 		return err

@@ -20,7 +20,7 @@ import (
 )
 
 type (
-	repository struct {
+	Repository struct {
 		logger    types.Logger
 		validator types.Validator
 
@@ -74,9 +74,9 @@ func WithStore(store types.Store) Option {
 	}
 }
 
-func WithWatcherDebounceDuration(duration time.Duration) Option {
+func WithDispatcher(dispatcher types.Dispatcher) Option {
 	return func(o *Options) {
-		o.WatcherDebounceDuration = duration
+		o.Dispatcher = dispatcher
 	}
 }
 
@@ -110,7 +110,13 @@ func WithBlender(blender types.Blender) Option {
 	}
 }
 
-func New(opts ...Option) (*repository, error) {
+func WithWatcherDebounceDuration(duration time.Duration) Option {
+	return func(o *Options) {
+		o.WatcherDebounceDuration = duration
+	}
+}
+
+func New(opts ...Option) (*Repository, error) {
 	options := &Options{
 		Logger:                  logger.NoOp(),
 		WatcherDebounceDuration: 2 * time.Second,
@@ -199,7 +205,7 @@ func New(opts ...Option) (*repository, error) {
 		return nil, err
 	}
 
-	return &repository{
+	return &Repository{
 		logger:         options.Logger,
 		configurator:   options.Configurator,
 		validator:      options.Validator,
@@ -213,11 +219,11 @@ func New(opts ...Option) (*repository, error) {
 	}, nil
 }
 
-func (r *repository) Close() error {
+func (r *Repository) Close() error {
 	return r.watcher.Close()
 }
 
-func (r *repository) saveDetail(path string, detail *types.Detail) error {
+func (r *Repository) saveDetail(path string, detail *types.Detail) error {
 	if err := helpers.Save(r.validator, filepath.Join(path, types.DetailFileName), detail); err != nil {
 		return err
 	}

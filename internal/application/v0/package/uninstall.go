@@ -9,7 +9,7 @@ import (
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
-func (r *repository) UninstallPackage(ctx context.Context, opts *types.UninstallPackageOpts) error {
+func (r *Repository) UninstallPackage(ctx context.Context, opts *types.UninstallPackageOpts) error {
 	if err := r.uninstall(ctx, opts.ID); err != nil {
 		return err
 	}
@@ -17,7 +17,7 @@ func (r *repository) UninstallPackage(ctx context.Context, opts *types.Uninstall
 	return nil
 }
 
-func (r *repository) uninstall(ctx context.Context, id uuid.UUID) error {
+func (r *Repository) uninstall(ctx context.Context, id uuid.UUID) error {
 	pack, err := r.get(ctx, id)
 	if err != nil {
 		return err

@@ -69,7 +69,7 @@ type (
 
 		//AppendOperation(ctx context.Context, id uuid.UUID, opid uuid.UUID) error
 
-		AddPackage(ctx context.Context, opts *AddPackageOpts) error
+		// AddPackage(ctx context.Context, opts *AddPackageOpts) error
 		InstallPackage(ctx context.Context, opts *InstallPackageOpts) error
 		UninstallPackage(ctx context.Context, opts *UninstallPackageOpts) error
 

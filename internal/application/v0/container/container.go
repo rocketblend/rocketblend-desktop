@@ -4,8 +4,15 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/flowshot-io/x/pkg/logger"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/configurator"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/dispatcher"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/operator"
+	pack "github.com/rocketblend/rocketblend-desktop/internal/application/v0/package"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/project"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/tracker"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 	"github.com/rocketblend/rocketblend/pkg/container"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
@@ -13,6 +20,11 @@ import (
 )
 
 type (
+	holder[T any] struct {
+		instance *T
+		once     sync.Once
+	}
+
 	Options struct {
 		Logger          logger.Logger
 		Validator       types.Validator
@@ -29,6 +41,15 @@ type (
 		applicationDir string
 
 		rbContainer rbtypes.Container
+
+		dispatcherHolder *holder[dispatcher.Dispatcher]
+		trackerHolder    *holder[tracker.Tracker]
+		operatorHolder   *holder[operator.Operator]
+		// storeHolder      *holder[store.Store]
+
+		configuratorHolder *holder[configurator.Configurator]
+		portfolioHolder    *holder[project.Repository]
+		catalogHolder      *holder[pack.Repository]
 	}
 )
 

@@ -8,7 +8,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
-func (r *repository) ListProjects(ctx context.Context, opts ...listoption.ListOption) (*types.ListProjectsResponse, error) {
+func (r *Repository) ListProjects(ctx context.Context, opts ...listoption.ListOption) (*types.ListProjectsResponse, error) {
 	opts = append(opts, listoption.WithType(indextype.Project))
 	indexes, err := r.store.List(ctx, opts...)
 	if err != nil {

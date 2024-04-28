@@ -1,6 +1,6 @@
 package project
 
-// func (s *repository) Render(ctx context.Context, opts *types.RenderOpts) error {
+// func (s *Repository) Render(ctx context.Context, opts *types.RenderOpts) error {
 // 	project, err := s.get(ctx, id)
 // 	if err != nil {
 // 		return err
@@ -18,7 +18,7 @@ package project
 // 	return nil
 // }
 
-// func (r *repository) Render(ctx context.Context, id uuid.UUID) error {
+// func (r *Repository) Render(ctx context.Context, id uuid.UUID) error {
 // 	// project, err := r.get(ctx, id)
 // 	// if err != nil {
 // 	// 	return err

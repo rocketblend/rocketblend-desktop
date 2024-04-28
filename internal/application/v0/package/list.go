@@ -8,7 +8,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
-func (r *repository) ListPackages(ctx context.Context, opts ...listoption.ListOption) (*types.ListPackagesResponse, error) {
+func (r *Repository) ListPackages(ctx context.Context, opts ...listoption.ListOption) (*types.ListPackagesResponse, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}

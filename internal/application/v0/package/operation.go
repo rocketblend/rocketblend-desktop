@@ -6,7 +6,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
-// func (r *repository) AppendOperation(ctx context.Context, id uuid.UUID, opid uuid.UUID) error {
+// func (r *Repository) AppendOperation(ctx context.Context, id uuid.UUID, opid uuid.UUID) error {
 // 	pack, err := r.get(ctx, id)
 // 	if err != nil {
 // 		return err
@@ -17,7 +17,7 @@ import (
 // 	return r.insert(ctx, pack)
 // }
 
-func (r *repository) insert(ctx context.Context, pack *types.Package) error {
+func (r *Repository) insert(ctx context.Context, pack *types.Package) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}

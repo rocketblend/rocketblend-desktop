@@ -6,7 +6,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
 
-func (r *repository) UpdateProject(ctx context.Context, opts *types.UpdateProjectOpts) error {
+func (r *Repository) UpdateProject(ctx context.Context, opts *types.UpdateProjectOpts) error {
 	project, err := r.get(ctx, opts.ID)
 	if err != nil {
 		return err

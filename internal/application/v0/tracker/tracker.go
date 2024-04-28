@@ -8,7 +8,6 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/indextype"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
@@ -16,26 +15,26 @@ import (
 
 type (
 	Tracker struct {
-		logger logger.Logger
-		store  searchstore.Store
+		logger types.Logger
+		store  types.Store
 	}
 
 	Options struct {
-		Logger logger.Logger
+		Logger types.Logger
 
-		Store searchstore.Store
+		Store types.Store
 	}
 
 	Option func(*Options)
 )
 
-func WithLogger(logger logger.Logger) Option {
+func WithLogger(logger types.Logger) Option {
 	return func(opts *Options) {
 		opts.Logger = logger
 	}
 }
 
-func WithStore(store searchstore.Store) Option {
+func WithStore(store types.Store) Option {
 	return func(opts *Options) {
 		opts.Store = store
 	}
@@ -200,13 +199,13 @@ func (t *Tracker) list(ctx context.Context, domain string, name string, start ti
 	return metrics, nil
 }
 
-func convertMetricToIndex(metric *types.Metric) (*searchstore.Index, error) {
+func convertMetricToIndex(metric *types.Metric) (*types.Index, error) {
 	data, err := json.Marshal(metric)
 	if err != nil {
 		return nil, err
 	}
 
-	return &searchstore.Index{
+	return &types.Index{
 		ID:        metric.ID,
 		Name:      metric.Name,
 		Reference: metric.Domain,
@@ -216,7 +215,7 @@ func convertMetricToIndex(metric *types.Metric) (*searchstore.Index, error) {
 	}, nil
 }
 
-func convertIndexToMetric(index *searchstore.Index) (*types.Metric, error) {
+func convertIndexToMetric(index *types.Index) (*types.Metric, error) {
 	metric := &types.Metric{}
 	if err := json.Unmarshal([]byte(index.Data), metric); err != nil {
 		return nil, err

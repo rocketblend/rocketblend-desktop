@@ -22,14 +22,14 @@ type (
 	}
 )
 
-func NewEvent(id uuid.UUID) eventservice.Eventer {
+func newEvent(id uuid.UUID) eventservice.Eventer {
 	return &Event{
 		ID: id,
 	}
 }
 
-func (r *repository) emitEvent(ctx context.Context, id uuid.UUID, channel string) {
-	event := NewEvent(id)
+func (r *Repository) emitEvent(ctx context.Context, id uuid.UUID, channel string) {
+	event := newEvent(id)
 	if err := r.dispatcher.EmitEvent(ctx, channel, event); err != nil {
 		r.logger.Error("error emitting event", map[string]interface{}{
 			"error":   err,

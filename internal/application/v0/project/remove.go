@@ -10,7 +10,7 @@ import (
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
-func (r *repository) RemovePackage(ctx context.Context, opts *types.RemoveProjectPackageOpts) error {
+func (r *Repository) RemoveProjectPackage(ctx context.Context, opts *types.RemoveProjectPackageOpts) error {
 	if err := r.removePackage(ctx, opts.ID, opts.Reference); err != nil {
 		return err
 	}
@@ -18,7 +18,7 @@ func (r *repository) RemovePackage(ctx context.Context, opts *types.RemoveProjec
 	return nil
 }
 
-func (r *repository) removePackage(ctx context.Context, id uuid.UUID, reference reference.Reference) error {
+func (r *Repository) removePackage(ctx context.Context, id uuid.UUID, reference reference.Reference) error {
 	project, err := r.get(ctx, id)
 	if err != nil {
 		return err
