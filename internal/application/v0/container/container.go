@@ -12,6 +12,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/operator"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/v0/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/project"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/tracker"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 	"github.com/rocketblend/rocketblend/pkg/container"
@@ -26,7 +27,7 @@ type (
 	}
 
 	Options struct {
-		Logger          logger.Logger
+		Logger          types.Logger
 		Validator       types.Validator
 		ApplicationName string
 		Development     bool
@@ -45,7 +46,7 @@ type (
 		dispatcherHolder *holder[dispatcher.Dispatcher]
 		trackerHolder    *holder[tracker.Tracker]
 		operatorHolder   *holder[operator.Operator]
-		// storeHolder      *holder[store.Store]
+		storeHolder      *holder[store.Store]
 
 		configuratorHolder *holder[configurator.Configurator]
 		portfolioHolder    *holder[project.Repository]
@@ -102,16 +103,24 @@ func New(opts ...Option) (*Container, error) {
 		return nil, fmt.Errorf("failed to setup application directory: %w", err)
 	}
 
-	options.Logger.Debug("initializing container", map[string]interface{}{
+	options.Logger.Debug("initializing application container", map[string]interface{}{
 		"path":        applicationDir,
 		"development": options.Development,
+		"application": options.ApplicationName,
 	})
 
 	return &Container{
-		logger:         options.Logger,
-		validator:      options.Validator,
-		rbContainer:    rbContainer,
-		applicationDir: applicationDir,
+		logger:             options.Logger,
+		validator:          options.Validator,
+		rbContainer:        rbContainer,
+		applicationDir:     applicationDir,
+		dispatcherHolder:   &holder[dispatcher.Dispatcher]{}, // TODO: Must be a better way to do all these.
+		trackerHolder:      &holder[tracker.Tracker]{},
+		operatorHolder:     &holder[operator.Operator]{},
+		storeHolder:        &holder[store.Store]{},
+		configuratorHolder: &holder[configurator.Configurator]{},
+		portfolioHolder:    &holder[project.Repository]{},
+		catalogHolder:      &holder[pack.Repository]{},
 	}, nil
 }
 

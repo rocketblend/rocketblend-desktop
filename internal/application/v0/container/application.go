@@ -7,6 +7,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/operator"
 	pack "github.com/rocketblend/rocketblend-desktop/internal/application/v0/package"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/project"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/store"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/tracker"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/v0/types"
 )
@@ -28,7 +29,24 @@ func (c *Container) GetConfigurator() (types.Configurator, error) {
 }
 
 func (c *Container) GetStore() (types.Store, error) {
-	return nil, types.ErrNotImplement
+	var err error
+	c.storeHolder.once.Do(func() {
+		dispatcher, errDispatcher := c.GetDispatcher()
+		if err != nil {
+			err = errDispatcher
+			return
+		}
+
+		c.storeHolder.instance, err = store.New(
+			store.WithLogger(c.logger),
+			store.WithDispatcher(dispatcher),
+		)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get/create store: %w", err)
+	}
+
+	return c.storeHolder.instance, nil
 }
 
 func (c *Container) GetTracker() (types.Tracker, error) {
