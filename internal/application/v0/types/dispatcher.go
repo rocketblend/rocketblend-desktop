@@ -4,9 +4,9 @@ import "context"
 
 type (
 	EventListener struct {
-		id    string
-		count *int
-		fn    interface{}
+		ID    string
+		Count *int
+		FN    interface{}
 	}
 
 	Dispatcher interface {
