@@ -233,7 +233,7 @@ func (r *Repository) saveDetail(path string, detail *types.Detail) error {
 
 func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path string) (*types.Project, error) {
 	if ignoreProject(path) {
-		return nil, nil
+		return nil, errors.New("project is ignored")
 	}
 
 	blendFilePaths, err := findFilePathForExtension(path, rbtypes.BlendFileExtension)
