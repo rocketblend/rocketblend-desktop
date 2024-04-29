@@ -148,7 +148,7 @@ func (c *Configurator) Path() string {
 func load(path string, name string, extension string) (*viper.Viper, error) {
 	v := viper.New()
 
-	v.SetDefault("project.watcher.fileExtensions", []string{".blend", ".yaml"})
+	v.SetDefault("project.watcher.fileExtensions", []string{".blend", ".json"})
 
 	v.SetConfigName(name)
 	v.AddConfigPath(path)

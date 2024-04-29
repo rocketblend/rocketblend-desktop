@@ -8,7 +8,7 @@ import {debounce} from '$lib/utils';
 import { EventsOn, EventsOff, EventsEmit } from '$lib/wailsjs/runtime';
 
 export const EVENT_DEBOUNCE = 250;
-export const SEARCH_STORE_INSERT_CHANNEL = 'searchstore.insert';
+export const SEARCH_STORE_INSERT_CHANNEL = 'store.insert';
 
 export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastStore) => {
     const changeDetectedDebounce = debounce(() => {
@@ -64,7 +64,7 @@ export const tearDownGlobalEventListeners = () => {
     EventsOff('debug.log');
 
     // Remove search store listener
-    EventsOff('searchstore.insert');
+    EventsOff('store.insert');
 
     // Remove launch arguments listener
     EventsOff('application.argument');

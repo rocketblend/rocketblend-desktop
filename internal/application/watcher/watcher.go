@@ -212,7 +212,7 @@ func (s *service) registerPath(path string) error {
 
 			// Trigger initial update
 			if err := s.updateObject(objectPath); err != nil {
-				s.logger.Debug("failed to load object", map[string]interface{}{
+				s.logger.Error("failed to update watched object", map[string]interface{}{
 					"err":  err,
 					"path": path,
 				})
@@ -258,7 +258,9 @@ func (s *service) unregisterPath(path string) error {
 
 func (s *service) updateObject(path string) error {
 	if s.updateObjectFunc != nil {
-		return s.updateObjectFunc(path)
+		if err := s.updateObjectFunc(path); err != nil {
+			return err
+		}
 	}
 
 	return nil

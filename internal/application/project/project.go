@@ -182,12 +182,12 @@ func New(opts ...Option) (*Repository, error) {
 		watcher.WithUpdateObjectFunc(func(path string) error {
 			project, err := load(options.Validator, options.RBConfigurator, path)
 			if err != nil {
-				return fmt.Errorf("failed to load project %s: %w", path, err)
+				return err
 			}
 
 			index, err := convertToIndex(project)
 			if err != nil {
-				return fmt.Errorf("failed to convert project to index: %w", err)
+				return err
 			}
 
 			options.Logger.Debug("updating project index", map[string]interface{}{
@@ -290,20 +290,25 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 
 func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild reference.Reference) (*rbtypes.Profile, error) {
 	profileFilePath := filepath.Join(path, rbtypes.ProfileFileName)
-	profile, err := rbhelpers.Load[rbtypes.Profile](validator, profileFilePath)
-	if err == nil {
-		return profile, nil
+	_, err := os.Stat(profileFilePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			profile := &rbtypes.Profile{
+				Dependencies: []*rbtypes.Dependency{{Reference: defaultBuild, Type: rbtypes.PackageBuild}},
+			}
+
+			if err := rbhelpers.Save(validator, profileFilePath, profile); err != nil {
+				return nil, err
+			}
+
+			return profile, nil
+		}
+
+		return nil, err
 	}
 
-	if errors.Is(err, os.ErrNotExist) {
-		profile = &rbtypes.Profile{
-			Dependencies: []*rbtypes.Dependency{{Reference: defaultBuild, Type: rbtypes.PackageBuild}},
-		}
-
-		if err := rbhelpers.Save(validator, profileFilePath, profile); err != nil {
-			return nil, err
-		}
-
+	profile, err := rbhelpers.Load[rbtypes.Profile](validator, profileFilePath)
+	if err == nil {
 		return profile, nil
 	}
 
@@ -312,21 +317,26 @@ func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild 
 
 func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath string) (*types.Detail, error) {
 	detailFilePath := filepath.Join(path, types.DetailFileName)
-	detail, err := rbhelpers.Load[types.Detail](validator, detailFilePath)
-	if err == nil {
-		return detail, nil
+	_, err := os.Stat(detailFilePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			detail := &types.Detail{
+				ID:   uuid.New(),
+				Name: helpers.FilenameToDisplayName(blendFilePath),
+			}
+
+			if err := rbhelpers.Save(validator, detailFilePath, detail); err != nil {
+				return nil, err
+			}
+
+			return detail, nil
+		}
+
+		return nil, err
 	}
 
-	if errors.Is(err, os.ErrNotExist) {
-		detail = &types.Detail{
-			ID:   uuid.New(),
-			Name: helpers.FilenameToDisplayName(blendFilePath),
-		}
-
-		if err := rbhelpers.Save(validator, detailFilePath, detail); err != nil {
-			return nil, err
-		}
-
+	detail, err := rbhelpers.Load[types.Detail](validator, detailFilePath)
+	if err == nil {
 		return detail, nil
 	}
 
