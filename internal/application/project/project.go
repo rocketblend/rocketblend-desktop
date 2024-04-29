@@ -224,6 +224,9 @@ func (r *Repository) Close() error {
 }
 
 func (r *Repository) saveDetail(path string, detail *types.Detail) error {
+	detail.SplashPath = relativePath(path, detail.SplashPath)
+	detail.ThumbnailPath = relativePath(path, detail.ThumbnailPath)
+
 	if err := rbhelpers.Save(r.validator, filepath.Join(path, types.DetailFileName), detail); err != nil {
 		return err
 	}
@@ -280,8 +283,8 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		ID:            detail.ID,
 		Name:          detail.Name,
 		Tags:          detail.Tags,
-		SplashPath:    imagePath(path, detail.SplashPath),
-		ThumbnailPath: imagePath(path, detail.ThumbnailPath),
+		SplashPath:    absolutePath(path, detail.SplashPath),
+		ThumbnailPath: absolutePath(path, detail.ThumbnailPath),
 		Path:          path,
 		FileName:      filepath.Base(blendFilePath),
 		Build:         builds[0].Reference,
@@ -345,12 +348,25 @@ func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath 
 	return nil, err
 }
 
-func imagePath(rootPath string, imagePath string) string {
-	if imagePath == "" {
+func absolutePath(rootPath string, relativePath string) string {
+	if relativePath == "" {
 		return ""
 	}
 
-	return filepath.ToSlash(filepath.Join(rootPath, imagePath))
+	return filepath.ToSlash(filepath.Join(rootPath, relativePath))
+}
+
+func relativePath(rootPath string, absolutePath string) string {
+	if absolutePath == "" {
+		return ""
+	}
+
+	path, err := filepath.Rel(rootPath, absolutePath)
+	if err != nil {
+		return ""
+	}
+
+	return path
 }
 
 func ignoreProject(projectPath string) bool {

@@ -28,8 +28,6 @@
 
     async function handleExploreProject() {
         if (selected) {
-            console.log(selected.path);
-
             const opts = application.OpenExplorerOptions.createFrom({
                 path: selected.path,
             });
