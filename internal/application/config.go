@@ -1,9 +1,8 @@
 package application
 
 import (
-	"github.com/rocketblend/rocketblend-desktop/internal/application/build"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/config"
-	rbconfig "github.com/rocketblend/rocketblend/pkg/rocketblend/config"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
+	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
 type (
@@ -50,25 +49,20 @@ func (d *Driver) GetPreferences() (*Preferences, error) {
 }
 
 func (d *Driver) UpdatePreferences(opts UpdatePreferencesOpts) error {
-	aConfigService, err := d.factory.GetApplicationConfigService()
+	config, err := d.configurator.Get()
 	if err != nil {
 		return err
 	}
 
-	aConfig, err := aConfigService.Get()
-	if err != nil {
+	config.Project.Paths = []string{opts.WatchPath}
+	config.Feature.Addon = opts.Feature.Addon
+	config.Feature.Developer = opts.Feature.Developer
+
+	if err := d.configurator.Save(config); err != nil {
 		return err
 	}
 
-	aConfig.Project.Paths = []string{opts.WatchPath}
-	aConfig.Feature.Addon = opts.Feature.Addon
-	aConfig.Feature.Developer = opts.Feature.Developer
-
-	if err := aConfigService.Save(aConfig); err != nil {
-		return err
-	}
-
-	if err := d.refresh(); err != nil {
+	if err := d.portfolio.Refresh(d.ctx); err != nil {
 		return err
 	}
 
@@ -87,7 +81,7 @@ func (d *Driver) GetDetails() (*Details, error) {
 	}
 
 	return &Details{
-		Version:               build.Version,
+		Version:               d.version,
 		Platform:              d.platform.String(), // TODO: Convert to wails enum.
 		InstallationPath:      rbConfig.InstallationsPath,
 		PackagePath:           rbConfig.PackagesPath,
@@ -96,45 +90,22 @@ func (d *Driver) GetDetails() (*Details, error) {
 	}, nil
 }
 
-func (d *Driver) getApplicationConfig() (string, *config.Config, error) {
+func (d *Driver) getApplicationConfig() (string, *types.Config, error) {
 	// TODO: create new struct that just includes the path and the config.
-	configService, err := d.factory.GetApplicationConfigService()
+	config, err := d.configurator.Get()
 	if err != nil {
-		d.logger.Error("failed to get application config service", map[string]interface{}{"error": err.Error()})
 		return "", nil, err
 	}
 
-	config, err := configService.Get()
-	if err != nil {
-		d.logger.Error("failed to get config", map[string]interface{}{"error": err.Error()})
-		return "", nil, err
-	}
-
-	return configService.Path(), config, nil
+	return d.configurator.Path(), config, nil
 }
 
-func (d *Driver) getRocketBlendConfig() (string, *rbconfig.Config, error) {
+func (d *Driver) getRocketBlendConfig() (string, *rbtypes.Config, error) {
 	// TODO: create new struct that just includes the path and the config.
-	configService, err := d.factory.GetConfigService()
+	config, err := d.rbConfigurator.Get()
 	if err != nil {
-		d.logger.Error("failed to get rocketblend config service", map[string]interface{}{"error": err.Error()})
 		return "", nil, err
 	}
 
-	config, err := configService.Get()
-	if err != nil {
-		d.logger.Error("failed to get config", map[string]interface{}{"error": err.Error()})
-		return "", nil, err
-	}
-
-	return configService.Path(), config, nil
-}
-
-func (d *Driver) refresh() error {
-	projectService, err := d.factory.GetProjectService()
-	if err != nil {
-		return err
-	}
-
-	return projectService.Refresh(d.ctx)
+	return d.rbConfigurator.Path(), config, nil
 }

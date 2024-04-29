@@ -1,14 +1,14 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
 
-    import type { project } from '$lib/wailsjs/go/models';
-    import { ExploreProject, RunProject } from '$lib/wailsjs/go/application/Driver';
+    import { type types, application } from '$lib/wailsjs/go/models';
+    import { RunProject, OpenExplorer } from '$lib/wailsjs/go/application/Driver';
 
     import { resourcePath } from '$lib/components/utils';
 
     import FooterContent from './footer-content.svelte';
 
-    export let selected: project.Project | undefined;
+    export let selected: types.Project | undefined;
 
     function handleViewProject() {
         if (selected) {
@@ -18,13 +18,21 @@
 
     async function handleRunProject() {
         if (selected) {
-            return await RunProject(selected.id);
+            const opts = application.RunProjectOpts.createFrom({
+                id: selected.id,
+            });
+            
+            return await RunProject(opts);
         }
     }
 
     async function handleExploreProject() {
         if (selected) {
-            return await ExploreProject(selected.id);
+            const opts = application.OpenExplorerOptions.createFrom({
+                path: selected.path,
+            });
+            
+            await OpenExplorer(opts);
         }
     }
 </script>

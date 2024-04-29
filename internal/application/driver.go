@@ -4,221 +4,185 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/flowshot-io/x/pkg/logger"
-	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/buffermanager"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/factory"
-	rbruntime "github.com/rocketblend/rocketblend/pkg/driver/runtime"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
+	rbruntime "github.com/rocketblend/rocketblend/pkg/runtime"
+	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
-// Driver struct
-type Driver struct {
-	ctx    context.Context
-	logger logger.Logger
+type (
+	dependecies struct {
+		logger    types.Logger
+		validator types.Validator
 
-	heartbeatInterval time.Duration
+		dispatcher types.Dispatcher
+		tracker    types.Tracker
+		operator   types.Operator
 
-	factory      factory.Factory
-	events       buffermanager.BufferManager
-	cancelTokens sync.Map
+		portfolio types.Portfolio
+		catalog   types.Catalog
 
-	platform rbruntime.Platform
+		configurator   types.Configurator
+		rbConfigurator rbtypes.Configurator
+	}
 
-	args []string
+	Options struct {
+		Container types.Container
+
+		Writer   buffer.BufferManager // TODO: Improve this
+		Platform rbruntime.Platform
+		Version  string
+		Args     []string
+	}
+
+	Option func(*Options)
+
+	Driver struct {
+		logger    types.Logger
+		validator types.Validator
+
+		dispatcher types.Dispatcher
+		tracker    types.Tracker
+		operator   types.Operator
+
+		portfolio types.Portfolio
+		catalog   types.Catalog
+
+		configurator   types.Configurator
+		rbConfigurator rbtypes.Configurator
+
+		ctx               context.Context
+		version           string
+		heartbeatInterval time.Duration // TODO: Remove this
+		events            buffer.BufferManager
+		cancelTokens      sync.Map
+		platform          rbruntime.Platform
+		args              []string
+	}
+)
+
+func WithContainer(container types.Container) Option {
+	return func(o *Options) {
+		o.Container = container
+	}
 }
 
-func NewDriver(factory factory.Factory, events buffermanager.BufferManager, platform rbruntime.Platform, args ...string) (*Driver, error) {
-	logger, err := factory.GetLogger()
+func WithWriter(writer buffer.BufferManager) Option {
+	return func(o *Options) {
+		o.Writer = writer
+	}
+}
+
+func WithPlatform(platform rbruntime.Platform) Option {
+	return func(o *Options) {
+		o.Platform = platform
+	}
+}
+
+func WithVersion(version string) Option {
+	return func(o *Options) {
+		o.Version = version
+	}
+}
+
+func WithArgs(args ...string) Option {
+	return func(o *Options) {
+		o.Args = args
+	}
+}
+
+func NewDriver(opts ...Option) (*Driver, error) {
+	options := &Options{}
+
+	for _, opt := range opts {
+		opt(options)
+	}
+
+	if options.Container == nil {
+		return nil, errors.New("container is required")
+	}
+
+	dependencies, err := setupDependencies(options.Container)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get logger: %w", err)
+		return nil, fmt.Errorf("failed to setup dependencies: %w", err)
 	}
 
 	return &Driver{
-		factory:           factory,
-		heartbeatInterval: 5000 * time.Millisecond, // 1 second
-		events:            events,
-		logger:            logger,
-		platform:          platform,
-		args:              args,
+		logger:            dependencies.logger,
+		validator:         dependencies.validator,
+		dispatcher:        dependencies.dispatcher,
+		tracker:           dependencies.tracker,
+		operator:          dependencies.operator,
+		portfolio:         dependencies.portfolio,
+		catalog:           dependencies.catalog,
+		configurator:      dependencies.configurator,
+		rbConfigurator:    dependencies.rbConfigurator,
+		events:            options.Writer,
+		platform:          options.Platform,
+		version:           options.Version,
+		args:              options.Args,
+		heartbeatInterval: 5000 * time.Millisecond, // 5 seconds
 	}, nil
 }
 
-func (d *Driver) LongRunningRequestWithCancellation(cid uuid.UUID) error {
-	_, err := d.runWithCancellation(cid, func(ctx context.Context) (interface{}, error) {
-		// Simulate a long-running operation
-		for i := 0; i < 10; i++ {
-			select {
-			case <-ctx.Done():
-				d.logger.Debug("long running request canceled", map[string]interface{}{"cid": cid})
-				return nil, ctx.Err()
-			default:
-				time.Sleep(2 * time.Second)
-			}
-		}
-
-		return struct{}{}, nil
-	})
+func setupDependencies(container types.Container) (*dependecies, error) {
+	logger, err := container.GetLogger()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	d.logger.Debug("long running request completed", map[string]interface{}{"cid": cid})
-	return nil
-}
-
-// Quit quits the application
-func (d *Driver) Quit() {
-	d.logger.Debug("quitting application")
-
-	if err := d.addApplicationMetrics(); err != nil {
-		d.logger.Error("failed to add application metrics", map[string]interface{}{"error": err.Error()})
-		return
+	validator, err := container.GetValidator()
+	if err != nil {
+		return nil, err
 	}
 
-	runtime.Quit(d.ctx)
-}
-
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
-func (d *Driver) startup(ctx context.Context) {
-	d.logger.Debug("starting application")
-
-	d.ctx = ctx
-
-	// Start listening to log events
-	go d.listenToLogEvents()
-
-	// Preloads all the data
-	if err := d.factory.Preload(); err != nil {
-		d.logger.Error("failed to preload", map[string]interface{}{"error": err.Error()})
-		return
+	dispatcher, err := container.GetDispatcher()
+	if err != nil {
+		return nil, err
 	}
 
-	// Setup driver event handlers (backend)
-	if err := d.setupDriverEventHandlers(); err != nil {
-		d.logger.Error("failed to setup driver event handlers", map[string]interface{}{"error": err.Error()})
-		return
+	tracker, err := container.GetTracker()
+	if err != nil {
+		return nil, err
 	}
 
-	// Setup runtime event handlers (frontend)
-	if err := d.setupRuntimeEventHandlers(); err != nil {
-		d.logger.Error("failed to setup runtime event handlers", map[string]interface{}{"error": err.Error()})
-		return
-	}
-}
-
-// shutdown is called when the app is shutting down
-func (d *Driver) shutdown(ctx context.Context) {
-	d.logger.Debug("shutting down application")
-
-	// Close the event stream
-	d.events.Close()
-
-	// Close the factory watchers
-	if err := d.factory.Close(); err != nil {
-		d.logger.Error("failed to close factory", map[string]interface{}{"error": err.Error()})
+	operator, err := container.GetOperator()
+	if err != nil {
+		return nil, err
 	}
 
-	d.logger.Debug("application shutdown")
-}
-
-// onDomReady is called when the DOM is ready
-func (d *Driver) onDomReady(ctx context.Context) {
-	d.logger.Debug("DOM is ready")
-
-	// Wait for main layout to be ready.
-	runtime.EventsOnce(ctx, "ready", func(optionalData ...interface{}) {
-		d.onLayoutReady(ctx)
-	})
-}
-
-// onLayoutReady is called when the layout is ready
-func (d *Driver) onLayoutReady(ctx context.Context) {
-	d.logger.Debug("main layout is ready")
-
-	if err := d.addApplicationMetrics(); err != nil {
-		d.logger.Error("failed to add application metrics", map[string]interface{}{"error": err.Error()})
-		return
+	configurator, err := container.GetConfigurator()
+	if err != nil {
+		return nil, err
 	}
 
-	d.eventEmitLaunchArgs(ctx, LaunchEvent{
-		Args: os.Args[1:],
-	})
-}
-
-// onSecondInstanceLaunch is called when the user opens a second instance of the application
-func (d *Driver) onSecondInstanceLaunch(secondInstanceData options.SecondInstanceData) {
-	secondInstanceArgs := secondInstanceData.Args
-
-	d.logger.Info("user opened second instance", map[string]interface{}{
-		"args":             strings.Join(secondInstanceData.Args, ","),
-		"workingDirectory": secondInstanceData.WorkingDirectory,
-	})
-
-	runtime.WindowUnminimise(d.ctx)
-	runtime.Show(d.ctx)
-
-	d.eventEmitLaunchArgs(d.ctx, LaunchEvent{
-		Args: secondInstanceArgs,
-	})
-}
-
-// runWithCancellation is a helper function that allows to have request cancellation.
-// Wails doesn't support context cancellation yet, so we have to do it ourselves.
-// TODO: This can be simplified massivly. Can create a background context with cancel and store it against an ID, rather then true/false. Also don't need heartbeat.
-func (d *Driver) runWithCancellation(cid uuid.UUID, requestFunc func(ctx context.Context) (interface{}, error)) (interface{}, error) {
-	d.cancelTokens.Store(cid.String(), false)
-	defer d.cancelTokens.Delete(cid.String())
-
-	ctx, cancel := context.WithCancel(d.ctx)
-	defer cancel()
-
-	resultChan := make(chan interface{})
-	errChan := make(chan error)
-
-	// Run the request function in its own goroutine
-	go func() {
-		defer close(resultChan)
-		defer close(errChan)
-
-		result, err := requestFunc(ctx)
-		if err != nil {
-			d.logger.Error("request function failed", map[string]interface{}{"error": err.Error(), "cid": cid})
-			errChan <- err
-			return
-		}
-		resultChan <- result
-	}()
-
-	// Start a ticker for heartbeats
-	heartbeatTicker := time.NewTicker(d.heartbeatInterval)
-	defer heartbeatTicker.Stop()
-
-	for {
-		select {
-		case <-heartbeatTicker.C:
-			d.logger.Debug("request heartbeat", map[string]interface{}{"cid": cid})
-			runtime.EventsEmit(ctx, "requestHeartBeat", cid.String())
-
-			cancelValue, ok := d.cancelTokens.Load(cid.String())
-			if ok && cancelValue.(bool) {
-				d.logger.Debug("request cancelled", map[string]interface{}{"cid": cid})
-				return nil, errors.New("request cancelled")
-			}
-		case result := <-resultChan:
-			return result, nil
-		case err := <-errChan:
-			return nil, err
-		case <-ctx.Done():
-			// Context cancelled (e.g., application-level cancellation)
-			return nil, ctx.Err()
-		}
+	portfolio, err := container.GetPortfolio()
+	if err != nil {
+		return nil, err
 	}
+
+	catalog, err := container.GetCatalog()
+	if err != nil {
+		return nil, err
+	}
+
+	rbConfigurator, err := container.GetRBConfigurator()
+	if err != nil {
+		return nil, err
+	}
+
+	return &dependecies{
+		logger:         logger,
+		validator:      validator,
+		dispatcher:     dispatcher,
+		tracker:        tracker,
+		operator:       operator,
+		configurator:   configurator,
+		rbConfigurator: rbConfigurator,
+		portfolio:      portfolio,
+		catalog:        catalog,
+	}, nil
 }

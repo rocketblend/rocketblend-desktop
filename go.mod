@@ -6,16 +6,14 @@ require (
 	github.com/blevesearch/bleve/v2 v2.3.9
 	github.com/blevesearch/bleve_index_api v1.0.5
 	github.com/flowshot-io/x v0.0.0-20240102003836-a3532f1d23dd
-	github.com/go-playground/validator/v10 v10.19.0
 	github.com/google/uuid v1.4.0
 	github.com/magefile/mage v1.15.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rjeczalik/notify v0.9.3
-	github.com/rocketblend/rocketblend v0.8.2-0.20240402170958-b39f7b1ec3d7
+	github.com/rocketblend/rocketblend v0.8.2-0.20240420154219-49f04103a1ab
 	github.com/spf13/viper v1.18.2
 	github.com/wailsapp/wails/v2 v2.8.0
 	golang.org/x/text v0.14.0
-	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
@@ -52,6 +50,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/validator/v10 v10.19.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect

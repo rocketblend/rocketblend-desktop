@@ -4,8 +4,8 @@
 
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
 
-    import { pack as packnamespace } from '$lib/wailsjs/go/models';
-    import type { pack as packtype } from '$lib/wailsjs/go/models';
+    import { enums } from '$lib/wailsjs/go/models';
+    import type { types } from '$lib/wailsjs/go/models';
 
     import PackageBadge from './package-badge.svelte';
     import PackageActionButton from './package-action-button.svelte';
@@ -13,7 +13,7 @@
     const downloadHost = "download.blender.org"; // TODO: Remove this prop once the backend is ready
 
     export let projectId: string | undefined;
-    export let pack: packtype.Package;
+    export let pack: types.Package;
     export let dependencies: string[];
 
     let hovered = false;
@@ -27,11 +27,11 @@
         goto(`/packages/${pack.id}`);
     }
 
-    function getBackgroundVariants(type: packtype.PackageType): BackgroundVariant {
+    function getBackgroundVariants(type: enums.PackageType): BackgroundVariant {
         switch (type) {
-            case packnamespace.PackageType.BUILD:
+            case enums.PackageType.BUILD:
                 return { variantFrom: 'primary', variantTo: 'secondary' };
-            case packnamespace.PackageType.ADDON:
+            case enums.PackageType.ADDON:
                 return { variantFrom: 'tertiary', variantTo: 'primary' };
             default:
                 return { variantFrom: 'secondary', variantTo: 'tertiary' };
@@ -74,7 +74,7 @@
             {/if}
         </div>
         <div class="text-sm text-surface-800-100-token truncate">{pack.reference}</div>
-        {#if pack.state === packnamespace.PackageState.DOWNLOADING }
+        {#if pack.state === enums.PackageState.DOWNLOADING }
         <div class="py-2">
             <ProgressBar />
             <!-- <ProgressBar /> -->
@@ -85,8 +85,8 @@
             <PackageBadge label={pack.platform?.toString()}/>
             <PackageBadge label={pack.version}/>
             <PackageBadge label={pack.author}/>
-            <PackageBadge label={packnamespace.PackageType[pack.type].toLocaleLowerCase()}/>
-            <PackageBadge label={packnamespace.PackageState[pack.state].toLocaleLowerCase()} />
+            <PackageBadge label={pack.type.toLocaleLowerCase()}/>
+            <PackageBadge label={pack.state.toLocaleLowerCase()} />
         </div>
     </div>
 </div>

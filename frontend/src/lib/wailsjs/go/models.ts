@@ -1,5 +1,17 @@
 export namespace application {
 	
+	export class AddPackageOpts {
+	    reference: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new AddPackageOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.reference = source["reference"];
+	    }
+	}
 	export class AddProjectPackageOpts {
 	    id: number[];
 	    reference: string;
@@ -14,16 +26,91 @@ export namespace application {
 	        this.reference = source["reference"];
 	    }
 	}
-	export class CreateProjectOperationOpts {
+	export class AggregateMetricsOpts {
+	    domain?: string;
+	    name?: string;
+	    // Go type: time
+	    startTime?: any;
+	    // Go type: time
+	    endTime?: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new AggregateMetricsOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.domain = source["domain"];
+	        this.name = source["name"];
+	        this.startTime = this.convertValues(source["startTime"], null);
+	        this.endTime = this.convertValues(source["endTime"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
+	export class CancelOperationOpts {
+	    id: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new CancelOperationOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	    }
+	}
+	export class CreateProjectOpts {
 	    name: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new CreateProjectOperationOpts(source);
+	        return new CreateProjectOpts(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.name = source["name"];
+	    }
+	}
+	export class CreateProjectResult {
+	    operationID: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new CreateProjectResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.operationID = source["operationID"];
+	    }
+	}
+	export class DeleteProjectOpts {
+	    id: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new DeleteProjectOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
 	    }
 	}
 	export class Details {
@@ -75,6 +162,301 @@ export namespace application {
 	        this.displayName = source["displayName"];
 	        this.pattern = source["pattern"];
 	    }
+	}
+	export class GetOperationOpts {
+	    id: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new GetOperationOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	    }
+	}
+	export class GetOperationResult {
+	    operation?: types.Operation;
+	
+	    static createFrom(source: any = {}) {
+	        return new GetOperationResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.operation = this.convertValues(source["operation"], types.Operation);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class GetPackageOpts {
+	    id: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new GetPackageOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	    }
+	}
+	export class GetPackageResult {
+	    package?: types.Package;
+	
+	    static createFrom(source: any = {}) {
+	        return new GetPackageResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.package = this.convertValues(source["package"], types.Package);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class GetProjectResult {
+	    project?: types.Project;
+	
+	    static createFrom(source: any = {}) {
+	        return new GetProjectResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.project = this.convertValues(source["project"], types.Project);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class InstallPackageOpts {
+	    id: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new InstallPackageOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	    }
+	}
+	export class InstallPackageResult {
+	    operationID: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new InstallPackageResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.operationID = source["operationID"];
+	    }
+	}
+	export class ListMetricsOpts {
+	    domain?: string;
+	    name?: string;
+	    // Go type: time
+	    startTime?: any;
+	    // Go type: time
+	    endTime?: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new ListMetricsOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.domain = source["domain"];
+	        this.name = source["name"];
+	        this.startTime = this.convertValues(source["startTime"], null);
+	        this.endTime = this.convertValues(source["endTime"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
+	export class ListOperationsResult {
+	    operations: types.Operation[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ListOperationsResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.operations = this.convertValues(source["operations"], types.Operation);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class ListPackagesOpts {
+	    query: string;
+	    packageType: string;
+	    installed: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new ListPackagesOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.query = source["query"];
+	        this.packageType = source["packageType"];
+	        this.installed = source["installed"];
+	    }
+	}
+	export class ListPackagesResult {
+	    packages?: types.Package[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ListPackagesResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.packages = this.convertValues(source["packages"], types.Package);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class ListProjectsOpts {
+	    query: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ListProjectsOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.query = source["query"];
+	    }
+	}
+	export class ListProjectsResult {
+	    projects: types.Project[];
+	
+	    static createFrom(source: any = {}) {
+	        return new ListProjectsResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.projects = this.convertValues(source["projects"], types.Project);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class OpenDialogOptions {
 	    defaultDirectory?: string;
@@ -170,6 +552,42 @@ export namespace application {
 	        this.reference = source["reference"];
 	    }
 	}
+	export class RenderProjectOpts {
+	    id: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new RenderProjectOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	    }
+	}
+	export class RunProjectOpts {
+	    id: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new RunProjectOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	    }
+	}
+	export class UninstallPackageOpts {
+	    id: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new UninstallPackageOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	    }
+	}
 	export class UpdatePreferencesOpts {
 	    watchPath: string;
 	    feature: Feature;
@@ -219,7 +637,23 @@ export namespace application {
 
 }
 
-export namespace metricservice {
+export namespace enums {
+	
+	export enum PackageState {
+	    AVAILABLE = "available",
+	    DOWNLOADING = "downloading",
+	    CANCELLED = "cancelled",
+	    INSTALLED = "installed",
+	    ERROR = "error",
+	}
+	export enum PackageType {
+	    BUILD = "build",
+	    ADDON = "addon",
+	}
+
+}
+
+export namespace types {
 	
 	export class Aggregate {
 	    domain: string;
@@ -245,88 +679,6 @@ export namespace metricservice {
 	        this.max = source["max"];
 	    }
 	}
-	export class FilterOptions {
-	    domain?: string;
-	    name?: string;
-	    // Go type: time
-	    startTime?: any;
-	    // Go type: time
-	    endTime?: any;
-	
-	    static createFrom(source: any = {}) {
-	        return new FilterOptions(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.domain = source["domain"];
-	        this.name = source["name"];
-	        this.startTime = this.convertValues(source["startTime"], null);
-	        this.endTime = this.convertValues(source["endTime"], null);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class Metric {
-	    id: number[];
-	    domain: string;
-	    name: string;
-	    value: number;
-	    // Go type: time
-	    recordedAt: any;
-	
-	    static createFrom(source: any = {}) {
-	        return new Metric(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.id = source["id"];
-	        this.domain = source["domain"];
-	        this.name = source["name"];
-	        this.value = source["value"];
-	        this.recordedAt = this.convertValues(source["recordedAt"], null);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-
-}
-
-export namespace operationservice {
-	
 	export class Operation {
 	    id: number[];
 	    completed: boolean;
@@ -345,42 +697,25 @@ export namespace operationservice {
 	        this.result = source["result"];
 	    }
 	}
-
-}
-
-export namespace pack {
-	
-	export enum PackageType {
-	    UNKNOWN = 0,
-	    ADDON = 1,
-	    BUILD = 2,
-	}
-	export enum PackageState {
-	    AVAILABLE = 0,
-	    DOWNLOADING = 1,
-	    CANCELLED = 2,
-	    INSTALLED = 3,
-	    ERROR = 4,
-	}
 	export class Package {
-	    id?: number[];
-	    type: PackageType;
-	    state: PackageState;
-	    reference?: string;
-	    name?: string;
-	    author?: string;
-	    tag?: string;
-	    path?: string;
-	    installationPath?: string;
-	    operations?: string[];
-	    addons?: string[];
-	    platform?: number;
-	    source?: rocketpack.Source;
+	    id: number[];
+	    type: enums.PackageType;
+	    state: enums.PackageState;
+	    reference: string;
+	    name: string;
+	    author: string;
+	    tag: string;
+	    path: string;
+	    installationPath: string;
+	    operations: string[];
+	    platform: string;
+	    // Go type: URI
+	    uri?: any;
 	    // Go type: semver
 	    version?: any;
-	    verified?: boolean;
+	    verified: boolean;
 	    // Go type: time
-	    updatedAt?: any;
+	    updatedAt: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new Package(source);
@@ -398,9 +733,8 @@ export namespace pack {
 	        this.path = source["path"];
 	        this.installationPath = source["installationPath"];
 	        this.operations = source["operations"];
-	        this.addons = source["addons"];
 	        this.platform = source["platform"];
-	        this.source = this.convertValues(source["source"], rocketpack.Source);
+	        this.uri = this.convertValues(source["uri"], null);
 	        this.version = this.convertValues(source["version"], null);
 	        this.verified = source["verified"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
@@ -424,89 +758,19 @@ export namespace pack {
 		    return a;
 		}
 	}
-
-}
-
-export namespace packageservice {
-	
-	export class GetPackageResponse {
-	    package?: pack.Package;
-	
-	    static createFrom(source: any = {}) {
-	        return new GetPackageResponse(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.package = this.convertValues(source["package"], pack.Package);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class ListPackagesResponse {
-	    packages?: pack.Package[];
-	
-	    static createFrom(source: any = {}) {
-	        return new ListPackagesResponse(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.packages = this.convertValues(source["packages"], pack.Package);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-
-}
-
-export namespace project {
-	
 	export class Project {
 	    id: number[];
-	    name?: string;
-	    tags?: string[];
-	    path?: string;
-	    fileName?: string;
-	    build?: string;
-	    addons?: string[];
-	    splashPath?: string;
-	    thumbnailPath?: string;
-	    version?: string;
+	    name: string;
+	    tags: string[];
+	    path: string;
+	    fileName: string;
+	    build: string;
+	    addons: string[];
+	    splashPath: string;
+	    thumbnailPath: string;
+	    version: string;
 	    // Go type: time
-	    updatedAt?: any;
+	    updatedAt: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new Project(source);
@@ -525,109 +789,6 @@ export namespace project {
 	        this.thumbnailPath = source["thumbnailPath"];
 	        this.version = source["version"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-
-}
-
-export namespace projectservice {
-	
-	export class GetProjectResponse {
-	    project?: project.Project;
-	
-	    static createFrom(source: any = {}) {
-	        return new GetProjectResponse(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.project = this.convertValues(source["project"], project.Project);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-	export class ListProjectsResponse {
-	    projects?: project.Project[];
-	
-	    static createFrom(source: any = {}) {
-	        return new ListProjectsResponse(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.projects = this.convertValues(source["projects"], project.Project);
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
-
-}
-
-export namespace rocketpack {
-	
-	export class Source {
-	    resource?: string;
-	    // Go type: downloader
-	    uri?: any;
-	
-	    static createFrom(source: any = {}) {
-	        return new Source(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.resource = source["resource"];
-	        this.uri = this.convertValues(source["uri"], null);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

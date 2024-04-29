@@ -73,7 +73,6 @@
     };
 
     const handleKeyPress = (event: KeyboardEvent) => {
-        console.log(event.key);
         if (event.key === 'Enter' && editing) {
             toggleEditing();
             isKeyPressHandled = true;

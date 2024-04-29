@@ -5,7 +5,7 @@
 
     import { InputSearch } from '$lib/components/ui/input';
 
-    export let selectedFilterType: number;
+    export let selectedFilterType: string;
     export let searchQuery: string;
     export let filterInstalled: boolean;
     export let filterRadioOptions: RadioOption[] = [];

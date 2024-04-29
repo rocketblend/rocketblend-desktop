@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { project } from '$lib/wailsjs/go/models';
+    import type { types } from '$lib/wailsjs/go/models';
 
     import { DisplayType, type MediaInfo } from '$lib/types';
     import { resourcePath } from '$lib/components/utils';
@@ -7,11 +7,11 @@
     
     import ProjectTable from "./project-table.svelte";
 
-    export let projects: project.Project[] = [];
+    export let projects: types.Project[] = [];
     export let selectedProjectIds: string[] = [];
     export let displayType: DisplayType = DisplayType.Table;
 
-    function convertProjectsToGalleryItems(projects: project.Project[] = []): MediaInfo[] {
+    function convertProjectsToGalleryItems(projects: types.Project[] = []): MediaInfo[] {
         return projects.map((project) => ({
             id: project.id?.toString() || "",
             title: project.name || "Untitled Project",

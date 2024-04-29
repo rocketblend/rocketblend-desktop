@@ -1,237 +1,192 @@
 package pack
 
 import (
+	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
-	"os"
 	"path"
 	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/util"
-	"github.com/rocketblend/rocketblend/pkg/driver/installation"
-	"github.com/rocketblend/rocketblend/pkg/driver/reference"
-	"github.com/rocketblend/rocketblend/pkg/driver/rocketpack"
-	"github.com/rocketblend/rocketblend/pkg/driver/runtime"
-	"github.com/rocketblend/rocketblend/pkg/semver"
+	"github.com/flowshot-io/x/pkg/logger"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/store/indextype"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
 )
-
-const TempFileExtension = ".tmp" //TODO: Get via rocketblend downloader.
 
 type (
-	Package struct {
-		ID               uuid.UUID             `json:"id,omitempty"`
-		Type             PackageType           `json:"type"`
-		State            PackageState          `json:"state"`
-		Reference        reference.Reference   `json:"reference,omitempty"`
-		Name             string                `json:"name,omitempty"`
-		Author           string                `json:"author,omitempty"`
-		Tag              string                `json:"tag,omitempty"`
-		Path             string                `json:"path,omitempty"`
-		InstallationPath string                `json:"installationPath,omitempty"`
-		Operations       []string              `json:"operations,omitempty"`
-		Dependencies     []reference.Reference `json:"addons,omitempty"`
-		Platform         runtime.Platform      `json:"platform,omitempty"`
-		Source           *rocketpack.Source    `json:"source,omitempty"`
-		Version          *semver.Version       `json:"version,omitempty"`
-		Verified         bool                  `json:"verified,omitempty"`
-		UpdatedAt        time.Time             `json:"updatedAt,omitempty"`
+	Repository struct {
+		logger    types.Logger
+		validator types.Validator
+
+		rbRepository   types.RBRepository
+		rbConfigurator types.RBConfigurator
+
+		store      types.Store
+		watcher    types.Watcher
+		dispatcher types.Dispatcher
 	}
+
+	Options struct {
+		Logger    types.Logger
+		Validator types.Validator
+
+		rbRepository   types.RBRepository
+		rbConfigurator types.RBConfigurator
+
+		Store      types.Store
+		Dispatcher types.Dispatcher
+
+		WatcherDebounceDuration time.Duration
+	}
+
+	Option func(*Options)
 )
 
-func Load(packageRootPath string, installationRootPath string, packagePath string, platform runtime.Platform) (*Package, error) {
-	pack, err := rocketpack.Load(packagePath)
+func WithLogger(logger logger.Logger) Option {
+	return func(o *Options) {
+		o.Logger = logger
+	}
+}
+
+func WithValidator(validator types.Validator) Option {
+	return func(o *Options) {
+		o.Validator = validator
+	}
+}
+
+func WithRocketBlendRepository(repository types.RBRepository) Option {
+	return func(o *Options) {
+		o.rbRepository = repository
+	}
+}
+
+func WithRocketBlendConfigurator(configurator types.RBConfigurator) Option {
+	return func(o *Options) {
+		o.rbConfigurator = configurator
+	}
+}
+
+func WithStore(store types.Store) Option {
+	return func(o *Options) {
+		o.Store = store
+	}
+}
+
+func WithDispatcher(dispatcher types.Dispatcher) Option {
+	return func(o *Options) {
+		o.Dispatcher = dispatcher
+	}
+}
+
+func WithWatcherDebounceDuration(duration time.Duration) Option {
+	return func(o *Options) {
+		o.WatcherDebounceDuration = duration
+	}
+}
+
+func New(opts ...Option) (*Repository, error) {
+	options := &Options{
+		Logger:                  logger.NoOp(),
+		WatcherDebounceDuration: 2 * time.Second,
+	}
+
+	for _, o := range opts {
+		o(options)
+	}
+
+	if options.Validator == nil {
+		return nil, errors.New("validator is required")
+	}
+
+	if options.Store == nil {
+		return nil, errors.New("store is required")
+	}
+
+	if options.Dispatcher == nil {
+		return nil, errors.New("dispatcher is required")
+	}
+
+	if options.rbRepository == nil {
+		return nil, fmt.Errorf("rocketblend repository is required")
+	}
+
+	if options.rbConfigurator == nil {
+		return nil, fmt.Errorf("rocketblend configurator is required")
+	}
+
+	config, err := options.rbConfigurator.Get()
 	if err != nil {
-		return nil, fmt.Errorf("error loading package: %w", err)
+		return nil, err
 	}
 
-	reference, err := convertPathToReference(packageRootPath, packagePath)
+	watcher, err := watcher.New(
+		watcher.WithLogger(options.Logger),
+		watcher.WithEventDebounceDuration(options.WatcherDebounceDuration),
+		watcher.WithPaths(config.PackagesPath),
+		watcher.WithIsWatchableFileFunc(func(path string) bool {
+			return filepath.Base(path) == types.PackageFileName
+		}),
+		watcher.WithUpdateObjectFunc(func(path string) error {
+			pack, err := load(options.rbConfigurator, options.Validator, path)
+			if err != nil {
+				return fmt.Errorf("failed to load package %s: %w", path, err)
+			}
+
+			index, err := convertToIndex(pack)
+			if err != nil {
+				return err
+			}
+
+			return options.Store.Insert(context.Background(), index)
+		}),
+		watcher.WithRemoveObjectFunc(func(removePath string) error {
+			return options.Store.RemoveByReference(context.Background(), path.Clean(removePath))
+		}),
+	)
 	if err != nil {
-		return nil, fmt.Errorf("error converting package path to reference: %w", err)
+		return nil, err
 	}
 
-	modTime, err := util.GetModTime(packagePath)
-	if err != nil {
-		return nil, fmt.Errorf("error getting package modification time: %w", err)
-	}
-
-	packType := Unknown
-	if pack.IsAddon() {
-		packType = Addon
-	}
-
-	if pack.IsBuild() {
-		packType = Build
-	}
-
-	var source *rocketpack.Source = nil
-	if !pack.IsPreInstalled() {
-		sources := pack.GetSources()
-		source, err = findCompatibleSource(sources, platform, runtime.Undefined)
-		if err != nil {
-			return nil, fmt.Errorf("error finding compatible source for package: %w", err)
-		}
-	}
-
-	installationPath := filepath.Join(installationRootPath, reference.String())
-	state, err := determinePackageState(installationPath, source)
-	if err != nil {
-		return nil, fmt.Errorf("error determining package state: %w", err)
-	}
-
-	id, err := util.StringToUUID(reference.String())
-	if err != nil {
-		return nil, fmt.Errorf("error generating package id: %w", err)
-	}
-
-	version := pack.GetVersion()
-	if version == nil {
-		version = &semver.Version{}
-	}
-
-	return &Package{
-		ID:               id,
-		Type:             packType,
-		State:            state,
-		Name:             extractPackageName(reference),
-		Tag:              extractPackageTag(reference),
-		Author:           extractPackageAuthor(reference),
-		Reference:        reference,
-		Path:             packagePath,
-		InstallationPath: installationPath,
-		Platform:         platform,
-		Source:           source,
-		Dependencies:     pack.GetDependencies(),
-		Verified:         isPackageVerified(reference),
-		Version:          version,
-		UpdatedAt:        modTime,
+	return &Repository{
+		logger:         options.Logger,
+		validator:      options.Validator,
+		rbRepository:   options.rbRepository,
+		rbConfigurator: options.rbConfigurator,
+		store:          options.Store,
+		dispatcher:     options.Dispatcher,
+		watcher:        watcher,
 	}, nil
 }
 
-func determinePackageState(installationPath string, source *rocketpack.Source) (PackageState, error) {
-	if source == nil {
-		return Installed, nil
-	}
-
-	return verifyInstallationState(installationPath, source)
+func (r *Repository) Close() error {
+	return r.watcher.Close()
 }
 
-func verifyInstallationState(installationPath string, source *rocketpack.Source) (PackageState, error) {
-	if source == nil {
-		return 0, fmt.Errorf("error verifying installation state: source is nil")
+func convertFromIndex(index *types.Index) (*types.Package, error) {
+	var result types.Package
+	if err := json.Unmarshal([]byte(index.Data), &result); err != nil {
+		return nil, err
 	}
 
-	resourcePath := filepath.Join(installationPath, source.Resource)
-	if installed, err := checkFileExistence(resourcePath); err != nil {
-		return 0, fmt.Errorf("error checking if package resource '%s' is installed: %w", resourcePath, err)
-	} else if installed {
-		return Installed, nil
-	}
-
-	return verifyPartialDownloadState(installationPath, source)
+	return &result, nil
 }
 
-func verifyPartialDownloadState(installationPath string, source *rocketpack.Source) (PackageState, error) {
-	if source == nil || source.URI == nil {
-		return 0, fmt.Errorf("error verifying partial download state: source URI is nil")
-	}
-
-	partialResourcePath := filepath.Join(installationPath, filepath.Base(source.URI.Path)+TempFileExtension)
-	if partial, err := checkFileExistence(partialResourcePath); err != nil {
-		return 0, fmt.Errorf("error checking if package resource is partially downloaded: %w", err)
-	} else if partial {
-		return checkLockFile(installationPath)
-	}
-
-	return Available, nil
-}
-
-func checkLockFile(installationPath string) (PackageState, error) {
-	lockFilePath := filepath.Join(installationPath, installation.LockFileName)
-	if locked, err := checkFileExistence(lockFilePath); err != nil {
-		return 0, fmt.Errorf("error checking if package is locked: %w", err)
-	} else if locked {
-		return Downloading, nil
-	}
-
-	return Cancelled, nil
-}
-
-func convertPathToReference(packageRootPath string, filePath string) (reference.Reference, error) {
-	strippedFilePath := trimPathFromFolder(filePath, filepath.Base(packageRootPath))
-	return reference.Parse(path.Dir(path.Clean(strings.TrimPrefix(strippedFilePath, "/"))))
-}
-
-func trimPathFromFolder(path, folderName string) string {
-	normPath := filepath.ToSlash(strings.ToLower(path))
-	normFolderName := strings.ToLower(folderName)
-
-	index := strings.Index(normPath, normFolderName)
-	if index == -1 {
-		return normPath
-	}
-
-	return normPath[index+len(normFolderName):]
-}
-
-func checkFileExistence(filepath string) (bool, error) {
-	_, err := os.Stat(filepath)
-	if err == nil {
-		return true, nil
-	}
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-
-	return false, err
-}
-
-func findCompatibleSource(sources map[runtime.Platform]*rocketpack.Source, primary, fallback runtime.Platform) (*rocketpack.Source, error) {
-	keys := []runtime.Platform{primary, fallback}
-
-	for _, key := range keys {
-		if source, ok := sources[key]; ok {
-			return source, nil
-		}
-	}
-
-	return nil, fmt.Errorf("unable to find source for the given keys")
-}
-
-// TODO: Move these to reference package
-func getPathSegment(ref reference.Reference, n int) string {
-	parts := strings.Split(string(ref), "/")
-	if len(parts) < n {
-		return ""
-	}
-
-	return parts[len(parts)-n]
-}
-
-func extractPackageName(ref reference.Reference) string {
-	return getPathSegment(ref, 2)
-}
-
-func extractPackageTag(ref reference.Reference) string {
-	return getPathSegment(ref, 1)
-}
-
-func extractPackageAuthor(ref reference.Reference) string {
-	author, err := ref.GetRepo()
+func convertToIndex(pack *types.Package) (*types.Index, error) {
+	data, err := json.Marshal(pack)
 	if err != nil {
-		return ""
+		return nil, err
 	}
 
-	return author
-}
-
-// TODO: Move safe list into rocketblend config.
-func isPackageVerified(ref reference.Reference) bool {
-	repo, err := ref.GetRepo()
-	if err != nil {
-		return false
-	}
-
-	return repo == "github.com/rocketblend/official-library"
+	return &types.Index{
+		ID:        pack.ID,
+		Name:      pack.Name,
+		Type:      indextype.Package,
+		Reference: path.Clean(pack.Path),
+		Category:  string(pack.Type),
+		//State:      int(pack.State),
+		Operations: pack.Operations,
+		Data:       string(data),
+	}, nil
 }

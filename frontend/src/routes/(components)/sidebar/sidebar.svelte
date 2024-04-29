@@ -4,7 +4,7 @@
     import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
     import { EventsOn } from '$lib/wailsjs/runtime';
-    import { pack } from '$lib/wailsjs/go/models';
+    import { application, enums } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
 
     import { t } from '$lib/translations/translations';
@@ -20,9 +20,9 @@
     const toastStore = getToastStore();
 
     const defaultFilterRadioOptions: RadioOption[] = [
-        { value: pack.PackageType.UNKNOWN, display: $t('home.sidebar.filter.option.all') },
-        { value: pack.PackageType.BUILD, display: $t('home.sidebar.filter.option.build') },
-        { value: pack.PackageType.ADDON, display: $t('home.sidebar.filter.option.addon') },
+        { value: "", display: $t('home.sidebar.filter.option.all') },
+        { value: enums.PackageType.BUILD, display: $t('home.sidebar.filter.option.build') },
+        { value: enums.PackageType.ADDON, display: $t('home.sidebar.filter.option.addon') },
     ];
 
     const fetchPackagesDebounced = debounce(fetchPackages, EVENT_DEBOUNCE);
@@ -31,7 +31,7 @@
     export let dependencies: string[];
     export let addonFeature: boolean;
 
-    let selectedFilterType: number = 0;
+    let selectedFilterType: string = "";
     let searchQuery: string = "";
     let filterInstalled: boolean = true;
     let filterRadioOptions: RadioOption[] = [];
@@ -62,7 +62,13 @@
 
     function fetchPackages() {
         error = false;
-        ListPackages(searchQuery, selectedFilterType, filterInstalled).then(result => {
+        const opts = application.ListPackagesOpts.createFrom({
+            searchQuery: searchQuery,
+            filterType: selectedFilterType,
+            filterInstalled: filterInstalled,
+        });
+
+        ListPackages(opts).then(result => {
             initialLoad = false;
             packageStore.set([...result.packages || []]);
         }).catch(error => {
@@ -89,7 +95,7 @@
 
     $: {
         filterRadioOptions = addonFeature ? defaultFilterRadioOptions : [];
-        selectedFilterType = addonFeature ? 0 : 2;
+        selectedFilterType = addonFeature ? "" : enums.PackageType.BUILD;
         fetchPackages();
     }
 </script>

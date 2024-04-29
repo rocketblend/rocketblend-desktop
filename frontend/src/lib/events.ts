@@ -8,7 +8,9 @@ import {debounce} from '$lib/utils';
 import { EventsOn, EventsOff, EventsEmit } from '$lib/wailsjs/runtime';
 
 export const EVENT_DEBOUNCE = 250;
-export const SEARCH_STORE_INSERT_CHANNEL = 'searchstore.insert';
+export const SEARCH_STORE_INSERT_CHANNEL = 'store.insert';
+export const DEBUG_LOG_CHANNEL = 'debug.log';
+export const APPLICATION_ARGUMENT_CHANNEL = 'application.argument';
 
 export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastStore) => {
     const changeDetectedDebounce = debounce(() => {
@@ -22,12 +24,12 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
 
 
     // Setup debug log listener
-    EventsOn('debug.log', (data: LogEvent) => {
+    EventsOn(DEBUG_LOG_CHANNEL, (data: LogEvent) => {
         logStore.add(data);
     });
 
     // Setup application argument listener
-    EventsOn('application.argument', (data: { args: string[] }) => {
+    EventsOn(APPLICATION_ARGUMENT_CHANNEL, (data: { args: string[] }) => {
         if (data.args && data.args.length !== 0) {
             const applicationArgumentToast: ToastSettings = {
                 message: `Args: ${data.args.join(', ')}`,
@@ -61,11 +63,11 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
 
 export const tearDownGlobalEventListeners = () => {
     // Remove log stream listener
-    EventsOff('debug.log');
+    EventsOff(DEBUG_LOG_CHANNEL);
 
     // Remove search store listener
-    EventsOff('searchstore.insert');
+    EventsOff(SEARCH_STORE_INSERT_CHANNEL);
 
     // Remove launch arguments listener
-    EventsOff('application.argument');
+    EventsOff(APPLICATION_ARGUMENT_CHANNEL);
 }

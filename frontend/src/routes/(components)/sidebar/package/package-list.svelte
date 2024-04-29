@@ -1,10 +1,10 @@
 <script lang="ts">
-    import type { pack } from '$lib/wailsjs/go/models';
+    import type { types } from '$lib/wailsjs/go/models';
 
     import PackageListItem from './package-list-item.svelte';
 
     export let projectId: string | undefined;
-    export let packages: pack.Package[];
+    export let packages: types.Package[];
     export let dependencies: string[];
 </script>
 

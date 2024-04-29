@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { pack } from '$lib/wailsjs/go/models';
+    import { enums } from '$lib/wailsjs/go/models';
 
     import {
         AlertAvailable,
@@ -10,16 +10,16 @@
     } from './alert';
 
     export let packageId: string;
-    export let state: pack.PackageState = pack.PackageState.AVAILABLE;
+    export let state: enums.PackageState = enums.PackageState.AVAILABLE;
 </script>
 
-{#if state === pack.PackageState.AVAILABLE}
+{#if state === enums.PackageState.AVAILABLE}
     <AlertAvailable packageId={packageId}/>
-{:else if state === pack.PackageState.DOWNLOADING}
+{:else if state === enums.PackageState.DOWNLOADING}
     <AlertDownloading />
-{:else if state === pack.PackageState.CANCELLED}
+{:else if state === enums.PackageState.CANCELLED}
     <AlertPaused />
-{:else if state === pack.PackageState.INSTALLED}
+{:else if state === enums.PackageState.INSTALLED}
     <AlertInstalled />
 {:else}
     <AlertError />

@@ -3,6 +3,7 @@ import type { LayoutLoad } from './$types';
 
 import { getSelectedProjectStore } from '$lib/stores';
 import { GetDetails, GetPreferences, GetProject } from '$lib/wailsjs/go/application/Driver'
+import { application } from '$lib/wailsjs/go/models';
 
 export const ssr = false;
 export const prerender = "auto";
@@ -17,10 +18,14 @@ export const load: LayoutLoad = async ({ url, depends }) => {
 
     depends('app:layout');
 
+    const getProjectOpts = application.GetPackageOpts.createFrom({
+        id: selectedId,
+    })
+
     return {
         showBreadcrumb: true,
         details: GetDetails(),
-        selectedProject: selectedId ? await GetProject(selectedId) : undefined,
+        selectedProject: selectedId ? await GetProject(getProjectOpts) : undefined,
         preferences: await GetPreferences(),
     }
 };

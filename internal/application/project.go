@@ -2,24 +2,40 @@ package application
 
 import (
 	"context"
+	"errors"
+	"path/filepath"
 
 	"github.com/google/uuid"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/projectservice"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/searchstore/listoption"
-	"github.com/rocketblend/rocketblend/pkg/driver/reference"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/store/listoption"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
+	"github.com/rocketblend/rocketblend/pkg/reference"
+	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
 type (
-	Selected struct {
+	GetProjectOpts struct {
 		ID uuid.UUID `json:"id"`
 	}
 
-	GetSelectedOpts struct {
-		ID uuid.UUID `json:"id"`
+	GetProjectResult struct {
+		Project *types.Project `json:"project"`
 	}
 
-	UpdateSelectedOpts struct {
-		ID uuid.UUID `json:"id"`
+	ListProjectsOpts struct {
+		Query string `json:"query"`
+	}
+
+	ListProjectsResult struct {
+		Projects []*types.Project `json:"projects"`
+	}
+
+	CreateProjectOpts struct {
+		Name string `json:"name"`
+	}
+
+	CreateProjectResult struct {
+		OperationID uuid.UUID `json:"operationID"`
 	}
 
 	AddProjectPackageOpts struct {
@@ -36,170 +52,212 @@ type (
 		ID   uuid.UUID `json:"id"`
 		Name *string   `json:"name,omitempty"`
 	}
-)
 
-// GetProject gets a project by id
-func (d *Driver) GetProject(id uuid.UUID) (*projectservice.GetProjectResponse, error) {
-	ctx := context.Background()
-
-	projectService, err := d.factory.GetProjectService()
-	if err != nil {
-		d.logger.Error("failed to get project service", map[string]interface{}{"error": err.Error()})
-		return nil, err
+	DeleteProjectOpts struct {
+		ID uuid.UUID `json:"id"`
 	}
 
-	project, err := projectService.Get(ctx, id)
+	RunProjectOpts struct {
+		ID uuid.UUID `json:"id"`
+	}
+
+	RenderProjectOpts struct {
+		ID uuid.UUID `json:"id"`
+	}
+)
+
+func (d *Driver) GetProject(opts GetPackageOpts) (*GetProjectResult, error) {
+	ctx := context.Background()
+
+	project, err := d.portfolio.GetProject(ctx, &types.GetProjectOpts{
+		ID: opts.ID,
+	})
 	if err != nil {
 		d.logger.Error("failed to find project by id", map[string]interface{}{"error": err.Error()})
 		return nil, err
 	}
 
-	return project, nil
+	return &GetProjectResult{
+		Project: project.Project,
+	}, nil
 }
 
-// ListProjects lists all projects
-func (d *Driver) ListProjects(query string) (*projectservice.ListProjectsResponse, error) {
+func (d *Driver) ListProjects(opts ListProjectsOpts) (*ListProjectsResult, error) {
 	ctx := context.Background()
 
-	projectService, err := d.factory.GetProjectService()
+	response, err := d.portfolio.ListProjects(ctx, listoption.WithQuery(opts.Query))
 	if err != nil {
-		d.logger.Error("failed to get project service", map[string]interface{}{"error": err.Error()})
+		d.logger.Error("failed to list projects", map[string]interface{}{
+			"error": err.Error(),
+			"query": opts.Query,
+		})
 		return nil, err
 	}
 
-	response, err := projectService.List(ctx, listoption.WithQuery(query))
-	if err != nil {
-		d.logger.Error("failed to find all projects", map[string]interface{}{"error": err.Error()})
-		return nil, err
-	}
+	d.logger.Debug("found projects", map[string]interface{}{
+		"total": len(response.Projects),
+	})
 
-	d.logger.Debug("found projects", map[string]interface{}{"projects": len(response.Projects)})
-
-	return response, nil
+	return &ListProjectsResult{
+		Projects: response.Projects,
+	}, nil
 }
 
-// AddProjectPackage adds a package to a project
-func (d *Driver) AddProjectPackage(opts AddProjectPackageOpts) error {
-	projectService, err := d.factory.GetProjectService()
+func (d *Driver) CreateProject(opts CreateProjectOpts) (*CreateProjectResult, error) {
+	projectPath, err := d.getProjectPath()
 	if err != nil {
-		d.logger.Error("failed to get project service", map[string]interface{}{"error": err.Error()})
-		return err
+		return nil, err
 	}
 
-	if err := projectService.AddPackage(d.ctx, &projectservice.AddProjectPackageOpts{
+	defaultBuild, err := d.getDefaultBuild()
+	if err != nil {
+		return nil, err
+	}
+
+	fileName := helpers.DisplayNameToFilename(opts.Name)
+	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
+		result, err := d.portfolio.CreateProject(ctx, &types.CreateProjectOpts{
+			DisplayName:   opts.Name,
+			BlendFileName: fileName + rbtypes.BlendFileExtension,
+			Path:          filepath.Join(projectPath, fileName),
+			Build:         defaultBuild,
+		})
+		if err != nil {
+			d.logger.Error("failed to create project", map[string]interface{}{
+				"error": err.Error(),
+				"opid":  opid,
+			})
+			return nil, err
+		}
+
+		d.logger.Debug("project created", map[string]interface{}{
+			"id":   result.ID,
+			"opid": opid,
+		})
+
+		return result, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &CreateProjectResult{
+		OperationID: opid,
+	}, nil
+}
+
+func (d *Driver) AddProjectPackage(opts AddProjectPackageOpts) error {
+	if err := d.portfolio.AddProjectPackage(d.ctx, &types.AddProjectPackageOpts{
 		ID:        opts.ID,
 		Reference: opts.Reference,
 	}); err != nil {
-		d.logger.Error("failed to add package to project", map[string]interface{}{"error": err.Error()})
+		d.logger.Error("failed to add package to project", map[string]interface{}{
+			"error":     err.Error(),
+			"id":        opts.ID,
+			"reference": opts.Reference,
+		})
 		return err
 	}
 
-	d.logger.Debug("package added to project", map[string]interface{}{"id": opts.ID, "reference": opts.Reference})
+	d.logger.Debug("package added to project", map[string]interface{}{
+		"id":        opts.ID,
+		"reference": opts.Reference,
+	})
 
 	return nil
 }
 
-// RemoveProjectPackage removes a package from a project
 func (d *Driver) RemoveProjectPackage(opts RemoveProjectPackageOpts) error {
-	projectService, err := d.factory.GetProjectService()
-	if err != nil {
-		d.logger.Error("failed to get project service", map[string]interface{}{"error": err.Error()})
-		return err
-	}
-
-	if err := projectService.RemovePackage(d.ctx, &projectservice.RemoveProjectPackageOpts{
+	if err := d.portfolio.RemoveProjectPackage(d.ctx, &types.RemoveProjectPackageOpts{
 		ID:        opts.ID,
 		Reference: opts.Reference,
 	}); err != nil {
-		d.logger.Error("failed to remove package from project", map[string]interface{}{"error": err.Error()})
+		d.logger.Error("failed to remove package from project", map[string]interface{}{
+			"error":     err.Error(),
+			"id":        opts.ID,
+			"reference": opts.Reference,
+		})
 		return err
 	}
 
-	d.logger.Debug("package removed from project", map[string]interface{}{"id": opts.ID, "reference": opts.Reference})
+	d.logger.Debug("package removed from project", map[string]interface{}{
+		"id":        opts.ID,
+		"reference": opts.Reference,
+	})
 
 	return nil
 }
 
 // UpdateProject updates a project
 func (d *Driver) UpdateProject(opts UpdateProjectOpts) error {
-	projectService, err := d.factory.GetProjectService()
-	if err != nil {
-		d.logger.Error("failed to get project service", map[string]interface{}{"error": err.Error()})
-		return err
-	}
-
-	if err := projectService.Update(d.ctx, &projectservice.UpdateProjectOpts{
+	if err := d.portfolio.UpdateProject(d.ctx, &types.UpdateProjectOpts{
 		ID:   opts.ID,
 		Name: opts.Name,
 	}); err != nil {
-		d.logger.Error("failed to update project", map[string]interface{}{"error": err.Error()})
+		d.logger.Error("failed to update project", map[string]interface{}{
+			"error": err.Error(),
+			"id":    opts.ID,
+			"name":  opts.Name,
+		})
 		return err
 	}
 
-	d.logger.Debug("project updated", map[string]interface{}{"id": opts.ID})
+	d.logger.Debug("project updated", map[string]interface{}{
+		"id": opts.ID,
+	})
 
 	return nil
 }
 
-// DeleteProject deletes a project
-func (d *Driver) DeleteProject(id uuid.UUID) error {
-	d.logger.Debug("deleting project", map[string]interface{}{"id": id})
-	return nil
+func (d *Driver) DeleteProject(opts DeleteProjectOpts) error {
+	d.logger.Debug("deleting project", map[string]interface{}{"id": opts.ID})
+	return types.ErrNotImplement
 }
 
-// RunProject runs a project
-func (d *Driver) RunProject(id uuid.UUID) error {
+func (d *Driver) RunProject(opts RunProjectOpts) error {
 	ctx := context.Background()
 
-	projectService, err := d.factory.GetProjectService()
-	if err != nil {
-		d.logger.Error("failed to get project service", map[string]interface{}{"error": err.Error()})
+	if err := d.portfolio.RunProject(ctx, &types.RunProjectOpts{
+		ID: opts.ID,
+	}); err != nil {
+		d.logger.Error("failed to run project", map[string]interface{}{
+			"error": err.Error(),
+			"id":    opts.ID,
+		})
 		return err
 	}
 
-	if err := projectService.Run(ctx, id); err != nil {
-		d.logger.Error("failed to run project", map[string]interface{}{"error": err.Error()})
-		return err
-	}
+	d.logger.Debug("project started", map[string]interface{}{
+		"id": opts.ID,
+	})
 
-	d.logger.Debug("project started", map[string]interface{}{"id": id})
 	return nil
 }
 
-// RenderProject renders a project
-func (d *Driver) RenderProject(id uuid.UUID) error {
-	ctx := context.Background()
-
-	projectService, err := d.factory.GetProjectService()
-	if err != nil {
-		d.logger.Error("failed to get project service", map[string]interface{}{"error": err.Error()})
-		return err
-	}
-
-	if err := projectService.Render(ctx, id); err != nil {
-		d.logger.Error("failed to render project", map[string]interface{}{"error": err.Error()})
-		return err
-	}
-
-	d.logger.Debug("project rendered", map[string]interface{}{"id": id})
-	return nil
+func (d *Driver) RenderProject(opts RenderProjectOpts) error {
+	d.logger.Debug("project rendered", map[string]interface{}{"id": opts.ID})
+	return types.ErrNotImplement
 }
 
-// ExploreProject explores a project
-func (d *Driver) ExploreProject(id uuid.UUID) error {
-	ctx := context.Background()
-
-	projectService, err := d.factory.GetProjectService()
+func (d *Driver) getDefaultBuild() (reference.Reference, error) {
+	config, err := d.rbConfigurator.Get()
 	if err != nil {
-		d.logger.Error("failed to get project service", map[string]interface{}{"error": err.Error()})
-		return err
+		return "", err
 	}
 
-	if err := projectService.Explore(ctx, id); err != nil {
-		d.logger.Error("failed to explore project", map[string]interface{}{"error": err.Error()})
-		return err
+	return config.DefaultBuild, nil
+}
+
+func (d *Driver) getProjectPath() (string, error) {
+	config, err := d.configurator.Get()
+	if err != nil {
+		return "", err
 	}
 
-	d.logger.Debug("project explored", map[string]interface{}{"id": id})
-	return nil
+	if len(config.Project.Paths) == 0 {
+		return "", errors.New("no project path configured")
+	}
+
+	// TODO: support multiple project paths
+	return config.Project.Paths[0], nil
 }

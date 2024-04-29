@@ -1,7 +1,7 @@
-import type { operationservice, pack } from '$lib/wailsjs/go/models';
+import type { types } from '$lib/wailsjs/go/models';
 
 export type RadioOption = {
-    value: number;
+    value: number | string;
     display: string;
 };
 
@@ -57,15 +57,15 @@ export type LogStore = {
 };
 
 export type OperationStore = {
-    subscribe: (this: void, run: import("svelte/store").Subscriber<operationservice.Operation[]>, invalidate?: (value?: operationservice.Operation[]) => void) => import("svelte/store").Unsubscriber;
-    set: (operations: operationservice.Operation[]) => void;
-    add: (operation: operationservice.Operation) => void;
+    subscribe: (this: void, run: import("svelte/store").Subscriber<types.Operation[]>, invalidate?: (value?: types.Operation[]) => void) => import("svelte/store").Unsubscriber;
+    set: (operations: types.Operation[]) => void;
+    add: (operation: types.Operation) => void;
     clear: () => void;
 }
 
 export type PackageStore = {
-    subscribe: (this: void, run: import("svelte/store").Subscriber<pack.Package[]>, invalidate?: (value?: pack.Package[]) => void) => import("svelte/store").Unsubscriber;
-    set: (packages: pack.Package[]) => void;
-    add: (pack: pack.Package) => void;
+    subscribe: (this: void, run: import("svelte/store").Subscriber<types.Package[]>, invalidate?: (value?: types.Package[]) => void) => import("svelte/store").Unsubscriber;
+    set: (packages: types.Package[]) => void;
+    add: (pack: types.Package) => void;
     clear: () => void;
 }
