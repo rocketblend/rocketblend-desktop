@@ -34,8 +34,13 @@ func main() {
 
 func run(args []string) error {
 	if len(os.Args) > 1 {
+		development := false
+		if version == "dev" {
+			development = true
+		}
+
 		var err error
-		if err = open(context.Background(), os.Args[1]); err == nil {
+		if err = open(context.Background(), os.Args[1], development); err == nil {
 			// If we successfully launched a project, we're done.
 			return nil
 		}
@@ -59,9 +64,9 @@ func run(args []string) error {
 	return nil
 }
 
-func open(ctx context.Context, blendFilePath string) error {
+func open(ctx context.Context, blendFilePath string, development bool) error {
 	container, err := container.New(
-		container.WithApplicationName(types.ApplicationName),
+		container.WithDevelopmentMode(development),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create container: %w", err)
