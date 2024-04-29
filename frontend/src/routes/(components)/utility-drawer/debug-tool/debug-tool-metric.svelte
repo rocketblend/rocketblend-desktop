@@ -1,19 +1,18 @@
 <script lang="ts">
     import { AggregateMetrics } from '$lib/wailsjs/go/application/Driver';
-    import { metricservice } from '$lib/wailsjs/go/models';
+    import { application, types } from '$lib/wailsjs/go/models';
 
     let domain: string = "";
     let name: string= "";;
-    let aggregate: metricservice.Aggregate;
+    let aggregate: types.Aggregate;
 
     const fetchMetrics = async () => {
-        const request = metricservice.FilterOptions.createFrom({
+        const request = application.AggregateMetricsOpts.createFrom({
             domain: domain,
             name: name,
         });
 
         AggregateMetrics(request).then((response) => {
-            console.log(response);
             aggregate = response;
         }).catch((error) => {
             console.error(error);

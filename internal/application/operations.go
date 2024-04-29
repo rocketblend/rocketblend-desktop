@@ -44,7 +44,7 @@ func (d *Driver) GetOperation(opts GetOperationOpts) (*GetOperationResult, error
 	}, nil
 }
 
-func (d *Driver) ListOperations(opts ListOperationsOpts) (*ListOperationsResult, error) {
+func (d *Driver) ListOperations() (*ListOperationsResult, error) {
 	operations, err := d.operator.List(d.ctx)
 	if err != nil {
 		d.logger.Error("failed to list operations", map[string]interface{}{

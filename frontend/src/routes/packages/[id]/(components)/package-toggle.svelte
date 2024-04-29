@@ -1,6 +1,6 @@
 <script lang="ts">
     import { AddProjectPackage, RemoveProjectPackage } from '$lib/wailsjs/go/application/Driver'
-    import { pack, application } from '$lib/wailsjs/go/models';
+    import { enums, application, } from '$lib/wailsjs/go/models';
 
     import { AlertEnabled, AlertDisabled, AlertNotReady } from './alert';
 
@@ -8,7 +8,7 @@
     export let projectBuildRef: string | undefined;
     export let projectAddonRefs: string[] | undefined;
     export let packageRef: string;
-    export let packageState: pack.PackageState;
+    export let packageState: enums.PackageState;
 
     async function togglePackage() {
         if (projectId === undefined) {
@@ -36,7 +36,7 @@
 </script>
 
 {#if isActive}
-    {#if packageState === pack.PackageState.INSTALLED}
+    {#if packageState === enums.PackageState.INSTALLED}
         <AlertEnabled on:click={togglePackage}/>
     {:else}
         <AlertNotReady on:click={togglePackage}/>

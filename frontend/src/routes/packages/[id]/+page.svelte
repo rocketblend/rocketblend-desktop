@@ -3,7 +3,6 @@
 
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
 
-    import { pack } from '$lib/wailsjs/go/models';
     import { formatDateTime } from '$lib/components/utils';
     
 	import { PackageToggle, PackageActions } from './(components)';
@@ -25,11 +24,11 @@
             </div>
             <div class="flex flex-wrap text-sm text-surface-800-100-token gap-1">
                 <div class="badge variant-ghost rounded">{data.package.reference}</div>
-                <div class="badge variant-ghost rounded">{pack.PackageType[data.package.type].toLocaleLowerCase()}</div>
+                <div class="badge variant-ghost rounded">{data.package.type.toLocaleLowerCase()}</div>
                 <div class="badge variant-ghost rounded">{data.package.id}</div>
                 <div class="badge variant-ghost rounded">{data.package.platform}</div>
                 <div class="badge variant-ghost rounded">{formatDateTime(data.package.updatedAt)}</div>
-                <div class="badge variant-ghost rounded">{pack.PackageState[data.package.state].toLocaleLowerCase()}</div>
+                <div class="badge variant-ghost rounded">{data.package.state.toLocaleLowerCase()}</div>
             </div>
         </div>
     </div>
@@ -42,5 +41,5 @@
         packageRef={data.package.reference || ''}
         packageState={data.package.state}
     />
-    <PackageActions state={data.package.state}/>
+    <PackageActions state={data.package.state} packageId={data.package.id.toString()}/>
 </main>

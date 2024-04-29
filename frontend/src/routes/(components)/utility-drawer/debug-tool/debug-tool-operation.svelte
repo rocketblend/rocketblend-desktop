@@ -3,7 +3,7 @@
 
     import { ProgressRadial } from '@skeletonlabs/skeleton';
 
-    import type { operationservice } from '$lib/wailsjs/go/models';
+    import { type types, application } from '$lib/wailsjs/go/models';
     import { EventsOn } from '$lib/wailsjs/runtime';
     import {
         LongRunningOperation,
@@ -31,7 +31,9 @@
 
         LongRunningOperation().then(response => {
             fetchOperations();
-            GetOperation(response).then(operationDetails => {
+            const opts = application.GetOperationOpts.createFrom({ id: response });
+
+            GetOperation(opts).then(operationDetails => {
                 console.log('Operation started', operationDetails);
             }).catch(error => {
                 console.log('Error fetching operation details:', error);
@@ -43,7 +45,8 @@
     }
 
     function cancelOperation(id: string) {
-        CancelOperation(id).then(() => {
+        const opts = application.CancelOperationOpts.createFrom({ id: id });
+        CancelOperation(opts).then(() => {
             console.log(`Operation cancelled: ${id}`);
         }).catch(error => {
             console.log(`Operation cancel failed: ${error}`);
@@ -51,14 +54,15 @@
     }
 
     function fetchOperations() {
+        //const opts = application.ListOperationsOpts.createFrom({});
         ListOperations().then(result => {
-            operationStore.set([...result]);
+            operationStore.set([...result.operations]);
         }).catch(error => {
             console.log(`Error fetching operations: ${error}`);
         });
     }
 
-    function getStatusText(operation: operationservice.Operation): string {
+    function getStatusText(operation: types.Operation): string {
         if (operation.completed && operation.error) {
             return $t('home.debug.operation.cancelled');
         } else if (operation.error) {

@@ -2,7 +2,7 @@
     import { getModalStore } from "@skeletonlabs/skeleton";
     import type { ModalSettings } from "@skeletonlabs/skeleton";
 
-    import { CreateProjectOperation } from "$lib/wailsjs/go/application/Driver";
+    import { CreateProject } from "$lib/wailsjs/go/application/Driver";
     import { application } from "$lib/wailsjs/go/models"
 			
     const modalStore = getModalStore();
@@ -28,8 +28,8 @@
                 return;
             }
 
-            const opts = application.CreateProjectOperationOpts.createFrom({ name: name });
-            await CreateProjectOperation(opts);
+            const opts = application.CreateProjectOpts.createFrom({ name: name });
+            await CreateProject(opts);
         });
     }
 </script>

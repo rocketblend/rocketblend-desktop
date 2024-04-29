@@ -3,7 +3,9 @@
 
     import IconDownloadFill from '~icons/ri/download-2-fill';
 
-    import { InstallPackageOperation } from '$lib/wailsjs/go/application/Driver';
+    import { InstallPackage } from '$lib/wailsjs/go/application/Driver';
+    import { application } from '$lib/wailsjs/go/models';
+
     import { Alert, AlertTitle, AlertDescription, AlertAction } from '$lib/components/ui/alert';
 
     const toastStore = getToastStore();
@@ -18,7 +20,9 @@
         }
 
         disabled = true;
-        InstallPackageOperation(packageId).then((result) => {
+        const opts = application.InstallPackageOpts.createFrom({ id: packageId });
+
+        InstallPackage(opts).then((result) => {
             // TODO: Handle these types of notifiations globally via events from go.
             const downloadPackageToast: ToastSettings = {
                 message: `Downloading Package: ${packageId}`,

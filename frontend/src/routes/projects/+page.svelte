@@ -4,7 +4,9 @@
     import { page } from '$app/stores';
 
     import { t } from '$lib/translations/translations';
+    
     import { RunProject } from '$lib/wailsjs/go/application/Driver';
+    import { application } from '$lib/wailsjs/go/models';
 
     import { getSelectedProjectStore } from '$lib/stores';
 	import { DisplayType, type OptionGroup } from '$lib/types';
@@ -53,7 +55,11 @@
 
     function handleProjectDoubleClick(event: CustomEvent<{ event: MouseEvent, item: string }>) {
         if (event.detail.event.ctrlKey) {
-            RunProject(event.detail.item)
+            const opts = application.RunProjectOpts.createFrom({
+                projectID: event.detail.item,
+            });
+
+            RunProject(opts)
             return;
         }
 

@@ -18,16 +18,12 @@ export function CancelOperation(arg1) {
   return window['go']['application']['Driver']['CancelOperation'](arg1);
 }
 
-export function CreateProjectOperation(arg1) {
-  return window['go']['application']['Driver']['CreateProjectOperation'](arg1);
+export function CreateProject(arg1) {
+  return window['go']['application']['Driver']['CreateProject'](arg1);
 }
 
 export function DeleteProject(arg1) {
   return window['go']['application']['Driver']['DeleteProject'](arg1);
-}
-
-export function ExploreProject(arg1) {
-  return window['go']['application']['Driver']['ExploreProject'](arg1);
 }
 
 export function GetDetails() {
@@ -50,8 +46,8 @@ export function GetProject(arg1) {
   return window['go']['application']['Driver']['GetProject'](arg1);
 }
 
-export function InstallPackageOperation(arg1) {
-  return window['go']['application']['Driver']['InstallPackageOperation'](arg1);
+export function InstallPackage(arg1) {
+  return window['go']['application']['Driver']['InstallPackage'](arg1);
 }
 
 export function ListMetrics(arg1) {
@@ -62,8 +58,8 @@ export function ListOperations() {
   return window['go']['application']['Driver']['ListOperations']();
 }
 
-export function ListPackages(arg1, arg2, arg3) {
-  return window['go']['application']['Driver']['ListPackages'](arg1, arg2, arg3);
+export function ListPackages(arg1) {
+  return window['go']['application']['Driver']['ListPackages'](arg1);
 }
 
 export function ListProjects(arg1) {
