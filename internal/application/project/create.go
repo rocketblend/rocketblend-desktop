@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/events"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
+	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
 	"github.com/rocketblend/rocketblend/pkg/reference"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
@@ -87,6 +88,7 @@ func (r *Repository) createBlendFile(ctx context.Context, filePath string, profi
 	if err := r.blender.Create(ctx, &rbtypes.CreateOpts{
 		BlenderOpts: rbtypes.BlenderOpts{
 			BlendFile: &rbtypes.BlendFile{
+				Name:         helpers.FilenameToDisplayName(filePath),
 				Path:         filePath,
 				Dependencies: resolved.Installations[0],
 			},

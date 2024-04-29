@@ -56,7 +56,7 @@
     function handleProjectDoubleClick(event: CustomEvent<{ event: MouseEvent, item: string }>) {
         if (event.detail.event.ctrlKey) {
             const opts = application.RunProjectOpts.createFrom({
-                projectID: event.detail.item,
+                id: event.detail.item,
             });
 
             RunProject(opts)

@@ -19,7 +19,7 @@
     async function handleRunProject() {
         if (selected) {
             const opts = application.RunProjectOpts.createFrom({
-                projectID: selected.id,
+                id: selected.id,
             });
             
             return await RunProject(opts);
