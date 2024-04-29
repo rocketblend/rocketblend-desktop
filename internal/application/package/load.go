@@ -42,7 +42,8 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 
 	source := definition.Source(rbtypes.Platform(config.Platform.String()))
 
-	state, err := determineState(config.InstallationsPath, source)
+	installationPath := filepath.Join(config.InstallationsPath, reference.String())
+	state, err := determineState(installationPath, source)
 	if err != nil {
 		return nil, fmt.Errorf("failed to determine state: %w", err)
 	}
@@ -56,7 +57,7 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 		Author:           extractPackageAuthor(reference),
 		Reference:        reference,
 		Path:             path,
-		InstallationPath: filepath.Join(config.InstallationsPath, reference.String()),
+		InstallationPath: installationPath,
 		Platform:         source.Platform,
 		URI:              source.URI,
 		Verified:         isPackageVerified(reference),

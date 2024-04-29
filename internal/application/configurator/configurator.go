@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	FileName      = "settings"
+	FileName      = "config"
 	FileExtension = "json"
 )
 
@@ -67,8 +67,8 @@ func New(opts ...Option) (*Configurator, error) {
 	options := &Options{
 		Logger:    logger.NoOp(),
 		Validator: validator.New(),
-		Extension: "json",
-		Name:      "settings",
+		Extension: FileExtension,
+		Name:      FileName,
 	}
 
 	for _, opt := range opts {

@@ -274,12 +274,14 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		}
 	}
 
+	// TODO: Switch to using a list/map of image paths.
+
 	return &types.Project{
 		ID:            detail.ID,
 		Name:          detail.Name,
 		Tags:          detail.Tags,
-		SplashPath:    detail.SplashPath,
-		ThumbnailPath: detail.ThumbnailPath,
+		SplashPath:    imagePath(path, detail.SplashPath),
+		ThumbnailPath: imagePath(path, detail.ThumbnailPath),
 		Path:          path,
 		FileName:      filepath.Base(blendFilePath),
 		Build:         builds[0].Reference,
@@ -341,6 +343,14 @@ func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath 
 	}
 
 	return nil, err
+}
+
+func imagePath(rootPath string, imagePath string) string {
+	if imagePath == "" {
+		return ""
+	}
+
+	return filepath.ToSlash(filepath.Join(rootPath, imagePath))
 }
 
 func ignoreProject(projectPath string) bool {

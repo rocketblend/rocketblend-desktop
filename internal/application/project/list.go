@@ -29,7 +29,7 @@ func (r *Repository) ListProjects(ctx context.Context, opts ...listoption.ListOp
 		projects = append(projects, pack)
 	}
 
-	r.logger.Debug("Found projects", map[string]interface{}{
+	r.logger.Debug("found projects", map[string]interface{}{
 		"projects": len(projects),
 		"indexes":  len(indexes),
 	})
