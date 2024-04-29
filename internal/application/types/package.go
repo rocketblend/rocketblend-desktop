@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store/listoption"
 	"github.com/rocketblend/rocketblend/pkg/reference"
 	"github.com/rocketblend/rocketblend/pkg/semver"
@@ -21,10 +22,9 @@ type (
 	// TODO: Just embed Definition in Package.
 
 	Package struct {
-		ID   uuid.UUID         `json:"id"`
-		Type types.PackageType `json:"type"`
-		//Type             PackageType         `json:"type"`
-		//State            PackageState        `json:"state"`
+		ID               uuid.UUID           `json:"id"`
+		Type             enums.PackageType   `json:"type"`
+		State            enums.PackageState  `json:"state"`
 		Reference        reference.Reference `json:"reference"`
 		Name             string              `json:"name"`
 		Author           string              `json:"author"`

@@ -8,6 +8,7 @@ import (
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/container"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/fileserver"
 	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
 	"github.com/rocketblend/rocketblend-desktop/internal/eventwriter"
@@ -135,8 +136,8 @@ func (a *Application) Execute() error {
 			OnSecondInstanceLaunch: a.driver.onSecondInstanceLaunch,
 		},
 		EnumBind: []interface{}{
-			//pack.AllPackageTypes,
-			//pack.AllPackageStates,
+			enums.PackageStates,
+			enums.PackageTypes,
 		},
 		MinHeight:        580,
 		MinWidth:         800,

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
 	rbhelpers "github.com/rocketblend/rocketblend/pkg/helpers"
@@ -41,10 +42,15 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 
 	source := definition.Source(rbtypes.Platform(config.Platform.String()))
 
+	state, err := determineState(config.InstallationsPath, source)
+	if err != nil {
+		return nil, fmt.Errorf("failed to determine state: %w", err)
+	}
+
 	return &types.Package{
-		ID:   id,
-		Type: definition.Type,
-		//State:            state,
+		ID:               id,
+		Type:             enums.PackageType(definition.Type),
+		State:            state,
 		Name:             extractPackageName(reference),
 		Tag:              extractPackageTag(reference),
 		Author:           extractPackageAuthor(reference),
