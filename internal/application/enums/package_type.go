@@ -3,8 +3,8 @@ package enums
 type PackageType string
 
 const (
-	PackageTypeBuild PackageType = "Build"
-	PackageTypeAddon PackageType = "Addon"
+	PackageTypeBuild PackageType = "build"
+	PackageTypeAddon PackageType = "addon"
 )
 
 var PackageTypes = []struct {

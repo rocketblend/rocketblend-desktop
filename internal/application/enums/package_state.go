@@ -3,11 +3,11 @@ package enums
 type PackageState string
 
 const (
-	PackageStateAvailable   PackageState = "Available"
-	PackageStateDownloading PackageState = "Downloading"
-	PackageStateCancelled   PackageState = "Cancelled"
-	PackageStateInstalled   PackageState = "Installed"
-	PackageStateError       PackageState = "Error"
+	PackageStateAvailable   PackageState = "available"
+	PackageStateDownloading PackageState = "downloading"
+	PackageStateCancelled   PackageState = "cancelled"
+	PackageStateInstalled   PackageState = "installed"
+	PackageStateError       PackageState = "error"
 )
 
 var PackageStates = []struct {

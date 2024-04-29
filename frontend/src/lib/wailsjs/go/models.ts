@@ -640,15 +640,15 @@ export namespace application {
 export namespace enums {
 	
 	export enum PackageState {
-	    AVAILABLE = "Available",
-	    DOWNLOADING = "Downloading",
-	    CANCELLED = "Cancelled",
-	    INSTALLED = "Installed",
-	    ERROR = "Error",
+	    AVAILABLE = "available",
+	    DOWNLOADING = "downloading",
+	    CANCELLED = "cancelled",
+	    INSTALLED = "installed",
+	    ERROR = "error",
 	}
 	export enum PackageType {
-	    BUILD = "Build",
-	    ADDON = "Addon",
+	    BUILD = "build",
+	    ADDON = "addon",
 	}
 
 }
