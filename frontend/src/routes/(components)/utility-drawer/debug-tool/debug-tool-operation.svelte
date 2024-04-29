@@ -77,7 +77,7 @@
     onMount(() => {
         fetchOperations();
 
-        cancelListener = EventsOn('searchstore.insert', (data: { id: string, indexType: string }) => {
+        cancelListener = EventsOn('store.insert', (data: { id: string, indexType: string }) => {
             if (data.indexType === "operation") {
                 debounceFetchOperations();
             }
