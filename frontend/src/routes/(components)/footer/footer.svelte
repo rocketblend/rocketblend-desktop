@@ -2,7 +2,7 @@
     import { goto } from '$app/navigation';
 
     import { type types, application } from '$lib/wailsjs/go/models';
-    import { RunProject } from '$lib/wailsjs/go/application/Driver';
+    import { RunProject, OpenExplorer } from '$lib/wailsjs/go/application/Driver';
 
     import { resourcePath } from '$lib/components/utils';
 
@@ -28,9 +28,13 @@
 
     async function handleExploreProject() {
         if (selected) {
-            console.log("Explore project");
-            // TODO: Switch to general explore endpoint.
-            // return await ExploreProject(selected.id);
+            console.log(selected.path);
+
+            const opts = application.OpenExplorerOptions.createFrom({
+                path: selected.path,
+            });
+            
+            await OpenExplorer(opts);
         }
     }
 </script>

@@ -1,6 +1,7 @@
 package application
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
@@ -47,11 +48,27 @@ func (d *Driver) OpenFileDialog(opts OpenDialogOptions) (string, error) {
 }
 
 func (d *Driver) OpenExplorer(opts OpenExplorerOptions) error {
-	if err := helpers.Explore(d.ctx, filepath.Dir(opts.Path)); err != nil {
+	path, err := determinePath(opts.Path)
+	if err != nil {
+		return err
+	}
+
+	if err := helpers.Explore(d.ctx, path); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func determinePath(path string) (string, error) {
+	info, err := os.Stat(path)
+	if err == nil && !info.IsDir() {
+		return filepath.Dir(path), nil
+	} else if err != nil && !os.IsNotExist(err) {
+		return "", err
+	}
+
+	return path, nil
 }
 
 func convertOpenDialogOptions(opts OpenDialogOptions) runtime.OpenDialogOptions {
