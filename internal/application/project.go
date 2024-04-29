@@ -10,6 +10,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
 	"github.com/rocketblend/rocketblend/pkg/reference"
+	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
 type (
@@ -113,14 +114,12 @@ func (d *Driver) CreateProject(opts CreateProjectOpts) (*CreateProjectResult, er
 		return nil, err
 	}
 
-	blendFileName := helpers.DisplayNameToFilename(opts.Name)
-	path := filepath.Join(projectPath, blendFileName)
-
+	fileName := helpers.DisplayNameToFilename(opts.Name)
 	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
 		result, err := d.portfolio.CreateProject(ctx, &types.CreateProjectOpts{
 			DisplayName:   opts.Name,
-			BlendFileName: blendFileName,
-			Path:          path,
+			BlendFileName: fileName + rbtypes.BlendFileExtension,
+			Path:          filepath.Join(projectPath, fileName),
 			Build:         defaultBuild,
 		})
 		if err != nil {

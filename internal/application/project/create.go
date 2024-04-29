@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/events"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
-	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
 	"github.com/rocketblend/rocketblend/pkg/reference"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
@@ -33,7 +32,7 @@ func (r *Repository) CreateProject(ctx context.Context, opts *types.CreateProjec
 		}
 	}()
 
-	if err := r.createBlendFile(ctx, filepath.Join(opts.Path, opts.BlendFileName), profile); err != nil {
+	if err := r.createBlendFile(ctx, opts.DisplayName, filepath.Join(opts.Path, opts.BlendFileName), profile); err != nil {
 		return nil, err
 	}
 
@@ -73,7 +72,7 @@ func (r *Repository) newProfile(ctx context.Context, build reference.Reference) 
 	return profiles[0], nil
 }
 
-func (r *Repository) createBlendFile(ctx context.Context, filePath string, profile *rbtypes.Profile) error {
+func (r *Repository) createBlendFile(ctx context.Context, displayName string, filePath string, profile *rbtypes.Profile) error {
 	if !strings.HasSuffix(filePath, ".blend") {
 		return errors.New("filename must have .blend extension")
 	}
@@ -85,10 +84,16 @@ func (r *Repository) createBlendFile(ctx context.Context, filePath string, profi
 		return err
 	}
 
+	r.logger.Debug("creating blend file", map[string]interface{}{
+		"displayName":  displayName,
+		"filePath":     filePath,
+		"dependencies": resolved.Installations[0],
+	})
+
 	if err := r.blender.Create(ctx, &rbtypes.CreateOpts{
 		BlenderOpts: rbtypes.BlenderOpts{
 			BlendFile: &rbtypes.BlendFile{
-				Name:         helpers.FilenameToDisplayName(filePath),
+				Name:         displayName,
 				Path:         filePath,
 				Dependencies: resolved.Installations[0],
 			},
