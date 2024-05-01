@@ -22,14 +22,6 @@ func (r *Repository) UpdateProject(ctx context.Context, opts *types.UpdateProjec
 		detail.Tags = *opts.Tags
 	}
 
-	if opts.ThumbnailPath != nil {
-		detail.ThumbnailPath = *opts.ThumbnailPath
-	}
-
-	if opts.SplashPath != nil {
-		detail.SplashPath = *opts.SplashPath
-	}
-
 	if err := r.saveDetail(project.Path, detail); err != nil {
 		return err
 	}

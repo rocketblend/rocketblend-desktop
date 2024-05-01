@@ -679,6 +679,20 @@ export namespace types {
 	        this.max = source["max"];
 	    }
 	}
+	export class Media {
+	    filePath: string;
+	    url: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Media(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.filePath = source["filePath"];
+	        this.url = source["url"];
+	    }
+	}
 	export class Operation {
 	    id: number[];
 	    completed: boolean;
@@ -763,11 +777,13 @@ export namespace types {
 	    name: string;
 	    tags: string[];
 	    path: string;
+	    mediaPath: string;
 	    fileName: string;
 	    build: string;
 	    addons: string[];
-	    splashPath: string;
-	    thumbnailPath: string;
+	    splash?: Media;
+	    thumbnail?: Media;
+	    media: Media[];
 	    version: string;
 	    // Go type: time
 	    updatedAt: any;
@@ -782,11 +798,13 @@ export namespace types {
 	        this.name = source["name"];
 	        this.tags = source["tags"];
 	        this.path = source["path"];
+	        this.mediaPath = source["mediaPath"];
 	        this.fileName = source["fileName"];
 	        this.build = source["build"];
 	        this.addons = source["addons"];
-	        this.splashPath = source["splashPath"];
-	        this.thumbnailPath = source["thumbnailPath"];
+	        this.splash = this.convertValues(source["splash"], Media);
+	        this.thumbnail = this.convertValues(source["thumbnail"], Media);
+	        this.media = this.convertValues(source["media"], Media);
 	        this.version = source["version"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }

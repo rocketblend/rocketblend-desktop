@@ -19,6 +19,8 @@ import (
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
+const DefaultMediaPath = "/media"
+
 type (
 	Repository struct {
 		logger    types.Logger
@@ -224,9 +226,6 @@ func (r *Repository) Close() error {
 }
 
 func (r *Repository) saveDetail(path string, detail *types.Detail) error {
-	detail.SplashPath = relativePath(path, detail.SplashPath)
-	detail.ThumbnailPath = relativePath(path, detail.ThumbnailPath)
-
 	if err := rbhelpers.Save(r.validator, filepath.Join(path, types.DetailFileName), detail); err != nil {
 		return err
 	}
@@ -260,6 +259,12 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		return nil, err
 	}
 
+	fmt.Println("media path", detail.MediaPath)
+
+	if filepath.IsLocal(detail.MediaPath) {
+		return nil, errors.New("media path must be relative")
+	}
+
 	modTime, err := helpers.GetModTime(path)
 	if err != nil {
 		return nil, err
@@ -277,19 +282,24 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		}
 	}
 
-	// TODO: Switch to using a list/map of image paths.
+	media, err := findMediaFiles(filepath.Join(path, detail.MediaPath))
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.Project{
-		ID:            detail.ID,
-		Name:          detail.Name,
-		Tags:          detail.Tags,
-		SplashPath:    absolutePath(path, detail.SplashPath),
-		ThumbnailPath: absolutePath(path, detail.ThumbnailPath),
-		Path:          path,
-		FileName:      filepath.Base(blendFilePath),
-		Build:         builds[0].Reference,
-		Addons:        addons,
-		UpdatedAt:     modTime,
+		ID:        detail.ID,
+		Name:      detail.Name,
+		Tags:      detail.Tags,
+		Path:      path,
+		Splash:    selectMediaOrDefault(media, splashKeyWord),
+		Thumbnail: selectMediaOrDefault(media, thumbnailKeyWord),
+		MediaPath: detail.MediaPath,
+		FileName:  filepath.Base(blendFilePath),
+		Build:     builds[0].Reference,
+		Addons:    addons,
+		Media:     media,
+		UpdatedAt: modTime,
 	}, nil
 }
 
@@ -326,8 +336,9 @@ func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath 
 	if err != nil {
 		if os.IsNotExist(err) {
 			detail := &types.Detail{
-				ID:   uuid.New(),
-				Name: helpers.FilenameToDisplayName(blendFilePath),
+				ID:        uuid.New(),
+				Name:      helpers.FilenameToDisplayName(blendFilePath),
+				MediaPath: DefaultMediaPath,
 			}
 
 			if err := rbhelpers.Save(validator, detailFilePath, detail); err != nil {
@@ -348,27 +359,6 @@ func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath 
 	return nil, err
 }
 
-func absolutePath(rootPath string, relativePath string) string {
-	if relativePath == "" {
-		return ""
-	}
-
-	return filepath.ToSlash(filepath.Join(rootPath, relativePath))
-}
-
-func relativePath(rootPath string, absolutePath string) string {
-	if absolutePath == "" {
-		return ""
-	}
-
-	path, err := filepath.Rel(rootPath, absolutePath)
-	if err != nil {
-		return ""
-	}
-
-	return path
-}
-
 func ignoreProject(projectPath string) bool {
 	_, err := os.Stat(filepath.Join(projectPath, types.IgnoreFileName))
 	return !os.IsNotExist(err)
@@ -385,4 +375,18 @@ func findFilePathForExtension(dir string, ext string) ([]string, error) {
 	}
 
 	return files, nil
+}
+
+func selectMediaOrDefault(media []*types.Media, keyword string) *types.Media {
+	if len(media) == 0 {
+		return nil
+	}
+
+	for _, m := range media {
+		if containsWordInFilename(m.FilePath, keyword) {
+			return m
+		}
+	}
+
+	return media[0]
 }

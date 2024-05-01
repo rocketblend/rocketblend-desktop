@@ -69,7 +69,7 @@
 <main class="space-y-4"> 
     <div class="flex gap-4 items-end">
         <div>
-            <Media src={resourcePath(data.project.thumbnailPath)} alt="" />
+            <Media src={data.project.thumbnail?.url} alt="" />
         </div>
         <div class="space-y-2">
             <InputInline bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
@@ -92,6 +92,8 @@
     <InlineInput type="textarea" placeholder="Add description..."/> -->
     <hr>
     <div class="grid grid-cols-4 gap-4">
-        <Media height="80" width="full" src={resourcePath(data.project.splashPath)} />
+        {#each data.project.media || [] as media}
+            <Media height="80" width="full" src={media.url} alt="" />
+        {/each}
       </div>
 </main>

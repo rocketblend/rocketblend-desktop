@@ -14,9 +14,9 @@
     function convertProjectsToGalleryItems(projects: types.Project[] = []): MediaInfo[] {
         return projects.map((project) => ({
             id: project.id?.toString() || "",
-            title: project.name || "Untitled Project",
-            alt: `${project.name || "Untitled Project"} splash`,
-            src: resourcePath(project.splashPath)
+            title: project.name || "",
+            alt: `${project.name || ""} splash`,
+            src: project.splash?.url || "",
         }));
     }
 

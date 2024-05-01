@@ -40,7 +40,7 @@
 <FooterContent
     name={selected?.name}
     fileName={selected?.fileName}
-    imagePath={resourcePath(selected?.thumbnailPath)}
+    imagePath={selected?.thumbnail?.url}
     isLoading={!selected}
     on:viewProject={handleViewProject}
     on:runProject={handleRunProject}
