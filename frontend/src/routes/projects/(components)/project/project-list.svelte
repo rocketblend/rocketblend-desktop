@@ -2,7 +2,6 @@
     import type { types } from '$lib/wailsjs/go/models';
 
     import { DisplayType, type MediaInfo } from '$lib/types';
-    import { resourcePath } from '$lib/components/utils';
     import { GalleryGrid } from '$lib/components/ui/gallery';
     
     import ProjectTable from "./project-table.svelte";

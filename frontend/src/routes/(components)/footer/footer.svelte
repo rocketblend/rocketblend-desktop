@@ -4,8 +4,6 @@
     import { type types, application } from '$lib/wailsjs/go/models';
     import { RunProject, OpenExplorer } from '$lib/wailsjs/go/application/Driver';
 
-    import { resourcePath } from '$lib/components/utils';
-
     import FooterContent from './footer-content.svelte';
 
     export let selected: types.Project | undefined;

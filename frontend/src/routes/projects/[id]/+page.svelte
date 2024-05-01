@@ -9,7 +9,7 @@
 
     import { t } from '$lib/translations/translations';
     import { getSelectedProjectStore } from '$lib/stores';
-    import { formatDateTime, resourcePath } from '$lib/components/utils';
+    import { formatDateTime } from '$lib/components/utils';
     import { Media } from '$lib/components/ui/media';
     import { InputInline } from '$lib/components/ui/input';
 
