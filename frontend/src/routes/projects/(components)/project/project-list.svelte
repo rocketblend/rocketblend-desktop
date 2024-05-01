@@ -2,7 +2,6 @@
     import type { types } from '$lib/wailsjs/go/models';
 
     import { DisplayType, type MediaInfo } from '$lib/types';
-    import { resourcePath } from '$lib/components/utils';
     import { GalleryGrid } from '$lib/components/ui/gallery';
     
     import ProjectTable from "./project-table.svelte";
@@ -14,9 +13,9 @@
     function convertProjectsToGalleryItems(projects: types.Project[] = []): MediaInfo[] {
         return projects.map((project) => ({
             id: project.id?.toString() || "",
-            title: project.name || "Untitled Project",
-            alt: `${project.name || "Untitled Project"} splash`,
-            src: resourcePath(project.splashPath)
+            title: project.name || "",
+            alt: `${project.name || ""} splash`,
+            src: project.splash?.url || "",
         }));
     }
 

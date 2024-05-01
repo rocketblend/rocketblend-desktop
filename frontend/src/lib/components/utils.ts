@@ -7,14 +7,6 @@ export function debounce(fn: Function, delay: number) {
     };
 }
 
-export function resourcePath(path: string | undefined) {
-    if (path && path != "") {
-        return `/system/${path}`;
-    }
-
-    return "";
-};
-
 export const videoExtensions = ['.webm', '.mp4', '.ogg'];
 export function isVideo(path: string) {
     return videoExtensions.some(ext => path.endsWith(ext));

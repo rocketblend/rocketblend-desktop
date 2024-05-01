@@ -13,20 +13,31 @@ import (
 const IgnoreFileName = ".rocketignore"
 
 type (
+	Media struct {
+		FilePath string `json:"filePath"`
+		URL      string `json:"url"`
+		// Height    int    `json:"height"`
+		// Width     int    `json:"width"`
+	}
+
 	Project struct {
-		ID       uuid.UUID `json:"id"`
-		Name     string    `json:"name"`
-		Tags     []string  `json:"tags"`
-		Path     string    `json:"path"`
-		FileName string    `json:"fileName"`
+		ID   uuid.UUID `json:"id"`
+		Name string    `json:"name"`
+		Tags []string  `json:"tags"`
+		Path string    `json:"path"`
+
+		MediaPath string `json:"mediaPath"`
+		FileName  string `json:"fileName"`
 
 		Build  reference.Reference   `json:"build"`
 		Addons []reference.Reference `json:"addons"`
 
-		SplashPath    string    `json:"splashPath"`
-		ThumbnailPath string    `json:"thumbnailPath"`
-		Version       string    `json:"version"`
-		UpdatedAt     time.Time `json:"updatedAt"`
+		Splash    *Media   `json:"splash"`
+		Thumbnail *Media   `json:"thumbnail"`
+		Media     []*Media `json:"media"`
+
+		Version   string    `json:"version"`
+		UpdatedAt time.Time `json:"updatedAt"`
 	}
 
 	GetProjectOpts struct {
@@ -53,11 +64,9 @@ type (
 	}
 
 	UpdateProjectOpts struct {
-		ID            uuid.UUID `json:"id"`
-		Name          *string   `json:"name"`
-		Tags          *[]string `json:"tags"`
-		ThumbnailPath *string   `json:"thumbnailPath"`
-		SplashPath    *string   `json:"splashPath"`
+		ID   uuid.UUID `json:"id"`
+		Name *string   `json:"name"`
+		Tags *[]string `json:"tags"`
 	}
 
 	AddProjectPackageOpts struct {
@@ -113,11 +122,10 @@ func (p *Project) Profile() *rbtypes.Profile {
 
 func (p *Project) Detail() *Detail {
 	return &Detail{
-		ID:            p.ID,
-		Name:          p.Name,
-		Tags:          p.Tags,
-		ThumbnailPath: p.ThumbnailPath,
-		SplashPath:    p.SplashPath,
+		ID:        p.ID,
+		Name:      p.Name,
+		Tags:      p.Tags,
+		MediaPath: p.MediaPath,
 	}
 }
 

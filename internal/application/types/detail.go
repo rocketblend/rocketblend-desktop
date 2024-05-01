@@ -14,11 +14,9 @@ type (
 	// }
 
 	Detail struct {
-		ID   uuid.UUID `json:"id"`
-		Name string    `json:"name"`
-		Tags []string  `json:"tags,omitempty"`
-		//ThumbnailSettings *ThumbnailSettings `json:"thumbnailSettings,omitempty"`
-		ThumbnailPath string `json:"thumbnailPath,omitempty"`
-		SplashPath    string `json:"splashPath,omitempty"`
+		ID        uuid.UUID `json:"id"`
+		Name      string    `json:"name"`
+		Tags      []string  `json:"tags,omitempty"`
+		MediaPath string    `json:"mediaPath,omitempty"`
 	}
 )
