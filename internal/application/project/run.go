@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/events"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
-	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
@@ -38,7 +37,6 @@ func (r *Repository) run(ctx context.Context, id uuid.UUID) error {
 		if err := r.blender.Run(ctx, &rbtypes.RunOpts{
 			BlenderOpts: rbtypes.BlenderOpts{
 				BlendFile: &rbtypes.BlendFile{
-					Name:         helpers.FilenameToDisplayName(project.FileName),
 					Path:         filepath.Join(project.Path, project.FileName),
 					Dependencies: result.Installations[0],
 				},

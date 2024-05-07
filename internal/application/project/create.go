@@ -93,7 +93,6 @@ func (r *Repository) createBlendFile(ctx context.Context, displayName string, fi
 	if err := r.blender.Create(ctx, &rbtypes.CreateOpts{
 		BlenderOpts: rbtypes.BlenderOpts{
 			BlendFile: &rbtypes.BlendFile{
-				Name:         displayName,
 				Path:         filePath,
 				Dependencies: resolved.Installations[0],
 			},
