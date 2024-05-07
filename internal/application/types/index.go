@@ -16,7 +16,7 @@ type (
 		Reference  string              `json:"reference,omitempty"`
 		Name       string              `json:"name,omitempty"`
 		Category   string              `json:"category,omitempty"`
-		State      int                 `json:"state"`
+		State      string              `json:"state"`
 		Resources  []string            `json:"resources,omitempty"`
 		Operations []string            `json:"operations,omitempty"`
 		Date       time.Time           `json:"date,omitempty"`

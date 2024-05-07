@@ -1,7 +1,7 @@
 import type { types } from '$lib/wailsjs/go/models';
 
 export type RadioOption = {
-    value: number | string;
+    value: number | string | undefined;
     display: string;
 };
 

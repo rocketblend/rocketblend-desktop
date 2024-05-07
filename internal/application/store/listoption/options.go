@@ -18,7 +18,7 @@ type (
 		Category  string
 		Resource  string
 		Operation string
-		State     *int
+		State     string
 		Size      int
 		From      int
 		StartTime time.Time
@@ -70,7 +70,7 @@ func WithOperation(operation string) ListOption {
 	}
 }
 
-func WithState(state *int) ListOption {
+func WithState(state string) ListOption {
 	return func(o *ListOptions) {
 		o.State = state
 	}
@@ -133,8 +133,9 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 		query.AddQuery(operationQuery)
 	}
 
-	if so.State != nil {
-		stateQuery := bleve.NewQueryStringQuery("state:" + strconv.Itoa(*so.State))
+	if so.State != "" {
+		stateQuery := bleve.NewMatchPhraseQuery(so.State)
+		stateQuery.SetField("state")
 		query.AddQuery(stateQuery)
 	}
 
