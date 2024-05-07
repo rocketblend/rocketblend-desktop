@@ -102,9 +102,7 @@ func (s *Store) get(ctx context.Context, id uuid.UUID) (*types.Index, error) {
 			case "category":
 				result.Category = value
 			case "state":
-				if state, err := strconv.Atoi(value); err == nil {
-					result.State = state
-				}
+				result.State = value
 			case "data":
 				result.Data = value
 			case "resources":

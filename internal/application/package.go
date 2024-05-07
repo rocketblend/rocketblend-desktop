@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 )
@@ -18,9 +19,9 @@ type (
 	}
 
 	ListPackagesOpts struct {
-		Query       string `json:"query"`
-		PackageType string `json:"packageType"`
-		Installed   bool   `json:"installed"`
+		Query string             `json:"query"`
+		Type  enums.PackageType  `json:"type"`
+		State enums.PackageState `json:"state"`
 	}
 
 	ListPackagesResult struct {
@@ -63,21 +64,16 @@ func (d *Driver) GetPackage(opts GetPackageOpts) (*GetPackageResult, error) {
 func (d *Driver) ListPackages(opts ListPackagesOpts) (*ListPackagesResult, error) {
 	ctx := context.Background()
 
-	category := ""
-	if opts.PackageType != "" {
-		category = opts.PackageType
-	}
-
-	// var state *int = nil
-	// if opts.Installed {
-	// 	stateInt := int(pack.Installed)
-	// 	state = &stateInt
-	// }
+	d.logger.Debug("finding all packages", map[string]interface{}{
+		"query": opts.Query,
+		"type":  opts.Type,
+		"state": opts.State,
+	})
 
 	response, err := d.catalog.ListPackages(ctx, []listoption.ListOption{
 		listoption.WithQuery(opts.Query),
-		listoption.WithCategory(category),
-		//listoption.WithState(state),
+		listoption.WithCategory(string(opts.Type)),
+		listoption.WithState(string(opts.State)),
 	}...)
 	if err != nil {
 		d.logger.Error("failed to find all packages", map[string]interface{}{"error": err.Error()})

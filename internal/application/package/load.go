@@ -1,6 +1,7 @@
 package pack
 
 import (
+	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
@@ -41,6 +42,9 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 	}
 
 	source := definition.Source(rbtypes.Platform(config.Platform.String()))
+	if source == nil {
+		return nil, errors.New("failed to get source")
+	}
 
 	installationPath := filepath.Join(config.InstallationsPath, reference.String())
 	state, err := determineState(installationPath, source)

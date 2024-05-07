@@ -10,7 +10,7 @@ require (
 	github.com/magefile/mage v1.15.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rjeczalik/notify v0.9.3
-	github.com/rocketblend/rocketblend v0.8.2-0.20240420154219-49f04103a1ab
+	github.com/rocketblend/rocketblend v0.8.2-0.20240507132001-8752f2d400dc
 	github.com/spf13/viper v1.18.2
 	github.com/wailsapp/wails/v2 v2.8.0
 	golang.org/x/text v0.14.0

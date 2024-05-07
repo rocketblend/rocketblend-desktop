@@ -218,9 +218,10 @@ func convertToSearchIndex(operation types.Operation) (*types.Index, error) {
 		return nil, fmt.Errorf("failed to marshal OperationStatus: %w", err)
 	}
 
-	state := 0
+	// TODO: create actual state enum
+	state := ""
 	if operation.Completed {
-		state = 1
+		state = "completed"
 	}
 
 	return &types.Index{

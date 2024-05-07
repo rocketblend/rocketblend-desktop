@@ -20,7 +20,7 @@
     const toastStore = getToastStore();
 
     const defaultFilterRadioOptions: RadioOption[] = [
-        { value: "", display: $t('home.sidebar.filter.option.all') },
+        { value: undefined, display: $t('home.sidebar.filter.option.all') },
         { value: enums.PackageType.BUILD, display: $t('home.sidebar.filter.option.build') },
         { value: enums.PackageType.ADDON, display: $t('home.sidebar.filter.option.addon') },
     ];
@@ -31,7 +31,7 @@
     export let dependencies: string[];
     export let addonFeature: boolean;
 
-    let selectedFilterType: string = "";
+    let selectedFilterType: enums.PackageType | undefined;
     let searchQuery: string = "";
     let filterInstalled: boolean = true;
     let filterRadioOptions: RadioOption[] = [];
@@ -62,10 +62,16 @@
 
     function fetchPackages() {
         error = false;
+
+        let state = "";
+        if (filterInstalled) {
+            state = enums.PackageState.INSTALLED;
+        }
+
         const opts = application.ListPackagesOpts.createFrom({
-            searchQuery: searchQuery,
-            filterType: selectedFilterType,
-            filterInstalled: filterInstalled,
+            query: searchQuery,
+            type: selectedFilterType,
+            state: state,
         });
 
         ListPackages(opts).then(result => {
@@ -95,7 +101,7 @@
 
     $: {
         filterRadioOptions = addonFeature ? defaultFilterRadioOptions : [];
-        selectedFilterType = addonFeature ? "" : enums.PackageType.BUILD;
+        selectedFilterType = addonFeature ? undefined : enums.PackageType.BUILD;
         fetchPackages();
     }
 </script>

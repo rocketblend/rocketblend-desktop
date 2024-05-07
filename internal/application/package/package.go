@@ -180,12 +180,12 @@ func convertToIndex(pack *types.Package) (*types.Index, error) {
 	}
 
 	return &types.Index{
-		ID:        pack.ID,
-		Name:      pack.Name,
-		Type:      indextype.Package,
-		Reference: path.Clean(pack.Path),
-		Category:  string(pack.Type),
-		//State:      int(pack.State),
+		ID:         pack.ID,
+		Name:       pack.Name,
+		Type:       indextype.Package,
+		Reference:  path.Clean(pack.Path),
+		Category:   string(pack.Type),
+		State:      string(pack.State),
 		Operations: pack.Operations,
 		Data:       string(data),
 	}, nil

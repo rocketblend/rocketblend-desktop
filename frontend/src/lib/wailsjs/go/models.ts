@@ -372,8 +372,8 @@ export namespace application {
 	}
 	export class ListPackagesOpts {
 	    query: string;
-	    packageType: string;
-	    installed: boolean;
+	    type: enums.PackageType;
+	    state: enums.PackageState;
 	
 	    static createFrom(source: any = {}) {
 	        return new ListPackagesOpts(source);
@@ -382,8 +382,8 @@ export namespace application {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.query = source["query"];
-	        this.packageType = source["packageType"];
-	        this.installed = source["installed"];
+	        this.type = source["type"];
+	        this.state = source["state"];
 	    }
 	}
 	export class ListPackagesResult {

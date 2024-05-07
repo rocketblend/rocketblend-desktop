@@ -4,8 +4,9 @@
     import type { RadioOption } from '$lib/types';
 
     import { InputSearch } from '$lib/components/ui/input';
+	import type { enums } from '$lib/wailsjs/go/models';
 
-    export let selectedFilterType: string;
+    export let selectedFilterType: enums.PackageType | undefined;
     export let searchQuery: string;
     export let filterInstalled: boolean;
     export let filterRadioOptions: RadioOption[] = [];

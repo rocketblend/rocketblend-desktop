@@ -9,7 +9,6 @@ import (
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application"
 	"github.com/rocketblend/rocketblend/pkg/container"
-	"github.com/rocketblend/rocketblend/pkg/helpers"
 	"github.com/rocketblend/rocketblend/pkg/types"
 )
 
@@ -99,7 +98,6 @@ func open(ctx context.Context, blendFilePath string, development bool) error {
 	if err := blender.Run(ctx, &types.RunOpts{
 		BlenderOpts: types.BlenderOpts{
 			BlendFile: &types.BlendFile{
-				Name:         helpers.ExtractName(blendFilePath),
 				Path:         blendFilePath,
 				Dependencies: resolve.Installations[0],
 			},
