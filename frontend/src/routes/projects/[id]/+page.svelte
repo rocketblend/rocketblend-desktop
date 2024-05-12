@@ -66,7 +66,7 @@
     });
 </script>
 
-<main class="space-y-4"> 
+<main class="space-y-4 overflow-auto h-full"> 
     <div class="flex gap-4 items-end">
         <div>
             <Media src={data.project.thumbnail?.url} alt="" />
