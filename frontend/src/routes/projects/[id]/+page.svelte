@@ -66,7 +66,7 @@
     });
 </script>
 
-<main class="space-y-4 overflow-auto h-full"> 
+<main class="flex flex-col h-full space-y-4"> 
     <div class="flex gap-4 items-end">
         <div>
             <Media src={data.project.thumbnail?.url} alt="" />
@@ -88,12 +88,12 @@
             </div>
         </div>
     </div>
-    <!-- <hr>
-    <InlineInput type="textarea" placeholder="Add description..."/> -->
     <hr>
-    <div class="grid grid-cols-4 gap-4">
-        {#each data.project.media || [] as media}
-            <Media height="80" width="full" src={media.url} alt="" />
-        {/each}
-      </div>
+    <div class="h-full overflow-auto">
+        <div class="grid grid-cols-4 gap-4">
+            {#each data.project.media || [] as media}
+                <Media height="80" width="full" src={media.url} alt="" />
+            {/each}
+        </div>
+    </div>
 </main>
