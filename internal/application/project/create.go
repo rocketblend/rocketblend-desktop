@@ -38,8 +38,9 @@ func (r *Repository) CreateProject(ctx context.Context, opts *types.CreateProjec
 
 	id := uuid.New()
 	if err := r.saveDetail(opts.Path, &types.Detail{
-		ID:   id,
-		Name: opts.DisplayName,
+		ID:        id,
+		Name:      opts.DisplayName,
+		MediaPath: DefaultMediaPath,
 	}); err != nil {
 		return nil, err
 	}
