@@ -21,6 +21,12 @@ type (
 
 	// TODO: Just embed Definition in Package.
 
+	Progress struct {
+		CurrentBytes   int64   `json:"currentBytes"`
+		TotalBytes     int64   `json:"totalBytes"`
+		BytesPerSecond float64 `json:"bytesPerSecond"`
+	}
+
 	Package struct {
 		ID               uuid.UUID           `json:"id"`
 		Type             enums.PackageType   `json:"type"`
@@ -30,12 +36,13 @@ type (
 		Author           string              `json:"author"`
 		Tag              string              `json:"tag"`
 		Path             string              `json:"path"`
+		Verified         bool                `json:"verified"`
 		InstallationPath string              `json:"installationPath"`
 		Operations       []string            `json:"operations"`
 		Platform         types.Platform      `json:"platform"`
 		URI              *types.URI          `json:"uri"`
 		Version          *semver.Version     `json:"version"`
-		Verified         bool                `json:"verified"`
+		Progress         *Progress           `json:"progress,omitempty"`
 		UpdatedAt        time.Time           `json:"updatedAt"`
 	}
 

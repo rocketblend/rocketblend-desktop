@@ -10,7 +10,7 @@
     <slot name="icon">
         <IconInfoFill />
     </slot>
-    <div class="alert-message">
+    <div class="alert-message  w-full">
         <slot name="title">
             <AlertTitle title="Info" />
         </slot>

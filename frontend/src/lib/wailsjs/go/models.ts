@@ -711,6 +711,22 @@ export namespace types {
 	        this.result = source["result"];
 	    }
 	}
+	export class Progress {
+	    currentBytes: number;
+	    totalBytes: number;
+	    bytesPerSecond: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Progress(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.currentBytes = source["currentBytes"];
+	        this.totalBytes = source["totalBytes"];
+	        this.bytesPerSecond = source["bytesPerSecond"];
+	    }
+	}
 	export class Package {
 	    id: number[];
 	    type: enums.PackageType;
@@ -720,6 +736,7 @@ export namespace types {
 	    author: string;
 	    tag: string;
 	    path: string;
+	    verified: boolean;
 	    installationPath: string;
 	    operations: string[];
 	    platform: string;
@@ -727,7 +744,7 @@ export namespace types {
 	    uri?: any;
 	    // Go type: semver
 	    version?: any;
-	    verified: boolean;
+	    progress?: Progress;
 	    // Go type: time
 	    updatedAt: any;
 	
@@ -745,12 +762,13 @@ export namespace types {
 	        this.author = source["author"];
 	        this.tag = source["tag"];
 	        this.path = source["path"];
+	        this.verified = source["verified"];
 	        this.installationPath = source["installationPath"];
 	        this.operations = source["operations"];
 	        this.platform = source["platform"];
 	        this.uri = this.convertValues(source["uri"], null);
 	        this.version = this.convertValues(source["version"], null);
-	        this.verified = source["verified"];
+	        this.progress = this.convertValues(source["progress"], Progress);
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }
 	
@@ -772,6 +790,7 @@ export namespace types {
 		    return a;
 		}
 	}
+	
 	export class Project {
 	    id: number[];
 	    name: string;

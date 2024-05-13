@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { ProgressBar } from '@skeletonlabs/skeleton';
+
 
     import IconVerifiedBadgeFill from '~icons/ri/verified-badge-fill';
 
@@ -9,6 +9,7 @@
 
     import PackageBadge from './package-badge.svelte';
     import PackageActionButton from './package-action-button.svelte';
+	import ProgressBar from '$lib/components/ui/progress/progress-bar.svelte';
 
     const downloadHost = "download.blender.org"; // TODO: Remove this prop once the backend is ready
 
@@ -76,7 +77,7 @@
         <div class="text-sm text-surface-800-100-token truncate">{pack.reference}</div>
         {#if pack.state === enums.PackageState.DOWNLOADING }
         <div class="py-2">
-            <ProgressBar />
+            <ProgressBar value={pack.progress?.currentBytes} max={pack.progress?.totalBytes} />
             <!-- <ProgressBar /> -->
         </div>
         {/if}

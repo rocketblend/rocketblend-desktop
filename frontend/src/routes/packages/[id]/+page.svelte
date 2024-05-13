@@ -41,5 +41,9 @@
         packageRef={data.package.reference || ''}
         packageState={data.package.state}
     />
-    <PackageActions state={data.package.state} packageId={data.package.id.toString()}/>
+    <PackageActions
+        state={data.package.state}
+        packageId={data.package.id.toString()}
+        progress={data.package.progress}
+    />
 </main>
