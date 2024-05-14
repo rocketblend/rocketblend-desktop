@@ -50,7 +50,7 @@ func (m eventInfo) Sys() interface{} {
 func (s *service) watchPath(path string) error {
 	eventChannel := make(chan notify.EventInfo, 1)
 
-	err := notify.Watch(path+"/...", eventChannel, notify.Write|notify.Remove|notify.Rename)
+	err := notify.Watch(path+"/...", eventChannel, notify.All)
 	if err != nil {
 		return fmt.Errorf("unable to add path %s to watcher: %w", path, err)
 	}

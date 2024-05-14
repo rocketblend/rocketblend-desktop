@@ -1,6 +1,11 @@
 <script lang="ts">
     import { ProgressRadial } from '@skeletonlabs/skeleton';
-    import { Alert, AlertTitle, AlertDescription, AlertAction } from '$lib/components/ui/alert';
+    import type { types } from '$lib/wailsjs/go/models';
+
+    import { Alert, AlertTitle, AlertAction } from '$lib/components/ui/alert';
+	import { DownloadBar } from '$lib/components/ui/download';
+
+    export let progress: types.Progress | undefined;
 </script>
 
 <Alert>
@@ -10,8 +15,16 @@
     <svelte:fragment slot="title">
         <AlertTitle title="Downloading"/>
     </svelte:fragment>
-    <AlertDescription message="Package is currently downloading."/>
+    {#if progress}
+        <DownloadBar
+            currentBytes={progress.currentBytes}
+            totalBytes={progress.totalBytes}
+            bytesPerSecond={progress.bytesPerSecond}
+        />
+    {/if}
     <svelte:fragment slot="actions">
-        <AlertAction text="Pause" disabled/>
+        {#if progress && progress.currentBytes != progress.totalBytes }
+            <AlertAction text="Pause" disabled/>
+        {/if}
     </svelte:fragment>
 </Alert>

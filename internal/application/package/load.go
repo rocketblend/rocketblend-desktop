@@ -1,8 +1,10 @@
 package pack
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -12,6 +14,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
 	rbhelpers "github.com/rocketblend/rocketblend/pkg/helpers"
 	"github.com/rocketblend/rocketblend/pkg/reference"
+	"github.com/rocketblend/rocketblend/pkg/repository"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
@@ -52,6 +55,15 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 		return nil, fmt.Errorf("failed to determine state: %w", err)
 	}
 
+	var progress *types.Progress
+	if state == enums.PackageStateDownloading || state == enums.PackageStateIncomplete {
+		progressFilePath := filepath.Join(installationPath, repository.DownloadProgressFileName)
+		progress, err = loadDownloadProgress(progressFilePath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load download progress: %w", err)
+		}
+	}
+
 	return &types.Package{
 		ID:               id,
 		Type:             enums.PackageType(definition.Type),
@@ -66,7 +78,26 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 		URI:              source.URI,
 		Verified:         isPackageVerified(reference),
 		Version:          definition.Version,
+		Progress:         progress,
 		UpdatedAt:        modTime,
+	}, nil
+}
+
+func loadDownloadProgress(path string) (*types.Progress, error) {
+	f, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var result rbtypes.Progress
+	if err := json.Unmarshal(f, &result); err != nil {
+		return nil, err
+	}
+
+	return &types.Progress{
+		CurrentBytes:   result.Current,
+		TotalBytes:     result.Total,
+		BytesPerSecond: result.Speed,
 	}, nil
 }
 

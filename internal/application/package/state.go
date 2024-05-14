@@ -25,22 +25,22 @@ func determineState(installationPath string, source *rbtypes.Source) (enums.Pack
 		return enums.PackageStateInstalled, nil
 	}
 
+	downloading, err := isDownloading(installationPath)
+	if err != nil {
+		return "", err
+	}
+
+	if downloading {
+		return enums.PackageStateDownloading, nil
+	}
+
 	partial, err := isPartial(installationPath, source.URI)
 	if err != nil {
 		return "", err
 	}
 
 	if partial {
-		return enums.PackageStateDownloading, nil
-	}
-
-	active, err := isActive(installationPath)
-	if err != nil {
-		return "", err
-	}
-
-	if active {
-		return enums.PackageStateDownloading, nil
+		return enums.PackageStateIncomplete, nil
 	}
 
 	return enums.PackageStateAvailable, nil
@@ -56,6 +56,22 @@ func isInstalled(installationPath string, resource string) (bool, error) {
 	return installed, nil
 }
 
+func isDownloading(installationPath string) (bool, error) {
+	lockFilePath := filepath.Join(installationPath, repository.LockFileName)
+	locked, err := checkFileExistence(lockFilePath)
+	if err != nil {
+		return false, err
+	}
+
+	progressFilePath := filepath.Join(installationPath, repository.DownloadProgressFileName)
+	exists, err := checkFileExistence(progressFilePath)
+	if err != nil {
+		return false, err
+	}
+
+	return locked && exists, nil
+}
+
 func isPartial(installationPath string, uri *rbtypes.URI) (bool, error) {
 	if uri == nil {
 		return false, errors.New("cannot check partial state without URI")
@@ -68,16 +84,6 @@ func isPartial(installationPath string, uri *rbtypes.URI) (bool, error) {
 	}
 
 	return partial, nil
-}
-
-func isActive(installationPath string) (bool, error) {
-	lockFilePath := filepath.Join(installationPath, repository.LockFileName)
-	locked, err := checkFileExistence(lockFilePath)
-	if err != nil {
-		return false, err
-	}
-
-	return locked, nil
 }
 
 func checkFileExistence(filepath string) (bool, error) {
