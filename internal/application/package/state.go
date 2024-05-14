@@ -57,13 +57,19 @@ func isInstalled(installationPath string, resource string) (bool, error) {
 }
 
 func isDownloading(installationPath string) (bool, error) {
+	lockFilePath := filepath.Join(installationPath, repository.LockFileName)
+	locked, err := checkFileExistence(lockFilePath)
+	if err != nil {
+		return false, err
+	}
+
 	progressFilePath := filepath.Join(installationPath, repository.DownloadProgressFileName)
 	exists, err := checkFileExistence(progressFilePath)
 	if err != nil {
 		return false, err
 	}
 
-	return exists, nil
+	return locked && exists, nil
 }
 
 func isPartial(installationPath string, uri *rbtypes.URI) (bool, error) {

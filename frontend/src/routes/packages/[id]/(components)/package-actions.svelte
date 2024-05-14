@@ -17,9 +17,9 @@
 {#if state === enums.PackageState.AVAILABLE}
     <AlertAvailable packageId={packageId}/>
 {:else if state === enums.PackageState.DOWNLOADING}
-    <AlertDownloading progress={progress}/>
+    <AlertDownloading progress={progress} />
 {:else if state === enums.PackageState.CANCELLED}
-    <AlertPaused />
+    <AlertPaused progress={progress} />
 {:else if state === enums.PackageState.INSTALLED}
     <AlertInstalled />
 {:else}
