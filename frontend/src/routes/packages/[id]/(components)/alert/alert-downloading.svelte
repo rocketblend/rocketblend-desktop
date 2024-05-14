@@ -16,9 +16,15 @@
         <AlertTitle title="Downloading"/>
     </svelte:fragment>
     {#if progress}
-        <DownloadBar progress={progress}/>
+        <DownloadBar
+            currentBytes={progress.currentBytes}
+            totalBytes={progress.totalBytes}
+            bytesPerSecond={progress.bytesPerSecond}
+        />
     {/if}
     <svelte:fragment slot="actions">
-        <AlertAction text="Pause" disabled/>
+        {#if progress && progress.currentBytes != progress.totalBytes }
+            <AlertAction text="Pause" disabled/>
+        {/if}
     </svelte:fragment>
 </Alert>

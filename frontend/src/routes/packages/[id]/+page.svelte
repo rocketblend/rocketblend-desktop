@@ -45,5 +45,6 @@
         state={data.package.state}
         packageId={data.package.id.toString()}
         progress={data.package.progress}
+        installationPath={data.package.installationPath}
     />
 </main>

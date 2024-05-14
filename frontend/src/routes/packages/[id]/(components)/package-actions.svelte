@@ -10,6 +10,7 @@
     } from './alert';
 
     export let packageId: string;
+    export let installationPath: string;
     export let state: enums.PackageState = enums.PackageState.AVAILABLE;
     export let progress: types.Progress | undefined;
 </script>
@@ -19,9 +20,9 @@
 {:else if state === enums.PackageState.DOWNLOADING}
     <AlertDownloading progress={progress} />
 {:else if state === enums.PackageState.INCOMPLETE}
-    <AlertPaused progress={progress} />
+    <AlertPaused packageId={packageId} progress={progress} />
 {:else if state === enums.PackageState.INSTALLED}
-    <AlertInstalled />
+    <AlertInstalled path={installationPath}/>
 {:else}
     <AlertError />
 {/if}
