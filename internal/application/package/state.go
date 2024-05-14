@@ -40,7 +40,7 @@ func determineState(installationPath string, source *rbtypes.Source) (enums.Pack
 	}
 
 	if partial {
-		return enums.PackageStateCancelled, nil
+		return enums.PackageStateIncomplete, nil
 	}
 
 	return enums.PackageStateAvailable, nil

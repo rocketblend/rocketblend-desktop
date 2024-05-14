@@ -56,7 +56,7 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 	}
 
 	var progress *types.Progress
-	if state == enums.PackageStateDownloading || state == enums.PackageStateCancelled {
+	if state == enums.PackageStateDownloading || state == enums.PackageStateIncomplete {
 		progressFilePath := filepath.Join(installationPath, repository.DownloadProgressFileName)
 		progress, err = loadDownloadProgress(progressFilePath)
 		if err != nil {

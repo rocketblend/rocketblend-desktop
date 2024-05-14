@@ -5,7 +5,7 @@ type PackageState string
 const (
 	PackageStateAvailable   PackageState = "available"
 	PackageStateDownloading PackageState = "downloading"
-	PackageStateCancelled   PackageState = "cancelled"
+	PackageStateIncomplete  PackageState = "incomplete"
 	PackageStateInstalled   PackageState = "installed"
 	PackageStateError       PackageState = "error"
 )
@@ -16,7 +16,7 @@ var PackageStates = []struct {
 }{
 	{PackageStateAvailable, "AVAILABLE"},
 	{PackageStateDownloading, "DOWNLOADING"},
-	{PackageStateCancelled, "CANCELLED"},
+	{PackageStateIncomplete, "INCOMPLETE"},
 	{PackageStateInstalled, "INSTALLED"},
 	{PackageStateError, "ERROR"},
 }

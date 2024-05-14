@@ -642,7 +642,7 @@ export namespace enums {
 	export enum PackageState {
 	    AVAILABLE = "available",
 	    DOWNLOADING = "downloading",
-	    CANCELLED = "cancelled",
+	    INCOMPLETE = "incomplete",
 	    INSTALLED = "installed",
 	    ERROR = "error",
 	}
