@@ -15,8 +15,6 @@
 
     let disabled = false;
 
-    const dispatch = createEventDispatcher();
-
     function download() {
         if (disabled) {
             return;
@@ -25,16 +23,16 @@
         disabled = true;
         const opts = application.InstallPackageOpts.createFrom({ id: packageId });
 
-        InstallPackage(opts).then((result) => {
+        InstallPackage(opts).then(() => {
             const downloadPackageToast: ToastSettings = {
-                message: `Downloading Package: ${packageId}`,
+                message: `Download starting...`,
+                timeout: 3000,
             };
 
             toastStore.trigger(downloadPackageToast);
-            dispatch('download-started', { packageId });
         }).catch(error => {
             const downloadPackageToast: ToastSettings = {
-                message: `Error starting package download: ${error}`,
+                message: `Error starting download: ${error}`,
                 background: "variant-filled-error"
             };
 

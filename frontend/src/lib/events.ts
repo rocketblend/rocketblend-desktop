@@ -22,7 +22,6 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
         toastStore.trigger(changeDetectedToast);
     }, EVENT_DEBOUNCE - 50);
 
-
     // Setup debug log listener
     EventsOn(DEBUG_LOG_CHANNEL, (data: LogEvent) => {
         logStore.add(data);

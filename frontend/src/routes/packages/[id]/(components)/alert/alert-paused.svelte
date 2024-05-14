@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { types } from '$lib/wailsjs/go/models';
 
-    
     import IconPauseFill from '~icons/ri/pause-fill';
 
     import { Alert, AlertTitle, AlertDescription, AlertAction } from '$lib/components/ui/alert';
@@ -24,7 +23,7 @@
         <DownloadLabel currentBytes={progress.currentBytes} totalBytes={progress.totalBytes}/>
     {/if}
     <svelte:fragment slot="actions">
-        <AlertAction text="Cancel" disabled/>
+        <!-- <AlertAction text="Cancel" disabled/> -->
         <ActionDownload packageId={packageId} text="Resume"/>
     </svelte:fragment>
 </Alert>
