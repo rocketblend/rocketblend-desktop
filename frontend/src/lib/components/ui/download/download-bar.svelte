@@ -1,6 +1,6 @@
 <script lang="ts">
-	import ProgressBar from '$lib/components/ui/progress/progress-bar.svelte';
-	import FormatBytes from '$lib/components/ui/format/format-bytes.svelte';
+    import ProgressBar from '$lib/components/ui/progress/progress-bar.svelte';
+    import FormatBytes from '$lib/components/ui/format/format-bytes.svelte';
 
     import DownloadLabel from './download-label.svelte';
 
