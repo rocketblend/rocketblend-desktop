@@ -149,6 +149,7 @@ func load(path string, name string, extension string) (*viper.Viper, error) {
 	v := viper.New()
 
 	v.SetDefault("project.watcher.fileExtensions", []string{".blend", ".json"})
+	v.SetDefault("package.autoPull", true)
 
 	v.SetConfigName(name)
 	v.AddConfigPath(path)
