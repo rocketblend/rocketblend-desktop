@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
@@ -149,7 +150,7 @@ func (a *Application) Execute() error {
 			WebviewIsTransparent: true,
 			About: &mac.AboutInfo{
 				Title:   title,
-				Message: fmt.Sprintf("© 2024 %s", title),
+				Message: fmt.Sprintf("© %d RocketBlend. All rights reserved.", time.Now().Year()),
 			},
 			OnFileOpen: func(filePath string) {
 				if err := a.Open(context.Background(), filePath); err != nil {
