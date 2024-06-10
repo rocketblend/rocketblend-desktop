@@ -1,9 +1,11 @@
 package application
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"net/http"
+	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
@@ -13,10 +15,13 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
 	"github.com/rocketblend/rocketblend-desktop/internal/eventwriter"
 	"github.com/rocketblend/rocketblend/pkg/runtime"
+	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
+	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
 const (
@@ -32,11 +37,13 @@ type (
 	}
 
 	Application struct {
-		id       uuid.UUID
-		platform runtime.Platform
-		driver   *Driver
-		handler  http.Handler
-		assets   fs.FS
+		id          uuid.UUID
+		platform    runtime.Platform
+		driver      *Driver
+		rocketblend rbtypes.Driver
+		blender     rbtypes.Blender
+		handler     http.Handler
+		assets      fs.FS
 	}
 )
 
@@ -97,12 +104,24 @@ func New(opts ApplicationOpts) (*Application, error) {
 		return nil, err
 	}
 
+	rocketblend, err := container.GetRBDriver()
+	if err != nil {
+		return nil, err
+	}
+
+	blender, err := container.GetBlender()
+	if err != nil {
+		return nil, err
+	}
+
 	return &Application{
-		id:       id,
-		platform: platform,
-		assets:   opts.Assets,
-		driver:   driver,
-		handler:  handler,
+		id:          id,
+		platform:    platform,
+		assets:      opts.Assets,
+		driver:      driver,
+		rocketblend: rocketblend,
+		blender:     blender,
+		handler:     handler,
 	}, nil
 }
 
@@ -121,15 +140,23 @@ func (a *Application) Execute() error {
 			Assets:  a.assets,
 			Handler: a.handler,
 		},
+		Windows: &windows.Options{},
+		Linux: &linux.Options{
+			ProgramName: title,
+		},
 		Mac: &mac.Options{
 			TitleBar:             mac.TitleBarHiddenInset(),
 			Appearance:           mac.DefaultAppearance,
 			WebviewIsTransparent: true,
 			About: &mac.AboutInfo{
 				Title:   title,
-				Message: "© 2024 RocketBlend",
+				Message: fmt.Sprintf("© %d RocketBlend. All rights reserved.", time.Now().Year()),
 			},
-			OnFileOpen: func(filePath string) { fmt.Println(filePath) },
+			OnFileOpen: func(filePath string) {
+				if err := a.Open(context.Background(), filePath); err != nil {
+					a.driver.logger.Error("failed to open blend file", map[string]interface{}{"error": err})
+				}
+			},
 		},
 		SingleInstanceLock: &options.SingleInstanceLock{
 			UniqueId:               a.id.String(),
@@ -150,4 +177,12 @@ func (a *Application) Execute() error {
 			a.driver,
 		},
 	})
+}
+
+func (a *Application) Open(ctx context.Context, filePath string) error {
+	if err := openWithRocketBlend(ctx, a.rocketblend, a.blender, filePath); err != nil {
+		return err
+	}
+
+	return nil
 }

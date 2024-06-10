@@ -12,7 +12,11 @@ type (
 		GetOperator() (Operator, error)
 
 		GetConfigurator() (Configurator, error)
+
 		GetRBConfigurator() (rbtypes.Configurator, error)
+		GetRBDriver() (rbtypes.Driver, error)
+
+		GetBlender() (rbtypes.Blender, error)
 
 		GetStore() (Store, error)
 		GetPortfolio() (Portfolio, error)
