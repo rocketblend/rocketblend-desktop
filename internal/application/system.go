@@ -107,7 +107,10 @@ func (d *Driver) onLayoutReady(ctx context.Context) {
 
 	if err := d.addApplicationMetrics(); err != nil {
 		d.logger.Error("failed to add application metrics", map[string]interface{}{"error": err.Error()})
-		return
+	}
+
+	if err := d.autoRefreshPackages(ctx); err != nil {
+		d.logger.Error("failed to auto refresh packages", map[string]interface{}{"error": err.Error()})
 	}
 
 	d.eventEmitLaunchArgs(ctx, LaunchEvent{

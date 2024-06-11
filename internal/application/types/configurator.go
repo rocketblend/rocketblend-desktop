@@ -11,7 +11,8 @@ type (
 	}
 
 	PackageConfig struct {
-		Watcher WatcherConfig `mapstructure:"watcher"`
+		Watcher  WatcherConfig `mapstructure:"watcher"`
+		AutoPull bool          `mapstructure:"autoPull"`
 	}
 
 	FeatureConfig struct {

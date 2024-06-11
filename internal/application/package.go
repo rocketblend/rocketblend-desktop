@@ -169,3 +169,21 @@ func (d *Driver) UninstallPackage(opts UninstallPackageOpts) error {
 	d.logger.Debug("package uninstalled", map[string]interface{}{"id": opts.ID})
 	return nil
 }
+
+// autoRefreshPackages refreshes the packages, if auto pull is enabled.
+func (d *Driver) autoRefreshPackages(ctx context.Context) error {
+	config, err := d.configurator.Get()
+	if err != nil {
+		return err
+	}
+
+	if !config.Package.AutoPull {
+		return nil
+	}
+
+	if err := d.catalog.RefreshPackages(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}

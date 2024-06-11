@@ -33,7 +33,7 @@
 
     let selectedFilterType: enums.PackageType | undefined;
     let searchQuery: string = "";
-    let filterInstalled: boolean = true;
+    let filterInstalled: boolean;
     let filterRadioOptions: RadioOption[] = [];
 
     let initialLoad: boolean = true;
@@ -139,7 +139,7 @@
             {:else if error}
                 <p>{$t('home.sidebar.error')}</p>
             {:else}
-                <div class="p-2">
+                <div class="flex flex-col items-center justify-center p-2 gap-2">
                     <p class="font-bold text-sm text-surface-200 text-center">{$t('home.sidebar.noresults')}</p>
                 </div>
             {/if}

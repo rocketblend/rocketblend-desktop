@@ -60,6 +60,7 @@ type (
 
 	AddPackageOpts struct {
 		Reference reference.Reference `json:"reference"`
+		Update    bool                `json:"update"`
 	}
 
 	InstallPackageOpts struct {
@@ -80,7 +81,7 @@ type (
 		ListPackages(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error) // TODO: Change opts struct.
 
 		AddPackageOperation(ctx context.Context, opts *AddPackageOperationOpts) error
-		//AddPackage(ctx context.Context, opts *AddPackageOpts) error
+		AddPackage(ctx context.Context, opts *AddPackageOpts) error
 
 		InstallPackage(ctx context.Context, opts *InstallPackageOpts) error
 		UninstallPackage(ctx context.Context, opts *UninstallPackageOpts) error
