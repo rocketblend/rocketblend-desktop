@@ -76,11 +76,18 @@ type (
 		OperationID uuid.UUID `json:"operationID"`
 	}
 
+	RemovePackageOperationOpts struct {
+		ID          uuid.UUID `json:"id"`
+		OperationID uuid.UUID `json:"operationID"`
+	}
+
 	Catalog interface {
 		GetPackage(ctx context.Context, opts *GetPackageOpts) (*GetPackageResponse, error)
 		ListPackages(ctx context.Context, opts ...listoption.ListOption) (*ListPackagesResponse, error) // TODO: Change opts struct.
 
 		AddPackageOperation(ctx context.Context, opts *AddPackageOperationOpts) error
+		RemovePackageOperation(ctx context.Context, opts *RemovePackageOperationOpts) error
+
 		AddPackage(ctx context.Context, opts *AddPackageOpts) error
 
 		InstallPackage(ctx context.Context, opts *InstallPackageOpts) error

@@ -9,7 +9,7 @@
 
     export let data: PageData;
 
-    $: downloadId = data.package.operations?.at(0)|| undefined;
+    $: downloadId = data.package.operations?.at(0);
 </script>
 
 <main class="flex flex-col h-full space-y-4"> 

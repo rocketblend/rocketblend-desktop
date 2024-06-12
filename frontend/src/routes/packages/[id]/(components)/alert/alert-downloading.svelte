@@ -11,7 +11,8 @@
 
     let title = "Downloading"
 
-    $: displayTitle = downloadId ? title : `${title} (External)`;
+    $: downloadTitle = downloadId ? title : `${title} (External)`;
+    $: displayTitle = progress ? downloadTitle : `Preparing`;
 </script>
 
 <Alert>
@@ -24,7 +25,7 @@
         </AlertTitle>
     </svelte:fragment>
     {#if !downloadId}
-        <AlertDescription message="Package is being downloaded externally, so cannot be paused here."/>
+        <AlertDescription message="External download in progress; pausing is unavailable."/>
     {/if}
     {#if progress}
         <DownloadBar
@@ -32,6 +33,8 @@
             totalBytes={progress.totalBytes}
             bytesPerSecond={progress.bytesPerSecond}
         />
+    {:else}
+        <AlertDescription message="Setting up your download. This may take a moment..."/>
     {/if}
     <svelte:fragment slot="actions">
         {#if progress && progress.currentBytes != progress.totalBytes }

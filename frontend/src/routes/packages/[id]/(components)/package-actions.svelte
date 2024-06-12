@@ -16,10 +16,10 @@
     export let downloadId: string | undefined;
 </script>
 
-{#if state === enums.PackageState.AVAILABLE}
-    <AlertAvailable packageId={packageId}/>
-{:else if state === enums.PackageState.DOWNLOADING}
+{#if state === enums.PackageState.DOWNLOADING || downloadId}
     <AlertDownloading progress={progress} downloadId={downloadId}/>
+{:else if state === enums.PackageState.AVAILABLE}
+    <AlertAvailable packageId={packageId}/>
 {:else if state === enums.PackageState.INCOMPLETE}
     <AlertPaused packageId={packageId} progress={progress} />
 {:else if state === enums.PackageState.INSTALLED}

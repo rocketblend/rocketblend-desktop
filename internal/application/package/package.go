@@ -135,6 +135,26 @@ func New(opts ...Option) (*Repository, error) {
 				return fmt.Errorf("failed to load package %s: %w", path, err)
 			}
 
+			// TODO: This is a workaround to avoid losing operations on package update. We need to find a better solution once we redo operations.
+			existingIndex, err := options.Store.Get(context.Background(), pack.ID)
+			if err != nil && !errors.Is(err, store.ErrNotFound) {
+				return err
+			}
+
+			if existingIndex != nil {
+				existing, err := convertFromIndex(existingIndex)
+				if err != nil {
+					return err
+				}
+
+				options.Logger.Debug("copying operations", map[string]interface{}{
+					"package":    pack,
+					"operations": existing.Operations,
+				})
+
+				pack.Operations = existing.Operations
+			}
+
 			index, err := convertToIndex(pack)
 			if err != nil {
 				return err
