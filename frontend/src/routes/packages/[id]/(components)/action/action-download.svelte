@@ -26,12 +26,7 @@
         const opts = application.InstallPackageOpts.createFrom({ id: packageId });
 
         InstallPackage(opts).then(() => {
-            const downloadPackageToast: ToastSettings = {
-                message: `Download starting...`,
-                timeout: 3000,
-            };
-
-            toastStore.trigger(downloadPackageToast);
+            return;
         }).catch(error => {
             const downloadPackageToast: ToastSettings = {
                 message: `Error starting download: ${error}`,

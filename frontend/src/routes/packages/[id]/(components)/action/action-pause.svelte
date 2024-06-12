@@ -24,12 +24,7 @@
         const opts = application.CancelOperationOpts.createFrom({ id: downloadId });
 
         CancelOperation(opts).then(() => {
-            const downloadPackageToast: ToastSettings = {
-                message: `Pausing download...`,
-                timeout: 3000,
-            };
-
-            toastStore.trigger(downloadPackageToast);
+            return;
         }).catch(error => {
             const downloadPackageToast: ToastSettings = {
                 message: `Error pausing download: ${error}`,
