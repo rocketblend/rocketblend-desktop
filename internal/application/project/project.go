@@ -303,6 +303,7 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		FileName:  filepath.Base(blendFilePath),
 		Build:     builds[0].Reference,
 		Addons:    addons,
+		Strict:    profile.Strict,
 		Media:     media,
 		UpdatedAt: modTime,
 	}, nil

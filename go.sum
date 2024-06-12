@@ -208,6 +208,8 @@ github.com/rjeczalik/notify v0.9.3 h1:6rJAzHTGKXGj76sbRgDiDcYj/HniypXmSJo1SWakZe
 github.com/rjeczalik/notify v0.9.3/go.mod h1:gF3zSOrafR9DQEWSE8TjfI9NkooDxbyT4UgRGKZA0lc=
 github.com/rocketblend/rocketblend v0.8.2-0.20240612132752-0ca1b177269d h1:UboOtI0HJYP2CZH8QldV+vERsb2oQmI7N6CiLRvm2XU=
 github.com/rocketblend/rocketblend v0.8.2-0.20240612132752-0ca1b177269d/go.mod h1:JtrmDpENM5QPNx91J5ZycLDS0JkCb40e7Ilgj69waqI=
+github.com/rocketblend/rocketblend v0.8.2-0.20240612211726-8b5c3cd203c9 h1:zsB43aWlByo4KxpVrFlu1hiu/XYXElvv+DiiMVboEjg=
+github.com/rocketblend/rocketblend v0.8.2-0.20240612211726-8b5c3cd203c9/go.mod h1:JtrmDpENM5QPNx91J5ZycLDS0JkCb40e7Ilgj69waqI=
 github.com/rogpeppe/go-internal v1.11.0 h1:cWPaGQEPrBb5/AsnsZesgZZ9yb1OQ+GOISoDNXVBh4M=
 github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUzkipdSkR5nkCZA=
 github.com/rs/xid v1.2.1/go.mod h1:+uKXf+4Djp6Md1KODXJxgGQPKngRmWyn10oCKFzNHOQ=
