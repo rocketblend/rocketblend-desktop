@@ -11,6 +11,7 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/store"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
 	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
@@ -200,7 +201,11 @@ func New(opts ...Option) (*Repository, error) {
 			return options.Store.Insert(context.Background(), index)
 		}),
 		watcher.WithRemoveObjectFunc(func(removePath string) error {
-			return options.Store.RemoveByReference(context.Background(), path.Clean(removePath))
+			if err := options.Store.RemoveByReference(context.Background(), path.Clean(removePath)); err != nil && !errors.Is(err, store.ErrNotFound) {
+				return err
+			}
+
+			return nil
 		}),
 	)
 	if err != nil {

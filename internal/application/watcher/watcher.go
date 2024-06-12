@@ -259,6 +259,11 @@ func (s *service) unregisterPath(path string) error {
 func (s *service) updateObject(path string) error {
 	if s.updateObjectFunc != nil {
 		if err := s.updateObjectFunc(path); err != nil {
+			// Remove object if it fails to create/update.
+			if rerr := s.removeObjectFunc(path); rerr != nil {
+				s.logger.Error("failed to remove object", map[string]interface{}{"error": rerr})
+			}
+
 			return err
 		}
 	}

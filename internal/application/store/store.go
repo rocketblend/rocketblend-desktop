@@ -100,6 +100,7 @@ func (s *Store) Remove(ctx context.Context, id uuid.UUID) error {
 	return s.remove(ctx, id)
 }
 
+// TODO: remove this and just filter then call normal remove.
 func (s *Store) RemoveByReference(ctx context.Context, path string) error {
 	listOpts := listoption.ListOptions{
 		Reference: path,
@@ -121,6 +122,10 @@ func (s *Store) RemoveByReference(ctx context.Context, path string) error {
 		"took":  searchResults.Took,
 		"hits":  len(searchResults.Hits),
 	})
+
+	if searchResults.Total == 0 {
+		return ErrNotFound
+	}
 
 	for _, hit := range searchResults.Hits {
 		s.logger.Debug("found index for deletion", map[string]interface{}{

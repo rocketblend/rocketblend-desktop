@@ -101,8 +101,9 @@ func (s *service) monitorEvents(events chan notify.EventInfo, ctx context.Contex
 }
 
 func (s *service) handleEventDebounced(event *objectEventInfo) {
-	s.logger.Info("filesystem event occurred", map[string]interface{}{
-		"event": event,
+	s.logger.Debug("raw event", map[string]interface{}{
+		"event": event.EventInfo.Event(),
+		"path":  event.EventInfo.Path(),
 	})
 
 	s.emu.Lock()
@@ -132,28 +133,32 @@ func (s *service) handleEventDebounced(event *objectEventInfo) {
 }
 
 func (s *service) handleEvent(event *objectEventInfo) {
-	s.logger.Info("filesystem event occurred", map[string]interface{}{
+	s.logger.Info("event occurred", map[string]interface{}{
 		"event":      event.EventInfo.Event(),
 		"path":       event.EventInfo.Path(),
 		"objectPath": event.ObjectPath,
 	})
 
 	switch event.EventInfo.Event() {
-	case notify.Create, notify.Write:
-		// Export event.
+	case notify.Create, notify.Write, notify.Rename:
 		if err := s.updateObject(event.ObjectPath); err != nil {
 			s.logger.Error("error while loading project", map[string]interface{}{
 				"err": err,
 			})
 		}
 
-	case notify.Remove, notify.Rename:
-		// Export event.
+	case notify.Remove:
 		if err := s.removeObject(event.ObjectPath); err != nil {
 			s.logger.Error("error while removing project", map[string]interface{}{
 				"err": err,
 			})
 		}
+	default:
+		s.logger.Warn("ignoring event", map[string]interface{}{
+			"event":      event.EventInfo.Event(),
+			"path":       event.EventInfo.Path(),
+			"objectPath": event.ObjectPath,
+		})
 	}
 }
 
