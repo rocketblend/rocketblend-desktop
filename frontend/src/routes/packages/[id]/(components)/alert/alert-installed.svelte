@@ -11,11 +11,13 @@
         <IconCheckFill class="text-2xl"/>
     </svelte:fragment>
     <svelte:fragment slot="title">
-        <AlertTitle title="Ready"/>
+        <AlertTitle >
+            Installed
+        </AlertTitle>
     </svelte:fragment>
     <AlertDescription message="Package is ready to be used."/>
     <svelte:fragment slot="actions">
         <!-- <AlertAction text="Delete" disabled/> -->
-        <ActionExplore text="View Location" path={path}/>
+        <ActionExplore path={path} />
     </svelte:fragment>
 </Alert>

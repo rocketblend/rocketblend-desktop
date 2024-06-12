@@ -12,7 +12,9 @@
         <IconDownloadFill class="text-2xl"/>
     </svelte:fragment>
     <svelte:fragment slot="title">
-        <AlertTitle title="Available"/>
+        <AlertTitle>
+            Available
+        </AlertTitle>
     </svelte:fragment>
     <AlertDescription message="Package is available to be downloaded."/>
     <svelte:fragment slot="actions">

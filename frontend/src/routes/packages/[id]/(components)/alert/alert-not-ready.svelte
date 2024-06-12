@@ -13,10 +13,14 @@
         <IconWarningFill class="text-2xl"/>
     </svelte:fragment>
     <svelte:fragment slot="title">
-        <AlertTitle title="Not Ready"/>
+        <AlertTitle>
+            Not Ready
+        </AlertTitle>
     </svelte:fragment>
     <AlertDescription message="Package is current enabled on the selected project, but is not downloaded and installed ready for use. See status below."/>
     <svelte:fragment slot="actions">
-        <AlertAction text="Disable" variant="glass-surface" on:click/>
+        <AlertAction variant="glass-surface" on:click>
+            Disabled 
+        </AlertAction>
     </svelte:fragment>
 </Alert>

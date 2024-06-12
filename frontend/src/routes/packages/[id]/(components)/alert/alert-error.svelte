@@ -8,10 +8,14 @@
         <IconWarningFill class="text-2xl"/>
     </svelte:fragment>
     <svelte:fragment slot="title">
-        <AlertTitle title="Error"/>
+        <AlertTitle >
+            Error
+        </AlertTitle>
     </svelte:fragment>
     <AlertDescription message="An error occurred while downloading the package."/>
     <svelte:fragment slot="actions">
-        <AlertAction text="Retry" disabled/>
+        <AlertAction disabled>
+            Retry
+        </AlertAction>
     </svelte:fragment>
 </Alert>

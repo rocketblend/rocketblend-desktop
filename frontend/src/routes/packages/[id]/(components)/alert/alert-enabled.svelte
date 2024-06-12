@@ -13,10 +13,14 @@
         <IconInfoFill class="text-2xl"/>
     </svelte:fragment>
     <svelte:fragment slot="title">
-        <AlertTitle title="Enabled"/>
+        <AlertTitle >
+            Enabled
+        </AlertTitle>
     </svelte:fragment>
     <AlertDescription message="Package is currently enabled on the selected project."/>
     <svelte:fragment slot="actions">
-        <AlertAction text="Disable" variant="glass-surface" on:click/>
+        <AlertAction variant="glass-surface" on:click>
+            Disabled
+        </AlertAction>
     </svelte:fragment>
 </Alert>

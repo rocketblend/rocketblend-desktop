@@ -1,40 +1,38 @@
 <script lang="ts">
     import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
-    import { InstallPackage } from '$lib/wailsjs/go/application/Driver';
+    import { CancelOperation } from '$lib/wailsjs/go/application/Driver';
     import { application } from '$lib/wailsjs/go/models';
 
     import { AlertAction } from '$lib/components/ui/alert';
 
     const toastStore = getToastStore();
 
-    export let packageId: string;
-    export let resume: boolean = false;
-    
-    let startText: string = "Download";
-    let resumeText: string = "Resume";
-    let disabledText: string = "Starting...";
+    export let downloadId: string | undefined;
+
+    let text: string = "Pause";
+    let disabledText: string = "Pausing...";
 
     let disabled = false;
 
-    function download() {
-        if (disabled) {
+    function pause() {
+        if (disabled || !downloadId) {
             return;
         }
 
         disabled = true;
-        const opts = application.InstallPackageOpts.createFrom({ id: packageId });
+        const opts = application.CancelOperationOpts.createFrom({ id: downloadId });
 
-        InstallPackage(opts).then(() => {
+        CancelOperation(opts).then(() => {
             const downloadPackageToast: ToastSettings = {
-                message: `Download starting...`,
+                message: `Pausing download...`,
                 timeout: 3000,
             };
 
             toastStore.trigger(downloadPackageToast);
         }).catch(error => {
             const downloadPackageToast: ToastSettings = {
-                message: `Error starting download: ${error}`,
+                message: `Error pausing download: ${error}`,
                 background: "variant-filled-error"
             };
 
@@ -42,9 +40,10 @@
         });
     }
 
-    $: displayText = disabled ? disabledText : resume ? resumeText : startText;
+    $: displayText = disabled ? disabledText : text;
 </script>
 
-<AlertAction on:click={download} disabled={disabled}>
+<AlertAction on:click={pause} disabled={disabled || !downloadId}>
     {displayText}
 </AlertAction>
+

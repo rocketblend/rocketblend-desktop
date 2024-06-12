@@ -16,7 +16,9 @@
         <IconPauseFill class="text-2xl"/>
     </svelte:fragment>
     <svelte:fragment slot="title">
-        <AlertTitle title="Paused"/>
+        <AlertTitle>
+            Paused
+        </AlertTitle>
     </svelte:fragment>
     <AlertDescription message="Package is currently incomplete, resume to finish downloading"/>
     {#if progress}
@@ -24,6 +26,6 @@
     {/if}
     <svelte:fragment slot="actions">
         <!-- <AlertAction text="Cancel" disabled/> -->
-        <ActionDownload packageId={packageId} text="Resume"/>
+        <ActionDownload packageId={packageId} resume/>
     </svelte:fragment>
 </Alert>
