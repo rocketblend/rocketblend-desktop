@@ -5,7 +5,8 @@
     import { AlertAction } from '$lib/components/ui/alert';
 
     export let path: string;
-    export let text: string = "View Location";
+    
+    let text: string = "View Location";
 
     let disabled = false && !path;
 
@@ -25,4 +26,6 @@
     }
 </script>
 
-<AlertAction text={text} on:click={explore} disabled={disabled}/>
+<AlertAction on:click={explore} disabled={disabled}>
+    {text}
+</AlertAction>

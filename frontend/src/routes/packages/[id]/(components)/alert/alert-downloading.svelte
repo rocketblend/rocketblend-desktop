@@ -2,10 +2,17 @@
     import { ProgressRadial } from '@skeletonlabs/skeleton';
     import type { types } from '$lib/wailsjs/go/models';
 
-    import { Alert, AlertTitle, AlertAction } from '$lib/components/ui/alert';
+    import { Alert, AlertTitle, AlertDescription } from '$lib/components/ui/alert';
 	import { DownloadBar } from '$lib/components/ui/download';
+    import { ActionPause } from '../action';
 
     export let progress: types.Progress | undefined;
+    export let downloadId: string | undefined;
+
+    let title = "Downloading"
+
+    $: downloadTitle = downloadId ? title : `${title} (External)`;
+    $: displayTitle = progress ? downloadTitle : `Preparing`;
 </script>
 
 <Alert>
@@ -13,18 +20,25 @@
         <ProgressRadial width="w-6" stroke={50} strokeLinecap="square"/>
     </svelte:fragment>
     <svelte:fragment slot="title">
-        <AlertTitle title="Downloading"/>
+        <AlertTitle >
+            {displayTitle}
+        </AlertTitle>
     </svelte:fragment>
+    {#if !downloadId}
+        <AlertDescription message="External download in progress; pausing is unavailable."/>
+    {/if}
     {#if progress}
         <DownloadBar
             currentBytes={progress.currentBytes}
             totalBytes={progress.totalBytes}
             bytesPerSecond={progress.bytesPerSecond}
         />
+    {:else}
+        <AlertDescription message="Setting up your download. This may take a moment..."/>
     {/if}
     <svelte:fragment slot="actions">
         {#if progress && progress.currentBytes != progress.totalBytes }
-            <AlertAction text="Pause" disabled/>
+            <ActionPause downloadId={downloadId}/>
         {/if}
     </svelte:fragment>
 </Alert>

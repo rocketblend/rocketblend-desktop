@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
     import { InstallPackage } from '$lib/wailsjs/go/application/Driver';
@@ -10,8 +9,11 @@
     const toastStore = getToastStore();
 
     export let packageId: string;
-    export let text: string = "Download";
-    export let disabledText: string = "Starting...";
+    export let resume: boolean = false;
+    
+    let startText: string = "Download";
+    let resumeText: string = "Resume";
+    let disabledText: string = "Starting...";
 
     let disabled = false;
 
@@ -24,12 +26,7 @@
         const opts = application.InstallPackageOpts.createFrom({ id: packageId });
 
         InstallPackage(opts).then(() => {
-            const downloadPackageToast: ToastSettings = {
-                message: `Download starting...`,
-                timeout: 3000,
-            };
-
-            toastStore.trigger(downloadPackageToast);
+            return;
         }).catch(error => {
             const downloadPackageToast: ToastSettings = {
                 message: `Error starting download: ${error}`,
@@ -40,7 +37,9 @@
         });
     }
 
-    $: displayText = disabled ? disabledText : text;
+    $: displayText = disabled ? disabledText : resume ? resumeText : startText;
 </script>
 
-<AlertAction bind:text={displayText} on:click={download} disabled={disabled}/>
+<AlertAction on:click={download} disabled={disabled}>
+    {displayText}
+</AlertAction>

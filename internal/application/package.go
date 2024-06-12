@@ -104,6 +104,30 @@ func (d *Driver) AddPackage(opts AddPackageOpts) error {
 
 func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult, error) {
 	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
+		if err := d.catalog.AddPackageOperation(d.ctx, &types.AddPackageOperationOpts{
+			ID:          opts.ID,
+			OperationID: opid,
+		}); err != nil {
+			d.logger.Error("failed to append operation to package", map[string]interface{}{
+				"error": err.Error(),
+				"opid":  opid,
+			})
+
+			return nil, err
+		}
+
+		defer func() {
+			if err := d.catalog.RemovePackageOperation(d.ctx, &types.RemovePackageOperationOpts{
+				ID:          opts.ID,
+				OperationID: opid,
+			}); err != nil {
+				d.logger.Error("failed to remove operation from package", map[string]interface{}{
+					"error": err.Error(),
+					"opid":  opid,
+				})
+			}
+		}()
+
 		if err := d.catalog.InstallPackage(ctx, &types.InstallPackageOpts{
 			ID: opts.ID,
 		}); err != nil {
@@ -122,25 +146,6 @@ func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult,
 		return nil, nil
 	})
 	if err != nil {
-		return nil, err
-	}
-
-	if err := d.catalog.AddPackageOperation(d.ctx, &types.AddPackageOperationOpts{
-		ID:          opts.ID,
-		OperationID: opid,
-	}); err != nil {
-		d.logger.Error("failed to append operation to package", map[string]interface{}{
-			"error": err.Error(),
-			"opid":  opid,
-		})
-
-		if err := d.operator.Cancel(opid); err != nil {
-			d.logger.Error("failed to cancel operation", map[string]interface{}{
-				"error": err.Error(),
-				"opid":  opid,
-			})
-		}
-
 		return nil, err
 	}
 

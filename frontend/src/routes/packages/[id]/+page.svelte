@@ -8,6 +8,8 @@
 	import { PackageToggle, PackageActions } from './(components)';
 
     export let data: PageData;
+
+    $: downloadId = data.package.operations?.at(0);
 </script>
 
 <main class="flex flex-col h-full space-y-4"> 
@@ -46,5 +48,6 @@
         packageId={data.package.id.toString()}
         progress={data.package.progress}
         installationPath={data.package.installationPath}
+        downloadId={downloadId}
     />
 </main>

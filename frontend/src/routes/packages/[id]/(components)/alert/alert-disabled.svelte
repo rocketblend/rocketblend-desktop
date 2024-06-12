@@ -13,10 +13,14 @@
         <IconCloseFill class="text-2xl"/>
     </svelte:fragment>
     <svelte:fragment slot="title">
-        <AlertTitle title="Disabled"/>
+        <AlertTitle >
+            Disabled
+        </AlertTitle>
     </svelte:fragment>
-    <AlertDescription message="Package is currently disabled on the selected project"/>
+    <AlertDescription message="Package is currently disabled on the selected project."/>
     <svelte:fragment slot="actions">
-        <AlertAction text="Enable" on:click/>
+        <AlertAction on:click>
+            Enabled
+        </AlertAction>
     </svelte:fragment>
 </Alert>
