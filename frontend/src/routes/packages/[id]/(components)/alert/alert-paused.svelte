@@ -3,9 +3,9 @@
 
     import IconPauseFill from '~icons/ri/pause-fill';
 
-    import { Alert, AlertTitle, AlertDescription, AlertAction } from '$lib/components/ui/alert';
+    import { Alert, AlertTitle, AlertDescription } from '$lib/components/ui/alert';
     import { DownloadLabel } from '$lib/components/ui/download';
-    import { ActionDownload } from '../action';
+    import { ActionDownload, ActionRemove } from '../action';
 
     export let packageId: string;
     export let progress: types.Progress | undefined;
@@ -25,7 +25,7 @@
         <DownloadLabel currentBytes={progress.currentBytes} totalBytes={progress.totalBytes}/>
     {/if}
     <svelte:fragment slot="actions">
-        <!-- <AlertAction text="Cancel" disabled/> -->
+        <ActionRemove packageId={packageId} cancel/>
         <ActionDownload packageId={packageId} resume/>
     </svelte:fragment>
 </Alert>

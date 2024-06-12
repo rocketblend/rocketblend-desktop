@@ -23,7 +23,7 @@
 {:else if state === enums.PackageState.INCOMPLETE}
     <AlertPaused packageId={packageId} progress={progress} />
 {:else if state === enums.PackageState.INSTALLED}
-    <AlertInstalled path={installationPath}/>
+    <AlertInstalled path={installationPath} packageId={packageId}/>
 {:else}
     <AlertError />
 {/if}
