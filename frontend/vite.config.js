@@ -12,6 +12,10 @@ const config = {
       //
       // allow: ['.'],
     },
+    hmr: {
+      host: 'localhost',
+      protocol: 'ws',
+    },
   },
   plugins: [
     enhancedImages(),
