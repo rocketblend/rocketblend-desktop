@@ -7,7 +7,7 @@
     export let packageId: string;
 
     $: title = path ? "Installed" : "Pre-Installed";
-    $: description = path ? "Package is ready to be used." : "Package is ready to be used, as it comes pre-installed with blender.";
+    $: description = path ? "Package is ready to be used." : "Ready to use, this package comes pre-installed with Blender.";
 </script>
 
 <Alert>

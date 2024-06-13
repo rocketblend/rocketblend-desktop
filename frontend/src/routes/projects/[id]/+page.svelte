@@ -21,6 +21,8 @@
 
     export let data: PageData;
 
+    let dependenciesLabel: string;
+
     async function updateProject() {
         const request: application.UpdateProjectOpts = {
             id: data.project.id,
@@ -46,12 +48,6 @@
             });
     }
 
-    function getDependenciesDisplay(): string {
-        const dependencies = data.project.addons || [];
-        const buildDependencyCount = data.project.build ? 1 : 0;
-        return t.get('home.project.tag.dependency', { number: dependencies.length + buildDependencyCount });
-    }
-
     function handleChange(event: CustomEvent) {
         updateProject();
     }
@@ -64,6 +60,14 @@
     onMount(() => {
         setSelectedProject();
     });
+
+    $: {
+        const dependencies = data.project.addons || [];
+        const buildDependencyCount = data.project.build ? 1 : 0;
+        dependenciesLabel = t.get('home.project.tag.dependency', { number: dependencies.length + buildDependencyCount })
+    }
+
+    $: updatedAt = formatDateTime(data.project.updatedAt);
 </script>
 
 <main class="flex flex-col h-full space-y-4"> 
@@ -83,8 +87,8 @@
                 {#each data.project.tags || [] as tag}
                     <div class="badge variant-ghost-primary rounded">{tag}</div>
                 {/each}
-                <div class="badge variant-ghost-secondary rounded">{getDependenciesDisplay()}</div>
-                <div class="badge variant-ghost rounded">{formatDateTime(data.project.updatedAt)}</div>
+                <div class="badge variant-ghost-secondary rounded">{dependenciesLabel}</div>
+                <div class="badge variant-ghost rounded">{updatedAt}</div>
             </div>
         </div>
     </div>

@@ -60,7 +60,7 @@
             "table": "Table"
         },
         "tag": {
-            "dependency": "{{number:gt; 0:{{number; 1:1 dependency; default:{{number}} deps}}; default:No deps}}"
+            "dependency": "{{number:gt; 0:{{number; 1:1 dependency; default:{{number}} dependencies}}; default:No dependencies}}"
         }
     },
     "operation": {
