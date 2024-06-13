@@ -31,6 +31,7 @@ type (
 
 		Build  reference.Reference   `json:"build"`
 		Addons []reference.Reference `json:"addons"`
+		Strict bool                  `json:"strict"`
 
 		Splash    *Media   `json:"splash"`
 		Thumbnail *Media   `json:"thumbnail"`
@@ -117,6 +118,7 @@ func (p *Project) Profile() *rbtypes.Profile {
 
 	return &rbtypes.Profile{
 		Dependencies: dependencies,
+		Strict:       p.Strict,
 	}
 }
 

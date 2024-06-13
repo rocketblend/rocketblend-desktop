@@ -17,7 +17,9 @@
             Enabled
         </AlertTitle>
     </svelte:fragment>
-    <AlertDescription message="Package is currently enabled on the selected project."/>
+    <AlertDescription>
+        Package is currently enabled on the selected project.
+    </AlertDescription>
     <svelte:fragment slot="actions">
         <AlertAction variant="glass-surface" on:click>
             Disabled

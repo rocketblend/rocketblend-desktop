@@ -12,7 +12,9 @@
             Error
         </AlertTitle>
     </svelte:fragment>
-    <AlertDescription message="An error occurred while downloading the package."/>
+    <AlertDescription>
+        An error occurred while downloading the package.
+    </AlertDescription>
     <svelte:fragment slot="actions">
         <AlertAction disabled>
             Retry

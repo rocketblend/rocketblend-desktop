@@ -17,7 +17,9 @@
             Disabled
         </AlertTitle>
     </svelte:fragment>
-    <AlertDescription message="Package is currently disabled on the selected project."/>
+    <AlertDescription>
+        Package is currently disabled on the selected project.
+    </AlertDescription>
     <svelte:fragment slot="actions">
         <AlertAction on:click>
             Enabled

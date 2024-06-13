@@ -8,10 +8,9 @@
     import type { types } from '$lib/wailsjs/go/models';
 
     import PackageBadge from './package-badge.svelte';
+    import PackageHostBadge from './package-host-badge.svelte';
     import PackageActionButton from './package-action-button.svelte';
 	import ProgressBar from '$lib/components/ui/progress/progress-bar.svelte';
-
-    const downloadHost = "download.blender.org"; // TODO: Remove this prop once the backend is ready
 
     export let projectId: string | undefined;
     export let pack: types.Package;
@@ -82,9 +81,11 @@
         </div>
         {/if}
         <div class="flex-wrap gap-2 space-y-1 w-full">
-            <PackageBadge label={downloadHost} variant="soft-success"/>
-            <PackageBadge label={pack.platform?.toString()}/>
-            <PackageBadge label={pack.version}/>
+            <PackageHostBadge uri={pack.uri}/>
+            <PackageBadge label={pack.platform.toString()}/>
+            {#if pack.version }
+                <PackageBadge label={pack.version}/>
+            {/if}
             <PackageBadge label={pack.author}/>
             <PackageBadge label={pack.type.toLocaleLowerCase()}/>
             <PackageBadge label={pack.state.toLocaleLowerCase()} />

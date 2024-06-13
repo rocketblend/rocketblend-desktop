@@ -16,7 +16,9 @@
             Available
         </AlertTitle>
     </svelte:fragment>
-    <AlertDescription message="Package is available to be downloaded."/>
+    <AlertDescription>
+        Package is available to be downloaded.
+    </AlertDescription>
     <svelte:fragment slot="actions">
         <ActionDownload packageId={packageId}/>
     </svelte:fragment>

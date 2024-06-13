@@ -800,6 +800,7 @@ export namespace types {
 	    fileName: string;
 	    build: string;
 	    addons: string[];
+	    strict: boolean;
 	    splash?: Media;
 	    thumbnail?: Media;
 	    media: Media[];
@@ -821,6 +822,7 @@ export namespace types {
 	        this.fileName = source["fileName"];
 	        this.build = source["build"];
 	        this.addons = source["addons"];
+	        this.strict = source["strict"];
 	        this.splash = this.convertValues(source["splash"], Media);
 	        this.thumbnail = this.convertValues(source["thumbnail"], Media);
 	        this.media = this.convertValues(source["media"], Media);

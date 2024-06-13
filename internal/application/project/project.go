@@ -264,8 +264,6 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		return nil, err
 	}
 
-	fmt.Println("media path", detail.MediaPath)
-
 	if filepath.IsLocal(detail.MediaPath) {
 		return nil, errors.New("media path must be relative")
 	}
@@ -303,6 +301,7 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		FileName:  filepath.Base(blendFilePath),
 		Build:     builds[0].Reference,
 		Addons:    addons,
+		Strict:    profile.Strict,
 		Media:     media,
 		UpdatedAt: modTime,
 	}, nil

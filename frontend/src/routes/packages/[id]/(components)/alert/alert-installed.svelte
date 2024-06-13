@@ -1,10 +1,13 @@
 <script lang="ts">
     import IconCheckFill from '~icons/ri/check-fill';
-    import { Alert, AlertTitle, AlertDescription, AlertAction } from '$lib/components/ui/alert';
+    import { Alert, AlertTitle, AlertDescription } from '$lib/components/ui/alert';
 	import { ActionExplore, ActionRemove } from '../action';
 
     export let path: string;
     export let packageId: string;
+
+    $: title = path ? "Installed" : "Pre-Installed";
+    $: description = path ? "Package is ready to be used." : "Ready to use, this package comes pre-installed with Blender.";
 </script>
 
 <Alert>
@@ -13,12 +16,16 @@
     </svelte:fragment>
     <svelte:fragment slot="title">
         <AlertTitle >
-            Installed
+            {title}
         </AlertTitle>
     </svelte:fragment>
-    <AlertDescription message="Package is ready to be used."/>
+    <AlertDescription>
+       {description}
+    </AlertDescription>
     <svelte:fragment slot="actions">
-        <ActionRemove packageId={packageId}/>
-        <ActionExplore path={path} />
+        {#if path}
+            <ActionRemove packageId={packageId}/>
+            <ActionExplore path={path} />
+        {/if}
     </svelte:fragment>
 </Alert>

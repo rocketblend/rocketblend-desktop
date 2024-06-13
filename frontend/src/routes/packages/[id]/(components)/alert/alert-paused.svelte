@@ -20,7 +20,9 @@
             Paused
         </AlertTitle>
     </svelte:fragment>
-    <AlertDescription message="Package is currently incomplete, resume to finish downloading."/>
+    <AlertDescription>
+        Package is currently incomplete, resume to finish downloading.
+    </AlertDescription>
     {#if progress}
         <DownloadLabel currentBytes={progress.currentBytes} totalBytes={progress.totalBytes}/>
     {/if}

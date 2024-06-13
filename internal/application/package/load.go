@@ -45,11 +45,15 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 	}
 
 	source := definition.Source(rbtypes.Platform(config.Platform.String()))
-	if source == nil {
+	if source == nil && !definition.Bundled() {
 		return nil, errors.New("failed to get source")
 	}
 
 	installationPath := filepath.Join(config.InstallationsPath, reference.String())
+	if definition.Bundled() {
+		installationPath = ""
+	}
+
 	state, err := determineState(installationPath, source)
 	if err != nil {
 		return nil, fmt.Errorf("failed to determine state: %w", err)
@@ -64,6 +68,16 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 		}
 	}
 
+	platform := rbtypes.PlatformAny
+	if source != nil {
+		platform = source.Platform
+	}
+
+	var uri *rbtypes.URI
+	if source != nil {
+		uri = source.URI
+	}
+
 	return &types.Package{
 		ID:               id,
 		Type:             enums.PackageType(definition.Type),
@@ -74,8 +88,8 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 		Reference:        reference,
 		Path:             path,
 		InstallationPath: installationPath,
-		Platform:         source.Platform,
-		URI:              source.URI,
+		Platform:         platform,
+		URI:              uri,
 		Verified:         isPackageVerified(reference),
 		Version:          definition.Version,
 		Progress:         progress,

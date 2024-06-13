@@ -39,6 +39,7 @@ func (r *Repository) run(ctx context.Context, id uuid.UUID) error {
 				BlendFile: &rbtypes.BlendFile{
 					Path:         filepath.Join(project.Path, project.FileName),
 					Dependencies: result.Installations[0],
+					Strict:       project.Strict,
 				},
 			},
 		}); err != nil {
