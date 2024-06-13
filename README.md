@@ -51,7 +51,6 @@ To build a redistributable, production mode package, use `wails build`.
 ## See Also
 
 - [RocketBlend](https://github.com/rocketblend/rocketblend) - CLI tool that powers the build and addon management for blender.
-- [RocketBlend Companion](https://github.com/rocketblend/rocketblend-companion) - Blender addon to aid with working with RocketBlend. **NOTE: WIP**
 - [Official Library](https://github.com/rocketblend/official-library) - Collection of packages for rocketblend.
 
 ## Special Thanks
