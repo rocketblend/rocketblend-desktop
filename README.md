@@ -6,7 +6,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/rocketblend/rocketblend-desktop)](https://goreportcard.com/report/github.com/rocketblend/rocketblend-desktop)
 [![GitHub](https://img.shields.io/github/license/rocketblend/rocketblend-desktop)](https://github.com/rocketblend/rocketblend-desktop/blob/master/LICENSE)
 
-RocketBlend Desktop is a open-source desktop application for RocketBlend. Improve your [Blender](https://www.blender.org/) workflow by simplifying dependency management and enhancing the discoverability of your projects.
+RocketBlend Desktop is an open-source desktop application for [RocketBlend](https://github.com/rocketblend/rocketblend). Improve your [Blender](https://www.blender.org/) workflow by adding dependency management and enhancing the discoverability of your projects.
 
 > [!NOTE]  
 > **Important:** RocketBlend Desktop is currently under active development and still evolving. As such, expect significant changes, potential bugs, and incomplete features.
