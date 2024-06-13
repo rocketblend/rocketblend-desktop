@@ -2,6 +2,7 @@ package pack
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -44,6 +45,10 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 	}
 
 	source := definition.Source(rbtypes.Platform(config.Platform.String()))
+	if source == nil && !definition.Bundled() {
+		return nil, errors.New("failed to get source")
+	}
+
 	installationPath := filepath.Join(config.InstallationsPath, reference.String())
 	state, err := determineState(installationPath, source)
 	if err != nil {
