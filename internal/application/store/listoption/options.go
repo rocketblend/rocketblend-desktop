@@ -146,11 +146,12 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	}
 
 	if so.Query != "" {
-		textQuery := bleve.NewMatchQuery(so.Query)
-		textQuery.SetFuzziness(2)
-		//textQuery.SetPrefix(2)
-
-		query.AddQuery(textQuery)
+		searchQuery := bleve.NewBooleanQuery()
+		fuzzy_query := bleve.NewFuzzyQuery(so.Query)
+		fuzzy_query.SetFuzziness(2)
+		searchQuery.AddShould(fuzzy_query)
+		searchQuery.AddShould(bleve.NewQueryStringQuery("*" + so.Query + "*"))
+		query.AddQuery(searchQuery)
 	} else {
 		matchAllQuery := bleve.NewMatchAllQuery()
 		query.AddQuery(matchAllQuery)
