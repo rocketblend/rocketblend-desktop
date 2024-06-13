@@ -37,7 +37,7 @@
                 <div class="text-sm font-medium">{name}</div>
                 <div class="text-sm text-surface-300">{fileName}</div>
             </div>
-            <button type="button" class="btn btn-lg px-1 text-secondary-300-600-token"><IconBookmark3Fill/></button>
+            <!-- <button type="button" class="btn btn-lg px-1 text-secondary-300-600-token"><IconBookmark3Fill/></button> -->
         </div>
         <div class="min-w-max items-center justify-center flex gap-2"></div>
         <div class="justify-end items-center flex gap-2">
