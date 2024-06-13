@@ -6,7 +6,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/rocketblend/rocketblend-desktop)](https://goreportcard.com/report/github.com/rocketblend/rocketblend-desktop)
 [![GitHub](https://img.shields.io/github/license/rocketblend/rocketblend-desktop)](https://github.com/rocketblend/rocketblend-desktop/blob/master/LICENSE)
 
-RocketBlend Desktop improves your [Blender](https://www.blender.org/) workflow by simplifying dependency management and enhancing the discoverability of local projects. With RocketBlend Desktop, you can easily explore and organize your Blender projects for a more streamlined and efficient workflow.
+RocketBlend Desktop is a open-source desktop application for RocketBlend. Improve your [Blender](https://www.blender.org/) workflow by simplifying dependency management and enhancing the discoverability of your projects.
 
 > [!NOTE]  
 > **Important:** RocketBlend Desktop is currently under active development and still evolving. As such, expect significant changes, potential bugs, and incomplete features.
@@ -24,7 +24,7 @@ RocketBlend Desktop improves your [Blender](https://www.blender.org/) workflow b
 - **Network Storage and Team Collaboration**: Work seamlessly across shared network storage, enabling easy sharing across machines and team members. Configurations are stored in `.json` files alongside your `.blend` files, suitable for Dropbox, shared drives, cloud storage, or Git repositories.
 - **Lightweight and Flexible**: Use RocketBlend's [CLI](https://github.com/rocketblend/rocketblend) on servers or production pipelines without needing the desktop UI. Ideal for professionals setting up render pipelines or server tasks, while the desktop application offers an intuitive interface for regular users.
 - **External Configuration Storage**: Store all configuration information in `.json` files alongside your projects instead of inside `.blend` files, allowing you to access and modify this data without needing Blender installed.
-- **Visual Project Gallery**: Navigate and manage your work with visual project displays, supporting both images and videos.
+- **Visual Project Gallery**: Navigate and manage your work with visual project gallery, supporting both images and videos.
 
 ## Development Requirements
 
