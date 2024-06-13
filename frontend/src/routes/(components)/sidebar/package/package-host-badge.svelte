@@ -6,18 +6,18 @@
 
     export let uri: string;
     let hostName: string = '';
-    let safe: boolean;
+    let trusted: boolean;
   
     $: {
         try {
             hostName = new URL(uri).hostname;
-            safe = trustedHosts.includes(hostName);
+            trusted = trustedHosts.includes(hostName);
         } catch (error) {
             hostName = '';
-            safe = false;
+            trusted = false;
         }
     }
-    $: variant = safe ? "soft-success" : undefined;
+    $: variant = trusted ? "soft-success" : undefined;
   </script>
   
   {#if hostName}
