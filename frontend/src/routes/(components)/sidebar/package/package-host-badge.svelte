@@ -1,7 +1,7 @@
 <script lang="ts">
     import PackageBadge from './package-badge.svelte';
   
-    // TODO: Remove this prop once the backend is ready
+    // TODO: Remove this once the backend is ready
     const trustedHosts = ["download.blender.org", "github.com", "gitlab.com", "bitbucket.org"];
 
     export let uri: string;
