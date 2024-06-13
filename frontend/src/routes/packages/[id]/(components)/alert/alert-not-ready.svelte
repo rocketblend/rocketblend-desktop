@@ -17,7 +17,9 @@
             Not Ready
         </AlertTitle>
     </svelte:fragment>
-    <AlertDescription message="Package is current enabled on the selected project, but is not downloaded and installed ready for use. See status below."/>
+    <AlertDescription>
+        Package is current enabled on the selected project, but is not downloaded and installed ready for use. See status below.
+    </AlertDescription>
     <svelte:fragment slot="actions">
         <AlertAction variant="glass-surface" on:click>
             Disabled 

@@ -50,6 +50,10 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 	}
 
 	installationPath := filepath.Join(config.InstallationsPath, reference.String())
+	if definition.Bundled() {
+		installationPath = ""
+	}
+
 	state, err := determineState(installationPath, source)
 	if err != nil {
 		return nil, fmt.Errorf("failed to determine state: %w", err)

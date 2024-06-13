@@ -25,7 +25,9 @@
         </AlertTitle>
     </svelte:fragment>
     {#if !downloadId}
-        <AlertDescription message="External download in progress; pausing is unavailable."/>
+        <AlertDescription>
+            External download in progress; pausing is unavailable.
+        </AlertDescription>
     {/if}
     {#if progress}
         <DownloadBar
@@ -34,7 +36,9 @@
             bytesPerSecond={progress.bytesPerSecond}
         />
     {:else}
-        <AlertDescription message="Setting up your download. This may take a moment..."/>
+        <AlertDescription>
+            Setting up your download. This may take a moment...
+        </AlertDescription>
     {/if}
     <svelte:fragment slot="actions">
         {#if progress && progress.currentBytes != progress.totalBytes }

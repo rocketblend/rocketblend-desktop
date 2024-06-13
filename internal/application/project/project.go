@@ -264,8 +264,6 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		return nil, err
 	}
 
-	fmt.Println("media path", detail.MediaPath)
-
 	if filepath.IsLocal(detail.MediaPath) {
 		return nil, errors.New("media path must be relative")
 	}
