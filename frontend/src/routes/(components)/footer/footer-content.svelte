@@ -5,7 +5,6 @@
     import IconFolderOpenFill from '~icons/ri/folder-open-fill';
     import IconEyeFill from '~icons/ri/eye-fill';
     import IconBookmark3Fill from '~icons/ri/bookmark-3-fill';
-    import IconTerminalBoxFill from '~icons/ri/terminal-box-fill';
 
     import { Media } from '$lib/components/ui/media';
 
