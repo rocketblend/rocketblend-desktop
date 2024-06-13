@@ -83,8 +83,10 @@
         {/if}
         <div class="flex-wrap gap-2 space-y-1 w-full">
             <PackageBadge label={downloadHost} variant="soft-success"/>
-            <PackageBadge label={pack.platform?.toString()}/>
-            <PackageBadge label={pack.version}/>
+            <PackageBadge label={pack.platform.toString()}/>
+            {#if pack.version }
+                <PackageBadge label={pack.version}/>
+            {/if}
             <PackageBadge label={pack.author}/>
             <PackageBadge label={pack.type.toLocaleLowerCase()}/>
             <PackageBadge label={pack.state.toLocaleLowerCase()} />

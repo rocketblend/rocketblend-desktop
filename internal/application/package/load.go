@@ -2,7 +2,6 @@ package pack
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -45,10 +44,6 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 	}
 
 	source := definition.Source(rbtypes.Platform(config.Platform.String()))
-	if source == nil {
-		return nil, errors.New("failed to get source")
-	}
-
 	installationPath := filepath.Join(config.InstallationsPath, reference.String())
 	state, err := determineState(installationPath, source)
 	if err != nil {
@@ -64,6 +59,16 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 		}
 	}
 
+	platform := rbtypes.PlatformAny
+	if source != nil {
+		platform = source.Platform
+	}
+
+	var uri *rbtypes.URI
+	if source != nil {
+		uri = source.URI
+	}
+
 	return &types.Package{
 		ID:               id,
 		Type:             enums.PackageType(definition.Type),
@@ -74,8 +79,8 @@ func load(configurator types.RBConfigurator, validator types.Validator, path str
 		Reference:        reference,
 		Path:             path,
 		InstallationPath: installationPath,
-		Platform:         source.Platform,
-		URI:              source.URI,
+		Platform:         platform,
+		URI:              uri,
 		Verified:         isPackageVerified(reference),
 		Version:          definition.Version,
 		Progress:         progress,
