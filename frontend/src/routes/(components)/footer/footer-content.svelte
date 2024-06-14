@@ -30,7 +30,7 @@
 
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">
     {#if !isLoading}
-        <div class="flex gap-4 items-center">
+        <div class="flex gap-4 items-center max-h-16">
             <Media width=16 height=16 src={imagePath} />
             <div>
                 <div class="text-sm font-medium">{name}</div>

@@ -93,13 +93,13 @@ func (h *Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	path = filepath.ToSlash(strings.TrimPrefix(path, DynamicResourcePath))
+	path = ensureAbsolutePath(filepath.ToSlash(strings.TrimPrefix(path, DynamicResourcePath)))
 	if !isValidWebImage(path) {
 		h.respondWithError(res, http.StatusBadRequest, "Invalid resource file type", fmt.Errorf("invalid file type: %s", path))
 		return
 	}
 
-	h.logger.Debug("Requested file:", map[string]interface{}{
+	h.logger.Debug("requested file:", map[string]interface{}{
 		"resource":   path,
 		"method":     req.Method,
 		"remoteAddr": req.RemoteAddr,
@@ -116,6 +116,10 @@ func (h *Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		h.respondWithError(res, http.StatusNotFound, "Resource not found", nil)
 		return
 	}
+
+	h.logger.Debug("serving file:", map[string]interface{}{
+		"resource": path,
+	})
 
 	res.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", h.cacheTimeout))
 
@@ -138,6 +142,14 @@ func (h *Handler) respondWithError(w http.ResponseWriter, statusCode int, messag
 func isValidWebImage(filePath string) bool {
 	ext := strings.ToLower(filepath.Ext(filePath))
 	return validExtensions[ext]
+}
+
+// ensureAbsolutePath makes sure the path starts with a '/'.
+func ensureAbsolutePath(path string) string {
+	if !strings.HasPrefix(path, "/") {
+		return "/" + path
+	}
+	return path
 }
 
 func setupDependencies(container types.Container) (*dependecies, error) {

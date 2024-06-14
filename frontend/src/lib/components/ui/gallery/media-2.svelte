@@ -29,7 +29,7 @@
     }
 
     $: buttonClasses = twMerge(
-        'border-none bg-none p-0 cursor-pointer w-full h-full block placeholder animate-pulse',
+        'border-none bg-none p-0 cursor-pointer w-full h-full block placeholder overflow-hidden',
         className,
         hover ? 'opacity-90 transition-all duration-200 hover:opacity-100 hover:scale-105' : '',
         rounded ? 'rounded-container-token' : ''
@@ -45,9 +45,13 @@
     class={buttonClasses}
 >
     {#if !src || hasError}
-        <div class="flex items-center justify-center h-32">
+        <div class="flex items-center justify-center animate-pulse h-32">
             <span class="font-bold text-surface-500-400-token">
-                Failed to load media
+                {#if hasError}
+                    Failed to load media
+                {:else}
+                    No media found
+                {/if}
             </span>
         </div>
     {:else}
