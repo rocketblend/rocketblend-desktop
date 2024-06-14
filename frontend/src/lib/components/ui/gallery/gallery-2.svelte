@@ -7,6 +7,7 @@
     export let maxColumnWidth: number = 250;
     export let hover: boolean = false;
     export let items: MediaDetails[] = [];
+    export let rounded: boolean = false;
 
     const dispatch = createEventDispatcher<{ click: MediaDetails }>();
 
@@ -54,6 +55,7 @@
                             className={item.class}
                             loading={item.loading}
                             hover={hover}
+                            rounded={rounded}
                             on:click={handleImageClick}
                         />
                     </div>
