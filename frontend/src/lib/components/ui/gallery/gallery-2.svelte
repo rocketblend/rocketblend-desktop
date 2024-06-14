@@ -1,12 +1,13 @@
 <script lang="ts">
     import { onMount, createEventDispatcher, tick } from "svelte";
-    import type { MediaDetails } from './types';
+    import type { Loading, MediaDetails } from './types';
     import Media2 from './media-2.svelte';
 
     export let gap: number = 10;
     export let maxColumnWidth: number = 250;
-    export let hover: boolean = false;
     export let items: MediaDetails[] = [];
+    export let loading: Loading = "eager";
+    export let hover: boolean = false;
     export let rounded: boolean = false;
 
     const dispatch = createEventDispatcher<{ click: MediaDetails }>();
@@ -53,7 +54,7 @@
                             src={item.src}
                             alt={item.alt}
                             className={item.class}
-                            loading={item.loading}
+                            loading={loading}
                             hover={hover}
                             rounded={rounded}
                             on:click={handleImageClick}

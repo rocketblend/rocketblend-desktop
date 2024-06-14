@@ -4,5 +4,4 @@ export type MediaDetails = {
     src: string;
     alt: string;
     class: string;
-    loading: Loading;
 };

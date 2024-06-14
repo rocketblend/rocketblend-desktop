@@ -16,7 +16,7 @@
     let hasError = false;
 
     function handleClick() {
-        dispatch('click', { src, alt, class: className, loading });
+        dispatch('click', { src, alt, class: className });
     }
 
     function isVideo(src: string): boolean {
