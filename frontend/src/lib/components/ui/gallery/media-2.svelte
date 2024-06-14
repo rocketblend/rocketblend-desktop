@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
     import { twMerge } from 'tailwind-merge';
-    import type { Loading, ImageDetails } from './types';
+    import type { Loading, MediaDetails } from './types';
 
     export let src: string;
     export let alt: string;
@@ -9,7 +9,7 @@
     export let loading: Loading = 'eager';
     export let hover: boolean = false;
 
-    const dispatch = createEventDispatcher<{ click: ImageDetails }>();
+    const dispatch = createEventDispatcher<{ click: MediaDetails }>();
 
     function handleClick() {
         dispatch('click', { src, alt, class: className, loading });

@@ -1,16 +1,16 @@
 <script lang="ts">
     import { onMount, createEventDispatcher, tick } from "svelte";
-    import type { ImageDetails, Loading } from './types';
+    import type { MediaDetails } from './types';
     import Media2 from './media-2.svelte';
 
     export let gap: number = 10;
     export let maxColumnWidth: number = 250;
     export let hover: boolean = false;
-    export let items: ImageDetails[] = [];
+    export let items: MediaDetails[] = [];
 
-    const dispatch = createEventDispatcher<{ click: ImageDetails }>();
+    const dispatch = createEventDispatcher<{ click: MediaDetails }>();
 
-    let columns: ImageDetails[][] = [];
+    let columns: MediaDetails[][] = [];
     let galleryWidth: number = 0;
     let columnCount: number = 0;
 
@@ -27,7 +27,7 @@
         Draw();
     });
 
-    function handleImageClick(event: CustomEvent<ImageDetails>) {
+    function handleImageClick(event: CustomEvent<MediaDetails>) {
         dispatch("click", event.detail);
     }
 

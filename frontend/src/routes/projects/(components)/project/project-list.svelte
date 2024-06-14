@@ -4,11 +4,11 @@
     import { DisplayType, type MediaInfo } from '$lib/types';
     import { GalleryGrid } from '$lib/components/ui/gallery';
 
-    import { Media2, Gallery2, type ImageDetails } from '$lib/components/ui/gallery';
+    import { Media2, Gallery2, type MediaDetails } from '$lib/components/ui/gallery';
     
     import ProjectTable from "./project-table.svelte";
 
-    const mediaItems: ImageDetails[] = [
+    const mediaItems: MediaDetails[] = [
         { src: "https://via.placeholder.com/210x170/100", alt: "210x170", class: "hi", loading: "lazy" },
         { src: "https://via.placeholder.com/180x200/100", alt: "180x200", class: "", loading: "lazy" },
         { src: "https://via.placeholder.com/200x210/100", alt: "200x210", class: "", loading: "lazy" },
