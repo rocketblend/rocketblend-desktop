@@ -15,13 +15,19 @@
         dispatch('click', { src, alt, class: className, loading });
     }
 
+    function isVideo(src: string): boolean {
+        const videoExtensions = ['mp4', 'webm', 'ogg'];
+        const extension = src.split('.').pop()?.toLowerCase();
+        return videoExtensions.includes(extension ?? '');
+    }
+
     $: buttonClasses = twMerge(
         'border-none bg-none p-0 cursor-pointer w-full block',
         className,
         hover ? 'opacity-90 transition-all duration-200 hover:opacity-100 hover:scale-105' : ''
     );
 
-    $: imgClasses = 'w-full';
+    $: mediaClasses = 'w-full';
 </script>
 
 <button
@@ -30,5 +36,11 @@
     on:keydown={(e) => e.key === 'Enter' && handleClick()}
     class={buttonClasses}
 >
-    <img src={src} alt={alt} loading={loading} class={imgClasses} />
+    {#if isVideo(src)}
+        <video src={src} class={mediaClasses} preload={loading === 'eager' ? 'auto' : 'metadata'} autoplay loop muted playsinline >
+            Your browser does not support the video tag.
+        </video>
+    {:else}
+        <img src={src} alt={alt} loading={loading} class={mediaClasses} />
+    {/if}
 </button>
