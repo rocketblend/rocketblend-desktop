@@ -1,5 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte';
+    import { twMerge } from 'tailwind-merge';
     import type { Loading, ImageDetails } from './types';
 
     export let src: string;
@@ -13,39 +14,21 @@
     function handleClick() {
         dispatch('click', { src, alt, class: className, loading });
     }
+
+    $: buttonClasses = twMerge(
+        'border-none bg-none p-0 cursor-pointer w-full block',
+        className,
+        hover ? 'opacity-90 transition-all duration-200 hover:opacity-100 hover:scale-105' : ''
+    );
+
+    $: imgClasses = 'w-full';
 </script>
 
 <button
     type="button"
     on:click={handleClick}
     on:keydown={(e) => e.key === 'Enter' && handleClick()}
-    class={`media-button ${className} ${hover ? 'img-hover' : ''}`}
+    class={buttonClasses}
 >
-    <img src={src} alt={alt} loading={loading} class="media-image" />
+    <img src={src} alt={alt} loading={loading} class={imgClasses} />
 </button>
-
-<style>
-    .media-button {
-        border: none;
-        background: none;
-        padding: 0;
-        cursor: pointer;
-        width: 100%;
-        display: block;
-    }
-    
-    .media-button .media-image {
-        width: 100%;
-    }
-
-    .img-hover {
-        opacity: 0.9;
-        transition: all 0.2s;
-    }
-
-    .img-hover:hover,
-    .media-button:focus {
-        opacity: 1;
-        transform: scale(1.05);
-    }
-</style>
