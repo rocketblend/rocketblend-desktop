@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
     import type { types } from '$lib/wailsjs/go/models';
 
     import { DisplayType } from '$lib/types';
@@ -13,7 +14,7 @@
 
     let galleryItems: GalleryItem[] = [];
 
-    function handleGalleryClick(event: CustomEvent<GalleryItem>) {
+    function handleGalleryClick(event: CustomEvent<{value: string}>) {
         const { value } = event.detail;
         selectedProjectIds = [value];
     }
@@ -46,11 +47,11 @@
                 loading="eager"
                 rounded={true}
                 on:click={handleGalleryClick}
+                on:dblclick
             />
         {:else}
             <ProjectTable
-                on:sortChanged
-                on:itemDoubleClick
+                on:dblclick
                 bind:sourceData={projects}
                 bind:selectedProjectIds={selectedProjectIds} />
         {/if}

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import { twMerge } from 'tailwind-merge';
     import type { Loading, MediaDetails } from './types';
 
@@ -11,14 +10,9 @@
     export let highlight: boolean = false;
     export let rounded: boolean = false;
 
-    const dispatch = createEventDispatcher<{ click: MediaDetails }>();
     const videoExtensions = ['mp4', 'webm', 'ogg'];
 
     let hasError = false;
-
-    function handleClick() {
-        dispatch('click', { src, alt, class: className, highlight });
-    }
 
     function isVideo(src: string): boolean {
         const extension = src.split('.').pop()?.toLowerCase();
@@ -42,8 +36,9 @@
 
 <button
     type="button"
-    on:click={handleClick}
-    on:keydown={(e) => e.key === 'Enter' && handleClick()}
+    on:click
+    on:dblclick
+    on:keydown
     class={buttonClasses}
 >
     {#if !src || hasError}

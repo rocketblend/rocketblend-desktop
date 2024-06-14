@@ -9,7 +9,7 @@
 
     import { tableA11y } from "./table-action.js"
 
-    const dispatch = createEventDispatcher();
+    const dispatch = createEventDispatcher<{ dblclick: { value: string, event: MouseEvent } }>();
 
     export let source: TableSource;
     export let selected: string[] = [];
@@ -42,7 +42,7 @@
 
         source = { ...source, head: newHead };
 
-        dispatch('sortChanged', { key: column.label, direction: column.sortDirection });
+        //dispatch('sortChanged', { key: column.label, direction: column.sortDirection });
     }
 
     function onRowClick(clickedRow: TableRow): void {
@@ -67,7 +67,7 @@
             selected = multiple ? [...selected, id] : [id];
         }
 
-        dispatch('itemDoubleClick', { event: event, item: id,  });
+        dispatch('dblclick', { event: event, value: id,  });
     }
 
     $: classesBase = `${$$props.class || ''}`;

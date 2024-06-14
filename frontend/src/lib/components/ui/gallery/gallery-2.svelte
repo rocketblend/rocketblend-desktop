@@ -11,7 +11,7 @@
     export let hover: boolean = false;
     export let rounded: boolean = false;
 
-    const dispatch = createEventDispatcher<{ click: GalleryItem }>();
+    const dispatch = createEventDispatcher<{ click: { value: string }, dblclick: { value: string, event: MouseEvent } }>();
 
     let columns: GalleryItem[][] = [];
     let galleryWidth: number = 0;
@@ -30,8 +30,12 @@
         Draw();
     });
 
-    function handleImageClick(value: string, event: CustomEvent<MediaDetails>) {
-        dispatch("click", { value, src: event.detail.src, alt: event.detail.alt, class: event.detail.class});
+    function handleClick(value: string) {
+        dispatch("click", {value});
+    }
+
+    function handleDbClick(value: string, event: MouseEvent) {
+        dispatch("dblclick", {value, event});
     }
 
     async function Draw() {
@@ -59,7 +63,8 @@
                             loading={loading}
                             hover={hover}
                             rounded={rounded}
-                            on:click={(e) => handleImageClick(item.value, e)}
+                            on:click={(e) => handleClick(item.value)}
+                            on:dblclick={(e) => handleDbClick(item.value, e)}
                         />
                     </div>
                 {/each}
