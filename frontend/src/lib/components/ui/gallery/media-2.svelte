@@ -11,9 +11,9 @@
     export let rounded: boolean = false;
 
     const dispatch = createEventDispatcher<{ click: MediaDetails }>();
-    let hasError = false;
-
     const videoExtensions = ['mp4', 'webm', 'ogg'];
+
+    let hasError = false;
 
     function handleClick() {
         dispatch('click', { src, alt, class: className, loading });
@@ -24,6 +24,10 @@
         return videoExtensions.includes(extension ?? '');
     }
 
+    function handleMediaError() {
+        hasError = true;
+    }
+
     $: buttonClasses = twMerge(
         'border-none bg-none p-0 cursor-pointer w-full h-full block placeholder animate-pulse',
         className,
@@ -32,10 +36,6 @@
     );
 
     $: mediaClasses = 'w-full';
-
-    function handleMediaError() {
-        hasError = true;
-    }
 </script>
 
 <button
