@@ -1,18 +1,19 @@
 <script lang="ts">
     import { onMount, createEventDispatcher, tick } from "svelte";
-    import type { Loading, MediaDetails } from './types';
+    import type { Loading, GalleryItem, MediaDetails } from './types';
     import Media2 from './media-2.svelte';
 
     export let gap: number = 10;
     export let maxColumnWidth: number = 250;
-    export let items: MediaDetails[] = [];
+    export let items: GalleryItem[] = [];
+    export let highlight: string[] = [];
     export let loading: Loading = "eager";
     export let hover: boolean = false;
     export let rounded: boolean = false;
 
-    const dispatch = createEventDispatcher<{ click: MediaDetails }>();
+    const dispatch = createEventDispatcher<{ click: GalleryItem }>();
 
-    let columns: MediaDetails[][] = [];
+    let columns: GalleryItem[][] = [];
     let galleryWidth: number = 0;
     let columnCount: number = 0;
 
@@ -29,8 +30,8 @@
         Draw();
     });
 
-    function handleImageClick(event: CustomEvent<MediaDetails>) {
-        dispatch("click", event.detail);
+    function handleImageClick(value: string, event: CustomEvent<MediaDetails>) {
+        dispatch("click", { value, src: event.detail.src, alt: event.detail.alt, class: event.detail.class});
     }
 
     async function Draw() {
@@ -54,11 +55,11 @@
                             src={item.src}
                             alt={item.alt}
                             className={item.class}
-                            highlight={item.highlight}
+                            highlight={highlight.includes(item.value)}
                             loading={loading}
                             hover={hover}
                             rounded={rounded}
-                            on:click={handleImageClick}
+                            on:click={(e) => handleImageClick(item.value, e)}
                         />
                     </div>
                 {/each}

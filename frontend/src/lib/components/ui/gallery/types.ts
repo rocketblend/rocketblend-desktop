@@ -6,3 +6,10 @@ export type MediaDetails = {
     class: string;
     highlight: boolean;
 };
+
+export type GalleryItem = {
+    value: string;
+    src: string;
+    alt: string;
+    class: string;
+};
