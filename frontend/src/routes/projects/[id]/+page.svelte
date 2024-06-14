@@ -4,7 +4,7 @@
 
     import { type ToastSettings, getToastStore  } from '@skeletonlabs/skeleton';
 
-    import type { application } from '$lib/wailsjs/go/models';
+    import type { application, types } from '$lib/wailsjs/go/models';
 	import { UpdateProject } from '$lib/wailsjs/go/application/Driver';
 
     import { t } from '$lib/translations/translations';
@@ -12,6 +12,7 @@
     import { formatDateTime } from '$lib/components/utils';
     import { Media } from '$lib/components/ui/media';
     import { InputInline } from '$lib/components/ui/input';
+    import { Gallery2, type GalleryItem } from '$lib/components/ui/gallery';
 
     import IconEditFill from '~icons/ri/edit-fill';
 	import { invalidate } from '$app/navigation';
@@ -57,6 +58,15 @@
         invalidate("app:layout");
     }
 
+    function convertToGalleryItems(projects: types.Media[] = []): GalleryItem[] {
+        return projects.map((media) => ({
+            value: media.filePath || "",
+            src: media.url || "",
+            alt: `${media.filePath || ""}`,
+            class: "",
+        }));
+    }
+
     onMount(() => {
         setSelectedProject();
     });
@@ -68,6 +78,7 @@
     }
 
     $: updatedAt = formatDateTime(data.project.updatedAt);
+    $: galleryItems = convertToGalleryItems(data.project.media || []);
 </script>
 
 <main class="flex flex-col h-full space-y-4"> 
@@ -94,10 +105,12 @@
     </div>
     <hr>
     <div class="h-full overflow-auto">
-        <div class="grid grid-cols-4 gap-4">
-            {#each data.project.media || [] as media}
-                <Media height="80" width="full" src={media.url} alt="" />
-            {/each}
-        </div>
+        <Gallery2
+            gap={15}
+            maxColumnWidth={250}
+            bind:items={galleryItems}
+            loading="eager"
+            rounded
+        />
     </div>
 </main>
