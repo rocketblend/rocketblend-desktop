@@ -8,6 +8,7 @@
     export let className: string = '';
     export let loading: Loading = 'eager';
     export let hover: boolean = false;
+    export let highlight: boolean = false;
     export let rounded: boolean = false;
 
     const dispatch = createEventDispatcher<{ click: MediaDetails }>();
@@ -16,7 +17,7 @@
     let hasError = false;
 
     function handleClick() {
-        dispatch('click', { src, alt, class: className });
+        dispatch('click', { src, alt, class: className, highlight });
     }
 
     function isVideo(src: string): boolean {
@@ -32,6 +33,7 @@
         'border-none bg-none p-0 cursor-pointer w-full h-full block placeholder overflow-hidden',
         className,
         hover ? 'opacity-90 transition-all duration-200 hover:opacity-100 hover:scale-105' : '',
+        highlight ? 'ring-2 ring-primary-500 bg-initial' : '',
         rounded ? 'rounded-container-token' : ''
     );
 

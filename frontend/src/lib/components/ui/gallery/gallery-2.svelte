@@ -54,6 +54,7 @@
                             src={item.src}
                             alt={item.alt}
                             className={item.class}
+                            highlight={item.highlight}
                             loading={loading}
                             hover={hover}
                             rounded={rounded}
@@ -71,7 +72,7 @@
         width: 100%;
         display: grid;
         gap: var(--gap);
-        padding-right: .25rem;
+        padding: .5rem;
     }
 
     #gallery .column {
