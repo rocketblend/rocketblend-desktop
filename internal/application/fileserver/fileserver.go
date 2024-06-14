@@ -146,9 +146,14 @@ func isValidWebImage(filePath string) bool {
 
 // ensureAbsolutePath makes sure the path starts with a '/'.
 func ensureAbsolutePath(path string) string {
+	if len(path) > 1 && path[1] == ':' {
+		return path
+	}
+
 	if !strings.HasPrefix(path, "/") {
 		return "/" + path
 	}
+
 	return path
 }
 
