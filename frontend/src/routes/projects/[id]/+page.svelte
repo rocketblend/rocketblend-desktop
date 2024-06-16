@@ -2,22 +2,23 @@
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
 
-    import { type ToastSettings, getToastStore  } from '@skeletonlabs/skeleton';
+    import { type ToastSettings, type ModalSettings, getToastStore, getModalStore  } from '@skeletonlabs/skeleton';
 
-    import type { application } from '$lib/wailsjs/go/models';
+    import type { application, types } from '$lib/wailsjs/go/models';
 	import { UpdateProject } from '$lib/wailsjs/go/application/Driver';
 
     import { t } from '$lib/translations/translations';
     import { getSelectedProjectStore } from '$lib/stores';
     import { formatDateTime } from '$lib/components/utils';
-    import { Media } from '$lib/components/ui/media';
     import { InputInline } from '$lib/components/ui/input';
+    import { Gallery, Media, type GalleryItem } from '$lib/components/ui/gallery';
 
     import IconEditFill from '~icons/ri/edit-fill';
 	import { invalidate } from '$app/navigation';
 
     const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
+    const modalStore = getModalStore();
 
     export let data: PageData;
 
@@ -57,6 +58,41 @@
         invalidate("app:layout");
     }
 
+    function convertToGalleryItems(projects: types.Media[] = []): GalleryItem[] {
+        return projects.map((media) => ({
+            value: media.filePath || "",
+            src: media.url || "",
+            alt: `${media.filePath || ""}`,
+            class: "",
+        }));
+    }
+
+    function handleGalleryClick(event: CustomEvent<{ value: string }>) {
+        if (!data.project.media) {
+        return;
+    }
+
+        const filepath = event.detail.value;
+        const index = data.project.media.findIndex((m) => m.filePath === filepath);
+
+        if (index === -1) {
+            //console.error('Media item not found');
+            return;
+        }
+
+        const modal: ModalSettings = {
+            type: 'component',
+            component: 'modalMediaViewer',
+            modalClasses: "h-full",
+            meta: {
+                media: data.project.media,
+                goto: index,
+            },
+        };
+
+        modalStore.trigger(modal);
+    }
+
     onMount(() => {
         setSelectedProject();
     });
@@ -68,12 +104,13 @@
     }
 
     $: updatedAt = formatDateTime(data.project.updatedAt);
+    $: galleryItems = convertToGalleryItems(data.project.media || []);
 </script>
 
 <main class="flex flex-col h-full space-y-4"> 
     <div class="flex gap-4 items-end">
         <div>
-            <Media src={data.project.thumbnail?.url} alt="" />
+            <Media src={data.project.thumbnail?.url} height={32} width={32} class="cursor-default" rounded/>
         </div>
         <div class="space-y-2">
             <InputInline bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
@@ -94,10 +131,13 @@
     </div>
     <hr>
     <div class="h-full overflow-auto">
-        <div class="grid grid-cols-4 gap-4">
-            {#each data.project.media || [] as media}
-                <Media height="80" width="full" src={media.url} alt="" />
-            {/each}
-        </div>
+        <Gallery
+            gap={15}
+            maxColumnWidth={250}
+            bind:items={galleryItems}
+            on:click={handleGalleryClick}
+            loading="eager"
+            rounded
+        />
     </div>
 </main>

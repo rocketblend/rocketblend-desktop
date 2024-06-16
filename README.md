@@ -19,12 +19,11 @@ RocketBlend Desktop is an open-source desktop application for [RocketBlend](http
 - **Builds and Add-ons Management**: Discover, download, and manage Blender builds and add-ons (note: add-ons are currently a work in progress).
 - **Custom Blender Environment**: Assign specific Blender builds and add-ons to your projects to ensure consistency and prevent dependency issues.
 - **Easy Project Access**: Set RocketBlend Desktop as the default application for `.blend` files to open projects with the correct builds and add-ons, preventing project breaks.
-- **Powered by RocketBlend**: Utilize RocketBlend's powerful [CLI](https://github.com/rocketblend/rocketblend) tool for advanced dependency management and improved Blender CLI experience.
 - **Custom Package Definition**: Create and manage custom builds and add-ons specific to your project's needs.
 - **Network Storage and Team Collaboration**: Work seamlessly across shared network storage, enabling easy sharing across machines and team members. Configurations are stored in `.json` files alongside your `.blend` files, suitable for shared drives, cloud storage, or Git repositories.
 - **Lightweight and Flexible**: Use RocketBlend's [CLI](https://github.com/rocketblend/rocketblend) on servers or production pipelines without needing the desktop UI. Ideal for professionals setting up render pipelines or server tasks, while the desktop application offers an intuitive interface for regular users.
 - **External Configuration Storage**: Store all configuration information in `.json` files alongside your projects instead of inside `.blend` files, allowing you to access and modify this data without needing Blender installed.
-- **Visual Project Gallery**: Navigate and manage your work using our visual project gallery, supporting both images and videos.
+- **Visual Project Gallery**: Navigate and manage your work using the visual project gallery, supporting both images and videos.
 
 ## Development Requirements
 

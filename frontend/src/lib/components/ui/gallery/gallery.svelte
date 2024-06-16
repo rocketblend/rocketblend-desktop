@@ -1,73 +1,100 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import { twMerge } from 'tailwind-merge';
+    import { onMount, createEventDispatcher, tick } from "svelte";
+    import type { Loading, GalleryItem, MediaDetails } from './types';
+    import Media from './media.svelte';
 
-    import type { MediaInfo } from '$lib/types';
-    import { Media } from '$lib/components/ui/media';
+    export let gap: number = 10;
+    export let maxColumnWidth: number = 250;
+    export let items: GalleryItem[] = [];
+    export let highlight: string[] = [];
+    export let loading: Loading = "eager";
+    export let hover: boolean = false;
+    export let rounded: boolean = false;
 
-    export let items: MediaInfo[] = [];
-    export let group: string[] = [];
-    export let multiple: boolean = false;
+    const dispatch = createEventDispatcher<{ click: { value: string }, dblclick: { value: string, event: MouseEvent } }>();
 
-    let clickTimeout: NodeJS.Timeout;
+    let columns: GalleryItem[][] = [];
+    let galleryWidth: number = 0;
+    let columnCount: number = 0;
 
-    $: divClass = twMerge('grid', $$props.class);
 
-    const dispatch = createEventDispatcher();
+    $: columnCount = Math.max(Math.floor(galleryWidth / maxColumnWidth), 1);
+    $: galleryStyle = `grid-template-columns: repeat(${columnCount}, 1fr); --gap: ${gap}px`;
 
-    function init(node: HTMLElement) {
-        if (getComputedStyle(node).gap === 'normal') node.style.gap = 'inherit';
-    }
-
-    function handleClick(itemId: string) {
-        toggleSelection(itemId);
-    }
-
-    function handleDoubleClick(event: MouseEvent, itemId: string) {
-         // Ensure the item is selected on double-click
-        if (!group.includes(itemId)) {
-            group = multiple ? [...group, itemId] : [itemId];
-        }
-
-        dispatch('itemDoubleClick', { event: event, item: itemId});
-    }
-
-    function handleKeyDown(event: KeyboardEvent, itemId: string) {
-        if (event.key === 'Enter' || event.key === ' ') {
-            toggleSelection(itemId);
+    $: {
+        if (columnCount) {
+            Draw();
         }
     }
 
-    function toggleSelection(itemId: string) {
-        if (multiple) {
-            const index = group.indexOf(itemId);
-            if (index === -1) {
-                group = [...group, itemId];
-            } else {
-                group = group.filter(id => id !== itemId);
-            }
-        } else {
-            group = group[0] === itemId ? [] : [itemId];
+    $: {
+        if (items.length) {
+            Draw();
         }
+    }
+
+    function handleClick(value: string) {
+        dispatch("click", {value});
+    }
+
+    function handleDbClick(value: string, event: MouseEvent) {
+        dispatch("dblclick", {value, event});
+    }
+
+    async function Draw() {
+        await tick();
+
+        columns = Array.from({ length: columnCount }, () => []);
+
+        items.forEach((item, i) => {
+            columns[i % columnCount].push(item);
+        });
     }
 </script>
 
-<div {...$$restProps} class={divClass} use:init>
-    {#each items as item}
-        <slot {item}>
-            <Media 
-                on:click={() => handleClick(item.id)}
-                on:dblclick={(e) => handleDoubleClick(e, item.id)}
-                on:keydown={(e) => handleKeyDown(e, item.id)}
-                src={item.src}
-                alt={item.alt}
-                title={item.title}
-                selected={group.includes(item.id)}
-                width="full"
-                height="80" 
-                interactable />
-        </slot>
-    {:else}
-        <slot item={items[0]} />
-    {/each}
-</div>
+{#if columns.length}
+    <div id="gallery" bind:clientWidth={galleryWidth} style={galleryStyle}>
+        {#each columns as column}
+            <div class="column">
+                {#each column as item, i}   
+                    <div>
+                        <Media
+                            src={item.src}
+                            alt={item.alt}
+                            class={item.class}
+                            highlight={highlight.includes(item.value)}
+                            loading={loading}
+                            hover={hover}
+                            rounded={rounded}
+                            on:click={(e) => handleClick(item.value)}
+                            on:dblclick={(e) => handleDbClick(item.value, e)}
+                        />
+                    </div>
+                {/each}
+            </div>
+        {/each}
+    </div>
+{/if}
+
+<style>
+    #gallery {
+        width: 100%;
+        display: grid;
+        gap: var(--gap);
+        padding: .5rem;
+    }
+
+    #gallery .column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #gallery .column * {
+        width: 100%;
+        margin-top: var(--gap);
+    }
+
+    #gallery .column *:nth-child(1) {
+        margin-top: 0;
+    }
+</style>

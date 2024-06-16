@@ -53,17 +53,17 @@
     // let selectedOptions: Record<string, number> = {'sort': 0};
     // let optionLabel: string = t.get('home.project.filter.group.title');
 
-    function handleProjectDoubleClick(event: CustomEvent<{ event: MouseEvent, item: string }>) {
+    function handleProjectDoubleClick(event: CustomEvent<{ event: MouseEvent, value: string }>) {
         if (event.detail.event.ctrlKey) {
             const opts = application.RunProjectOpts.createFrom({
-                id: event.detail.item,
+                id: event.detail.value,
             });
 
             RunProject(opts)
             return;
         }
 
-        goto(`/projects/${event.detail.item}`);
+        goto(`/projects/${event.detail.value}`);
     }
 
     function handleFilterChangeEvent(event: Event): void {
@@ -103,7 +103,7 @@
             bind:projects={data.projects}
             bind:displayType={displayType}
             bind:selectedProjectIds={$selectedProjectStore}
-            on:itemDoubleClick={handleProjectDoubleClick}
+            on:dblclick={handleProjectDoubleClick}
             on:sortChanged={handleSortChange}/>
     {:else}
         <AlertNoProjectDirectory />

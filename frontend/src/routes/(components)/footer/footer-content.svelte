@@ -4,9 +4,8 @@
     import IconBlenderFill from '~icons/ri/blender-fill';
     import IconFolderOpenFill from '~icons/ri/folder-open-fill';
     import IconEyeFill from '~icons/ri/eye-fill';
-    import IconBookmark3Fill from '~icons/ri/bookmark-3-fill';
-
-    import { Media } from '$lib/components/ui/media';
+    
+    import { Media } from '$lib/components/ui/gallery';
 
     const dispatch = createEventDispatcher();
 
@@ -30,8 +29,10 @@
 
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">
     {#if !isLoading}
-        <div class="flex gap-4 items-center">
-            <Media width=16 height=16 src={imagePath} />
+        <div class="flex gap-4 items-center max-h-16">
+            <Media src={imagePath} height={16} width={16} class="cursor-default" rounded>
+                <span slot="not-found" class="text-sm">?</span>
+            </Media>
             <div>
                 <div class="text-sm font-medium">{name}</div>
                 <div class="text-sm text-surface-300">{fileName}</div>

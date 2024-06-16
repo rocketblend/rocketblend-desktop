@@ -6,11 +6,10 @@
 
     import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
     import { initializeStores, storePopup, getToastStore, getDrawerStore } from '@skeletonlabs/skeleton';
-    import { Toast, AppBar, AppShell, Modal } from '@skeletonlabs/skeleton';
+    import { Toast, AppBar, AppShell, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
 
     import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
 
-    import { t } from '$lib/translations/translations';
     import { setupGlobalEventListeners, tearDownGlobalEventListeners } from '$lib/events';
     import { getLogStore } from "$lib/stores";
 
@@ -20,13 +19,12 @@
     import IconCheckboxMultipleBlankLine from '~icons/ri/checkbox-multiple-blank-line'
     import IconHomeFill from '~icons/ri/home-fill'
     import IconTerminalBoxFill from '~icons/ri/terminal-box-fill';
-    import IconBrainFill from '~icons/ri/brain-fill'
     import IconSettingsFill from '~icons/ri/settings-4-fill'
-
     import IconArrowLeftFile from '~icons/ri/arrow-left-s-line'
     import IconArrowRightFile from '~icons/ri/arrow-right-s-line'
 
     import { Footer, Sidebar, UtilityDrawer, Breadcrumb } from "./(components)"
+    import { ModalMediaViewer } from "$lib/components/ui/modal";
 
     import Logo from "$lib/assets/images/logo-slim.png?enhanced"
 
@@ -35,6 +33,10 @@
     const logStore = getLogStore();
     const toastStore = getToastStore();
     const drawerStore = getDrawerStore();
+
+    const modalRegistry: Record<string, ModalComponent> = {
+        modalMediaViewer: { ref: ModalMediaViewer },
+    };
 
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -71,6 +73,7 @@
 
 <Modal
     rounded="rounded"
+    components={modalRegistry}
 />
 
 <UtilityDrawer developer={data.preferences.feature.developer}/>
