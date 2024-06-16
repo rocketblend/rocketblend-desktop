@@ -69,9 +69,9 @@
     }
 
     function handleGalleryClick(event: CustomEvent<{ value: string }>) {
-        const filepath = event.detail.value;
-        const media = data.project.media.find((m) => m.filePath === filepath);
-        if (!media) {
+        // const filepath = event.detail.value;
+        // const media = data.project.media.find((m) => m.filePath === filepath);
+        if (!data.project.media) {
             return;
         }
 
@@ -79,9 +79,7 @@
             type: 'component',
             component: 'modalMediaViewer',
             meta: {
-                src: media.url || "",
-                filePath: media.filePath || "",
-                alt: "",
+                media: data.project.media
             },
         };
 
