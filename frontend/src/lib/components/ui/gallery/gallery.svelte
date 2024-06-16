@@ -17,6 +17,7 @@
     let galleryWidth: number = 0;
     let columnCount: number = 0;
 
+
     $: columnCount = Math.max(Math.floor(galleryWidth / maxColumnWidth), 1);
     $: galleryStyle = `grid-template-columns: repeat(${columnCount}, 1fr); --gap: ${gap}px`;
 
@@ -26,9 +27,11 @@
         }
     }
 
-    onMount(() => {
-        Draw();
-    });
+    $: {
+        if (items.length) {
+            Draw();
+        }
+    }
 
     function handleClick(value: string) {
         dispatch("click", {value});
