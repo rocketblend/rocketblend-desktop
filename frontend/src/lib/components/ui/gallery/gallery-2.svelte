@@ -58,7 +58,7 @@
                         <Media2
                             src={item.src}
                             alt={item.alt}
-                            className={item.class}
+                            class={item.class}
                             highlight={highlight.includes(item.value)}
                             loading={loading}
                             hover={hover}

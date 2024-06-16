@@ -12,7 +12,7 @@
     import { formatDateTime } from '$lib/components/utils';
     import { Media } from '$lib/components/ui/media';
     import { InputInline } from '$lib/components/ui/input';
-    import { Gallery2, type GalleryItem } from '$lib/components/ui/gallery';
+    import { Gallery2, Media2, type GalleryItem } from '$lib/components/ui/gallery';
 
     import IconEditFill from '~icons/ri/edit-fill';
 	import { invalidate } from '$app/navigation';
@@ -84,7 +84,8 @@
 <main class="flex flex-col h-full space-y-4"> 
     <div class="flex gap-4 items-end">
         <div>
-            <Media src={data.project.thumbnail?.url} alt="" />
+            <Media2 src={data.project.thumbnail?.url} class="h-32 w-32" rounded/>
+            <!-- <Media src={data.project.thumbnail?.url} alt="" /> -->
         </div>
         <div class="space-y-2">
             <InputInline bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
