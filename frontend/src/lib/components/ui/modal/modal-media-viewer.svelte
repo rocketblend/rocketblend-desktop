@@ -13,7 +13,7 @@
     const modalStore = getModalStore();
 
     const cButton = 'fixed top-4 right-4 z-50 shadow-xl';
-    const cImage = 'overflow-hidden shadow-xl w-auto h-full';
+    const cImage = 'overflow-hidden shadow-xl w-auto h-full cursor-default';
 
     let elemMedia: HTMLDivElement;
 
@@ -28,6 +28,14 @@
         if (elemMedia.scrollLeft < elemMedia.scrollWidth - elemMedia.clientWidth - 1) 
             x = elemMedia.scrollLeft + elemMedia.clientWidth;
         elemMedia.scroll({ left: x, behavior: 'smooth' });
+    }
+
+	$: {
+        if ($modalStore[0] && $modalStore[0].meta.goto !== undefined && elemMedia) {
+            const index = $modalStore[0].meta.goto;
+            const itemWidth = elemMedia.clientWidth;
+            elemMedia.scrollTo({ left: index * itemWidth, behavior: 'instant' });
+        }
     }
 </script>
 

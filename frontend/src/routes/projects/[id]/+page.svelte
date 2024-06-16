@@ -69,9 +69,15 @@
     }
 
     function handleGalleryClick(event: CustomEvent<{ value: string }>) {
-        // const filepath = event.detail.value;
-        // const media = data.project.media.find((m) => m.filePath === filepath);
         if (!data.project.media) {
+        return;
+    }
+
+        const filepath = event.detail.value;
+        const index = data.project.media.findIndex((m) => m.filePath === filepath);
+
+        if (index === -1) {
+            //console.error('Media item not found');
             return;
         }
 
@@ -80,7 +86,8 @@
             component: 'modalMediaViewer',
             modalClasses: "h-full",
             meta: {
-                media: data.project.media
+                media: data.project.media,
+                goto: index,
             },
         };
 
@@ -104,7 +111,7 @@
 <main class="flex flex-col h-full space-y-4"> 
     <div class="flex gap-4 items-end">
         <div>
-            <Media2 src={data.project.thumbnail?.url} class="h-32 w-32" rounded/>
+            <Media2 src={data.project.thumbnail?.url} height={32} width={32} class="cursor-default" rounded/>
         </div>
         <div class="space-y-2">
             <InputInline bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
