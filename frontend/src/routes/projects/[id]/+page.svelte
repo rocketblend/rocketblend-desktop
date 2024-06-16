@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
 
-    import { type ToastSettings, getToastStore  } from '@skeletonlabs/skeleton';
+    import { type ToastSettings, type ModalSettings, getToastStore, getModalStore  } from '@skeletonlabs/skeleton';
 
     import type { application, types } from '$lib/wailsjs/go/models';
 	import { UpdateProject } from '$lib/wailsjs/go/application/Driver';
@@ -19,6 +19,7 @@
 
     const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
+    const modalStore = getModalStore();
 
     export let data: PageData;
 
@@ -67,6 +68,26 @@
         }));
     }
 
+    function handleGalleryClick(event: CustomEvent<{ value: string }>) {
+        const filepath = event.detail.value;
+        const media = data.project.media.find((m) => m.filePath === filepath);
+        if (!media) {
+            return;
+        }
+
+        const modal: ModalSettings = {
+            type: 'component',
+            component: 'modalMediaViewer',
+            meta: {
+                src: media.url || "",
+                filePath: media.filePath || "",
+                alt: "",
+            },
+        };
+
+        modalStore.trigger(modal);
+    }
+
     onMount(() => {
         setSelectedProject();
     });
@@ -85,7 +106,6 @@
     <div class="flex gap-4 items-end">
         <div>
             <Media2 src={data.project.thumbnail?.url} class="h-32 w-32" rounded/>
-            <!-- <Media src={data.project.thumbnail?.url} alt="" /> -->
         </div>
         <div class="space-y-2">
             <InputInline bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
@@ -110,6 +130,7 @@
             gap={15}
             maxColumnWidth={250}
             bind:items={galleryItems}
+            on:click={handleGalleryClick}
             loading="eager"
             rounded
         />
