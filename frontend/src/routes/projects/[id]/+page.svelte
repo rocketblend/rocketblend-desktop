@@ -10,7 +10,6 @@
     import { t } from '$lib/translations/translations';
     import { getSelectedProjectStore } from '$lib/stores';
     import { formatDateTime } from '$lib/components/utils';
-    import { Media } from '$lib/components/ui/media';
     import { InputInline } from '$lib/components/ui/input';
     import { Gallery2, Media2, type GalleryItem } from '$lib/components/ui/gallery';
 
