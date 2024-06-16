@@ -53,7 +53,7 @@
     <div id="gallery" bind:clientWidth={galleryWidth} style={galleryStyle}>
         {#each columns as column}
             <div class="column">
-                {#each column as item, i}
+                {#each column as item, i}   
                     <div>
                         <Media
                             src={item.src}

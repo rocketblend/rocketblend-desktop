@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { SvelteComponent } from 'svelte';
+    import { type SvelteComponent, onMount } from 'svelte';
     import { getModalStore } from '@skeletonlabs/skeleton';
 
 	import IconClose from '~icons/ri/close-fill';
@@ -30,6 +30,17 @@
         elemMedia.scroll({ left: x, behavior: 'smooth' });
     }
 
+    function handleModalClose() {
+        parent.onClose();
+    }
+
+    onMount(() => {
+        window.addEventListener("popstate", handleModalClose);
+        return () => {
+            window.removeEventListener("popstate", handleModalClose);
+        };
+    });
+
 	$: {
         if ($modalStore[0] && $modalStore[0].meta.goto !== undefined && elemMedia) {
             const index = $modalStore[0].meta.goto;
@@ -47,7 +58,7 @@
         <button type="button" class="btn-icon variant-filled text-xl" on:click={scrollLeft}>
             <IconArrowLeft />
         </button>
-        <div bind:this={elemMedia} class="snap-x snap-mandatory scroll-smooth flex gap-2 pb-6 overflow-x-auto h-full w-full">
+        <div bind:this={elemMedia} class="snap-x snap-mandatory scroll-smooth flex gap-2 py-8 overflow-x-auto h-full w-full">
             {#each $modalStore[0]?.meta.media as mediaItem}
                 <div class="shrink-0 h-full w-full snap-start flex items-center justify-center">
                     <Media src={mediaItem.url} class={cImage} rounded />

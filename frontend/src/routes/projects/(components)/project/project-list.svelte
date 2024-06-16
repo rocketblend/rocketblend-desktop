@@ -30,24 +30,26 @@
     $: galleryItems = convertProjectsToGalleryItems(projects);
 </script>
 
-<div class="overflow-auto h-full p-1">
+<div class="overflow-auto h-full">
     {#if projects === undefined || projects.length === 0}
         <div class="flex items-center justify-center h-64">
             <h4>No projects found.</h4>
         </div>
     {:else}
         {#if displayType === DisplayType.Gallery}
-            <Gallery
-                gap={15}
-                maxColumnWidth={250}
-                hover={true}
-                bind:items={galleryItems}
-                bind:highlight={selectedProjectIds}
-                loading="eager"
-                rounded={true}
-                on:click={handleGalleryClick}
-                on:dblclick
-            />
+            <div class="p-2">
+                <Gallery
+                    gap={15}
+                    maxColumnWidth={250}
+                    hover={true}
+                    bind:items={galleryItems}
+                    bind:highlight={selectedProjectIds}
+                    loading="eager"
+                    rounded={true}
+                    on:click={handleGalleryClick}
+                    on:dblclick
+                />
+            </div>
         {:else}
             <ProjectTable
                 on:dblclick
