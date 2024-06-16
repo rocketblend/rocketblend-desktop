@@ -23,7 +23,7 @@ RocketBlend Desktop is an open-source desktop application for [RocketBlend](http
 - **Network Storage and Team Collaboration**: Work seamlessly across shared network storage, enabling easy sharing across machines and team members. Configurations are stored in `.json` files alongside your `.blend` files, suitable for shared drives, cloud storage, or Git repositories.
 - **Lightweight and Flexible**: Use RocketBlend's [CLI](https://github.com/rocketblend/rocketblend) on servers or production pipelines without needing the desktop UI. Ideal for professionals setting up render pipelines or server tasks, while the desktop application offers an intuitive interface for regular users.
 - **External Configuration Storage**: Store all configuration information in `.json` files alongside your projects instead of inside `.blend` files, allowing you to access and modify this data without needing Blender installed.
-- **Visual Project Gallery**: Navigate and manage your work using our visual project gallery, supporting both images and videos.
+- **Visual Project Gallery**: Navigate and manage your work using the visual project gallery, supporting both images and videos.
 
 ## Development Requirements
 
