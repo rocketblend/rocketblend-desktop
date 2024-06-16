@@ -6,7 +6,7 @@
 	import IconArrowRight from '~icons/ri/arrow-drop-right-line';
 	import IconArrowLeft from '~icons/ri/arrow-drop-left-line';
 
-    import { Media2 } from '$lib/components/ui/gallery';
+    import { Media } from '$lib/components/ui/gallery';
 
     export let parent: SvelteComponent;
 
@@ -50,7 +50,7 @@
         <div bind:this={elemMedia} class="snap-x snap-mandatory scroll-smooth flex gap-2 pb-6 overflow-x-auto h-full w-full">
             {#each $modalStore[0]?.meta.media as mediaItem}
                 <div class="shrink-0 h-full w-full snap-start flex items-center justify-center">
-                    <Media2 src={mediaItem.url} class={cImage} rounded />
+                    <Media src={mediaItem.url} class={cImage} rounded />
                 </div>
             {/each}
         </div>

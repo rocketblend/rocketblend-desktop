@@ -5,7 +5,7 @@
     import IconFolderOpenFill from '~icons/ri/folder-open-fill';
     import IconEyeFill from '~icons/ri/eye-fill';
     
-    import { Media2 } from '$lib/components/ui/gallery';
+    import { Media } from '$lib/components/ui/gallery';
 
     const dispatch = createEventDispatcher();
 
@@ -30,9 +30,9 @@
 <section class="grid grid-cols-3 gap-4 p-3 pb-3">
     {#if !isLoading}
         <div class="flex gap-4 items-center max-h-16">
-            <Media2 src={imagePath} height={16} width={16} class="cursor-default" rounded>
+            <Media src={imagePath} height={16} width={16} class="cursor-default" rounded>
                 <span slot="not-found" class="text-sm">?</span>
-            </Media2>
+            </Media>
             <div>
                 <div class="text-sm font-medium">{name}</div>
                 <div class="text-sm text-surface-300">{fileName}</div>

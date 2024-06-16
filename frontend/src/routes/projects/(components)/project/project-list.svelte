@@ -1,10 +1,9 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
     import type { types } from '$lib/wailsjs/go/models';
 
     import { DisplayType } from '$lib/types';
 
-    import { Gallery2, type GalleryItem } from '$lib/components/ui/gallery';
+    import { Gallery, type GalleryItem } from '$lib/components/ui/gallery';
     
     import ProjectTable from "./project-table.svelte";
 
@@ -38,7 +37,7 @@
         </div>
     {:else}
         {#if displayType === DisplayType.Gallery}
-            <Gallery2
+            <Gallery
                 gap={15}
                 maxColumnWidth={250}
                 hover={true}

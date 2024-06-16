@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount, createEventDispatcher, tick } from "svelte";
     import type { Loading, GalleryItem, MediaDetails } from './types';
-    import Media2 from './media-2.svelte';
+    import Media from './media.svelte';
 
     export let gap: number = 10;
     export let maxColumnWidth: number = 250;
@@ -55,7 +55,7 @@
             <div class="column">
                 {#each column as item, i}
                     <div>
-                        <Media2
+                        <Media
                             src={item.src}
                             alt={item.alt}
                             class={item.class}

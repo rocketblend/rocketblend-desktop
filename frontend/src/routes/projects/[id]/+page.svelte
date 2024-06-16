@@ -11,7 +11,7 @@
     import { getSelectedProjectStore } from '$lib/stores';
     import { formatDateTime } from '$lib/components/utils';
     import { InputInline } from '$lib/components/ui/input';
-    import { Gallery2, Media2, type GalleryItem } from '$lib/components/ui/gallery';
+    import { Gallery, Media, type GalleryItem } from '$lib/components/ui/gallery';
 
     import IconEditFill from '~icons/ri/edit-fill';
 	import { invalidate } from '$app/navigation';
@@ -110,7 +110,7 @@
 <main class="flex flex-col h-full space-y-4"> 
     <div class="flex gap-4 items-end">
         <div>
-            <Media2 src={data.project.thumbnail?.url} height={32} width={32} class="cursor-default" rounded/>
+            <Media src={data.project.thumbnail?.url} height={32} width={32} class="cursor-default" rounded/>
         </div>
         <div class="space-y-2">
             <InputInline bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
@@ -131,7 +131,7 @@
     </div>
     <hr>
     <div class="h-full overflow-auto">
-        <Gallery2
+        <Gallery
             gap={15}
             maxColumnWidth={250}
             bind:items={galleryItems}
