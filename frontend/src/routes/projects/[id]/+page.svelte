@@ -78,6 +78,7 @@
         const modal: ModalSettings = {
             type: 'component',
             component: 'modalMediaViewer',
+            modalClasses: "h-full",
             meta: {
                 media: data.project.media
             },

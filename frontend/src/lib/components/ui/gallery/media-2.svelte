@@ -29,7 +29,7 @@
     }
 
     $: buttonClasses = twMerge(
-        'border-none bg-none p-0 cursor-pointer block placeholder overflow-hidden',
+        'flex items-center justify-center border-none bg-none p-0 cursor-pointer placeholder overflow-hidden',
         hover ? 'opacity-90 transition-all duration-200 hover:opacity-100 hover:scale-105' : '',
         highlight ? 'ring-2 ring-primary-500 bg-initial' : '',
         rounded ? 'rounded-container-token' : '',
@@ -38,7 +38,7 @@
         className
     );
 
-    $: mediaClasses = 'w-full';
+    $: mediaClasses = "max-h-full max-auto";
     $: placeholderHeight = height ? `h-${height}` : 'h-32';
 </script>
 

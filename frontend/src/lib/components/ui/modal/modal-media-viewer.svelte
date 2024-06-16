@@ -13,7 +13,7 @@
     const modalStore = getModalStore();
 
     const cButton = 'fixed top-4 right-4 z-50 shadow-xl';
-    const cImage = 'overflow-hidden shadow-xl';
+    const cImage = 'overflow-hidden shadow-xl w-auto h-full';
 
     let elemMedia: HTMLDivElement;
 
@@ -33,15 +33,15 @@
 
 
 {#if $modalStore[0]}
-<div class="modal block h-96 w-auto p-4 space-y-4">
+<div class="modal block h-full w-auto p-4 space-y-4">
     <button class="btn-icon variant-filled {cButton}" on:click={parent.onClose}><IconClose/></button>
-    <div class="grid grid-cols-[auto_1fr_auto] gap-4 items-center">
+    <div class="grid grid-cols-[auto_1fr_auto] gap-4 items-center h-full">
         <button type="button" class="btn-icon variant-filled text-xl" on:click={scrollLeft}>
             <IconArrowLeft />
         </button>
-        <div bind:this={elemMedia} class="snap-x snap-mandatory scroll-smooth flex gap-2 pb-2 overflow-x-auto">
+        <div bind:this={elemMedia} class="snap-x snap-mandatory scroll-smooth flex gap-2 pb-6 overflow-x-auto h-full w-full">
             {#each $modalStore[0]?.meta.media as mediaItem}
-                <div class="shrink-0 h-full w-full snap-start">
+                <div class="shrink-0 h-full w-full snap-start flex items-center justify-center">
                     <Media2 src={mediaItem.url} class={cImage} rounded />
                 </div>
             {/each}
