@@ -12,7 +12,9 @@
     </slot>
     <div class="alert-message  w-full">
         <slot name="title">
-            <AlertTitle title="Info" />
+            <AlertTitle >
+                Title
+            </AlertTitle>
         </slot>
         <slot></slot>
     </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import type { PageData } from './$types';
+    import { invalidate } from '$app/navigation';
 
     import { type ToastSettings, type ModalSettings, getToastStore, getModalStore  } from '@skeletonlabs/skeleton';
 
@@ -13,8 +14,9 @@
     import { InputInline } from '$lib/components/ui/input';
     import { Gallery, Media, type GalleryItem } from '$lib/components/ui/gallery';
 
+    import { AlertEmptyMedia } from './(components)/alert';
+
     import IconEditFill from '~icons/ri/edit-fill';
-	import { invalidate } from '$app/navigation';
 
     const selectedProjectStore = getSelectedProjectStore();
     const toastStore = getToastStore();
@@ -130,14 +132,19 @@
         </div>
     </div>
     <hr>
-    <div class="h-full overflow-auto">
-        <Gallery
-            gap={15}
-            maxColumnWidth={250}
-            bind:items={galleryItems}
-            on:click={handleGalleryClick}
-            loading="eager"
-            rounded
-        />
+    <div class="h-full overflow-auto space-y-4">
+        {#if galleryItems.length > 0}
+            <Gallery
+                gap={15}
+                maxColumnWidth={250}
+                bind:items={galleryItems}
+                on:click={handleGalleryClick}
+                loading="eager"
+                rounded
+            />
+        {:else}
+            <AlertEmptyMedia folder={data.project.mediaPath}/>
+        {/if}
+        <p class="text-sm text-surface-600-300-token">Want to set a specific file as either the splash or the thumbnail? Just add <code class="code">splash</code> or <code class="code">thumbnail</code> respectively to the filename.</p>
     </div>
 </main>
