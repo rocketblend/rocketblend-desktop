@@ -20,6 +20,6 @@
         </AlertTitle>
     </svelte:fragment>
     <AlertDescription>
-        You can add images, videos, and other media files to a project. Just create a <code class="code">{folder}</code> folder in the root of this project and add your files there. 
+        You can display images, videos, and other media files on a project. Just create a <code class="code">{folder}</code> folder in the root of this project and add your files there. 
     </AlertDescription>
 </Alert>
