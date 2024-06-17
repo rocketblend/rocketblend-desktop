@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
-
-	"github.com/rocketblend/rocketblend/pkg/helpers"
 )
 
 // Explore opens the file explorer at the specified path
@@ -23,8 +21,6 @@ func Explore(ctx context.Context, path string) error {
 	default:
 		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
-
-	helpers.SetupSysProcAttr(cmd)
 
 	return cmd.Start()
 }
