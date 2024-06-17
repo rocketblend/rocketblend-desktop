@@ -51,10 +51,6 @@
             });
     }
 
-    function handleChange(event: CustomEvent) {
-        updateProject();
-    }
-
     function setSelectedProject() {
         selectedProjectStore.set([data.project.id.toString()]);
         invalidate("app:layout");
@@ -69,10 +65,14 @@
         }));
     }
 
+    function handleChange(event: CustomEvent) {
+        updateProject();
+    }
+
     function handleGalleryClick(event: CustomEvent<{ value: string }>) {
         if (!data.project.media) {
-        return;
-    }
+            return;
+        }
 
         const filepath = event.detail.value;
         const index = data.project.media.findIndex((m) => m.filePath === filepath);
@@ -99,11 +99,8 @@
         setSelectedProject();
     });
 
-    $: {
-        const dependencies = data.project.addons || [];
-        const buildDependencyCount = data.project.build ? 1 : 0;
-        dependenciesLabel = t.get('home.project.tag.dependency', { number: dependencies.length + buildDependencyCount })
-    }
+    $: dependencies = [data.project.build, ...data.project.addons];
+    $: dependenciesLabel = t.get('home.project.tag.dependency', { number: dependencies.length })
 
     $: updatedAt = formatDateTime(data.project.updatedAt);
     $: galleryItems = convertToGalleryItems(data.project.media || []);
