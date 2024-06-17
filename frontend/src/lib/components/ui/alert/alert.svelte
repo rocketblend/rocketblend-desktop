@@ -8,11 +8,13 @@
 
 <aside class="alert variant-{variant}">
     <slot name="icon">
-        <IconInfoFill />
+        <IconInfoFill class="text-2xl"/>
     </slot>
     <div class="alert-message  w-full">
         <slot name="title">
-            <AlertTitle title="Info" />
+            <AlertTitle >
+                Title
+            </AlertTitle>
         </slot>
         <slot></slot>
     </div>
