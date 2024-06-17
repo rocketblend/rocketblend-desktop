@@ -146,5 +146,9 @@
             <AlertEmptyMedia folder={data.project.mediaPath}/>
         {/if}
         <p class="text-sm text-surface-600-300-token">Want to set a specific file as either the splash or the thumbnail? Just add <code class="code">splash</code> or <code class="code">thumbnail</code> respectively to the filename.</p>
+        <div class="flex items-center leading-none">
+            <!-- <span class="flex rounded uppercase px-2 py-1 text-xs font-semibold mr-3 variant-soft-warning">Warning</span> -->
+            <span class="font-semibold mr-2 text-left flex-auto text-xs text-surface-600-300-token">Take care adding large files as it can cause performace issues.</span>
+         </div>
     </div>
 </main>
