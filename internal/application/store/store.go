@@ -103,8 +103,8 @@ func (s *Store) Remove(ctx context.Context, id uuid.UUID) error {
 // TODO: remove this and just filter then call normal remove.
 func (s *Store) RemoveByReference(ctx context.Context, path string) error {
 	listOpts := listoption.ListOptions{
-		Reference: path,
-		Size:      10000, // TODO: Have the search request function ignore the size if it is 0
+		References: []string{path},
+		Size:       10000, // TODO: Have the search request function ignore the size if it is 0
 	}
 
 	searchResults, err := s.index.SearchInContext(ctx, listOpts.SearchRequest())

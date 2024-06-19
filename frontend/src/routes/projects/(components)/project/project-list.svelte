@@ -21,7 +21,7 @@
     function convertProjectsToGalleryItems(projects: types.Project[] = []): GalleryItem[] {
         return projects.map((project) => ({
             value: project.id.toString(),
-            src: project.splash?.url || "",
+            src: project.media?.find((m) => m.splash)?.url || "",
             alt: `${project.name || ""}`,
             class: "",
         }));
@@ -37,7 +37,7 @@
         </div>
     {:else}
         {#if displayType === DisplayType.Gallery}
-            <div class="p-2">
+            <div class="p-4">
                 <Gallery
                     gap={15}
                     maxColumnWidth={250}

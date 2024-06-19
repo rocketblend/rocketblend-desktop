@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { onMount, createEventDispatcher, tick } from "svelte";
-    import type { Loading, GalleryItem, MediaDetails } from './types';
+    import { createEventDispatcher, tick } from "svelte";
+    import type { Loading, GalleryItem } from './types';
     import Media from './media.svelte';
 
     export let gap: number = 10;
@@ -16,7 +16,6 @@
     let columns: GalleryItem[][] = [];
     let galleryWidth: number = 0;
     let columnCount: number = 0;
-
 
     $: columnCount = Math.max(Math.floor(galleryWidth / maxColumnWidth), 1);
     $: galleryStyle = `grid-template-columns: repeat(${columnCount}, 1fr); --gap: ${gap}px`;
@@ -81,7 +80,6 @@
         width: 100%;
         display: grid;
         gap: var(--gap);
-        padding: .5rem;
     }
 
     #gallery .column {

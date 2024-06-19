@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store/listoption"
 	"github.com/rocketblend/rocketblend/pkg/reference"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
@@ -14,10 +15,17 @@ const IgnoreFileName = ".rocketignore"
 
 type (
 	Media struct {
-		FilePath string `json:"filePath"`
-		URL      string `json:"url"`
+		FilePath  string `json:"filePath"`
+		URL       string `json:"url"`
+		Splash    bool   `json:"splash"`
+		Thumbnail bool   `json:"thumbnail"`
 		// Height    int    `json:"height"`
 		// Width     int    `json:"width"`
+	}
+
+	Dependency struct {
+		Reference reference.Reference `json:"reference"`
+		Type      enums.PackageType   `json:"type"`
 	}
 
 	Project struct {
@@ -29,13 +37,10 @@ type (
 		MediaPath string `json:"mediaPath"`
 		FileName  string `json:"fileName"`
 
-		Build  reference.Reference   `json:"build"`
-		Addons []reference.Reference `json:"addons"`
-		Strict bool                  `json:"strict"`
+		Dependencies []*Dependency `json:"dependencies"`
+		Media        []*Media      `json:"media"`
 
-		Splash    *Media   `json:"splash"`
-		Thumbnail *Media   `json:"thumbnail"`
-		Media     []*Media `json:"media"`
+		Strict bool `json:"strict"`
 
 		Version   string    `json:"version"`
 		UpdatedAt time.Time `json:"updatedAt"`
@@ -103,21 +108,16 @@ type (
 )
 
 func (p *Project) Profile() *rbtypes.Profile {
-	dependencies := make([]*rbtypes.Dependency, 0, len(p.Addons)+1)
-	dependencies = append(dependencies, &rbtypes.Dependency{
-		Reference: p.Build,
-		Type:      rbtypes.PackageBuild,
-	})
-
-	for _, addon := range p.Addons {
-		dependencies = append(dependencies, &rbtypes.Dependency{
-			Reference: addon,
-			Type:      rbtypes.PackageAddon,
+	dependency := make([]*rbtypes.Dependency, 0, len(p.Dependencies))
+	for _, d := range p.Dependencies {
+		dependency = append(dependency, &rbtypes.Dependency{
+			Reference: d.Reference,
+			Type:      rbtypes.PackageType(d.Type),
 		})
 	}
 
 	return &rbtypes.Profile{
-		Dependencies: dependencies,
+		Dependencies: dependency,
 		Strict:       p.Strict,
 	}
 }
@@ -132,12 +132,8 @@ func (p *Project) Detail() *Detail {
 }
 
 func (p *Project) HasDependency(dep reference.Reference) bool {
-	if p.Build == dep {
-		return true
-	}
-
-	for _, addon := range p.Addons {
-		if addon == dep {
+	for _, d := range p.Dependencies {
+		if d.Reference == dep {
 			return true
 		}
 	}

@@ -42,8 +42,6 @@
 
     export let data: LayoutData;
 
-    let dependencies: string[] = [];
-
     // Function to navigate back
     function goBack() {
         window.history.back();
@@ -58,9 +56,7 @@
         drawerStore.open();
     }
 
-    $: build = data.selectedProject?.project?.build || "";
-    $: addons = data.selectedProject?.project?.addons || [];
-    $: dependencies = build === "" ? addons : [build, ...addons];
+    $: dependencies = data.selectedProject?.project?.dependencies?.map((d) => d.reference) || [];
 
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);

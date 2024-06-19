@@ -171,7 +171,7 @@ func (t *Tracker) list(ctx context.Context, domain string, name string, start ti
 
 	opts := []listoption.ListOption{
 		listoption.WithType(indextype.Metric),
-		listoption.WithReference(domain),
+		listoption.WithReferences(domain),
 		listoption.WithName(name),
 		listoption.WithDateRange(start, end),
 		listoption.WithSize(10000),

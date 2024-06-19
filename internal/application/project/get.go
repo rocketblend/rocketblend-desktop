@@ -95,6 +95,9 @@ func findMediaFiles(path string) ([]*types.Media, error) {
 		return nil, err
 	}
 
+	var splash bool
+	var thumbnail bool
+
 	var files []*types.Media
 	visit := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -112,6 +115,14 @@ func findMediaFiles(path string) ([]*types.Media, error) {
 				return err
 			}
 
+			if media.Splash {
+				splash = true
+			}
+
+			if media.Thumbnail {
+				thumbnail = true
+			}
+
 			files = append(files, media)
 		}
 
@@ -123,13 +134,23 @@ func findMediaFiles(path string) ([]*types.Media, error) {
 		return nil, err
 	}
 
+	if !splash && len(files) > 0 {
+		files[0].Splash = true
+	}
+
+	if !thumbnail && len(files) > 0 {
+		files[0].Thumbnail = true
+	}
+
 	return files, nil
 }
 
 func loadMedia(path string) (*types.Media, error) {
 	return &types.Media{
-		FilePath: path,
-		URL:      "/" + filepath.ToSlash(filepath.Join(fileserver.DynamicResourcePath, path)),
+		FilePath:  path,
+		URL:       "/" + filepath.ToSlash(filepath.Join(fileserver.DynamicResourcePath, path)),
+		Splash:    containsWordInFilename(path, splashKeyWord),
+		Thumbnail: containsWordInFilename(path, thumbnailKeyWord),
 	}, nil
 }
 

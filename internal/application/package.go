@@ -19,9 +19,10 @@ type (
 	}
 
 	ListPackagesOpts struct {
-		Query string             `json:"query"`
-		Type  enums.PackageType  `json:"type"`
-		State enums.PackageState `json:"state"`
+		Query      string             `json:"query"`
+		References []string           `json:"references,omitempty"`
+		Type       enums.PackageType  `json:"type"`
+		State      enums.PackageState `json:"state"`
 	}
 
 	ListPackagesResult struct {
@@ -68,10 +69,12 @@ func (d *Driver) ListPackages(opts ListPackagesOpts) (*ListPackagesResult, error
 		"query": opts.Query,
 		"type":  opts.Type,
 		"state": opts.State,
+		"refs":  opts.References,
 	})
 
 	response, err := d.catalog.ListPackages(ctx, []listoption.ListOption{
 		listoption.WithQuery(opts.Query),
+		listoption.WithReferences(opts.References...),
 		listoption.WithCategory(string(opts.Type)),
 		listoption.WithState(string(opts.State)),
 	}...)

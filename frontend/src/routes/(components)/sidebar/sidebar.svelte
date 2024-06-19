@@ -4,7 +4,7 @@
     import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
     import { EventsOn } from '$lib/wailsjs/runtime';
-    import { application, enums } from '$lib/wailsjs/go/models';
+    import { application, enums, types } from '$lib/wailsjs/go/models';
     import { ListPackages } from '$lib/wailsjs/go/application/Driver';
 
     import { t } from '$lib/translations/translations';

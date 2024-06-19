@@ -2,15 +2,13 @@ import type { PageLoad } from './$types';
 
 import { error} from '@sveltejs/kit';
 
-import { GetProject } from '$lib/wailsjs/go/application/Driver'
+import { GetProject, ListPackages } from '$lib/wailsjs/go/application/Driver'
 import { application } from '$lib/wailsjs/go/models';
 
 export const load: PageLoad = async ({ params }) => {
-    const opts = application.GetPackageOpts.createFrom({
+    const result = await GetProject(application.GetPackageOpts.createFrom({
         id: params.id,
-    });
-
-    const result = await GetProject(opts);
+    }));
 
     if (!result || result.project === undefined) {
         throw error(404, {
@@ -18,8 +16,13 @@ export const load: PageLoad = async ({ params }) => {
         });
     }
 
+    const packages = await ListPackages(application.ListPackagesOpts.createFrom({
+        references: result.project.dependencies?.map(dep => dep.reference) || [],
+    }));
+
     return {
         label: result.project.name,
-        project: result.project
+        project: result.project,
+        dependencies: packages.packages || [],
     };
 };

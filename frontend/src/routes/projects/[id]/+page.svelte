@@ -5,7 +5,7 @@
 
     import { type ToastSettings, type ModalSettings, getToastStore, getModalStore  } from '@skeletonlabs/skeleton';
 
-    import type { application, types } from '$lib/wailsjs/go/models';
+    import { type application, type types, enums } from '$lib/wailsjs/go/models';
 	import { UpdateProject } from '$lib/wailsjs/go/application/Driver';
 
     import { t } from '$lib/translations/translations';
@@ -14,7 +14,7 @@
     import { InputInline } from '$lib/components/ui/input';
     import { Gallery, Media, type GalleryItem } from '$lib/components/ui/gallery';
 
-    import { AlertEmptyMedia } from './(components)/alert';
+    import { AlertBuildRequired, AlertEmptyMedia, AlertMissingDependency } from './(components)/alert';
 
     import IconEditFill from '~icons/ri/edit-fill';
 
@@ -78,7 +78,6 @@
         const index = data.project.media.findIndex((m) => m.filePath === filepath);
 
         if (index === -1) {
-            //console.error('Media item not found');
             return;
         }
 
@@ -99,8 +98,20 @@
         setSelectedProject();
     });
 
-    $: dependencies = [data.project.build, ...data.project.addons];
-    $: dependenciesLabel = t.get('home.project.tag.dependency', { number: dependencies.length })
+    $: thumbnail = data.project.media?.find((m) => m.thumbnail);
+    $: build = data.project.dependencies?.find((d) => d.type === enums.PackageType.BUILD);
+
+    $: dependencies = data.project.dependencies?.map((d) => {
+        const pack = data.dependencies?.find((dep) => dep.reference === d.reference);
+
+        return {
+            id: pack?.id.toString() || "",
+            reference: d.reference.toString(),
+            installed: pack?.state === enums.PackageState.INSTALLED,
+        }
+    }) || [];
+
+    $: dependenciesLabel = t.get('home.project.tag.dependency', { number: data.project.dependencies?.length || 0 });
 
     $: updatedAt = formatDateTime(data.project.updatedAt);
     $: galleryItems = convertToGalleryItems(data.project.media || []);
@@ -109,7 +120,7 @@
 <main class="flex flex-col h-full space-y-4"> 
     <div class="flex gap-4 items-end">
         <div>
-            <Media src={data.project.thumbnail?.url} height={32} width={32} class="cursor-default" rounded/>
+            <Media src={thumbnail?.url} height={32} width={32} class="cursor-default" rounded/>
         </div>
         <div class="space-y-2">
             <InputInline bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
@@ -119,30 +130,51 @@
                 <div class="badge variant-ghost rounded">{data.project.path}</div>
                 <div class="badge variant-ghost rounded">{data.project.id}</div>
                 <div class="badge variant-ghost rounded">{data.project.fileName}</div>
-                <div class="badge variant-ghost rounded">{data.project.build}</div>
+                {#if build}
+                    <div class="badge variant-ghost rounded">{build.reference}</div>
+                {/if}
                 {#each data.project.tags || [] as tag}
                     <div class="badge variant-ghost-primary rounded">{tag}</div>
                 {/each}
-                <div class="badge variant-ghost-secondary rounded">{dependenciesLabel}</div>
+                {#if !build}
+                    <div class="badge variant-ghost-error rounded">{dependenciesLabel}</div>
+                {:else if dependencies?.find((d) => !d.installed)}
+                    <div class="badge variant-ghost-warning rounded">{dependenciesLabel}</div>
+                {:else}
+                    <div class="badge variant-ghost-success rounded">{dependenciesLabel}</div>
+                {/if}
                 <div class="badge variant-ghost rounded">{updatedAt}</div>
             </div>
         </div>
     </div>
     <hr>
-    <div class="h-full overflow-auto space-y-4">
-        {#if galleryItems.length > 0}
-            <Gallery
-                gap={15}
-                maxColumnWidth={250}
-                bind:items={galleryItems}
-                on:click={handleGalleryClick}
-                loading="eager"
-                rounded
-            />
-        {:else}
-            <AlertEmptyMedia folder={data.project.mediaPath}/>
-        {/if}
-        <p class="text-sm text-surface-600-300-token">Want to set a specific file as either the splash or the thumbnail? Just add <code class="code">splash</code> or <code class="code">thumbnail</code> respectively to the filename.</p>
-        <p class="text-xs font-semibold text-surface-600-300-token">Take care adding large files as it can cause performace issues.</p>
+    <div class="h-full overflow-auto">
+        <div class="px-2 space-y-4">
+            {#if !build}
+                <AlertBuildRequired />
+            {/if}
+            {#each dependencies as dependency}
+                {#if !dependency.installed} 
+                    <AlertMissingDependency
+                        reference={dependency.reference}
+                        id={dependency.id}
+                    />
+                {/if}
+            {/each}
+            {#if galleryItems.length > 0}
+                <Gallery
+                    gap={15}
+                    maxColumnWidth={250}
+                    bind:items={galleryItems}
+                    on:click={handleGalleryClick}
+                    loading="eager"
+                    rounded
+                />
+            {:else}
+                <AlertEmptyMedia folder={data.project.mediaPath}/>
+            {/if}
+            <p class="text-sm text-surface-600-300-token">Want to set a specific file as either the splash or the thumbnail? Just add <code class="code">splash</code> or <code class="code">thumbnail</code> respectively to the filename.</p>
+            <p class="text-xs font-semibold text-surface-600-300-token">Take care adding large files as it can cause performace issues.</p>
+        </div>
     </div>
 </main>

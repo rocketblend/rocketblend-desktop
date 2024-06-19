@@ -13,6 +13,7 @@
     export let fileName: string = '';
     export let imagePath: string = '';
     export let isLoading: boolean = true;
+    export let disabled: boolean = false;
 
     function handleViewProject() {
         dispatch('viewProject');
@@ -43,7 +44,7 @@
         <div class="justify-end items-center flex gap-2">
             <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleViewProject}><IconEyeFill/></button>
             <button type="button" class="btn text-lg text-surface-700-200-token px-2" on:click={handleExploreProject}><IconFolderOpenFill /></button>
-            <button type="button" class="btn variant-filled text-lg px-9" on:click={handleRunProject}><IconBlenderFill/></button>
+            <button type="button" class="btn variant-filled text-lg px-9" on:click={handleRunProject} disabled={disabled}><IconBlenderFill/></button>
         </div>
     {:else}
         <div class="flex gap-4 items-center">

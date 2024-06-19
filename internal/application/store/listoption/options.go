@@ -11,18 +11,18 @@ import (
 // TODO: This package should be moved/changed.
 type (
 	ListOptions struct {
-		Query     string
-		Type      indextype.IndexType
-		Reference string
-		Name      string
-		Category  string
-		Resource  string
-		Operation string
-		State     string
-		Size      int
-		From      int
-		StartTime time.Time
-		EndTime   time.Time
+		Query      string
+		Type       indextype.IndexType
+		References []string
+		Name       string
+		Category   string
+		Resource   string
+		Operation  string
+		State      string
+		Size       int
+		From       int
+		StartTime  time.Time
+		EndTime    time.Time
 	}
 
 	ListOption func(*ListOptions)
@@ -40,9 +40,9 @@ func WithType(indexType indextype.IndexType) ListOption {
 	}
 }
 
-func WithReference(reference string) ListOption {
+func WithReferences(references ...string) ListOption {
 	return func(o *ListOptions) {
-		o.Reference = reference
+		o.References = references
 	}
 }
 
@@ -103,9 +103,14 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 		query.AddQuery(typeQuery)
 	}
 
-	if so.Reference != "" {
-		referenceQuery := bleve.NewMatchPhraseQuery(so.Reference)
-		referenceQuery.SetField("reference")
+	if len(so.References) > 0 {
+		referenceQuery := bleve.NewDisjunctionQuery()
+		for _, reference := range so.References {
+			phraseQuery := bleve.NewMatchPhraseQuery(reference)
+			phraseQuery.SetField("reference")
+			referenceQuery.AddQuery(phraseQuery)
+		}
+
 		query.AddQuery(referenceQuery)
 	}
 

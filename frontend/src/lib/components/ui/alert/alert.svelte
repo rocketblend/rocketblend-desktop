@@ -3,7 +3,7 @@
 
     import AlertTitle from './alert-title.svelte';
 
-    export let variant: "ghost-surface" | "ghost-primary" | "ghost-warning" = "ghost-surface";
+    export let variant: "ghost-surface" | "ghost-primary" | "ghost-warning" | "ghost-error" = "ghost-surface";
 </script>
 
 <aside class="alert variant-{variant}">
