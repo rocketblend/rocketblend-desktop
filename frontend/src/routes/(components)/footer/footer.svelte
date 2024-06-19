@@ -1,13 +1,17 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
 
+    import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+
     import { type types, application } from '$lib/wailsjs/go/models';
     import { RunProject, OpenExplorer } from '$lib/wailsjs/go/application/Driver';
 
     import FooterContent from './footer-content.svelte';
 
-    export let selected: types.Project | undefined;
+    const toastStore = getToastStore();
 
+    export let selected: types.Project | undefined;
+    
     function handleViewProject() {
         if (selected) {
             goto(`/projects/${selected.id}`);
@@ -19,8 +23,15 @@
             const opts = application.RunProjectOpts.createFrom({
                 id: selected.id,
             });
-            
-            return await RunProject(opts);
+
+            RunProject(opts).catch((err) => {
+                const downloadPackageToast: ToastSettings = {
+                    message: `Error running project: ${err}`,
+                    background: "variant-filled-error"
+                };
+
+                toastStore.trigger(downloadPackageToast);
+            });
         }
     }
 
