@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { types } from '$lib/wailsjs/go/models';
+    import IconErrorWarningFill from '~icons/ri/error-warning-fill'
 
     import {
         Alert,
@@ -13,17 +13,20 @@
 </script>
   
 <Alert variant="ghost-warning">
+    <svelte:fragment slot="icon">
+        <IconErrorWarningFill class="text-2xl"/>
+    </svelte:fragment>
     <svelte:fragment slot="title">
         <AlertTitle >
             Missing dependency
         </AlertTitle>
     </svelte:fragment>
     <AlertDescription>
-        The dependency <span class="font-semibold">"{reference}"</span> is missing on your machine. Please install it before continuing.
+        The dependency <span class="font-semibold">"{reference}"</span> is missing on your computer. Please install it before continuing.
     </AlertDescription>
     <svelte:fragment slot="actions">
         {#if id}
-            <AlertAction>
+            <AlertAction href="/packages/{id}" variant="glass-surface">
                 View
             </AlertAction>
         {/if}

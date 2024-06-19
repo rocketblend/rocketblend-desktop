@@ -13,7 +13,7 @@
         id: project.id.toString(),
         name: project.name || "",
         fileName: project.fileName || "",
-        build: project.dependencies.find((d) => d.type === enums.PackageType.BUILD)?.reference || "",
+        build: project.dependencies?.find((d) => d.type === enums.PackageType.BUILD)?.reference || "",
     }));
 
     $: {

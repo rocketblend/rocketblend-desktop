@@ -56,7 +56,7 @@
         drawerStore.open();
     }
 
-    $: dependencies = data.selectedProject?.project?.dependencies.map((d) => d.reference) || [];
+    $: dependencies = data.selectedProject?.project?.dependencies?.map((d) => d.reference) || [];
 
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);

@@ -107,7 +107,7 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 		referenceQuery := bleve.NewDisjunctionQuery()
 		for _, reference := range so.References {
 			phraseQuery := bleve.NewMatchPhraseQuery(reference)
-			phraseQuery.SetField("references")
+			phraseQuery.SetField("reference")
 			referenceQuery.AddQuery(phraseQuery)
 		}
 

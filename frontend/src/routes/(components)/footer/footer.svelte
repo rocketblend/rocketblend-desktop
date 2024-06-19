@@ -3,7 +3,7 @@
 
     import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
-    import { type types, application } from '$lib/wailsjs/go/models';
+    import { type types, application, enums } from '$lib/wailsjs/go/models';
     import { RunProject, OpenExplorer } from '$lib/wailsjs/go/application/Driver';
 
     import FooterContent from './footer-content.svelte';
@@ -46,6 +46,7 @@
     }
 
     $: thumbnail = selected?.media?.find((m) => m.thumbnail);
+    $: disabled = selected?.dependencies?.find((d) => d.type === enums.PackageType.BUILD) === undefined;
 </script>
 
 <FooterContent
@@ -53,6 +54,7 @@
     fileName={selected?.fileName}
     imagePath={thumbnail?.url}
     isLoading={!selected}
+    disabled={disabled}
     on:viewProject={handleViewProject}
     on:runProject={handleRunProject}
     on:exploreProject={handleExploreProject}

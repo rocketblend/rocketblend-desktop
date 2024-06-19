@@ -14,7 +14,7 @@
     import { InputInline } from '$lib/components/ui/input';
     import { Gallery, Media, type GalleryItem } from '$lib/components/ui/gallery';
 
-    import { AlertEmptyMedia, AlertMissingDependency } from './(components)/alert';
+    import { AlertBuildRequired, AlertEmptyMedia, AlertMissingDependency } from './(components)/alert';
 
     import IconEditFill from '~icons/ri/edit-fill';
 
@@ -99,19 +99,19 @@
     });
 
     $: thumbnail = data.project.media?.find((m) => m.thumbnail);
-    $: build = data.project.dependencies.find((d) => d.type === enums.PackageType.BUILD);
+    $: build = data.project.dependencies?.find((d) => d.type === enums.PackageType.BUILD);
 
-    $: dependencies = data.project.dependencies.map((d) => {
-        const pack = data.dependencies.find((dep) => dep.reference === d.reference);
+    $: dependencies = data.project.dependencies?.map((d) => {
+        const pack = data.dependencies?.find((dep) => dep.reference === d.reference);
 
         return {
             id: pack?.id.toString() || "",
             reference: d.reference.toString(),
             installed: pack?.state === enums.PackageState.INSTALLED,
         }
-    });
+    }) || [];
 
-    $: dependenciesLabel = t.get('home.project.tag.dependency', { number: data.project.dependencies.length })
+    $: dependenciesLabel = t.get('home.project.tag.dependency', { number: data.project.dependencies?.length || 0 });
 
     $: updatedAt = formatDateTime(data.project.updatedAt);
     $: galleryItems = convertToGalleryItems(data.project.media || []);
@@ -136,7 +136,13 @@
                 {#each data.project.tags || [] as tag}
                     <div class="badge variant-ghost-primary rounded">{tag}</div>
                 {/each}
-                <div class="badge variant-ghost-success rounded">{dependenciesLabel}</div>
+                {#if !build}
+                    <div class="badge variant-ghost-error rounded">{dependenciesLabel}</div>
+                {:else if dependencies?.find((d) => !d.installed)}
+                    <div class="badge variant-ghost-warning rounded">{dependenciesLabel}</div>
+                {:else}
+                    <div class="badge variant-ghost-success rounded">{dependenciesLabel}</div>
+                {/if}
                 <div class="badge variant-ghost rounded">{updatedAt}</div>
             </div>
         </div>
@@ -144,6 +150,9 @@
     <hr>
     <div class="h-full overflow-auto">
         <div class="px-2 space-y-4">
+            {#if !build}
+                <AlertBuildRequired />
+            {/if}
             {#each dependencies as dependency}
                 {#if !dependency.installed} 
                     <AlertMissingDependency

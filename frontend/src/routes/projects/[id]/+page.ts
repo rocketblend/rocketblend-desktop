@@ -17,7 +17,7 @@ export const load: PageLoad = async ({ params }) => {
     }
 
     const packages = await ListPackages(application.ListPackagesOpts.createFrom({
-        references: result.project.dependencies.map(dep => dep.reference),
+        references: result.project.dependencies?.map(dep => dep.reference) || [],
     }));
 
     return {
