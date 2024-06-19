@@ -37,7 +37,7 @@
         </div>
     {:else}
         {#if displayType === DisplayType.Gallery}
-            <div class="p-2">
+            <div class="p-4">
                 <Gallery
                     gap={15}
                     maxColumnWidth={250}

@@ -1,7 +1,6 @@
 package listoption
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -105,8 +104,6 @@ func (so *ListOptions) SearchRequest() *bleve.SearchRequest {
 	}
 
 	if len(so.References) > 0 {
-		fmt.Println("References: ", so.References)
-
 		referenceQuery := bleve.NewDisjunctionQuery()
 		for _, reference := range so.References {
 			phraseQuery := bleve.NewMatchPhraseQuery(reference)
