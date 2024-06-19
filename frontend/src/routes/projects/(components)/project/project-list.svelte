@@ -21,7 +21,7 @@
     function convertProjectsToGalleryItems(projects: types.Project[] = []): GalleryItem[] {
         return projects.map((project) => ({
             value: project.id.toString(),
-            src: project.splash?.url || "",
+            src: project.media?.find((m) => m.splash)?.url || "",
             alt: `${project.name || ""}`,
             class: "",
         }));

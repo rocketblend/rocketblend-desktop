@@ -11,6 +11,7 @@ import (
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
@@ -273,37 +274,22 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 		return nil, err
 	}
 
-	builds := profile.FindAll(rbtypes.PackageBuild)
-	if len(builds) == 0 {
-		return nil, errors.New("no build found in profile")
-	}
-
-	addons := make([]reference.Reference, 0, len(profile.Dependencies)-1)
-	for _, dep := range profile.Dependencies {
-		if dep.Type == rbtypes.PackageAddon {
-			addons = append(addons, dep.Reference)
-		}
-	}
-
 	media, err := findMediaFiles(filepath.Join(path, detail.MediaPath))
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.Project{
-		ID:        detail.ID,
-		Name:      detail.Name,
-		Tags:      detail.Tags,
-		Path:      path,
-		Splash:    selectMediaOrDefault(media, splashKeyWord),
-		Thumbnail: selectMediaOrDefault(media, thumbnailKeyWord),
-		MediaPath: detail.MediaPath,
-		FileName:  filepath.Base(blendFilePath),
-		Build:     builds[0].Reference,
-		Addons:    addons,
-		Strict:    profile.Strict,
-		Media:     media,
-		UpdatedAt: modTime,
+		ID:           detail.ID,
+		Name:         detail.Name,
+		Tags:         detail.Tags,
+		Path:         path,
+		MediaPath:    detail.MediaPath,
+		FileName:     filepath.Base(blendFilePath),
+		Dependencies: convertDependencies(profile.Dependencies),
+		Strict:       profile.Strict,
+		Media:        media,
+		UpdatedAt:    modTime,
 	}, nil
 }
 
@@ -363,6 +349,18 @@ func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath 
 	return nil, err
 }
 
+func convertDependencies(dependencies []*rbtypes.Dependency) []*types.Dependency {
+	var deps []*types.Dependency
+	for _, d := range dependencies {
+		deps = append(deps, &types.Dependency{
+			Reference: d.Reference,
+			Type:      enums.PackageType(d.Type),
+		})
+	}
+
+	return deps
+}
+
 func ignoreProject(projectPath string) bool {
 	_, err := os.Stat(filepath.Join(projectPath, types.IgnoreFileName))
 	return !os.IsNotExist(err)
@@ -379,18 +377,4 @@ func findFilePathForExtension(dir string, ext string) ([]string, error) {
 	}
 
 	return files, nil
-}
-
-func selectMediaOrDefault(media []*types.Media, keyword string) *types.Media {
-	if len(media) == 0 {
-		return nil
-	}
-
-	for _, m := range media {
-		if containsWordInFilename(m.FilePath, keyword) {
-			return m
-		}
-	}
-
-	return media[0]
 }

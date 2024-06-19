@@ -5,7 +5,7 @@
 
     import { type ToastSettings, type ModalSettings, getToastStore, getModalStore  } from '@skeletonlabs/skeleton';
 
-    import type { application, types } from '$lib/wailsjs/go/models';
+    import { type application, type types, enums } from '$lib/wailsjs/go/models';
 	import { UpdateProject } from '$lib/wailsjs/go/application/Driver';
 
     import { t } from '$lib/translations/translations';
@@ -99,8 +99,10 @@
         setSelectedProject();
     });
 
-    $: dependencies = [data.project.build, ...data.project.addons];
-    $: dependenciesLabel = t.get('home.project.tag.dependency', { number: dependencies.length })
+    $: dependenciesLabel = t.get('home.project.tag.dependency', { number: data.project.dependencies.length })
+
+    $: thumbnail = data.project.media?.find((m) => m.thumbnail);
+    $: build = data.project.dependencies.find((d) => d.type === enums.PackageType.BUILD);
 
     $: updatedAt = formatDateTime(data.project.updatedAt);
     $: galleryItems = convertToGalleryItems(data.project.media || []);
@@ -109,7 +111,7 @@
 <main class="flex flex-col h-full space-y-4"> 
     <div class="flex gap-4 items-end">
         <div>
-            <Media src={data.project.thumbnail?.url} height={32} width={32} class="cursor-default" rounded/>
+            <Media src={thumbnail?.url} height={32} width={32} class="cursor-default" rounded/>
         </div>
         <div class="space-y-2">
             <InputInline bind:value={data.project.name} labelClasses="h2 font-bold items-baseline" inputClasses="input" on:change={handleChange}>
@@ -119,7 +121,9 @@
                 <div class="badge variant-ghost rounded">{data.project.path}</div>
                 <div class="badge variant-ghost rounded">{data.project.id}</div>
                 <div class="badge variant-ghost rounded">{data.project.fileName}</div>
-                <div class="badge variant-ghost rounded">{data.project.build}</div>
+                {#if build}
+                    <div class="badge variant-ghost rounded">{build.reference}</div>
+                {/if}
                 {#each data.project.tags || [] as tag}
                     <div class="badge variant-ghost-primary rounded">{tag}</div>
                 {/each}

@@ -372,6 +372,7 @@ export namespace application {
 	}
 	export class ListPackagesOpts {
 	    query: string;
+	    references?: string[];
 	    type: enums.PackageType;
 	    state: enums.PackageState;
 	
@@ -382,6 +383,7 @@ export namespace application {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.query = source["query"];
+	        this.references = source["references"];
 	        this.type = source["type"];
 	        this.state = source["state"];
 	    }
@@ -679,20 +681,6 @@ export namespace types {
 	        this.max = source["max"];
 	    }
 	}
-	export class Media {
-	    filePath: string;
-	    url: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new Media(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.filePath = source["filePath"];
-	        this.url = source["url"];
-	    }
-	}
 	export class Operation {
 	    id: number[];
 	    completed: boolean;
@@ -791,6 +779,38 @@ export namespace types {
 		}
 	}
 	
+	export class Media {
+	    filePath: string;
+	    url: string;
+	    splash: boolean;
+	    thumbnail: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Media(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.filePath = source["filePath"];
+	        this.url = source["url"];
+	        this.splash = source["splash"];
+	        this.thumbnail = source["thumbnail"];
+	    }
+	}
+	export class Dependency {
+	    reference: string;
+	    type: enums.PackageType;
+	
+	    static createFrom(source: any = {}) {
+	        return new Dependency(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.reference = source["reference"];
+	        this.type = source["type"];
+	    }
+	}
 	export class Project {
 	    id: number[];
 	    name: string;
@@ -798,12 +818,9 @@ export namespace types {
 	    path: string;
 	    mediaPath: string;
 	    fileName: string;
-	    build: string;
-	    addons: string[];
-	    strict: boolean;
-	    splash?: Media;
-	    thumbnail?: Media;
+	    dependencies: Dependency[];
 	    media: Media[];
+	    strict: boolean;
 	    version: string;
 	    // Go type: time
 	    updatedAt: any;
@@ -820,12 +837,9 @@ export namespace types {
 	        this.path = source["path"];
 	        this.mediaPath = source["mediaPath"];
 	        this.fileName = source["fileName"];
-	        this.build = source["build"];
-	        this.addons = source["addons"];
-	        this.strict = source["strict"];
-	        this.splash = this.convertValues(source["splash"], Media);
-	        this.thumbnail = this.convertValues(source["thumbnail"], Media);
+	        this.dependencies = this.convertValues(source["dependencies"], Dependency);
 	        this.media = this.convertValues(source["media"], Media);
+	        this.strict = source["strict"];
 	        this.version = source["version"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }

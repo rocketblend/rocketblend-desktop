@@ -44,12 +44,14 @@
             await OpenExplorer(opts);
         }
     }
+
+    $: thumbnail = selected?.media?.find((m) => m.thumbnail);
 </script>
 
 <FooterContent
     name={selected?.name}
     fileName={selected?.fileName}
-    imagePath={selected?.thumbnail?.url}
+    imagePath={thumbnail?.url}
     isLoading={!selected}
     on:viewProject={handleViewProject}
     on:runProject={handleRunProject}
