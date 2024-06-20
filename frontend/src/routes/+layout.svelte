@@ -77,10 +77,10 @@
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);
 
-        //document.body.addEventListener('click', handleLinkClick);
+        document.body.addEventListener('click', handleLinkClick);
         return () => {
             tearDownGlobalEventListeners();
-            //document.body.removeEventListener("click", handleLinkClick);
+            document.body.removeEventListener("click", handleLinkClick);
         };
     });
 </script>
