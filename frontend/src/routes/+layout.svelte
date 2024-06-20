@@ -8,7 +8,7 @@
     import { initializeStores, storePopup, getToastStore, getDrawerStore } from '@skeletonlabs/skeleton';
     import { Toast, AppBar, AppShell, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
 
-    import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
+    import { Quit, WindowMinimise, WindowToggleMaximise, BrowserOpenURL } from '$lib/wailsjs/runtime';
 
     import { setupGlobalEventListeners, tearDownGlobalEventListeners } from '$lib/events';
     import { getLogStore } from "$lib/stores";
@@ -56,14 +56,32 @@
         drawerStore.open();
     }
 
+    function handleLinkClick(event: MouseEvent) {
+        const target = event.target as HTMLElement;
+        if (target && target.nodeName === 'A' && (target as HTMLAnchorElement).href) {
+            const url = (target as HTMLAnchorElement).href;
+            if (
+                !url.startsWith('http://#') &&
+                !url.startsWith('file://') &&
+                !url.startsWith('http://wails.localhost:') &&
+                !url.startsWith('wails://wails.localhost:')
+            ) {
+                event.preventDefault();
+                BrowserOpenURL(url);
+            }
+        }
+    }
+
     $: dependencies = data.selectedProject?.dependencies?.map((d) => d.reference) || [];
 
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);
-    });
 
-    onDestroy(() => {
-        tearDownGlobalEventListeners();
+        //document.body.addEventListener('click', handleLinkClick);
+        return () => {
+            tearDownGlobalEventListeners();
+            //document.body.removeEventListener("click", handleLinkClick);
+        };
     });
 </script>
 

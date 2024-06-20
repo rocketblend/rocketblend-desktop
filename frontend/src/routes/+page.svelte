@@ -44,7 +44,10 @@
                 <div class="p-4">
                     <h5 class="h5 font-medium">New Project</h5>
                 </div>
-            </a>
-        </div> -->
+            </a> -->
+        </div>
+    </div>
+    <div class="space-y-2">
+        <p class="text-xs font-semibold text-surface-600-300-token">Thanks for being with us! Check us out on <a class="anchor" href="https://github.com/rocketblend/rocketblend-desktop">Github</a></p>
     </div>
 </main>
