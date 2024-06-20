@@ -140,16 +140,9 @@ func (s *service) handleEvent(event *objectEventInfo) {
 	})
 
 	switch event.EventInfo.Event() {
-	case notify.Create, notify.Write, notify.Rename:
-		if err := s.updateObject(event.ObjectPath); err != nil {
+	case notify.Create, notify.Write, notify.Rename, notify.Remove:
+		if err := s.handleChange(event.ObjectPath); err != nil {
 			s.logger.Error("error while loading project", map[string]interface{}{
-				"err": err,
-			})
-		}
-
-	case notify.Remove:
-		if err := s.removeObject(event.ObjectPath); err != nil {
-			s.logger.Error("error while removing project", map[string]interface{}{
 				"err": err,
 			})
 		}

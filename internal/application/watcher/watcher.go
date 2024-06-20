@@ -211,7 +211,7 @@ func (s *service) registerPath(path string) error {
 			})
 
 			// Trigger initial update
-			if err := s.updateObject(objectPath); err != nil {
+			if err := s.handleChange(objectPath); err != nil {
 				s.logger.Error("failed to update watched object", map[string]interface{}{
 					"err":  err,
 					"path": path,
@@ -256,7 +256,7 @@ func (s *service) unregisterPath(path string) error {
 	return nil
 }
 
-func (s *service) updateObject(path string) error {
+func (s *service) handleChange(path string) error {
 	if s.updateObjectFunc != nil {
 		if err := s.updateObjectFunc(path); err != nil {
 			// Remove object if it fails to create/update.

@@ -71,20 +71,16 @@ func (s *Store) Insert(ctx context.Context, index *types.Index) error {
 		return err
 	}
 
-	existing, _ := s.index.Document(index.ID.String())
-
 	err := s.index.Index(index.ID.String(), index)
 	if err != nil {
 		return err
 	}
 
-	if existing != nil {
-		event := newEvent(index.ID, index.Type)
-		if err := s.dispatcher.EmitEvent(ctx, events.StoreInsertChannel, event); err != nil {
-			s.logger.Error("error emitting event", map[string]interface{}{
-				"err": err,
-			})
-		}
+	event := newEvent(index.ID, index.Type)
+	if err := s.dispatcher.EmitEvent(ctx, events.StoreInsertChannel, event); err != nil {
+		s.logger.Error("error emitting event", map[string]interface{}{
+			"err": err,
+		})
 	}
 
 	s.logger.Debug("indexed successful", map[string]interface{}{

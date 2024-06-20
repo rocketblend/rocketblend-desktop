@@ -18,6 +18,6 @@
         </AlertTitle>
     </svelte:fragment>
     <AlertDescription>
-        Please add a build dependency to run the project.
+        Please add a build dependency to use the project.
     </AlertDescription>
 </Alert>

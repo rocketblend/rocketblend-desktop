@@ -8,7 +8,7 @@
     import { initializeStores, storePopup, getToastStore, getDrawerStore } from '@skeletonlabs/skeleton';
     import { Toast, AppBar, AppShell, Modal, type ModalComponent } from '@skeletonlabs/skeleton';
 
-    import { Quit, WindowMinimise, WindowToggleMaximise } from '$lib/wailsjs/runtime';
+    import { Quit, WindowMinimise, WindowToggleMaximise, BrowserOpenURL } from '$lib/wailsjs/runtime';
 
     import { setupGlobalEventListeners, tearDownGlobalEventListeners } from '$lib/events';
     import { getLogStore } from "$lib/stores";
@@ -56,14 +56,32 @@
         drawerStore.open();
     }
 
-    $: dependencies = data.selectedProject?.project?.dependencies?.map((d) => d.reference) || [];
+    function handleLinkClick(event: MouseEvent) {
+        const target = event.target as HTMLElement;
+        if (target && target.nodeName === 'A' && (target as HTMLAnchorElement).href) {
+            const url = (target as HTMLAnchorElement).href;
+            if (
+                !url.startsWith('http://#') &&
+                !url.startsWith('file://') &&
+                !url.startsWith('http://wails.localhost') &&
+                !url.startsWith('wails://wails.localhost')
+            ) {
+                event.preventDefault();
+                BrowserOpenURL(url);
+            }
+        }
+    }
+
+    $: dependencies = data.selectedProject?.dependencies?.map((d) => d.reference) || [];
 
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);
-    });
 
-    onDestroy(() => {
-        tearDownGlobalEventListeners();
+        document.body.addEventListener('click', handleLinkClick);
+        return () => {
+            tearDownGlobalEventListeners();
+            document.body.removeEventListener("click", handleLinkClick);
+        };
     });
 </script>
 
@@ -127,7 +145,7 @@
         </div>
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
             <Sidebar
-                projectId={data.selectedProject?.project?.id.toString() || undefined}
+                projectId={data.selectedProject?.id.toString() || undefined}
                 dependencies={dependencies}
                 addonFeature={data.preferences.feature.addon}
             />
@@ -169,6 +187,6 @@
         </div>
     </div>
     <svelte:fragment slot="footer">
-        <Footer selected={data.selectedProject?.project}/>
+        <Footer selected={data.selectedProject}/>
     </svelte:fragment>
 </AppShell>

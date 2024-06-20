@@ -56,24 +56,6 @@ func (d *Driver) startup(ctx context.Context) {
 
 	// Start listening to log events
 	go d.listenToLogEvents()
-
-	// // Preloads all the data
-	// if err := d.factory.Preload(); err != nil {
-	// 	d.logger.Error("failed to preload", map[string]interface{}{"error": err.Error()})
-	// 	return
-	// }
-
-	// Setup driver event handlers (backend)
-	if err := d.setupDriverEventHandlers(); err != nil {
-		d.logger.Error("failed to setup driver event handlers", map[string]interface{}{"error": err.Error()})
-		return
-	}
-
-	// Setup runtime event handlers (frontend)
-	if err := d.setupRuntimeEventHandlers(); err != nil {
-		d.logger.Error("failed to setup runtime event handlers", map[string]interface{}{"error": err.Error()})
-		return
-	}
 }
 
 // shutdown is called when the app is shutting down
@@ -82,11 +64,6 @@ func (d *Driver) shutdown(ctx context.Context) {
 
 	// Close the event stream
 	d.events.Close()
-
-	// // Close the factory watchers
-	// if err := d.factory.Close(); err != nil {
-	// 	d.logger.Error("failed to close factory", map[string]interface{}{"error": err.Error()})
-	// }
 
 	d.logger.Debug("application shutdown")
 }
@@ -107,6 +84,18 @@ func (d *Driver) onLayoutReady(ctx context.Context) {
 
 	if err := d.addApplicationMetrics(); err != nil {
 		d.logger.Error("failed to add application metrics", map[string]interface{}{"error": err.Error()})
+	}
+
+	// Setup driver event handlers (backend)
+	if err := d.setupDriverEventHandlers(); err != nil {
+		d.logger.Error("failed to setup driver event handlers", map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	// Setup runtime event handlers (frontend)
+	if err := d.setupRuntimeEventHandlers(); err != nil {
+		d.logger.Error("failed to setup runtime event handlers", map[string]interface{}{"error": err.Error()})
+		return
 	}
 
 	if err := d.autoRefreshPackages(ctx); err != nil {

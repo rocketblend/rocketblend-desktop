@@ -4,12 +4,15 @@ import type { ToastSettings, ToastStore } from '@skeletonlabs/skeleton';
 
 import { t } from '$lib/translations/translations';
 import type { LogStore, LogEvent } from '$lib/types';
-import {debounce} from '$lib/utils';
+import { debounce } from '$lib/utils';
 import { EventsOn, EventsOff, EventsEmit } from '$lib/wailsjs/runtime';
 
 export const EVENT_DEBOUNCE = 250;
+
 export const SEARCH_STORE_INSERT_CHANNEL = 'store.insert';
-export const DEBUG_LOG_CHANNEL = 'debug.log';
+export const SEARCH_STORE_REMOVE_CHANNEL = 'store.remove';
+
+export const APPLICATION_LOG_CHANNEL = 'application.log';
 export const APPLICATION_ARGUMENT_CHANNEL = 'application.argument';
 
 export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastStore) => {
@@ -22,8 +25,8 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
         toastStore.trigger(changeDetectedToast);
     }, EVENT_DEBOUNCE - 50);
 
-    // Setup debug log listener
-    EventsOn(DEBUG_LOG_CHANNEL, (data: LogEvent) => {
+    // Setup application log listener
+    EventsOn(APPLICATION_LOG_CHANNEL, (data: LogEvent) => {
         logStore.add(data);
     });
 
@@ -31,7 +34,7 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
     EventsOn(APPLICATION_ARGUMENT_CHANNEL, (data: { args: string[] }) => {
         if (data.args && data.args.length !== 0) {
             const applicationArgumentToast: ToastSettings = {
-                message: `Args: ${data.args.join(', ')}`,
+                message: `Received arguments: ${data.args.join(', ')}`,
                 timeout: 5000,
             };
 
@@ -39,8 +42,15 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
         }
     });
 
-    // Setup search store listener
     EventsOn(SEARCH_STORE_INSERT_CHANNEL, (data: { id: string, indexType: string }) => {
+        if (data.indexType === 'operation') {
+            return;
+        }
+
+        changeDetectedDebounce();
+    });
+
+    EventsOn(SEARCH_STORE_REMOVE_CHANNEL, (data: { id: string, indexType: string }) => {
         if (data.indexType === 'operation') {
             return;
         }
@@ -62,10 +72,13 @@ export const setupGlobalEventListeners = (logStore: LogStore, toastStore: ToastS
 
 export const tearDownGlobalEventListeners = () => {
     // Remove log stream listener
-    EventsOff(DEBUG_LOG_CHANNEL);
+    EventsOff(APPLICATION_LOG_CHANNEL);
 
     // Remove search store listener
     EventsOff(SEARCH_STORE_INSERT_CHANNEL);
+
+    // Remove search store listener
+    EventsOff(SEARCH_STORE_REMOVE_CHANNEL);
 
     // Remove launch arguments listener
     EventsOff(APPLICATION_ARGUMENT_CHANNEL);
