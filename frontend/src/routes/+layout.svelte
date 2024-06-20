@@ -63,8 +63,8 @@
             if (
                 !url.startsWith('http://#') &&
                 !url.startsWith('file://') &&
-                !url.startsWith('http://wails.localhost:') &&
-                !url.startsWith('wails://wails.localhost:')
+                !url.startsWith('http://wails.localhost') &&
+                !url.startsWith('wails://wails.localhost')
             ) {
                 event.preventDefault();
                 BrowserOpenURL(url);
