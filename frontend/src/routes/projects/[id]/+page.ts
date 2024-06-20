@@ -3,12 +3,12 @@ import type { PageLoad } from './$types';
 import { error} from '@sveltejs/kit';
 
 import { GetProject, ListPackages } from '$lib/wailsjs/go/application/Driver'
-import { application } from '$lib/wailsjs/go/models';
+import { application, types } from '$lib/wailsjs/go/models';
 
 export const load: PageLoad = async ({ params }) => {
     const result = await GetProject(application.GetPackageOpts.createFrom({
         id: params.id,
-    }));
+    }))
 
     if (!result || result.project === undefined) {
         throw error(404, {

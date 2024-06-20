@@ -56,7 +56,7 @@
         drawerStore.open();
     }
 
-    $: dependencies = data.selectedProject?.project?.dependencies?.map((d) => d.reference) || [];
+    $: dependencies = data.selectedProject?.dependencies?.map((d) => d.reference) || [];
 
     onMount(() => {
         setupGlobalEventListeners(logStore, toastStore);
@@ -127,7 +127,7 @@
         </div>
         <div class="card flex-grow shadow-none p-4 overflow-hidden">
             <Sidebar
-                projectId={data.selectedProject?.project?.id.toString() || undefined}
+                projectId={data.selectedProject?.id.toString() || undefined}
                 dependencies={dependencies}
                 addonFeature={data.preferences.feature.addon}
             />
@@ -169,6 +169,6 @@
         </div>
     </div>
     <svelte:fragment slot="footer">
-        <Footer selected={data.selectedProject?.project}/>
+        <Footer selected={data.selectedProject}/>
     </svelte:fragment>
 </AppShell>

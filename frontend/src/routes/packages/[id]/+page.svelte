@@ -38,9 +38,9 @@
     <hr>
 
     <PackageToggle
-        projectId={data.selectedProject?.project?.id.toString()}
-        projectBuildRef={data.selectedProject?.project?.dependencies?.find((p) => p.type === enums.PackageType.BUILD)?.reference || ''}
-        projectAddonRefs={data.selectedProject?.project?.dependencies?.filter((p) => p.type === enums.PackageType.ADDON).map((p) => p.reference) || []}
+        projectId={data.selectedProject?.id.toString()}
+        projectBuildRef={data.selectedProject?.dependencies?.find((p) => p.type === enums.PackageType.BUILD)?.reference || ''}
+        projectAddonRefs={data.selectedProject?.dependencies?.filter((p) => p.type === enums.PackageType.ADDON).map((p) => p.reference) || []}
         packageRef={data.package.reference || ''}
         packageState={data.package.state}
     />
