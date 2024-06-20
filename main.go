@@ -20,7 +20,13 @@ import (
 //go:embed all:frontend/build
 var assets embed.FS
 
-var version = "dev"
+var (
+	Version               = "dev"
+	BuildType      string = "debug"
+	BuildTimestamp string = "NOW"
+	CommitSha      string = "HEAD"
+	BuildLink      string = "http://localhost"
+)
 
 func main() {
 	if err := run(os.Args); err != nil {
@@ -31,7 +37,7 @@ func main() {
 func run(args []string) error {
 	app, err := application.New(application.ApplicationOpts{
 		Assets:  assets,
-		Version: version,
+		Version: Version,
 		Args:    args,
 	})
 	if err != nil {

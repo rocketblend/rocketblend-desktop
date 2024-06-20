@@ -66,16 +66,30 @@ func Build(buildType, appVersion, buildTimestamp, commitSha, buildLink string) e
 
 		if runtime.GOARCH == "amd64" {
 			if err := buildLinuxAMD64(ldFlags, appVersion, false); err != nil {
-				return fmt.Errorf("error building Linux AMD64: %v", err)
+				return fmt.Errorf("Error building Linux AMD64: %s", err)
 			}
-			return buildLinuxARM64(ldFlags, appVersion, true)
-		}
-		return buildLinuxARM64(ldFlags, appVersion, false)
 
+			if err := buildLinuxARM64(ldFlags, appVersion, true); err != nil {
+				return fmt.Errorf("Error building Linux ARM64: %s", err)
+			}
+		} else {
+			if err := buildLinuxARM64(ldFlags, appVersion, false); err != nil {
+				return fmt.Errorf("Error building Linux ARM64: %s", err)
+			}
+
+			if err := buildLinuxAMD64(ldFlags, appVersion, true); err != nil {
+				return fmt.Errorf("Error building Linux AMD64: %s", err)
+			}
+		}
+
+		if err := buildWindowsAMD64(ldFlags, appVersion, true); err != nil {
+			return fmt.Errorf("Error building Windows AMD64: %s", err)
+		}
+
+		return nil
 	case "darwin":
 		mg.Deps(mg.F(configureWailsProject, appVersion))
 		return buildDarwinUniversal(ldFlags, appVersion)
-
 	default:
 		return fmt.Errorf("unsupported OS/architecture: %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
