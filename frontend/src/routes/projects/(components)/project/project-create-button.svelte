@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { getModalStore } from "@skeletonlabs/skeleton";
-    import type { ModalSettings } from "@skeletonlabs/skeleton";
+    import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
+    import type { ModalSettings, ToastSettings } from "@skeletonlabs/skeleton";
 
     import { CreateProject } from "$lib/wailsjs/go/application/Driver";
     import { application } from "$lib/wailsjs/go/models"
 			
     const modalStore = getModalStore();
+    const toastStore = getToastStore();
 
     export let disabled = false;
 
@@ -28,8 +29,13 @@
                 return;
             }
 
-            const opts = application.CreateProjectOpts.createFrom({ name: name });
-            await CreateProject(opts);
+            CreateProject(application.CreateProjectOpts.createFrom({
+                name: name
+            })).then(() => {
+                toastStore.trigger({
+                    message: "Creating project...",
+                });
+            });
         });
     }
 </script>

@@ -14,11 +14,10 @@ import (
 )
 
 const (
-	OperationCancelChannel     = "operation.cancel"
-	DebugLogChannel            = "debug.log"
-	ApplicationArgumentChannel = "application.argument"
+	OperationCancelChannel = "operation.cancel"
 
-	StoreInsertChannel = events.StoreInsertChannel
+	ApplicationLogChannel      = "application.log"
+	ApplicationArgumentChannel = "application.argument"
 )
 
 type (
@@ -27,12 +26,18 @@ type (
 	}
 )
 
+// TODO: Might be better to just create an interface for the runtime.EventsEmit functions and pass that in as a dependency.
+// TODO: We could also create wrapper structs over rocketblend functions to add events to them.
 func (d *Driver) setupDriverEventHandlers() error {
 	if err := d.ctx.Err(); err != nil {
 		return err
 	}
 
 	if err := d.subscribeToEvent(events.StoreInsertChannel, d.handleStoreInsertEvent); err != nil {
+		return err
+	}
+
+	if err := d.subscribeToEvent(events.StoreRemoveChannel, d.handleStoreRemoveEvent); err != nil {
 		return err
 	}
 
@@ -67,7 +72,7 @@ func (d *Driver) handleProjectRunEvent(e types.Eventer) error {
 		return errors.New("invalid event type")
 	}
 
-	// TODO: Move the metric creation portfolio functions.
+	// TODO: Move the metric creation into the portfolio functions???
 	if err := d.tracker.CreateMetric(context.Background(), &types.CreateMetricOpts{
 		Domain: ev.ID.String(),
 		Name:   ProjectRunMetric,
@@ -85,7 +90,17 @@ func (d *Driver) handleStoreInsertEvent(e types.Eventer) error {
 		return errors.New("invalid event type")
 	}
 
-	runtime.EventsEmit(d.ctx, StoreInsertChannel, ev)
+	runtime.EventsEmit(d.ctx, events.StoreInsertChannel, ev)
+	return nil
+}
+
+func (d *Driver) handleStoreRemoveEvent(e types.Eventer) error {
+	ev, ok := e.(*events.StoreEvent)
+	if !ok {
+		return errors.New("invalid event type")
+	}
+
+	runtime.EventsEmit(d.ctx, events.StoreRemoveChannel, ev)
 	return nil
 }
 
@@ -98,6 +113,7 @@ func (d *Driver) setupRuntimeEventHandlers() error {
 	return nil
 }
 
+// TODO: does this need to be an event? Can we just call this via api directly?
 func (d *Driver) handleOperationCancel(optionalData ...interface{}) {
 	if len(optionalData) == 0 {
 		d.logger.Error("no operation ID provided for cancellation")
@@ -135,7 +151,7 @@ func (d *Driver) listenToLogEvents() {
 			data, ok := d.events.GetNextData()
 			if ok {
 				if logEvent, isLogEvent := data.(eventwriter.Event); isLogEvent {
-					runtime.EventsEmit(d.ctx, DebugLogChannel, logEvent)
+					runtime.EventsEmit(d.ctx, ApplicationLogChannel, logEvent)
 				}
 			} else {
 				time.Sleep(time.Millisecond * 100)
