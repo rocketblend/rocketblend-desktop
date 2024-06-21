@@ -1,0 +1,4 @@
+{
+    "source": ["./build/bin/RocketBlend-Desktop.app"],
+    "bundle_id": "io.rocketblend.rocketblend-desktop"
+}

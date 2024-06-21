@@ -39,6 +39,9 @@ build/*
 !build/darwin/
 build/darwin/*
 !build/darwin/seticon.swift
+!build/darwin/gon-sign.json
+!build/darwin/Info.plist
+!build/darwin/Info.dev.plist
 !build/appicon.png
 
 frontend/dist
