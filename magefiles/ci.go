@@ -3,6 +3,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -82,14 +83,14 @@ func Build(buildType, appVersion, buildTimestamp, commitSha, buildLink string) e
 			}
 		}
 
-		if err := buildWindowsAMD64(ldFlags, appVersion, true); err != nil {
+		if err := buildWindowsAMD64(ldFlags, appVersion, true, false); err != nil {
 			return fmt.Errorf("Error building Windows AMD64: %s", err)
 		}
 
 		return nil
 	case "darwin":
 		mg.Deps(mg.F(configureWailsProject, appVersion))
-		return buildDarwinUniversal(ldFlags, appVersion)
+		return buildDarwinUniversal(ldFlags, appVersion, false)
 	default:
 		return fmt.Errorf("unsupported OS/architecture: %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
@@ -168,7 +169,7 @@ func buildLinuxARM64(ldFlags, appVersion string, skipFrontend bool) error {
 }
 
 // buildWindowsAMD64 builds the Windows AMD64 version of the project.
-func buildWindowsAMD64(ldFlags, appVersion string, skipFrontend bool) error {
+func buildWindowsAMD64(ldFlags, appVersion string, skipFrontend bool, sign bool) error {
 	outputFileName := fmt.Sprintf("rocketblend-desktop-windows-amd64-%s.exe", appVersion)
 	skipBindingsFlag, skipFrontendFlag := "", ""
 	if skipFrontend {
@@ -182,13 +183,65 @@ func buildWindowsAMD64(ldFlags, appVersion string, skipFrontend bool) error {
 		"CXX":    "x86_64-w64-mingw32-g++",
 	}
 
-	return sh.RunWithV(crossCompileFlags, "wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-nsis", "-platform", "windows/amd64", "-o", outputFileName, skipBindingsFlag, skipFrontendFlag)
+	err := sh.RunWithV(crossCompileFlags, "wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-nsis", "-platform", "windows/amd64", "-o", outputFileName, skipBindingsFlag, skipFrontendFlag)
+	if err != nil {
+		return fmt.Errorf("error building Windows AMD64: %v", err)
+	}
+
+	if sign {
+		fmt.Println("Importing Code Signing Certificates")
+		certFilePath := "certificate/certificate.pfx"
+		pemFilePath := "certificate/certificate.pem"
+		signCert := os.Getenv("WIN_CERTIFICATE")
+		signCertPassword := os.Getenv("WIN_CERTIFICATE_PASSWORD")
+
+		if signCert == "" || signCertPassword == "" {
+			return fmt.Errorf("missing required environment variables for code-signing")
+		}
+
+		if _, err := os.Stat("certificate"); os.IsNotExist(err) {
+			if err := os.Mkdir("certificate", os.ModePerm); err != nil {
+				return fmt.Errorf("error creating certificate directory: %v", err)
+			}
+		}
+
+		if err := os.WriteFile("certificate/certificate.txt", []byte(signCert), 0600); err != nil {
+			return fmt.Errorf("error writing base64 certificate to file: %v", err)
+		}
+
+		if err := sh.Run("certutil", "-decode", "certificate/certificate.txt", certFilePath); err != nil {
+			return fmt.Errorf("error decoding certificate: %v", err)
+		}
+
+		if err := sh.Run("openssl", "pkcs12", "-in", certFilePath, "-out", pemFilePath, "-nodes", "-passin", fmt.Sprintf("pass:%s", signCertPassword)); err != nil {
+			return fmt.Errorf("error converting PFX to PEM: %v", err)
+		}
+
+		fmt.Println("Signing Build")
+		if err := sh.Run("osslsigncode", "sign", "-certs", pemFilePath, "-key", pemFilePath, "-pass", signCertPassword, "-in", outputFileName, "-out", outputFileName, "-t", "http://timestamp.digicert.com", "-h", "sha256"); err != nil {
+			return fmt.Errorf("error signing executable: %v", err)
+		}
+	}
+
+	return nil
 }
 
 // buildDarwinUniversal builds the Darwin universal version of the project.
-func buildDarwinUniversal(ldFlags, appVersion string) error {
+func buildDarwinUniversal(ldFlags, appVersion string, sign bool) error {
 	if err := sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal"); err != nil {
 		return fmt.Errorf("error building Darwin Wails App: %v", err)
+	}
+
+	if sign {
+		fmt.Println("Importing Code Signing Certificates")
+		if err := importDarwinCodeSigningCertificates(os.Getenv("AC_CERTIFICATE"), os.Getenv("AC_CERTIFICATE_PASSWORD")); err != nil {
+			return fmt.Errorf("error importing code signing certificates: %v", err)
+		}
+
+		fmt.Println("Signing Build")
+		if err := sh.RunV("gon", "-log-level=info", "./build/darwin/gon-sign.json"); err != nil {
+			return fmt.Errorf("error signing build: %v", err)
+		}
 	}
 
 	fmt.Println("Building DMG")
@@ -208,4 +261,28 @@ func buildDarwinUniversal(ldFlags, appVersion string) error {
 
 	fmt.Println("Setting DMG icons")
 	return sh.RunV("./seticon", "./build/bin/RocketBlend-Desktop.app/Contents/Resources/iconfile.icns", dmgOutputPath)
+}
+
+// importDarwinCodeSigningCertificates imports the code signing certificates into the keychain.
+func importDarwinCodeSigningCertificates(certBase64, password string) error {
+	if certBase64 == "" || password == "" {
+		return fmt.Errorf("missing required environment variables for code-signing")
+	}
+
+	certBytes, err := base64.StdEncoding.DecodeString(certBase64)
+	if err != nil {
+		return fmt.Errorf("error decoding base64 certificate: %v", err)
+	}
+
+	certFilePath := "./cert.p12"
+	if err := os.WriteFile(certFilePath, certBytes, 0600); err != nil {
+		return fmt.Errorf("error writing certificate to file: %v", err)
+	}
+	defer os.Remove(certFilePath)
+
+	if err := sh.Run("security", "import", certFilePath, "-P", password, "-T", "/usr/bin/codesign"); err != nil {
+		return fmt.Errorf("error importing certificate: %v", err)
+	}
+
+	return nil
 }

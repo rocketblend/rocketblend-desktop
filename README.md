@@ -46,9 +46,12 @@ If you want to develop in a browser and have access to your Go methods, there is
 
 To build a redistributable, production mode package, use `wails build`.
 
-### Code Signing
+### Code Signing (Github Action)
 
-Need to following environment variables:
+#### Windows
+
+- `WIN_CERTIFICATE` - `.p12` formatted certificate encoded in base64.
+- `WIN_CERTIFICATE_PASSWORD` - certificate password.
 
 #### Apple
 
