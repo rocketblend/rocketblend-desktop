@@ -48,7 +48,13 @@ To build a redistributable, production mode package, use `wails build`.
 
 ### Code Signing (Github Action)
 
-#### Windows
+
+
+#### Windows (Azure Trusted)
+
+See Azure.
+
+#### Windows (Classic)
 
 - `WIN_CERTIFICATE` - `.p12` formatted certificate encoded in base64.
 - `WIN_CERTIFICATE_PASSWORD` - certificate password.

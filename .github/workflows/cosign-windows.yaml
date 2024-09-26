@@ -1,0 +1,95 @@
+name: Code Sign Windows Executables
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: 'The name of the artifact containing the Windows executables.'
+        required: true
+        type: string
+      artifact-path:
+        description: 'The path where the artifact will be downloaded.'
+        required: true
+        type: string
+      endpoint:
+        description: 'Trusted Signing endpoint URL.'
+        required: true
+        type: string
+      trusted-signing-account-name:
+        description: 'Trusted Signing Account name.'
+        required: true
+        type: string
+      certificate-profile-name:
+        description: 'Certificate Profile name.'
+        required: true
+        type: string
+      files-folder:
+        description: 'Folder containing files to be signed.'
+        required: true
+        type: string
+      files-folder-filter:
+        description: 'Comma-separated list of file extensions to sign.'
+        required: false
+        type: string
+        default: 'exe,dll'
+      description:
+        description: 'Description for the signed executables.'
+        required: false
+        type: string
+        default: ''
+      timestamp-rfc3161:
+        description: 'Timestamp server URL.'
+        required: false
+        type: string
+        default: 'http://timestamp.acs.microsoft.com'
+    secrets:
+      azure-tenant-id:
+        required: true
+      azure-client-id:
+        required: true
+      azure-client-secret:
+        required: true
+
+jobs:
+  sign-windows-executables:
+    runs-on: windows-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.artifact-path }}
+
+      - name: Sign Windows Executables
+        uses: azure/trusted-signing-action@v0.4.0
+        with:
+          azure-tenant-id: ${{ secrets.azure-tenant-id }}
+          azure-client-id: ${{ secrets.azure-client-id }}
+          azure-client-secret: ${{ secrets.azure-client-secret }}
+          endpoint: ${{ inputs.endpoint }}
+          trusted-signing-account-name: ${{ inputs.trusted-signing-account-name }}
+          certificate-profile-name: ${{ inputs.certificate-profile-name }}
+          files-folder: ${{ inputs.files-folder }}
+          files-folder-filter: ${{ inputs.files-folder-filter }}
+          description: ${{ inputs.description }}
+          timestamp-rfc3161: ${{ inputs.timestamp-rfc3161 }}
+
+      - name: Verify Signatures
+        shell: powershell
+        run: |
+          Get-ChildItem -Path ${{ inputs.files-folder }} -Filter *.exe -Recurse | ForEach-Object {
+            $signature = Get-AuthenticodeSignature $_.FullName
+            if ($signature.Status -ne 'Valid') {
+              Write-Error "Signature verification failed for $($_.FullName): $($signature.StatusMessage)"
+              exit 1
+            } else {
+              Write-Host "Signature verified for $($_.FullName)"
+            }
+          }
+
+      - name: Upload Signed Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.artifact-name }}_signed
+          path: ${{ inputs.artifact-path }}
+

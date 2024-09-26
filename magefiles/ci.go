@@ -189,6 +189,8 @@ func buildWindowsAMD64(ldFlags, appVersion string, skipFrontend bool, sign bool)
 	}
 
 	if sign {
+		// Recommended to just use Azure Trusted Certificate for signing instead.
+		// Keeping for reference.
 		fmt.Println("Importing Code Signing Certificates")
 		certFilePath := "certificate/certificate.pfx"
 		pemFilePath := "certificate/certificate.pem"
