@@ -20,7 +20,8 @@ RocketBlend Desktop is an open-source desktop application for [RocketBlend](http
 > [!NOTE]  
 > RocketBlend Desktop is currently under active development and still evolving. As such, expect significant changes, potential bugs, and incomplete features.
 
-![Demo Video](docs/assets/rocketblend-desktop-demo.mp4)
+https://i.imgur.com/WlGo8tD.mp4
+
 ![Image of RocketBlend desktop application](docs/assets/rocketblend-desktop-dev.png)
 
 ## Features
