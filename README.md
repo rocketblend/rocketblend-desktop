@@ -22,7 +22,10 @@ RocketBlend Desktop is an open-source desktop application for [RocketBlend](http
 
 https://github.com/user-attachments/assets/e9f28195-8ff1-4a1f-9a93-a3fe99d1acc6
 
-![Image of RocketBlend desktop application](docs/assets/rocketblend-desktop-dev.png)
+<details>
+  <summary>Screenshots</summary>
+  ![Image of RocketBlend desktop application](docs/assets/rocketblend-desktop-dev.png)
+</details>
 
 ## Features
 
