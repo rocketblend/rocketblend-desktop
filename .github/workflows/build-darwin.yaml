@@ -26,7 +26,7 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     outputs:
       releaseTag: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
 
@@ -56,6 +56,7 @@ jobs:
       - name: Install Dependencies
         run: |
           brew install create-dmg
+          brew install Bearer/tap/gon
 
       - name: Generate Build Timestamp ISO 8601
         id: generateBuildTimestamp

@@ -13,9 +13,6 @@ concurrency:
 jobs:
   build-cross-platform:
     uses: ./.github/workflows/build-cross-platform.yaml
-    permissions:
-      contents: read
-      packages: write
     with:
       BASE_IMAGE: ghcr.io/rocketblend/cross-wails:v2.8.0
       BUILD_TYPE: "release"
