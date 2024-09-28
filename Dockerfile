@@ -2,7 +2,7 @@ ARG BASE_IMAGE=ghcr.io/rocketblend/cross-wails:v2.8.0
 
 FROM ${BASE_IMAGE} as builder
 
-RUN apt-get install -y osslsigncode
+# RUN apt-get install -y osslsigncode
 
 WORKDIR /usr/src/app
 
