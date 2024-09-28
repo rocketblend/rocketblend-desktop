@@ -46,28 +46,6 @@ If you want to develop in a browser and have access to your Go methods, there is
 
 To build a redistributable, production mode package, use `wails build`.
 
-### Code Signing (Github Action)
-
-
-
-#### Windows (Azure Trusted)
-
-See Azure.
-
-#### Windows (Classic)
-
-- `WIN_CERTIFICATE` - `.p12` formatted certificate encoded in base64.
-- `WIN_CERTIFICATE_PASSWORD` - certificate password.
-
-#### Apple
-
-- `AC_CERTIFICATE` - `.p12` Apple certificate encoded in base64.
-- `AC_CERTIFICATE_PASSWORD ` - Apple certificate password.
-- `AC_USERNAME` - The Apple ID username, typically an email address. 
-- `AC_PASSWORD` - The password for the associated Apple ID.
-- `AC_PROVIDER` - The App Store Connect provider when using multiple teams within App Store Connect
-- `AC_APPLICATION_IDENTITY` - The name or ID of the "Developer ID Application" certificate to use to sign applications
-
 ## See Also
 
 - [RocketBlend](https://github.com/rocketblend/rocketblend) - CLI tool that powers the build and addon management for blender.
