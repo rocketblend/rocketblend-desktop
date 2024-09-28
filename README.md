@@ -8,10 +8,6 @@
 
 RocketBlend Desktop is an open-source desktop application for [RocketBlend](https://github.com/rocketblend/rocketblend), available on Windows, Mac, and Linux. Improve your [Blender](https://www.blender.org/) workflow by adding dependency management and enahanced project discoverability.
 
-> [!WARNING]
-> Application downloads are not code-signed yet, so your OS may show a security warning when opening them.
-> For updates, check [Issue #96](https://github.com/rocketblend/rocketblend-desktop/issues/96).
-
 > [!NOTE]  
 > RocketBlend Desktop is currently under active development and still evolving. As such, expect significant changes, potential bugs, and incomplete features.
 
@@ -19,9 +15,13 @@ https://github.com/user-attachments/assets/e9f28195-8ff1-4a1f-9a93-a3fe99d1acc6
 
 <details>
   <summary>Screenshots</summary>
-  
+
   ![Image of RocketBlend desktop application](docs/assets/rocketblend-desktop-dev.png)
 </details>
+
+> [!WARNING]
+> Application downloads are not code-signed yet, so your OS may show a security warning when opening them.
+> For updates, check [Issue #96](https://github.com/rocketblend/rocketblend-desktop/issues/96).
 
 ## Features
 
