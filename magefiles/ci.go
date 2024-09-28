@@ -248,7 +248,7 @@ func buildDarwinUniversal(ldFlags, appVersion string, sign bool) error {
 
 	fmt.Println("Building DMG")
 	dmgOutputPath := fmt.Sprintf("./build/bin/rocketblend-desktop-darwin-universal-%s.dmg", appVersion)
-	if err := sh.RunV("create-dmg", "--window-size", "800", "300", "--no-internet-enable", "--hide-extension", "RocketBlend-Desktop.app", "--app-drop-link", "600", "40", dmgOutputPath, "./build/bin/RocketBlend-Desktop.app"); err != nil {
+	if err := sh.RunV("create-dmg", "--window-size", "800", "300", "--no-internet-enable", "--hide-extension", "rocketblend-desktop.app", "--app-drop-link", "600", "40", dmgOutputPath, "./build/bin/rocketblend-desktop.app"); err != nil {
 		return fmt.Errorf("error building DMG: %v", err)
 	}
 
@@ -262,7 +262,7 @@ func buildDarwinUniversal(ldFlags, appVersion string, sign bool) error {
 	}
 
 	fmt.Println("Setting DMG icons")
-	return sh.RunV("./seticon", "./build/bin/RocketBlend-Desktop.app/Contents/Resources/iconfile.icns", dmgOutputPath)
+	return sh.RunV("./seticon", "./build/bin/rocketblend-desktop.app/Contents/Resources/iconfile.icns", dmgOutputPath)
 }
 
 // importDarwinCodeSigningCertificates imports the code signing certificates into the keychain.
