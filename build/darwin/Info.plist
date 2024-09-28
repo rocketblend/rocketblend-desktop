@@ -82,5 +82,7 @@
         <string>{{.Info.ProductName}} needs access to external drives to manage Blender projects stored there.</string>
         <key>NSNetworkVolumesUsageDescription</key>
         <string>{{.Info.ProductName}} needs access to network volumes to collaborate on Blender projects with your team.</string>
+        <key>NSAppleEventsUsageDescription</key>
+        <string>{{.Info.ProductName}} needs to communicate with other applications to manage Blender processes and automate tasks.</string>
     </dict>
 </plist>
