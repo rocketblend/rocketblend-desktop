@@ -34,6 +34,8 @@ https://github.com/user-attachments/assets/e9f28195-8ff1-4a1f-9a93-a3fe99d1acc6
 - **Lightweight and Flexible**: Use RocketBlend's [CLI](https://github.com/rocketblend/rocketblend) directly without needing the desktop UI. Ideal for professionals setting up render pipelines or server tasks, while the desktop application offers an intuitive interface for regular users.
 - **Visual Project Gallery**: Navigate and manage your work using the visual project gallery, supporting both images and videos.
 
+https://github.com/user-attachments/assets/18bfb929-78c3-4fc1-8aff-59507abaf9ff
+
 ## Development Requirements
 
 - [Golang 1.21.x](https://go.dev/dl/)
