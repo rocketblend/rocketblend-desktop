@@ -41,7 +41,7 @@ jobs:
           lfs: true
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
 
@@ -52,7 +52,7 @@ jobs:
           go install github.com/wailsapp/wails/v2/cmd/wails@$WAILS_VERSION
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.NODE_VERSION }}
 
@@ -74,7 +74,7 @@ jobs:
           echo "releaseTag=$RELEASE_TAG" >> $GITHUB_OUTPUT
 
       - name: Cache Node Modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-${{ runner.arch }}-node_modules-${{ hashFiles('./frontend/package-lock.json') }}
           path: "./frontend/node_modules"
@@ -95,7 +95,7 @@ jobs:
           go test -v ./...
 
       - name: Upload Build Arifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release_bins
           path: ./build/bin/*
