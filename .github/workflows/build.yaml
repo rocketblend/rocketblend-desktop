@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      base_image:
+        description: 'Base Docker image for cross-platform builds'
+        default: 'ghcr.io/rocketblend/cross-wails:v2.8.0'
+        required: false
+      go_version:
+        description: 'Go version for Darwin builds'
+        default: 'v1.22.1'
+        required: false
+      node_version:
+        description: 'Node version for Darwin builds'
+        default: '20'
+        required: false
+      wails_version:
+        description: 'Wails version for Darwin builds'
+        default: 'v2.8.0'
+        required: false
+      build_type:
+        description: 'Build type (e.g., release or debug)'
+        default: 'release'
+        required: false
+
+jobs:
+  build-cross-platform:
+    uses: ./.github/workflows/build-cross-platform.yaml
+    with:
+      BASE_IMAGE: ${{ inputs.base_image }}
+      BUILD_TYPE: ${{ inputs.build_type }}
+
+  build-darwin:
+    uses: ./.github/workflows/build-darwin.yaml
+    with:
+      GO_VERSION: ${{ inputs.go_version }}
+      NODE_VERSION: ${{ inputs.node_version }}
+      WAILS_VERSION: ${{ inputs.wails_version }}
+      BUILD_TYPE: ${{ inputs.build_type }}

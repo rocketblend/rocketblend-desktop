@@ -22,8 +22,8 @@ concurrency:
 # Linux:   Codesigning is not supported at this time.
 
 jobs:
-  ci:
-    uses: ./.github/workflows/ci.yaml
+  build:
+    uses: ./.github/workflows/build.yaml
 
   cosign-windows:
     if: ${{ github.event.inputs.cosign_windows == 'true' }}
