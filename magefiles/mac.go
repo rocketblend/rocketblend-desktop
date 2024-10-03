@@ -106,7 +106,9 @@ func importMacOSCertificate(cert, certPassword string) error {
 		return fmt.Errorf("error importing certificate: %v", err)
 	}
 
-	return sh.Run("security", "set-key-partition-list", "-S", "apple-tool:,apple:", "-s", "-k", certPassword, certFilePath)
+	// return sh.Run("security", "set-key-partition-list", "-S", "apple-tool:,apple:", "-s", "-k", certPassword, certFilePath)
+
+	return nil
 }
 
 // signMacOSFile signs any file (app, DMG, etc.) with the Developer ID Application certificate.
