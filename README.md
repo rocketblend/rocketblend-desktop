@@ -58,7 +58,7 @@ If you want to develop in a browser and have access to your Go methods, there is
 
 To build a redistributable, production mode package, use `wails build`.
 
-### Wiki
+## Wiki
 
 [Developer Documentation](wiki/index.md)
 

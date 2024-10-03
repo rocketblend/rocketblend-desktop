@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/magefile/mage/sh"
 )
@@ -98,7 +99,7 @@ func createMacOSDMG(appPath, appName, appVersion string) (string, error) {
 	dmgOutputPath := fmt.Sprintf("./build/bin/%s-darwin-universal-%s.dmg", appName, appVersion)
 
 	fmt.Println("Building DMG for macOS")
-	if err := sh.RunV("create-dmg", "--window-size", "800", "300", "--no-internet-enable", "--hide-extension", "--app-drop-link", "600", "40", dmgOutputPath, appPath); err != nil {
+	if err := sh.RunV("create-dmg", "--window-size", "800", "300", "--no-internet-enable", "--hide-extension", filepath.Base(appPath), "--app-drop-link", "600", "40", dmgOutputPath, appPath); err != nil {
 		return "", fmt.Errorf("error building DMG for macOS: %v", err)
 	}
 
