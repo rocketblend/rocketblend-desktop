@@ -5,53 +5,49 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
   workflow_dispatch:
+    inputs:
+        cosign_windows:
+          description: "Run Windows codesigning"
+          required: false
+          default: "false"
 
 concurrency:
   group: rocketblend-desktop-cd
   cancel-in-progress: true
 
+# Windows: Builds will eventually be signed via Azure Trusted Signing.
+#          Currently unavailable for individuals; requires a registered LLC.
+# macOS:   Codesigning and notarizing are handled in the CI step.
+#          Consider splitting this into a dedicated step in the future.
+# Linux:   Codesigning is not supported at this time.
+
 jobs:
-  build-cross-platform:
-    uses: ./.github/workflows/build-cross-platform.yaml
-    permissions:
-      contents: read
-      packages: write
-    with:
-      BASE_IMAGE: ghcr.io/rocketblend/cross-wails:v2.8.0
-      BUILD_TYPE: "release"
+  ci:
+    uses: ./.github/workflows/ci.yaml
 
-  build-darwin:
-    uses: ./.github/workflows/build-darwin.yaml
+  cosign-windows:
+    if: ${{ github.event.inputs.cosign_windows == 'true' }}
+    uses: ./.github/workflows/cosign-windows.yaml
+    needs: build-cross-platform
     with:
-      GO_VERSION: "v1.22.1"
-      NODE_VERSION: "20"
-      WAILS_VERSION: "v2.8.0"
-      BUILD_TYPE: "release"
-
-  # cosign-windows:
-  #   uses: ./.github/workflows/sign-windows-executables.yaml
-  #   needs: build-cross-platform
-  #   with:
-  #     artifact-name: release_bins
-  #     artifact-path: bins
-  #     endpoint: 'https://uksouth.codesigning.azure.net/'
-  #     trusted-signing-account-name: ${{ secrets.TRUSTED_SIGNING_ACCOUNT_NAME }}
-  #     certificate-profile-name: ${{ secrets.CERTIFICATE_PROFILE_NAME }}
-  #     files-folder: bins
-  #     files-folder-filter: 'exe,dll'
-  #     description: 'RocketBlend Desktop'
-  #     timestamp-rfc3161: 'http://timestamp.acs.microsoft.com'
-  #   secrets:
-  #     azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #     azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #     azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+      artifact-name: release_bins
+      artifact-path: bins
+      endpoint: 'https://uksouth.codesigning.azure.net/'
+      trusted-signing-account-name: ${{ secrets.TRUSTED_SIGNING_ACCOUNT_NAME }}
+      certificate-profile-name: ${{ secrets.CERTIFICATE_PROFILE_NAME }}
+      files-folder: bins
+      files-folder-filter: 'exe,dll'
+      description: 'RocketBlend Desktop'
+      timestamp-rfc3161: 'http://timestamp.acs.microsoft.com'
+    secrets:
+      azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
   prepare-release-notes:
     runs-on: ubuntu-latest
     needs:
-      - build-cross-platform
-      - build-darwin
-      # - cosign-windows
+      - ci
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -76,14 +72,16 @@ jobs:
         with:
           name: release_bins
           path: bins
-      # - name: Download Signed Windows Artifacts
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: release_bins_signed
-      #     path: bins_signed
-      # - name: Replace Unsigned Windows Executables with Signed Versions
-      #   run: |
-      #     cp -r bins_signed/* bins/
+      - name: Download Signed Windows Artifacts
+        if: ${{ github.event.inputs.cosign_windows == 'true' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: release_bins_signed
+          path: bins_signed
+      - name: Replace Unsigned Windows Executables with Signed Versions
+        if: ${{ github.event.inputs.cosign_windows == 'true' }}
+        run: |
+          cp -r bins_signed/* bins/
       - name: Upload Release Artifacts and Create Draft Release
         uses: softprops/action-gh-release@v1
         with:
