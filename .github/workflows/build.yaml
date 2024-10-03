@@ -4,22 +4,27 @@ on:
   workflow_call:
     inputs:
       base_image:
+        type: string
         description: 'Base Docker image for cross-platform builds'
         default: 'ghcr.io/rocketblend/cross-wails:v2.8.0'
         required: false
       go_version:
+        type: string
         description: 'Go version for Darwin builds'
         default: 'v1.22.1'
         required: false
       node_version:
+        type: string
         description: 'Node version for Darwin builds'
         default: '20'
         required: false
       wails_version:
+        type: string
         description: 'Wails version for Darwin builds'
         default: 'v2.8.0'
         required: false
       build_type:
+        type: string
         description: 'Build type (e.g., release or debug)'
         default: 'release'
         required: false
