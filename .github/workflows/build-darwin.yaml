@@ -86,6 +86,12 @@ jobs:
           BUILD_TIMESTAMP: ${{ steps.generateBuildTimestamp.outputs.BUILD_TIMESTAMP }}
           COMMIT_SHA: ${{ github.sha }}
           BUILD_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          AC_CERTIFICATE: ${{ secrets.AC_CERTIFICATE }}
+          AC_CERTIFICATE_PASSWORD: ${{ secrets.AC_CERTIFICATE_PASSWORD }}
+          AC_APPLE_ID: ${{ secrets.AC_APPLE_ID }}
+          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+          AC_TEAM_ID: ${{ secrets.AC_TEAM_ID }}
+          AC_DEVELOPER_ID: ${{ secrets.AC_DEVELOPER_ID }}
           CGO_ENABLED: 1
         run: |
           go run mage.go build $BUILD_TYPE $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK
