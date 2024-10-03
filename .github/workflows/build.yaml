@@ -29,10 +29,6 @@ on:
         default: 'release'
         required: false
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
   build-cross-platform:
     uses: ./.github/workflows/build-cross-platform.yaml

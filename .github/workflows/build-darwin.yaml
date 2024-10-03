@@ -27,6 +27,9 @@ jobs:
   build:
     runs-on: macos-latest
     timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: write
     outputs:
       releaseTag: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
 
