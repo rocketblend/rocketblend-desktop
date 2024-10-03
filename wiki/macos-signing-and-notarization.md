@@ -63,7 +63,7 @@ Once you've created and exported the Developer ID certificate, you need to add t
 | `AC_CERTIFICATE`           | Base64-encoded certificate (`cert_base64.txt` content).   |
 | `AC_CERTIFICATE_PASSWORD`  | Your `.p12` file password.                               |
 | `AC_APPLE_ID`              | Your Apple Developer email (e.g., `you@example.com`).     |
-| `AC_PASSWORD`              | App-specific password for your Apple ID.                 |
+| `AC_PASSWORD`              | App-specific password for your Apple ID. See how to create on [here](https://support.apple.com/en-us/102654). |
 | `AC_TEAM_ID`               | Your 10-character Apple Developer Team ID (e.g., `ABCD123456`). |
 | `AC_DEVELOPER_ID`          | Developer ID Application certificate name (e.g., `Developer ID Application: Your Name (TEAM_ID)`). |
 
