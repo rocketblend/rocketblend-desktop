@@ -72,6 +72,12 @@ jobs:
           echo "Found release tag: $RELEASE_TAG"
           echo "releaseTag=$RELEASE_TAG" >> $GITHUB_OUTPUT
 
+      - name: Import Code Signing Certificates
+        uses: apple-actions/import-codesign-certs@v3
+        with: 
+          p12-file-base64: ${{ secrets.AC_CERTIFICATE }}
+          p12-password: ${{ secrets.AC_CERTIFICATE_PASSWORD }}
+
       - name: Cache Node Modules
         uses: actions/cache@v4
         with:

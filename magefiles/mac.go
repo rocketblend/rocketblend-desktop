@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"os"
 
@@ -12,12 +11,10 @@ const BundleID = "io.rocketblend.rocketblend-desktop"
 
 // EnvironmentVariables holds the necessary environment variables for the macOS build process.
 type EnvironmentVariables struct {
-	Certificate         string
-	CertificatePassword string
-	DeveloperID         string
-	AppleID             string
-	Password            string
-	TeamID              string
+	DeveloperID string
+	AppleID     string
+	Password    string
+	TeamID      string
 }
 
 // buildMacOSApp builds the macOS universal version of the project and handles signing and notarization.
@@ -33,10 +30,6 @@ func buildMacOSApp(ldFlags, appName, appVersion string, releaseBuild bool) error
 
 	if releaseBuild {
 		appPath := fmt.Sprintf("./build/bin/%s.app", appName)
-
-		if err := importMacOSCertificate(env.Certificate, env.CertificatePassword); err != nil {
-			return fmt.Errorf("error importing certificate: %v", err)
-		}
 
 		if err := signMacOSFile(appPath, BundleID, env.DeveloperID, "./build/darwin/entitlements.plist"); err != nil {
 			return fmt.Errorf("error signing .app: %v", err)
@@ -68,15 +61,13 @@ func buildMacOSApp(ldFlags, appName, appVersion string, releaseBuild bool) error
 // getEnvVariables gathers and validates the necessary environment variables for the macOS build process.
 func getEnvVariables() (EnvironmentVariables, error) {
 	env := EnvironmentVariables{
-		Certificate:         os.Getenv("AC_CERTIFICATE"),
-		CertificatePassword: os.Getenv("AC_CERTIFICATE_PASSWORD"),
-		DeveloperID:         os.Getenv("AC_DEVELOPER_ID"),
-		AppleID:             os.Getenv("AC_APPLE_ID"),
-		Password:            os.Getenv("AC_PASSWORD"),
-		TeamID:              os.Getenv("AC_TEAM_ID"),
+		DeveloperID: os.Getenv("AC_DEVELOPER_ID"),
+		AppleID:     os.Getenv("AC_APPLE_ID"),
+		Password:    os.Getenv("AC_PASSWORD"),
+		TeamID:      os.Getenv("AC_TEAM_ID"),
 	}
 
-	if env.Certificate == "" || env.CertificatePassword == "" || env.DeveloperID == "" || env.AppleID == "" || env.Password == "" || env.TeamID == "" {
+	if env.DeveloperID == "" || env.AppleID == "" || env.Password == "" || env.TeamID == "" {
 		return env, fmt.Errorf("missing required environment variables")
 	}
 
@@ -87,30 +78,6 @@ func getEnvVariables() (EnvironmentVariables, error) {
 func buildMacOSWailsApp(ldFlags string) error {
 	fmt.Println("Building Wails app for macOS")
 	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal")
-}
-
-// importMacOSCertificate imports the certificate into the keychain for code signing.
-func importMacOSCertificate(cert, certPassword string) error {
-	certBytes, err := base64.StdEncoding.DecodeString(cert)
-	if err != nil {
-		return fmt.Errorf("error decoding base64 certificate: %v", err)
-	}
-
-	certFilePath := "./cert.p12"
-	if err := os.WriteFile(certFilePath, certBytes, 0600); err != nil {
-		return fmt.Errorf("error writing certificate to file: %v", err)
-	}
-	defer os.Remove(certFilePath)
-
-	if err := sh.Run("security", "unlock-keychain", "-p", certPassword, "login.keychain"); err != nil {
-		return fmt.Errorf("error unlocking keychain: %v", err)
-	}
-
-	if err := sh.Run("security", "import", certFilePath, "-P", certPassword, "-T", "/usr/bin/codesign"); err != nil {
-		return fmt.Errorf("error importing certificate: %v", err)
-	}
-
-	return sh.Run("security", "set-key-partition-list", "-S", "apple-tool:,apple:", "-s", "-k", certPassword, certFilePath)
 }
 
 // signMacOSFile signs any file (app, DMG, etc.) with the Developer ID Application certificate.
