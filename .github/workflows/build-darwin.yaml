@@ -97,7 +97,7 @@ jobs:
       - name: Upload Build Arifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release_bins
+          name: release_bins_darwin
           path: ./build/bin/*
           if-no-files-found: error
           retention-days: 1
