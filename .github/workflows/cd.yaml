@@ -93,7 +93,7 @@ publish:
     - name: Upload Release Artifacts and Create Draft Release
       uses: softprops/action-gh-release@v1
       with:
-        files: ./bins/**/*  # Upload all artifacts from both platforms
+        files: ./bins/**/*
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: ${{ github.ref_name }}
         name: ${{ github.ref_name }}
