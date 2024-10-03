@@ -1,4 +1,12 @@
 {
     "source": ["./build/bin/rocketblend-desktop.app"],
-    "bundle_id": "io.rocketblend.rocketblend-desktop"
+    "bundle_id": "io.rocketblend.rocketblend-desktop",
+    "apple_id": {
+        "username": "@env:AC_APPLE_ID",
+        "password": "@env:AC_PASSWORD",
+        "provider": "@env:AC_TEAM_ID"
+    },
+    "sign": {
+        "application_identity": "@env:AC_DEVELOPER_ID"
+    }
 }
