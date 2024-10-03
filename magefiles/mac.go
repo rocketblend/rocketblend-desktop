@@ -8,8 +8,25 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+const BundleID = "io.rocketblend.rocketblend-desktop"
+
+// EnvironmentVariables holds the necessary environment variables for the macOS build process.
+type EnvironmentVariables struct {
+	Certificate         string
+	CertificatePassword string
+	DeveloperID         string
+	AppleID             string
+	Password            string
+	TeamID              string
+}
+
 // buildMacOSApp builds the macOS universal version of the project and handles signing and notarization.
 func buildMacOSApp(ldFlags, appName, appVersion string, releaseBuild bool) error {
+	env, err := getEnvVariables()
+	if err != nil {
+		return err
+	}
+
 	if err := buildMacOSWailsApp(ldFlags); err != nil {
 		return fmt.Errorf("error building Wails app for macOS: %v", err)
 	}
@@ -17,11 +34,11 @@ func buildMacOSApp(ldFlags, appName, appVersion string, releaseBuild bool) error
 	if releaseBuild {
 		appPath := fmt.Sprintf("./build/bin/%s.app", appName)
 
-		if err := importMacOSCertificate(); err != nil {
+		if err := importMacOSCertificate(env.Certificate, env.CertificatePassword); err != nil {
 			return fmt.Errorf("error importing certificate: %v", err)
 		}
 
-		if err := signMacOSFile(appPath, appName); err != nil {
+		if err := signMacOSFile(appPath, BundleID, env.DeveloperID, "./build/darwin/entitlements.plist"); err != nil {
 			return fmt.Errorf("error signing .app: %v", err)
 		}
 
@@ -30,11 +47,11 @@ func buildMacOSApp(ldFlags, appName, appVersion string, releaseBuild bool) error
 			return err
 		}
 
-		if err := signMacOSFile(dmgOutputPath, appName); err != nil {
+		if err := signMacOSFile(dmgOutputPath, BundleID, env.DeveloperID, ""); err != nil {
 			return fmt.Errorf("error signing DMG: %v", err)
 		}
 
-		if err := notarizeMacOSDMG(dmgOutputPath); err != nil {
+		if err := notarizeMacOSDMG(dmgOutputPath, env.AppleID, env.Password, env.TeamID); err != nil {
 			return fmt.Errorf("error submitting DMG for notarization: %v", err)
 		}
 
@@ -48,6 +65,24 @@ func buildMacOSApp(ldFlags, appName, appVersion string, releaseBuild bool) error
 	return nil
 }
 
+// getEnvVariables gathers and validates the necessary environment variables for the macOS build process.
+func getEnvVariables() (EnvironmentVariables, error) {
+	env := EnvironmentVariables{
+		Certificate:         os.Getenv("AC_CERTIFICATE"),
+		CertificatePassword: os.Getenv("AC_CERTIFICATE_PASSWORD"),
+		DeveloperID:         os.Getenv("AC_DEVELOPER_ID"),
+		AppleID:             os.Getenv("AC_APPLE_ID"),
+		Password:            os.Getenv("AC_PASSWORD"),
+		TeamID:              os.Getenv("AC_TEAM_ID"),
+	}
+
+	if env.Certificate == "" || env.CertificatePassword == "" || env.DeveloperID == "" || env.AppleID == "" || env.Password == "" || env.TeamID == "" {
+		return env, fmt.Errorf("missing required environment variables")
+	}
+
+	return env, nil
+}
+
 // buildMacOSWailsApp compiles the Wails app for macOS with the given ldflags.
 func buildMacOSWailsApp(ldFlags string) error {
 	fmt.Println("Building Wails app for macOS")
@@ -55,14 +90,7 @@ func buildMacOSWailsApp(ldFlags string) error {
 }
 
 // importMacOSCertificate imports the certificate into the keychain for code signing.
-func importMacOSCertificate() error {
-	cert := os.Getenv("AC_CERTIFICATE")
-	certPassword := os.Getenv("AC_CERTIFICATE_PASSWORD")
-
-	if cert == "" || certPassword == "" {
-		return fmt.Errorf("missing required environment variables: AC_CERTIFICATE or AC_CERTIFICATE_PASSWORD")
-	}
-
+func importMacOSCertificate(cert, certPassword string) error {
 	certBytes, err := base64.StdEncoding.DecodeString(cert)
 	if err != nil {
 		return fmt.Errorf("error decoding base64 certificate: %v", err)
@@ -82,16 +110,16 @@ func importMacOSCertificate() error {
 }
 
 // signMacOSFile signs any file (app, DMG, etc.) with the Developer ID Application certificate.
-func signMacOSFile(filePath, appName string) error {
-	developerID := os.Getenv("AC_DEVELOPER_ID")
-	bundleID := fmt.Sprintf("io.rocketblend.%s", appName)
+func signMacOSFile(filePath, bundleID, developerID, entitlementsPath string) error {
+	fmt.Printf("Signing file: %s\n", filePath)
 
-	if developerID == "" {
-		return fmt.Errorf("missing required environment variable: AC_DEVELOPER_ID")
+	args := []string{"--deep", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
+	if entitlementsPath != "" {
+		args = append(args, "--entitlements", entitlementsPath)
 	}
 
-	fmt.Printf("Signing file: %s\n", filePath)
-	return sh.RunV("codesign", "--deep", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--entitlements", "./entitlements.plist", "--identifier", bundleID, filePath)
+	args = append(args, filePath)
+	return sh.RunV("codesign", args...)
 }
 
 // createMacOSDMG creates a DMG from the given .app bundle and sets the icon.
@@ -103,18 +131,28 @@ func createMacOSDMG(appPath, appName, appVersion string) (string, error) {
 		return "", fmt.Errorf("error building DMG for macOS: %v", err)
 	}
 
-	// Compile the Swift script for setting the DMG icon
 	if err := compileSetIconSwiftScript(); err != nil {
 		return "", fmt.Errorf("error compiling seticon Swift script: %v", err)
 	}
 
-	// Set the DMG icon using the compiled script
 	iconFilePath := fmt.Sprintf("./build/bin/%s.app/Contents/Resources/iconfile.icns", appName)
 	if err := setDMGIcons(iconFilePath, dmgOutputPath); err != nil {
 		return "", fmt.Errorf("error setting DMG icons: %v", err)
 	}
 
 	return dmgOutputPath, nil
+}
+
+// notarizeMacOSDMG submits the DMG for macOS notarization using credentials passed from environment variables.
+func notarizeMacOSDMG(dmgPath, appleID, password, teamID string) error {
+	fmt.Println("Submitting DMG for macOS notarization")
+	return sh.RunV("xcrun", "notarytool", "submit", dmgPath, "--wait", "--apple-id", appleID, "--password", password, "--team-id", teamID)
+}
+
+// stapleMacOSNotarization staples the notarization ticket to the macOS DMG.
+func stapleMacOSNotarization(dmgPath string) error {
+	fmt.Println("Stapling notarization ticket to macOS DMG")
+	return sh.RunV("xcrun", "stapler", "staple", dmgPath)
 }
 
 // compileSetIconSwiftScript compiles the seticon.swift script for macOS DMG.
@@ -124,7 +162,6 @@ func compileSetIconSwiftScript() error {
 		return fmt.Errorf("error compiling seticon for macOS DMG: %v", err)
 	}
 
-	// Ensure the compiled script is executable
 	if err := sh.Run("chmod", "+x", "./seticon"); err != nil {
 		return fmt.Errorf("error setting permissions on seticon: %v", err)
 	}
@@ -140,24 +177,4 @@ func setDMGIcons(iconFilePath, dmgOutputPath string) error {
 	}
 
 	return nil
-}
-
-// notarizeMacOSDMG submits the DMG for macOS notarization using credentials passed from environment variables.
-func notarizeMacOSDMG(dmgPath string) error {
-	appleID := os.Getenv("AC_APPLE_ID")
-	password := os.Getenv("AC_PASSWORD")
-	teamID := os.Getenv("AC_TEAM_ID")
-
-	if appleID == "" || password == "" || teamID == "" {
-		return fmt.Errorf("missing required environment variables: AC_APPLE_ID, AC_PASSWORD, or AC_TEAM_ID")
-	}
-
-	fmt.Println("Submitting DMG for macOS notarization")
-	return sh.RunV("xcrun", "notarytool", "submit", dmgPath, "--wait", "--apple-id", appleID, "--password", password, "--team-id", teamID)
-}
-
-// stapleMacOSNotarization staples the notarization ticket to the macOS DMG.
-func stapleMacOSNotarization(dmgPath string) error {
-	fmt.Println("Stapling notarization ticket to macOS DMG")
-	return sh.RunV("xcrun", "stapler", "staple", dmgPath)
 }
