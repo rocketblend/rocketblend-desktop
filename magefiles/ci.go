@@ -248,7 +248,7 @@ func buildDarwinUniversal(ldFlags, appVersion string, sign bool) error {
 
 	fmt.Println("Building DMG")
 	dmgOutputPath := fmt.Sprintf("./build/bin/rocketblend-desktop-darwin-universal-%s.dmg", appVersion)
-	if err := sh.RunV("create-dmg", "--window-size", "800", "300", "--no-internet-enable", "--hide-extension", "RocketBlend-Desktop.app", "--app-drop-link", "600", "40", dmgOutputPath, "./build/bin/RocketBlend-Desktop.app"); err != nil {
+	if err := sh.RunV("create-dmg", "--window-size", "800", "300", "--no-internet-enable", "--hide-extension", "rocketblend-desktop.app", "--app-drop-link", "600", "40", dmgOutputPath, "./build/bin/rocketblend-desktop.app"); err != nil {
 		return fmt.Errorf("error building DMG: %v", err)
 	}
 
@@ -262,7 +262,31 @@ func buildDarwinUniversal(ldFlags, appVersion string, sign bool) error {
 	}
 
 	fmt.Println("Setting DMG icons")
-	return sh.RunV("./seticon", "./build/bin/RocketBlend-Desktop.app/Contents/Resources/iconfile.icns", dmgOutputPath)
+	return sh.RunV("./seticon", "./build/bin/rocketblend-desktop.app/Contents/Resources/iconfile.icns", dmgOutputPath)
+}
+
+// importDarwinCodeSigningCertificates imports the code signing certificates into the keychain.
+func importDarwinCodeSigningCertificates(certBase64, password string) error {
+	if certBase64 == "" || password == "" {
+		return fmt.Errorf("missing required environment variables for code-signing")
+	}
+
+	certBytes, err := base64.StdEncoding.DecodeString(certBase64)
+	if err != nil {
+		return fmt.Errorf("error decoding base64 certificate: %v", err)
+	}
+
+	certFilePath := "./cert.p12"
+	if err := os.WriteFile(certFilePath, certBytes, 0600); err != nil {
+		return fmt.Errorf("error writing certificate to file: %v", err)
+	}
+	defer os.Remove(certFilePath)
+
+	if err := sh.Run("security", "import", certFilePath, "-P", password, "-T", "/usr/bin/codesign"); err != nil {
+		return fmt.Errorf("error importing certificate: %v", err)
+	}
+
+	return nil
 }
 
 // importDarwinCodeSigningCertificates imports the code signing certificates into the keychain.

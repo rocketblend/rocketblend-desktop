@@ -23,6 +23,8 @@
         <string>true</string>
         <key>NSHumanReadableCopyright</key>
         <string>{{.Info.Copyright}}</string>
+
+        <!-- File Associations -->
         {{if .Info.FileAssociations}}
         <key>CFBundleDocumentTypes</key>
         <array>
@@ -42,6 +44,8 @@
           {{end}}
         </array>
         {{end}}
+
+        <!-- URL Schemes -->
         {{if .Info.Protocols}}
         <key>CFBundleURLTypes</key>
         <array>
@@ -59,10 +63,26 @@
           {{end}}
         </array>
         {{end}}
+
+        <!-- App Transport Security -->
         <key>NSAppTransportSecurity</key>
         <dict>
             <key>NSAllowsLocalNetworking</key>
             <true/>
         </dict>
+
+        <!-- Privacy Usage Description Keys -->
+        <key>NSDocumentsFolderUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to your Documents folder to manage your Blender projects.</string>
+        <key>NSDesktopFolderUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to your Desktop folder to manage your Blender projects.</string>
+        <key>NSDownloadsFolderUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to your Downloads folder to import Blender projects and assets.</string>
+        <key>NSRemovableVolumesUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to external drives to manage Blender projects stored there.</string>
+        <key>NSNetworkVolumesUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to network volumes to collaborate on Blender projects with your team.</string>
+        <key>NSAppleEventsUsageDescription</key>
+        <string>{{.Info.ProductName}} needs to communicate with other applications to manage Blender processes and automate tasks.</string>
     </dict>
 </plist>

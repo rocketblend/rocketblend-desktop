@@ -9,9 +9,19 @@
 RocketBlend Desktop is an open-source desktop application for [RocketBlend](https://github.com/rocketblend/rocketblend), available on Windows, Mac, and Linux. Improve your [Blender](https://www.blender.org/) workflow by adding dependency management and enahanced project discoverability.
 
 > [!NOTE]  
-> **Important:** RocketBlend Desktop is currently under active development and still evolving. As such, expect significant changes, potential bugs, and incomplete features.
+> RocketBlend Desktop is currently under active development and still evolving. As such, expect significant changes, potential bugs, and incomplete features.
 
-![Image of RocketBlend desktop application](docs/assets/rocketblend-desktop-dev.png)
+https://github.com/user-attachments/assets/e9f28195-8ff1-4a1f-9a93-a3fe99d1acc6
+
+<details>
+  <summary>Screenshots</summary>
+
+  ![Image of RocketBlend desktop application](docs/assets/rocketblend-desktop-dev.png)
+</details>
+
+> [!WARNING]
+> The application is currently **not code-signed**, so your operating system may display a security warning upon opening.
+> For updates, check [Issue #96](https://github.com/rocketblend/rocketblend-desktop/issues/96).
 
 ## Features
 
@@ -23,6 +33,8 @@ RocketBlend Desktop is an open-source desktop application for [RocketBlend](http
 - **Network Storage and Team Collaboration**: Work seamlessly across shared network storage, enabling easy sharing across machines and team members. Configurations are stored in `.json` files alongside your `.blend` files, suitable for shared drives, cloud storage, or Git repositories.
 - **Lightweight and Flexible**: Use RocketBlend's [CLI](https://github.com/rocketblend/rocketblend) directly without needing the desktop UI. Ideal for professionals setting up render pipelines or server tasks, while the desktop application offers an intuitive interface for regular users.
 - **Visual Project Gallery**: Navigate and manage your work using the visual project gallery, supporting both images and videos.
+
+https://github.com/user-attachments/assets/18bfb929-78c3-4fc1-8aff-59507abaf9ff
 
 ## Development Requirements
 
