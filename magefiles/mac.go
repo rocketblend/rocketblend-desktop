@@ -102,20 +102,22 @@ func importMacOSCertificate(cert, certPassword string) error {
 	}
 	defer os.Remove(certFilePath)
 
+	if err := sh.Run("security", "unlock-keychain", "-p", certPassword, "login.keychain"); err != nil {
+		return fmt.Errorf("error unlocking keychain: %v", err)
+	}
+
 	if err := sh.Run("security", "import", certFilePath, "-P", certPassword, "-T", "/usr/bin/codesign"); err != nil {
 		return fmt.Errorf("error importing certificate: %v", err)
 	}
 
-	// return sh.Run("security", "set-key-partition-list", "-S", "apple-tool:,apple:", "-s", "-k", certPassword, certFilePath)
-
-	return nil
+	return sh.Run("security", "set-key-partition-list", "-S", "apple-tool:,apple:", "-s", "-k", certPassword, certFilePath)
 }
 
 // signMacOSFile signs any file (app, DMG, etc.) with the Developer ID Application certificate.
 func signMacOSFile(filePath, bundleID, developerID, entitlementsPath string) error {
 	fmt.Printf("Signing file: %s\n", filePath)
 
-	args := []string{"--verbose=4", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
+	args := []string{"--verbose", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
 	if entitlementsPath != "" {
 		args = append(args, "--entitlements", entitlementsPath)
 	}
