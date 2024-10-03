@@ -60,8 +60,6 @@ To build a redistributable, production mode package, use `wails build`.
 
 ### Code Signing (Github Action)
 
-
-
 #### Windows (Azure Trusted)
 
 See Azure.
