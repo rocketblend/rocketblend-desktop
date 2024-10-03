@@ -32,12 +32,14 @@ on:
 jobs:
   build-windows-linux:
     uses: ./.github/workflows/build-windows-linux.yaml
+    secrets: inherit
     with:
       BASE_IMAGE: ${{ inputs.base_image }}
       BUILD_TYPE: ${{ inputs.build_type }}
 
   build-darwin:
     uses: ./.github/workflows/build-darwin.yaml
+    secrets: inherit
     with:
       GO_VERSION: ${{ inputs.go_version }}
       NODE_VERSION: ${{ inputs.node_version }}

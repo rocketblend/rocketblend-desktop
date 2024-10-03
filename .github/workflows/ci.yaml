@@ -13,6 +13,7 @@ concurrency:
 jobs:
   build:
     uses: ./.github/workflows/build.yaml
+    secrets: inherit
     permissions:
       contents: read
       packages: write 

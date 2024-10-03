@@ -27,6 +27,7 @@ jobs:
   build:
     if: ${{ !github.event.pull_request.draft }}
     uses: ./.github/workflows/build.yaml
+    secrets: inherit
     permissions:
       contents: read
       packages: write 

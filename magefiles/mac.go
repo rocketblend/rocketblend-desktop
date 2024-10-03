@@ -49,12 +49,10 @@ func importAndSignMacOSCode() error {
 	cert := os.Getenv("AC_CERTIFICATE")
 	certPassword := os.Getenv("AC_CERTIFICATE_PASSWORD")
 
-	// Error if environment variables are missing
 	if cert == "" || certPassword == "" {
 		return fmt.Errorf("missing required environment variables: AC_CERTIFICATE or AC_CERTIFICATE_PASSWORD")
 	}
 
-	// Import code signing certificate and sign the app
 	if err := importMacOSCodeSigningCertificates(cert, certPassword); err != nil {
 		return fmt.Errorf("error importing code signing certificates: %v", err)
 	}
