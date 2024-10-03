@@ -24,7 +24,7 @@ on:
         value: ${{ jobs.Build.outputs.releaseTag }}
 
 jobs:
-  build:
+  build-darwin:
     runs-on: macos-latest
     timeout-minutes: 25
     permissions:

@@ -30,8 +30,8 @@ on:
         required: false
 
 jobs:
-  build-cross-platform:
-    uses: ./.github/workflows/build-cross-platform.yaml
+  build-windows-linux:
+    uses: ./.github/workflows/build-windows-linux.yaml
     with:
       BASE_IMAGE: ${{ inputs.base_image }}
       BUILD_TYPE: ${{ inputs.build_type }}

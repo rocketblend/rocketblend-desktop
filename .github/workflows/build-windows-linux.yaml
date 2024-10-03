@@ -1,4 +1,4 @@
-name: Build Cross Platform
+name: Build Windows Linux (Cross Compile)
 
 on:
   workflow_call:
@@ -16,7 +16,7 @@ on:
         value: ${{ jobs.Build.outputs.releaseTag }}
 
 jobs:
-  build:
+  build-windows-linux:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
