@@ -115,7 +115,7 @@ func importMacOSCertificate(cert, certPassword string) error {
 func signMacOSFile(filePath, bundleID, developerID, entitlementsPath string) error {
 	fmt.Printf("Signing file: %s\n", filePath)
 
-	args := []string{"--deep", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
+	args := []string{"--verbose=2", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
 	if entitlementsPath != "" {
 		args = append(args, "--entitlements", entitlementsPath)
 	}
