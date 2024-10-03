@@ -24,6 +24,9 @@ concurrency:
 jobs:
   build:
     uses: ./.github/workflows/build.yaml
+    permissions:
+      contents: read
+      packages: write 
 
   cosign-windows:
     if: ${{ github.event.inputs.cosign_windows == 'true' }}
