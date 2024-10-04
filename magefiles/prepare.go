@@ -10,7 +10,7 @@ func Prepare(version, timestamp, commitSha, link, buildtype string, notorize boo
 		return err
 	}
 
-	if err := Package("./build/bin/", cleannedVersion, "io.rocketblend.rocketblend-desktop", ".", "./build/darwin/entitlements.plist", notorize); err != nil {
+	if err := Package("./build/bin/rocketblend-desktop.app", cleannedVersion, "io.rocketblend.rocketblend-desktop", "./build/bin/", "./build/darwin/entitlements.plist", notorize); err != nil {
 		return err
 	}
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -15,20 +14,15 @@ func buildMacOS(name, version, timestamp, commitSha, link, buildType string) err
 	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal")
 }
 
-func packageMacOS(dir, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notorize bool) error {
-	appFilePath, err := findFileWithExt(dir, "app")
-	if err != nil {
+func packageMacOS(appPath, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notorize bool) error {
+	if err := signMacOSFile(appPath, developerID, bundleID, entitlementsPath); err != nil {
 		return err
 	}
 
-	if err := signMacOSFile(appFilePath, developerID, bundleID, entitlementsPath); err != nil {
-		return err
-	}
-
-	name := strings.TrimSuffix(filepath.Base(appFilePath), ".app")
+	name := strings.TrimSuffix(filepath.Base(appPath), ".app")
 	dmgOutputPath := filepath.Join(outputDir, fmt.Sprintf("%s-darwin-universal%s.dmg", name, formatVersion(version)))
 
-	if err := createMacOSDMG(appFilePath, dmgOutputPath); err != nil {
+	if err := createMacOSDMG(appPath, dmgOutputPath); err != nil {
 		return err
 	}
 
@@ -116,40 +110,4 @@ func formatVersion(version string) string {
 	}
 
 	return "-" + version
-}
-
-func findFileWithExt(dir, ext string) (string, error) {
-	absDir, err := filepath.Abs(dir)
-	if err != nil {
-		return "", fmt.Errorf("failed to get absolute path: %w", err)
-	}
-
-	fmt.Printf("Searching for %s file in directory: %s\n", ext, absDir)
-	if !strings.HasPrefix(ext, ".") {
-		ext = "." + ext
-	}
-
-	var foundFile string
-	err = filepath.Walk(absDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return fmt.Errorf("error accessing path %q: %w", path, err)
-		}
-
-		if !info.IsDir() && filepath.Ext(info.Name()) == ext {
-			foundFile = path
-			return filepath.SkipDir
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return "", err
-	}
-
-	if foundFile == "" {
-		return "", fmt.Errorf("no %s file found in directory: %s", ext, absDir)
-	}
-
-	return foundFile, nil
 }
