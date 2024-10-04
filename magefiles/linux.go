@@ -8,8 +8,8 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-func buildLinux(name, version, timestamp, commitSha, link, outputDir string, debug bool) error {
-	ldFlags := buildFlags(version, timestamp, commitSha, link, debug)
+func buildLinux(name, version, timestamp, commitSha, link, outputDir, buildtype string) error {
+	ldFlags := buildFlags(version, timestamp, commitSha, link, buildtype)
 	nativeArch := runtime.GOARCH
 	if err := buildLinuxTarget(name, version, ldFlags, outputDir, nativeArch, false); err != nil {
 		return fmt.Errorf("error building Linux %s: %s", nativeArch, err)

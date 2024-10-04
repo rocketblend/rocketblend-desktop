@@ -88,22 +88,34 @@ jobs:
           p12-file-base64: ${{ secrets.AC_CERTIFICATE }}
           p12-password: ${{ secrets.AC_CERTIFICATE_PASSWORD }}
 
-      - name: Build Wails Application
+      - name: Build Application
         env:
           RELEASE_TAG: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
           BUILD_TYPE: ${{ inputs.BUILD_TYPE }}
           BUILD_TIMESTAMP: ${{ steps.generateBuildTimestamp.outputs.BUILD_TIMESTAMP }}
           COMMIT_SHA: ${{ github.sha }}
           BUILD_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          AC_CERTIFICATE: ${{ secrets.AC_CERTIFICATE }}
-          AC_CERTIFICATE_PASSWORD: ${{ secrets.AC_CERTIFICATE_PASSWORD }}
-          AC_APPLE_ID: ${{ secrets.AC_APPLE_ID }}
-          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
-          AC_TEAM_ID: ${{ secrets.AC_TEAM_ID }}
-          AC_DEVELOPER_ID: ${{ secrets.AC_DEVELOPER_ID }}
           CGO_ENABLED: 1
         run: |
-          go run mage.go build $BUILD_TYPE $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK
+          go run mage.go build $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK . $BUILD_TYPE
+
+      # - name: Package Application
+      #   env:
+      #     RELEASE_TAG: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
+      #     BUILD_TYPE: ${{ inputs.BUILD_TYPE }}
+      #     BUILD_TIMESTAMP: ${{ steps.generateBuildTimestamp.outputs.BUILD_TIMESTAMP }}
+      #     COMMIT_SHA: ${{ github.sha }}
+      #     BUILD_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      #     AC_CERTIFICATE: ${{ secrets.AC_CERTIFICATE }}
+      #     AC_CERTIFICATE_PASSWORD: ${{ secrets.AC_CERTIFICATE_PASSWORD }}
+      #     AC_APPLE_ID: ${{ secrets.AC_APPLE_ID }}
+      #     AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+      #     AC_TEAM_ID: ${{ secrets.AC_TEAM_ID }}
+      #     AC_DEVELOPER_ID: ${{ secrets.AC_DEVELOPER_ID }}
+      #     CGO_ENABLED: 1
+      #   run: |
+      #     go run mage.go build $BUILD_TYPE $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK
+          
 
       - name: Upload Build Arifacts
         uses: actions/upload-artifact@v4

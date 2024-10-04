@@ -15,9 +15,9 @@ type (
 	}
 )
 
-func Package(appPath, version, bundleID, outputDir, entitlements string, notorize bool) error {
+func Package(path, version, bundleID, outputDir, entitlements string, notorize bool) error {
 	if runtime.GOOS != "darwin" {
-		return fmt.Errorf("unsupported OS/architecture: %s/%s", runtime.GOOS, runtime.GOARCH)
+		return nil
 	}
 
 	variables, err := getNotarizeVariables()
@@ -25,7 +25,7 @@ func Package(appPath, version, bundleID, outputDir, entitlements string, notoriz
 		return err
 	}
 
-	return packageMacOS(appPath, version, bundleID, outputDir, variables.DeveloperID, variables.AppleID, variables.Password, variables.TeamID, entitlements, notorize)
+	return packageMacOS(path, version, bundleID, outputDir, variables.DeveloperID, variables.AppleID, variables.Password, variables.TeamID, entitlements, notorize)
 }
 
 func getNotarizeVariables() (*NotarizeVariables, error) {

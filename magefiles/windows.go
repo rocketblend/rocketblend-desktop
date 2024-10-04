@@ -7,8 +7,8 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-func buildWindows(name, version, timestamp, commitSha, link, outputDir string, debug bool) error {
-	ldFlags := buildFlags(version, timestamp, commitSha, link, debug)
+func buildWindows(name, version, timestamp, commitSha, link, outputDir, buildType string) error {
+	ldFlags := buildFlags(version, timestamp, commitSha, link, buildType)
 	if err := buildWindowsAMD64(name, version, ldFlags, outputDir, true); err != nil {
 		return fmt.Errorf("error building Windows AMD64: %s", err)
 	}

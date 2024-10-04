@@ -47,29 +47,34 @@ type (
 )
 
 // configureWailsProject configures the Wails project config based on release information.
-func configureWailsProject(releaseVersion string) (*WailsConfig, error) {
-	nonTaggedReleaseVersion, taggedReleaseVersion, err := compileVersionRegex()
-	if err != nil {
-		return nil, err
-	}
-
-	nsisCompliantVersion, err := getNSISCompliantVersion(releaseVersion, nonTaggedReleaseVersion, taggedReleaseVersion)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Printf("NSIS compatible version: [%s]\n", nsisCompliantVersion)
-
+func configureWailsProject(version string) (*WailsConfig, error) {
 	wailsConfig, err := readAndParseWailsConfig("wails.json")
 	if err != nil {
 		return nil, err
 	}
 
-	wailsConfig.Info.ProductVersion = nsisCompliantVersion
+	wailsConfig.Info.ProductVersion = version
 	if err := writeWailsConfig("wails.json", wailsConfig); err != nil {
 		return nil, err
 	}
 
 	return wailsConfig, nil
+}
+
+// getCleannedVersion returns a NSIS-compliant version based on the given release version.
+func getCleannedVersion(releaseVersion string) (string, error) {
+	nonTaggedReleaseVersion, taggedReleaseVersion, err := compileVersionRegex()
+	if err != nil {
+		return "", fmt.Errorf("error compiling version regex: %w", err)
+	}
+
+	nsisCompliantVersion, err := getNSISCompliantVersion(releaseVersion, nonTaggedReleaseVersion, taggedReleaseVersion)
+	if err != nil {
+		return "", fmt.Errorf("error getting NSIS-compliant version: %w", err)
+	}
+
+	fmt.Printf("Cleanned version: [%s]\n", nsisCompliantVersion)
+	return nsisCompliantVersion, nil
 }
 
 // compileVersionRegex compiles and returns the version regex patterns.

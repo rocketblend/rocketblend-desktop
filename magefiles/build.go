@@ -5,7 +5,7 @@ import (
 	"runtime"
 )
 
-func Build(version, timestamp, commitSha, link, outputDir string, debug bool) error {
+func Build(version, timestamp, commitSha, link, outputDir, buildtype string) error {
 	config, err := configureWailsProject(version)
 	if err != nil {
 		return err
@@ -13,15 +13,15 @@ func Build(version, timestamp, commitSha, link, outputDir string, debug bool) er
 
 	switch runtime.GOOS {
 	case "linux", "windows":
-		if err := buildLinux(config.Name, version, timestamp, commitSha, link, outputDir, debug); err != nil {
+		if err := buildLinux(config.Name, version, timestamp, commitSha, link, outputDir, buildtype); err != nil {
 			return err
 		}
 
-		if err := buildWindows(config.Name, version, timestamp, commitSha, link, outputDir, debug); err != nil {
+		if err := buildWindows(config.Name, version, timestamp, commitSha, link, outputDir, buildtype); err != nil {
 			return err
 		}
 	case "darwin":
-		return buildMacOS(config.Name, version, timestamp, commitSha, link, outputDir, debug)
+		return buildMacOS(config.Name, version, timestamp, commitSha, link, outputDir, buildtype)
 	default:
 		return fmt.Errorf("unsupported OS/architecture: %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
@@ -29,11 +29,6 @@ func Build(version, timestamp, commitSha, link, outputDir string, debug bool) er
 	return nil
 }
 
-func buildFlags(version, timestamp, commitSha, link string, debug bool) string {
-	buildType := "release"
-	if debug {
-		buildType = "debug"
-	}
-
+func buildFlags(version, timestamp, commitSha, link, buildType string) string {
 	return fmt.Sprintf("-X 'main.BuildType=%s' -X 'main.Version=%s' -X 'main.BuildTimestamp=%s' -X 'main.CommitSha=%s' -X 'main.BuildLink=%s'", buildType, version, timestamp, commitSha, link)
 }
