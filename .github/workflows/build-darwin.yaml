@@ -30,7 +30,7 @@ on:
 jobs:
   build-darwin:
     runs-on: macos-latest
-    timeout-minutes: 35
+    timeout-minutes: 60 # Notizing can sometimes take a long time:/
     permissions:
       contents: read
       packages: write

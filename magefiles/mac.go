@@ -12,7 +12,7 @@ import (
 func buildMacOS(name, version, timestamp, commitSha, link, outputDir, buildType string) error {
 	fmt.Printf("Building macOS universal binary for %s\n", name)
 	ldFlags := buildFlags(version, timestamp, commitSha, link, buildType)
-	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal", "-o", filepath.Join(outputDir, fmt.Sprintf("%s.app", name)))
+	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal", "-o", outputDir)
 }
 
 func packageMacOS(path, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notorize bool) error {
