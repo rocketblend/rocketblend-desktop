@@ -18,6 +18,7 @@ func buildWindows(name, version, timestamp, commitSha, link, outputDir, buildTyp
 
 // buildWindowsAMD64 builds the Windows AMD64 version of the project.
 func buildWindowsAMD64(name, version, ldFlags, outputDir string, skipFrontend bool) error {
+	fmt.Printf("Building Windows AMD64 binary for %s\n", name)
 	outputFilePath := filepath.Join(outputDir, fmt.Sprintf("%s-windows-amd64-%s.exe", name, version))
 	skipBindingsFlag, skipFrontendFlag := "", ""
 	if skipFrontend {

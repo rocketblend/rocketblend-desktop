@@ -24,13 +24,14 @@ func buildLinux(name, version, timestamp, commitSha, link, outputDir, buildtype 
 }
 
 func buildLinuxTarget(name, version, ldFlags, outputDir, arch string, skipFrontend bool) error {
+	fmt.Printf("Building Linux %s binary for %s\n", arch, name)
 	outputFilePath := filepath.Join(outputDir, fmt.Sprintf("%s-linux-%s-%s", name, arch, version))
 	skipBindingsFlag, skipFrontendFlag := "", ""
 	if skipFrontend {
 		skipBindingsFlag, skipFrontendFlag = "-skipbindings", "-s"
 	}
 
-	cc, cxx := getCompiler(arch)
+	cc, cxx := getCompilerFlags(arch)
 	crossCompileFlags := map[string]string{
 		"GOOS":   "linux",
 		"GOARCH": arch,
@@ -49,8 +50,7 @@ func getOtherArch(currentArch string) string {
 	return "arm64"
 }
 
-// getCompiler returns the appropriate compiler based on the architecture.
-func getCompiler(arch string) (cc, cxx string) {
+func getCompilerFlags(arch string) (cc, cxx string) {
 	if arch == "arm64" {
 		return "aarch64-linux-gnu-gcc", "aarch64-linux-gnu-g++"
 	}

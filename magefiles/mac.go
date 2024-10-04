@@ -10,6 +10,7 @@ import (
 )
 
 func buildMacOS(name, version, timestamp, commitSha, link, outputDir, buildType string) error {
+	fmt.Printf("Building macOS universal binary for %s\n", name)
 	ldFlags := buildFlags(version, timestamp, commitSha, link, buildType)
 	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal", "-o", filepath.Join(outputDir, fmt.Sprintf("%s.app", name)))
 }
@@ -50,7 +51,6 @@ func packageMacOS(path, version, bundleID, outputDir, developerID, appleID, pass
 
 func signMacOSFile(filePath, developerID, bundleID, entitlementsPath string) error {
 	fmt.Printf("Signing file: %s with Developer ID: %s\n", filePath, developerID)
-
 	args := []string{"--verbose", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
 	if entitlementsPath != "" {
 		args = append(args, "--entitlements", entitlementsPath)
@@ -119,6 +119,7 @@ func formatVersion(version string) string {
 }
 
 func findFileWithExt(dir, ext string) (string, error) {
+	fmt.Printf("Searching for %s file in directory: %s\n", ext, dir)
 	if !strings.HasPrefix(ext, ".") {
 		ext = "." + ext
 	}
