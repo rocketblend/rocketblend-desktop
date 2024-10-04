@@ -72,17 +72,21 @@ jobs:
           echo "Found release tag: $RELEASE_TAG"
           echo "releaseTag=$RELEASE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Import Code Signing Certificates
-        uses: apple-actions/import-codesign-certs@v3
-        with: 
-          p12-file-base64: ${{ secrets.AC_CERTIFICATE }}
-          p12-password: ${{ secrets.AC_CERTIFICATE_PASSWORD }}
-
       - name: Cache Node Modules
         uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-${{ runner.arch }}-node_modules-${{ hashFiles('./frontend/package-lock.json') }}
           path: "./frontend/node_modules"
+
+      - name: Run Go Tests
+        run: |
+          go test -v ./...
+
+      - name: Import Code Signing Certificates
+        uses: apple-actions/import-codesign-certs@v3
+        with: 
+          p12-file-base64: ${{ secrets.AC_CERTIFICATE }}
+          p12-password: ${{ secrets.AC_CERTIFICATE_PASSWORD }}
 
       - name: Build Wails Application
         env:
@@ -100,10 +104,6 @@ jobs:
           CGO_ENABLED: 1
         run: |
           go run mage.go build $BUILD_TYPE $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK
-
-      - name: Run Go Tests
-        run: |
-          go test -v ./...
 
       - name: Upload Build Arifacts
         uses: actions/upload-artifact@v4
