@@ -2,123 +2,112 @@ package main
 
 import (
 	"fmt"
-	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/magefile/mage/sh"
 )
 
-const BundleID = "io.rocketblend.rocketblend-desktop"
-
-// EnvironmentVariables holds the necessary environment variables for the macOS build process.
-type EnvironmentVariables struct {
-	DeveloperID string
-	AppleID     string
-	Password    string
-	TeamID      string
+func buildMacOS(name, version, timestamp, commitSha, link, outputDir string, debug bool) error {
+	ldFlags := buildFlags(version, timestamp, commitSha, link, debug)
+	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal", "-o", filepath.Join(outputDir, fmt.Sprintf("%s.app", name)))
 }
 
-// buildMacOSApp builds the macOS universal version of the project and handles signing and notarization.
-func buildMacOSApp(ldFlags, appName, appVersion string, releaseBuild bool) error {
-	env, err := getEnvVariables()
-	if err != nil {
+func packageMacOS(appPath, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notorize bool) error {
+	name := strings.TrimSuffix(filepath.Base(appPath), ".app")
+	dmgOutputPath := filepath.Join(outputDir, fmt.Sprintf("%s-darwin-universal%s.dmg", name, formatVersion(version)))
+
+	if err := signMacOSFile(appPath, developerID, bundleID, entitlementsPath); err != nil {
 		return err
 	}
 
-	if err := buildMacOSWailsApp(ldFlags); err != nil {
-		return fmt.Errorf("error building Wails app for macOS: %v", err)
+	if err := createMacOSDMG(appPath, dmgOutputPath); err != nil {
+		return err
 	}
 
-	if releaseBuild {
-		appPath := fmt.Sprintf("./build/bin/%s.app", appName)
+	if err := signMacOSFile(dmgOutputPath, developerID, bundleID, ""); err != nil {
+		return err
+	}
 
-		if err := signMacOSFile(appPath, BundleID, env.DeveloperID, "./build/darwin/entitlements.plist"); err != nil {
-			return fmt.Errorf("error signing .app: %v", err)
-		}
-
-		dmgOutputPath, err := createMacOSDMG(appPath, appName, appVersion)
-		if err != nil {
+	if notorize {
+		if err := notarizeMacOSFile(dmgOutputPath, appleID, password, teamID); err != nil {
 			return err
 		}
 
-		if err := signMacOSFile(dmgOutputPath, BundleID, env.DeveloperID, ""); err != nil {
-			return fmt.Errorf("error signing DMG: %v", err)
+		if err := stapleNotarization(dmgOutputPath); err != nil {
+			return err
 		}
-
-		if err := notarizeMacOSDMG(dmgOutputPath, env.AppleID, env.Password, env.TeamID); err != nil {
-			return fmt.Errorf("error submitting DMG for notarization: %v", err)
-		}
-
-		if err := stapleMacOSNotarization(dmgOutputPath); err != nil {
-			return fmt.Errorf("error stapling notarization ticket: %v", err)
-		}
-	} else {
-		fmt.Println("Skipping signing and notarization for this build.")
 	}
 
 	return nil
 }
 
-func getEnvVariables() (EnvironmentVariables, error) {
-	env := EnvironmentVariables{
-		DeveloperID: os.Getenv("AC_DEVELOPER_ID"),
-		AppleID:     os.Getenv("AC_APPLE_ID"),
-		Password:    os.Getenv("AC_PASSWORD"),
-		TeamID:      os.Getenv("AC_TEAM_ID"),
+func signMacOSFile(filePath, developerID, bundleID, entitlementsPath string) error {
+	fmt.Printf("Signing file: %s with Developer ID: %s\n", filePath, developerID)
+
+	args := []string{"--verbose", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
+	if entitlementsPath != "" {
+		args = append(args, "--entitlements", entitlementsPath)
 	}
 
-	if env.DeveloperID == "" || env.AppleID == "" || env.Password == "" || env.TeamID == "" {
-		return env, fmt.Errorf("missing required environment variables")
-	}
-
-	return env, nil
+	args = append(args, filePath)
+	return sh.RunV("codesign", args...)
 }
 
-// // buildMacOSWailsApp compiles the Wails app for macOS with the given ldflags.
-// func buildMacOSWailsApp(ldFlags string) error {
-// 	fmt.Println("Building Wails app for macOS")
-// 	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal")
-// }
+func createMacOSDMG(appPath, dmgOutputPath string) error {
+	fmt.Printf("Building DMG for app at %s\n", dmgOutputPath)
+	if err := sh.RunV("create-dmg", "--window-size", "800", "300", "--no-internet-enable", "--hide-extension", filepath.Base(appPath), "--app-drop-link", "600", "40", dmgOutputPath, appPath); err != nil {
+		return fmt.Errorf("error building DMG for macOS: %v", err)
+	}
 
-// // signMacOSFile signs any file (app, DMG, etc.) with the Developer ID Application certificate.
-// func signMacOSFile(filePath, bundleID, developerID, entitlementsPath string) error {
-// 	fmt.Printf("Signing file: %s\n", filePath)
+	if err := compileSetIconSwiftScript(); err != nil {
+		return fmt.Errorf("error compiling seticon Swift script: %v", err)
+	}
 
-// 	args := []string{"--verbose", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
-// 	if entitlementsPath != "" {
-// 		args = append(args, "--entitlements", entitlementsPath)
-// 	}
+	iconFilePath := fmt.Sprintf("%s/Contents/Resources/iconfile.icns", appPath)
+	if err := setDMGIcons(iconFilePath, dmgOutputPath); err != nil {
+		return fmt.Errorf("error setting DMG icons: %v", err)
+	}
 
-// 	args = append(args, filePath)
-// 	return sh.RunV("codesign", args...)
-// }
+	return nil
+}
 
-// // createMacOSDMG creates a DMG from the given .app bundle and sets the icon.
-// func createMacOSDMG(appPath, appName, appVersion string) (string, error) {
-// 	dmgOutputPath := fmt.Sprintf("./build/bin/%s-darwin-universal-%s.dmg", appName, appVersion)
+func notarizeMacOSFile(filePath, appleID, password, teamID string) error {
+	fmt.Printf("Submitting file for notarization: %s\n", filePath)
+	return sh.RunV("xcrun", "notarytool", "submit", filePath, "--wait", "--apple-id", appleID, "--password", password, "--team-id", teamID)
+}
 
-// 	fmt.Println("Building DMG for macOS")
-// 	if err := sh.RunV("create-dmg", "--window-size", "800", "300", "--no-internet-enable", "--hide-extension", filepath.Base(appPath), "--app-drop-link", "600", "40", dmgOutputPath, appPath); err != nil {
-// 		return "", fmt.Errorf("error building DMG for macOS: %v", err)
-// 	}
+func stapleNotarization(filePath string) error {
+	fmt.Printf("Stapling notarization ticket to file: %s\n", filePath)
+	return sh.RunV("xcrun", "stapler", "staple", filePath)
+}
 
-// 	if err := compileSetIconSwiftScript(); err != nil {
-// 		return "", fmt.Errorf("error compiling seticon Swift script: %v", err)
-// 	}
+func compileSetIconSwiftScript() error {
+	fmt.Println("Compiling seticon.swift for macOS DMG")
+	if err := sh.Run("swiftc", "./build/darwin/seticon.swift"); err != nil {
+		return fmt.Errorf("error compiling seticon for macOS DMG: %v", err)
+	}
 
-// 	iconFilePath := fmt.Sprintf("./build/bin/%s.app/Contents/Resources/iconfile.icns", appName)
-// 	if err := setDMGIcons(iconFilePath, dmgOutputPath); err != nil {
-// 		return "", fmt.Errorf("error setting DMG icons: %v", err)
-// 	}
+	if err := sh.Run("chmod", "+x", "./seticon"); err != nil {
+		return fmt.Errorf("error setting permissions on seticon: %v", err)
+	}
 
-// 	return dmgOutputPath, nil
-// }
+	return nil
+}
 
-// // notarizeMacOSDMG submits the DMG for macOS notarization using credentials passed from environment variables.
-// func notarizeMacOSDMG(dmgPath, appleID, password, teamID string) error {
-// 	fmt.Println("Submitting DMG for macOS notarization")
-// 	return sh.RunV("xcrun", "notarytool", "submit", dmgPath, "--wait", "--apple-id", appleID, "--password", password, "--team-id", teamID)
-// }
+func setDMGIcons(iconFilePath, dmgOutputPath string) error {
+	fmt.Println("Setting icons for macOS DMG")
+	if err := sh.RunV("./seticon", iconFilePath, dmgOutputPath); err != nil {
+		return fmt.Errorf("error setting icons for macOS DMG: %v", err)
+	}
 
-// // stapleMacOSNotarization staples the notarization ticket to the macOS DMG.
-// func stapleMacOSNotarization(dmgPath string) error {
-// 	fmt.Println("Stapling notarization ticket to macOS DMG")
-// 	return sh.RunV("xcrun", "stapler", "staple", dmgPath)
-// }
+	return nil
+}
+
+func formatVersion(version string) string {
+	if version == "" {
+		return ""
+	}
+
+	return "-" + version
+}
