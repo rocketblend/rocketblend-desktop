@@ -119,13 +119,18 @@ func formatVersion(version string) string {
 }
 
 func findFileWithExt(dir, ext string) (string, error) {
-	fmt.Printf("Searching for %s file in directory: %s\n", ext, dir)
+	absDir, err := filepath.Abs(dir)
+	if err != nil {
+		return "", fmt.Errorf("failed to get absolute path: %w", err)
+	}
+
+	fmt.Printf("Searching for %s file in directory: %s\n", ext, absDir)
 	if !strings.HasPrefix(ext, ".") {
 		ext = "." + ext
 	}
 
 	var foundFile string
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(absDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("error accessing path %q: %w", path, err)
 		}
@@ -143,7 +148,7 @@ func findFileWithExt(dir, ext string) (string, error) {
 	}
 
 	if foundFile == "" {
-		return "", fmt.Errorf("no %s file found in directory: %s", ext, dir)
+		return "", fmt.Errorf("no %s file found in directory: %s", ext, absDir)
 	}
 
 	return foundFile, nil
