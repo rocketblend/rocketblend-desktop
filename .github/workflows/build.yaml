@@ -28,6 +28,10 @@ on:
         description: 'Build type (e.g., release or debug)'
         default: 'release'
         required: false
+      notorize:
+        type: boolean
+        description: "Whether to notorize the MacOS application (Darwin builds only)"
+        default: false
 
 jobs:
   build-windows-linux:
@@ -45,3 +49,4 @@ jobs:
       NODE_VERSION: ${{ inputs.node_version }}
       WAILS_VERSION: ${{ inputs.wails_version }}
       BUILD_TYPE: ${{ inputs.build_type }}
+      NOTORIZE: ${{ inputs.notorize }}
