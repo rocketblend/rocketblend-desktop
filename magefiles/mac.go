@@ -9,10 +9,10 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-func buildMacOS(name, version, timestamp, commitSha, link, outputDir, buildType string) error {
+func buildMacOS(name, version, timestamp, commitSha, link, buildType string) error {
 	fmt.Printf("Building macOS universal binary for %s\n", name)
 	ldFlags := buildFlags(version, timestamp, commitSha, link, buildType)
-	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal", "-o", outputDir)
+	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal")
 }
 
 func packageMacOS(path, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notorize bool) error {

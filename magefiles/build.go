@@ -21,7 +21,7 @@ func Build(version, timestamp, commitSha, link, outputDir, buildtype string) err
 			return err
 		}
 	case "darwin":
-		return buildMacOS(config.Name, version, timestamp, commitSha, link, outputDir, buildtype)
+		return buildMacOS(config.Name, version, timestamp, commitSha, link, buildtype)
 	default:
 		return fmt.Errorf("unsupported OS/architecture: %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
