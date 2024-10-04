@@ -82,10 +82,6 @@ jobs:
           key: ${{ runner.os }}-${{ runner.arch }}-node_modules-${{ hashFiles('./frontend/package-lock.json') }}
           path: "./frontend/node_modules"
 
-      - name: Run Go Tests
-        run: |
-          go test -v ./...
-
       - name: Import Code Signing Certificates
         uses: apple-actions/import-codesign-certs@v3
         with: 
@@ -109,6 +105,10 @@ jobs:
           CGO_ENABLED: 1
         run: |
           go run mage.go prepare $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK . $BUILD_TYPE $NOTORIZE
+
+      - name: Run Go Tests
+        run: |
+          go test -v ./...
 
       - name: Upload Build Arifacts
         uses: actions/upload-artifact@v4
