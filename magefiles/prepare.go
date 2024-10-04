@@ -1,5 +1,12 @@
 package main
 
+const (
+	appIdentifier    = "io.rocketblend.rocketblend-desktop"
+	appPath          = "./build/bin/rocketblend-desktop.app"
+	buildBinDir      = "./build/bin/"
+	entitlementsPath = "./build/darwin/entitlements.plist"
+)
+
 func Prepare(version, timestamp, commitSha, link, buildtype string, notorize bool) error {
 	cleannedVersion, err := getCleannedVersion(version)
 	if err != nil {
@@ -10,7 +17,7 @@ func Prepare(version, timestamp, commitSha, link, buildtype string, notorize boo
 		return err
 	}
 
-	if err := Package("./build/bin/rocketblend-desktop.app", cleannedVersion, "io.rocketblend.rocketblend-desktop", "./build/bin/", "./build/darwin/entitlements.plist", notorize); err != nil {
+	if err := Package(appPath, cleannedVersion, appIdentifier, buildBinDir, entitlementsPath, notorize); err != nil {
 		return err
 	}
 
