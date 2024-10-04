@@ -21,7 +21,7 @@ ARG BUILD_LINK=http://docker.local
 
 RUN go test -v ./...
 
-RUN go run mage.go full ${RELEASE_TAG} ${BUILD_TIMESTAMP} ${COMMIT_SHA} ${BUILD_LINK} ${OUTPUT_DIR} ${BUILD_TYPE} false
+RUN go run mage.go prepare ${RELEASE_TAG} ${BUILD_TIMESTAMP} ${COMMIT_SHA} ${BUILD_LINK} ${OUTPUT_DIR} ${BUILD_TYPE} false
 
 ENTRYPOINT [ "/bin/bash" ]
 

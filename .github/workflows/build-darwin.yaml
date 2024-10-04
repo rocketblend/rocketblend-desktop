@@ -108,7 +108,7 @@ jobs:
           AC_DEVELOPER_ID: ${{ secrets.AC_DEVELOPER_ID }}
           CGO_ENABLED: 1
         run: |
-          go run mage.go full $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK . $BUILD_TYPE $NOTORIZE
+          go run mage.go prepare $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK . $BUILD_TYPE $NOTORIZE
 
       - name: Upload Build Arifacts
         uses: actions/upload-artifact@v4

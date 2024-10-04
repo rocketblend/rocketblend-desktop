@@ -1,6 +1,6 @@
 package main
 
-func Full(version, timestamp, commitSha, link, outputDir, buildtype string, notorize bool) error {
+func Prepare(version, timestamp, commitSha, link, outputDir, buildtype string, notorize bool) error {
 	cleannedVersion, err := getCleannedVersion(version)
 	if err != nil {
 		return err
