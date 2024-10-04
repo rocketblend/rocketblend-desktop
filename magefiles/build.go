@@ -5,7 +5,7 @@ import (
 	"runtime"
 )
 
-func Build(version, timestamp, commitSha, link, outputDir, buildtype string) error {
+func Build(version, timestamp, commitSha, link, buildtype string) error {
 	config, err := configureWailsProject(version)
 	if err != nil {
 		return err
@@ -13,11 +13,11 @@ func Build(version, timestamp, commitSha, link, outputDir, buildtype string) err
 
 	switch runtime.GOOS {
 	case "linux", "windows":
-		if err := buildLinux(config.Name, version, timestamp, commitSha, link, outputDir, buildtype); err != nil {
+		if err := buildLinux(config.Name, version, timestamp, commitSha, link, buildtype); err != nil {
 			return err
 		}
 
-		if err := buildWindows(config.Name, version, timestamp, commitSha, link, outputDir, buildtype); err != nil {
+		if err := buildWindows(config.Name, version, timestamp, commitSha, link, buildtype); err != nil {
 			return err
 		}
 	case "darwin":

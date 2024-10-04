@@ -15,8 +15,8 @@ func buildMacOS(name, version, timestamp, commitSha, link, buildType string) err
 	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal")
 }
 
-func packageMacOS(path, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notorize bool) error {
-	appFilePath, err := findFileWithExt(path, "app")
+func packageMacOS(dir, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notorize bool) error {
+	appFilePath, err := findFileWithExt(dir, "app")
 	if err != nil {
 		return err
 	}

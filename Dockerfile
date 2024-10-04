@@ -12,14 +12,13 @@ RUN go mod download
 
 COPY . .
 
-ARG OUTPUT_DIR=./
 ARG BUILD_TYPE=debug
 ARG RELEASE_TAG=v0.0.0-0-g000000
 ARG BUILD_TIMESTAMP=NOW
 ARG COMMIT_SHA=docker
 ARG BUILD_LINK=http://docker.local
 
-RUN go run mage.go prepare ${RELEASE_TAG} ${BUILD_TIMESTAMP} ${COMMIT_SHA} ${BUILD_LINK} ${OUTPUT_DIR} ${BUILD_TYPE} false
+RUN go run mage.go prepare ${RELEASE_TAG} ${BUILD_TIMESTAMP} ${COMMIT_SHA} ${BUILD_LINK} ${BUILD_TYPE} false
 
 RUN go test -v ./...
 
