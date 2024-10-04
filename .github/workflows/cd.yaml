@@ -28,6 +28,8 @@ jobs:
     permissions:
       contents: read
       packages: write 
+    with:
+      notorize: true
 
   cosign-windows:
     if: ${{ github.event.inputs.cosign_windows == 'true' }}
