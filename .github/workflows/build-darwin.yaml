@@ -54,6 +54,7 @@ jobs:
           WAILS_VERSION: ${{ inputs.WAILS_VERSION }}
         run: |
           go install github.com/wailsapp/wails/v2/cmd/wails@$WAILS_VERSION
+          go install mvdan.cc/garble@latest
 
       - name: Setup Node
         uses: actions/setup-node@v4
