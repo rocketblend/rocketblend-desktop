@@ -19,14 +19,21 @@ on:
         type: string
         description: "Wails version to use, e.g. v2.7.0"
         required: true
+      NOTORIZE:
+        type: boolean
+        description: "Whether to notorize the application"
+        default: false
     outputs:
       ReleaseTag:
         value: ${{ jobs.Build.outputs.releaseTag }}
 
 jobs:
-  build:
+  build-darwin:
     runs-on: macos-latest
-    timeout-minutes: 25
+    timeout-minutes: 30 # Notizing can sometimes take a long time:/
+    permissions:
+      contents: read
+      packages: write
     outputs:
       releaseTag: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
 
@@ -38,7 +45,7 @@ jobs:
           lfs: true
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.GO_VERSION }}
 
@@ -49,14 +56,13 @@ jobs:
           go install github.com/wailsapp/wails/v2/cmd/wails@$WAILS_VERSION
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.NODE_VERSION }}
 
       - name: Install Dependencies
         run: |
           brew install create-dmg
-          brew install Bearer/tap/gon
 
       - name: Generate Build Timestamp ISO 8601
         id: generateBuildTimestamp
@@ -71,30 +77,43 @@ jobs:
           echo "releaseTag=$RELEASE_TAG" >> $GITHUB_OUTPUT
 
       - name: Cache Node Modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-${{ runner.arch }}-node_modules-${{ hashFiles('./frontend/package-lock.json') }}
           path: "./frontend/node_modules"
 
-      - name: Build Wails Application
+      - name: Import Code Signing Certificates
+        uses: apple-actions/import-codesign-certs@v3
+        with: 
+          p12-file-base64: ${{ secrets.AC_CERTIFICATE }}
+          p12-password: ${{ secrets.AC_CERTIFICATE_PASSWORD }}
+
+      - name: Build Application
         env:
           RELEASE_TAG: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
           BUILD_TYPE: ${{ inputs.BUILD_TYPE }}
           BUILD_TIMESTAMP: ${{ steps.generateBuildTimestamp.outputs.BUILD_TIMESTAMP }}
-          COMMIT_SHA: ${{ github.sha }}
           BUILD_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          NOTORIZE: ${{ inputs.NOTORIZE }}
+          AC_CERTIFICATE: ${{ secrets.AC_CERTIFICATE }}
+          AC_CERTIFICATE_PASSWORD: ${{ secrets.AC_CERTIFICATE_PASSWORD }}
+          AC_APPLE_ID: ${{ secrets.AC_APPLE_ID }}
+          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+          AC_TEAM_ID: ${{ secrets.AC_TEAM_ID }}
+          AC_DEVELOPER_ID: ${{ secrets.AC_DEVELOPER_ID }}
           CGO_ENABLED: 1
         run: |
-          go run mage.go build $BUILD_TYPE $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK
+          go run mage.go prepare $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK $BUILD_TYPE $NOTORIZE
 
       - name: Run Go Tests
         run: |
           go test -v ./...
 
       - name: Upload Build Arifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: release_bins
+          name: release_bins_darwin
           path: ./build/bin/*
           if-no-files-found: error
           retention-days: 1

@@ -58,6 +58,10 @@ If you want to develop in a browser and have access to your Go methods, there is
 
 To build a redistributable, production mode package, use `wails build`.
 
+## Wiki
+
+[Developer Documentation](wiki/index.md)
+
 ## See Also
 
 - [RocketBlend](https://github.com/rocketblend/rocketblend) - CLI tool that powers the build and addon management for blender.

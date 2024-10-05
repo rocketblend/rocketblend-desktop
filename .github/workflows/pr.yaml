@@ -24,23 +24,12 @@ jobs:
     permissions:
       pull-requests: write
 
-  build-cross-platform:
+  build:
     if: ${{ !github.event.pull_request.draft }}
-    uses: ./.github/workflows/build-cross-platform.yaml
+    uses: ./.github/workflows/build.yaml
+    secrets: inherit
     permissions:
       contents: read
-      packages: write
+      packages: write 
     with:
-      BASE_IMAGE: ghcr.io/rocketblend/cross-wails:v2.8.0
-      BUILD_TYPE: "debug"
-
-  build-darwin:
-    if: ${{ !github.event.pull_request.draft }}
-    uses: ./.github/workflows/build-darwin.yaml
-    permissions:
-      contents: read
-    with:
-      GO_VERSION: "v1.22.1"
-      NODE_VERSION: "20"
-      WAILS_VERSION: "v2.8.0"
-      BUILD_TYPE: "debug"
+      build_type: "debug"

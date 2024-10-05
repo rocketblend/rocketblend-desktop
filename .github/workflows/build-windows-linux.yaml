@@ -1,4 +1,4 @@
-name: Build Cross Platform
+name: Build Windows Linux (Cross Compile)
 
 on:
   workflow_call:
@@ -16,7 +16,7 @@ on:
         value: ${{ jobs.Build.outputs.releaseTag }}
 
 jobs:
-  build:
+  build-windows-linux:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -48,14 +48,14 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Wails Application
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         env:
           RELEASE_TAG: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
         with:
@@ -80,9 +80,9 @@ jobs:
           docker run --rm -v $(pwd)/build/bin:/artifacts rocketblend_desktop_builder
 
       - name: Upload Build Arifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: release_bins
+          name: release_bins_windows_linux
           path: ./build/bin/*
           if-no-files-found: error
           retention-days: 1
