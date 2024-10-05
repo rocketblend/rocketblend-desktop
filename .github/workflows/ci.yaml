@@ -16,4 +16,7 @@ jobs:
     secrets: inherit
     permissions:
       contents: read
-      packages: write 
+      packages: write
+    # Just for testing.
+    with:
+      notorize: true
