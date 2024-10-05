@@ -4,6 +4,8 @@ import (
 	"embed"
 	"fmt"
 	"os"
+
+	"github.com/rocketblend/rocketblend-desktop/internal/application"
 )
 
 // 'wails dev' should properly launch vite to serve the site
@@ -32,16 +34,14 @@ func main() {
 }
 
 func run(args []string) error {
-	fmt.Println("Version:", Version)
-
-	// app, err := application.New(application.ApplicationOpts{
-	// 	Assets:  assets,
-	// 	Version: Version,
-	// 	Args:    args,
-	// })
-	// if err != nil {
-	// 	return err
-	// }
+	app, err := application.New(application.ApplicationOpts{
+		Assets:  assets,
+		Version: Version,
+		Args:    args,
+	})
+	if err != nil {
+		return err
+	}
 
 	// if len(os.Args) > 1 {
 	// 	if err := app.Open(context.Background(), os.Args[1]); err == nil {
@@ -52,9 +52,9 @@ func run(args []string) error {
 	// 	// If we failed to launch a project directly, open with application.
 	// }
 
-	// if err := app.Execute(); err != nil {
-	// 	return err
-	// }
+	if err := app.Execute(); err != nil {
+		return err
+	}
 
 	return nil
 }
