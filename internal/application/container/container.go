@@ -16,7 +16,6 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/tracker"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
-	"github.com/rocketblend/rocketblend/pkg/container"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 	"github.com/rocketblend/rocketblend/pkg/validator"
 )
@@ -94,14 +93,14 @@ func New(opts ...Option) (*Container, error) {
 		opt(options)
 	}
 
-	rbContainer, err := container.New(
-		container.WithLogger(options.Logger),
-		container.WithValidator(options.Validator),
-		container.WithDevelopmentMode(options.Development),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create rocketblend container: %w", err)
-	}
+	// rbContainer, err := container.New(
+	// 	container.WithLogger(options.Logger),
+	// 	container.WithValidator(options.Validator),
+	// 	container.WithDevelopmentMode(options.Development),
+	// )
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to create rocketblend container: %w", err)
+	// }
 
 	applicationDir, err := setupApplicationDir(options.ApplicationName, options.Development)
 	if err != nil {
@@ -115,9 +114,9 @@ func New(opts ...Option) (*Container, error) {
 	})
 
 	return &Container{
-		logger:             options.Logger,
-		validator:          options.Validator,
-		rbContainer:        rbContainer,
+		logger:    options.Logger,
+		validator: options.Validator,
+		//rbContainer:        rbContainer,
 		applicationDir:     applicationDir,
 		watcherDebounce:    options.WatcherDebounce,
 		dispatcherHolder:   &holder[dispatcher.Dispatcher]{}, // TODO: Must be a better way to do all these.
