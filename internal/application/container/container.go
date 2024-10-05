@@ -17,6 +17,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/tracker"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
+	"github.com/rocketblend/rocketblend/pkg/container"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 	"github.com/rocketblend/rocketblend/pkg/validator"
 )
@@ -98,6 +99,10 @@ func New(opts ...Option) (*Container, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup application directory: %w", err)
 	}
+
+	// Checking if importing this package is causing the error.
+	test := container.Container{}
+	fmt.Println(test)
 
 	// rbContainer, err := container.New(
 	// 	container.WithLogger(options.Logger),
