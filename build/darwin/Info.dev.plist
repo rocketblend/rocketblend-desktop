@@ -70,5 +70,27 @@
             <key>NSAllowsLocalNetworking</key>
             <true/>
         </dict>
+
+        <!-- Privacy Usage Description Keys -->
+        <key>NSFileReadUsageDescription</key>
+        <string>{{.Info.ProductName}} needs permission to read user files.</string>
+
+        <key>NSFileWriteUsageDescription</key>
+        <string>{{.Info.ProductName}} needs permission to write to user files.</string>
+
+        <key>NSDownloadsFolderUsageDescription</key>
+        <string>T{{.Info.ProductName}} needs access to the Downloads folder to download files.</string>
+
+        <key>NSRemovableVolumesUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to external drives to manage Blender projects stored there.</string>
+
+        <key>NSNetworkVolumesUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to network volumes to collaborate on Blender projects with your team.</string>
+
+        <key>NSFileSystemUsageDescription</key>
+        <string>{{.Info.ProductName}} monitors file system events to notify the user of changes.</string>
+
+        <key>NSAppleEventsUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to send events to other applications for automation purposes.</string>
     </dict>
 </plist>
