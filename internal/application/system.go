@@ -13,6 +13,8 @@ import (
 )
 
 func (d *Driver) LongRunningRequestWithCancellation(cid uuid.UUID) error {
+	return nil
+
 	_, err := d.runWithCancellation(cid, func(ctx context.Context) (interface{}, error) {
 		// Simulate a long-running operation
 		for i := 0; i < 10; i++ {
@@ -70,6 +72,8 @@ func (d *Driver) shutdown(ctx context.Context) {
 
 // onDomReady is called when the DOM is ready
 func (d *Driver) onDomReady(ctx context.Context) {
+	return
+
 	d.logger.Debug("DOM is ready")
 
 	// Wait for main layout to be ready.

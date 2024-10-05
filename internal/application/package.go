@@ -47,6 +47,8 @@ type (
 )
 
 func (d *Driver) GetPackage(opts GetPackageOpts) (*GetPackageResult, error) {
+	return nil, nil
+
 	ctx := context.Background()
 
 	result, err := d.catalog.GetPackage(ctx, &types.GetPackageOpts{
@@ -63,6 +65,8 @@ func (d *Driver) GetPackage(opts GetPackageOpts) (*GetPackageResult, error) {
 }
 
 func (d *Driver) ListPackages(opts ListPackagesOpts) (*ListPackagesResult, error) {
+	return nil, nil
+
 	ctx := context.Background()
 
 	d.logger.Debug("finding all packages", map[string]interface{}{
@@ -106,6 +110,8 @@ func (d *Driver) AddPackage(opts AddPackageOpts) error {
 }
 
 func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult, error) {
+	return nil, nil
+
 	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
 		if err := d.catalog.AddPackageOperation(d.ctx, &types.AddPackageOperationOpts{
 			ID:          opts.ID,
@@ -158,6 +164,8 @@ func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult,
 }
 
 func (d *Driver) RefreshPackages() error {
+	return nil
+
 	if err := d.catalog.RefreshPackages(d.ctx); err != nil {
 		d.logger.Error("failed to refresh packages", map[string]interface{}{"error": err.Error()})
 		return err
@@ -167,6 +175,8 @@ func (d *Driver) RefreshPackages() error {
 }
 
 func (d *Driver) UninstallPackage(opts UninstallPackageOpts) error {
+	return nil
+
 	if err := d.catalog.UninstallPackage(d.ctx, &types.UninstallPackageOpts{
 		ID: opts.ID,
 	}); err != nil {

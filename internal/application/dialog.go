@@ -30,6 +30,8 @@ type (
 )
 
 func (d *Driver) OpenDirectoryDialog(opts OpenDialogOptions) (string, error) {
+	return "", nil
+
 	path, err := runtime.OpenDirectoryDialog(d.ctx, convertOpenDialogOptions(opts))
 	if err != nil {
 		return "", err
@@ -39,6 +41,8 @@ func (d *Driver) OpenDirectoryDialog(opts OpenDialogOptions) (string, error) {
 }
 
 func (d *Driver) OpenFileDialog(opts OpenDialogOptions) (string, error) {
+	return "", nil
+
 	path, err := runtime.OpenFileDialog(d.ctx, convertOpenDialogOptions(opts))
 	if err != nil {
 		return "", err
@@ -48,6 +52,8 @@ func (d *Driver) OpenFileDialog(opts OpenDialogOptions) (string, error) {
 }
 
 func (d *Driver) OpenExplorer(opts OpenExplorerOptions) error {
+	return nil
+
 	path, err := determinePath(opts.Path)
 	if err != nil {
 		return err

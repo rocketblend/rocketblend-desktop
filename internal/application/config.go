@@ -49,6 +49,8 @@ func (d *Driver) GetPreferences() (*Preferences, error) {
 }
 
 func (d *Driver) UpdatePreferences(opts UpdatePreferencesOpts) error {
+	return nil
+
 	config, err := d.configurator.Get()
 	if err != nil {
 		return err

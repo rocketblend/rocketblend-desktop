@@ -34,6 +34,8 @@ type (
 )
 
 func (d *Driver) ListMetrics(opts ListMetricsOpts) (*ListMetricsResult, error) {
+	return nil, nil
+
 	result, err := d.tracker.ListMetrics(d.ctx, &types.FilterMetricsOpts{
 		Domain:    opts.Domain,
 		Name:      opts.Name,
@@ -50,6 +52,8 @@ func (d *Driver) ListMetrics(opts ListMetricsOpts) (*ListMetricsResult, error) {
 }
 
 func (d *Driver) AggregateMetrics(opts AggregateMetricsOpts) (*AggregateMetricsResult, error) {
+	return nil, nil
+
 	result, err := d.tracker.AggregateMetrics(d.ctx, &types.FilterMetricsOpts{
 		Domain:    opts.Domain,
 		Name:      opts.Name,

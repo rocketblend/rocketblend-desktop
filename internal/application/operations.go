@@ -30,6 +30,8 @@ type (
 )
 
 func (d *Driver) GetOperation(opts GetOperationOpts) (*GetOperationResult, error) {
+	return nil, nil
+
 	operation, err := d.operator.Get(d.ctx, opts.ID)
 	if err != nil {
 		d.logger.Error("failed to get operation", map[string]interface{}{
@@ -45,6 +47,8 @@ func (d *Driver) GetOperation(opts GetOperationOpts) (*GetOperationResult, error
 }
 
 func (d *Driver) ListOperations() (*ListOperationsResult, error) {
+	return nil, nil
+
 	operations, err := d.operator.List(d.ctx)
 	if err != nil {
 		d.logger.Error("failed to list operations", map[string]interface{}{
@@ -59,6 +63,8 @@ func (d *Driver) ListOperations() (*ListOperationsResult, error) {
 }
 
 func (d *Driver) CancelOperation(opts CancelOperationOpts) error {
+	return nil
+
 	if err := d.operator.Cancel(opts.ID); err != nil {
 		d.logger.Error("failed to cancel operation", map[string]interface{}{
 			"error": err.Error(),
@@ -71,6 +77,8 @@ func (d *Driver) CancelOperation(opts CancelOperationOpts) error {
 }
 
 func (d *Driver) LongRunningOperation() (uuid.UUID, error) {
+	return uuid.Nil, nil
+
 	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
 		// Simulate a long-running operation
 		for i := 0; i < 10; i++ {

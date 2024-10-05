@@ -67,6 +67,8 @@ type (
 )
 
 func (d *Driver) GetProject(opts GetPackageOpts) (*GetProjectResult, error) {
+	return nil, nil
+
 	ctx := context.Background()
 
 	project, err := d.portfolio.GetProject(ctx, &types.GetProjectOpts{
@@ -83,6 +85,8 @@ func (d *Driver) GetProject(opts GetPackageOpts) (*GetProjectResult, error) {
 }
 
 func (d *Driver) ListProjects(opts ListProjectsOpts) (*ListProjectsResult, error) {
+	return nil, nil
+
 	ctx := context.Background()
 
 	response, err := d.portfolio.ListProjects(ctx, listoption.WithQuery(opts.Query))
@@ -104,6 +108,8 @@ func (d *Driver) ListProjects(opts ListProjectsOpts) (*ListProjectsResult, error
 }
 
 func (d *Driver) CreateProject(opts CreateProjectOpts) (*CreateProjectResult, error) {
+	return nil, nil
+
 	projectPath, err := d.getProjectPath()
 	if err != nil {
 		return nil, err
@@ -147,6 +153,8 @@ func (d *Driver) CreateProject(opts CreateProjectOpts) (*CreateProjectResult, er
 }
 
 func (d *Driver) AddProjectPackage(opts AddProjectPackageOpts) error {
+	return nil
+
 	if err := d.portfolio.AddProjectPackage(d.ctx, &types.AddProjectPackageOpts{
 		ID:        opts.ID,
 		Reference: opts.Reference,
@@ -168,6 +176,8 @@ func (d *Driver) AddProjectPackage(opts AddProjectPackageOpts) error {
 }
 
 func (d *Driver) RemoveProjectPackage(opts RemoveProjectPackageOpts) error {
+	return nil
+
 	if err := d.portfolio.RemoveProjectPackage(d.ctx, &types.RemoveProjectPackageOpts{
 		ID:        opts.ID,
 		Reference: opts.Reference,
@@ -190,6 +200,8 @@ func (d *Driver) RemoveProjectPackage(opts RemoveProjectPackageOpts) error {
 
 // UpdateProject updates a project
 func (d *Driver) UpdateProject(opts UpdateProjectOpts) error {
+	return nil
+
 	if err := d.portfolio.UpdateProject(d.ctx, &types.UpdateProjectOpts{
 		ID:   opts.ID,
 		Name: opts.Name,
@@ -210,11 +222,15 @@ func (d *Driver) UpdateProject(opts UpdateProjectOpts) error {
 }
 
 func (d *Driver) DeleteProject(opts DeleteProjectOpts) error {
+	return nil
+
 	d.logger.Debug("deleting project", map[string]interface{}{"id": opts.ID})
 	return types.ErrNotImplement
 }
 
 func (d *Driver) RunProject(opts RunProjectOpts) error {
+	return nil
+
 	ctx := context.Background()
 
 	if err := d.portfolio.RunProject(ctx, &types.RunProjectOpts{
@@ -235,6 +251,8 @@ func (d *Driver) RunProject(opts RunProjectOpts) error {
 }
 
 func (d *Driver) RenderProject(opts RenderProjectOpts) error {
+	return nil
+
 	d.logger.Debug("project rendered", map[string]interface{}{"id": opts.ID})
 	return types.ErrNotImplement
 }
