@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/container"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend/pkg/runtime"
 	"github.com/wailsapp/wails/v2"
@@ -67,13 +68,15 @@ func New(opts ApplicationOpts) (*Application, error) {
 		return nil, fmt.Errorf("unsupported platform")
 	}
 
-	// container, err := container.New(
-	// 	container.WithLogger(logger),
-	// 	container.WithDevelopmentMode(development),
-	// )
-	// if err != nil {
-	// 	return nil, err
-	// }
+	container, err := container.New(
+	// container.WithLogger(logger),
+	// container.WithDevelopmentMode(development),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("container created!", container)
 
 	// handler, err := fileserver.New(
 	// 	fileserver.WithContainer(container),
