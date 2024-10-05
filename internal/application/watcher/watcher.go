@@ -123,6 +123,9 @@ func (s *service) SetPaths(newPaths ...string) error {
 }
 
 func (s *service) setPaths(paths ...string) error {
+	// Disable to test is mac is flagging.
+	return nil
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

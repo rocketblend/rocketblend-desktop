@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/container"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/fileserver"
 	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
 	"github.com/rocketblend/rocketblend-desktop/internal/eventwriter"
 	"github.com/rocketblend/rocketblend/pkg/runtime"
@@ -86,12 +85,12 @@ func New(opts ApplicationOpts) (*Application, error) {
 		return nil, err
 	}
 
-	handler, err := fileserver.New(
-		fileserver.WithContainer(container),
-	)
-	if err != nil {
-		return nil, err
-	}
+	// handler, err := fileserver.New(
+	// 	fileserver.WithContainer(container),
+	// )
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	driver, err := NewDriver(
 		WithContainer(container),
@@ -121,7 +120,7 @@ func New(opts ApplicationOpts) (*Application, error) {
 		driver:      driver,
 		rocketblend: rocketblend,
 		blender:     blender,
-		handler:     handler,
+		//handler:     handler,
 	}, nil
 }
 
@@ -137,8 +136,8 @@ func (a *Application) Execute() error {
 		Width:  1400,
 		Height: 800,
 		AssetServer: &assetserver.Options{
-			Assets:  a.assets,
-			Handler: a.handler,
+			Assets: a.assets,
+			// Handler: a.handler,
 		},
 		Windows: &windows.Options{},
 		Linux: &linux.Options{
@@ -158,10 +157,10 @@ func (a *Application) Execute() error {
 				}
 			},
 		},
-		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId:               a.id.String(),
-			OnSecondInstanceLaunch: a.driver.onSecondInstanceLaunch,
-		},
+		// SingleInstanceLock: &options.SingleInstanceLock{
+		// 	UniqueId:               a.id.String(),
+		// 	OnSecondInstanceLaunch: a.driver.onSecondInstanceLaunch,
+		// },
 		EnumBind: []interface{}{
 			enums.PackageStates,
 			enums.PackageTypes,

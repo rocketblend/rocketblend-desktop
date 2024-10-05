@@ -45,7 +45,7 @@ func packageMacOS(appPath, version, bundleID, outputDir, developerID, appleID, p
 
 func signMacOSFile(filePath, developerID, bundleID, entitlementsPath string) error {
 	fmt.Printf("Signing file: %s with Developer ID: %s\n", filePath, developerID)
-	args := []string{"--verbose", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
+	args := []string{"--verbose", "--deep", "--force", "--options", "runtime", "--sign", developerID, "--timestamp", "--identifier", bundleID}
 	if entitlementsPath != "" {
 		args = append(args, "--entitlements", entitlementsPath)
 	}
