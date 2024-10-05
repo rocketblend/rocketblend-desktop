@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sync"
 	"time"
 
@@ -16,7 +17,6 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/tracker"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
-	"github.com/rocketblend/rocketblend/pkg/container"
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 	"github.com/rocketblend/rocketblend/pkg/validator"
 )
@@ -94,20 +94,19 @@ func New(opts ...Option) (*Container, error) {
 		opt(options)
 	}
 
-	rbContainer, err := container.New(
-		container.WithLogger(options.Logger),
-		container.WithValidator(options.Validator),
-		container.WithDevelopmentMode(options.Development),
-		container.WithApplicationName(options.ApplicationName),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create rocketblend container: %w", err)
-	}
-
 	applicationDir, err := setupApplicationDir(options.ApplicationName, options.Development)
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup application directory: %w", err)
 	}
+
+	// rbContainer, err := container.New(
+	// 	container.WithLogger(options.Logger),
+	// 	container.WithValidator(options.Validator),
+	// 	container.WithDevelopmentMode(options.Development),
+	// )
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to create rocketblend container: %w", err)
+	// }
 
 	options.Logger.Debug("initializing application container", map[string]interface{}{
 		"path":        applicationDir,
@@ -116,9 +115,9 @@ func New(opts ...Option) (*Container, error) {
 	})
 
 	return &Container{
-		logger:             options.Logger,
-		validator:          options.Validator,
-		rbContainer:        rbContainer,
+		logger:    options.Logger,
+		validator: options.Validator,
+		//rbContainer:        rbContainer,
 		applicationDir:     applicationDir,
 		watcherDebounce:    options.WatcherDebounce,
 		dispatcherHolder:   &holder[dispatcher.Dispatcher]{}, // TODO: Must be a better way to do all these.
@@ -135,6 +134,13 @@ func setupApplicationDir(name string, development bool) (string, error) {
 	userConfigDir, err := os.UserConfigDir()
 	if err != nil {
 		return "", fmt.Errorf("cannot find config directory: %v", err)
+	}
+
+	// On macOS, we have to use a shared directory for all rocketblend applications.
+	// This is because macOS does not allow applications to modify files in two
+	// different application support directories.
+	if runtime.GOOS == "darwin" {
+		userConfigDir = filepath.Join(userConfigDir, rbtypes.ApplicationName)
 	}
 
 	appDir := filepath.Join(userConfigDir, name)
