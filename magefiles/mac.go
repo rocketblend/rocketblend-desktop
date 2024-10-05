@@ -11,7 +11,8 @@ import (
 func buildMacOS(name, version, timestamp, commitSha, link, buildType string) error {
 	fmt.Printf("Building macOS universal binary for %s\n", name)
 	ldFlags := buildFlags(version, timestamp, commitSha, link, buildType)
-	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal", "-obfuscated")
+	grableArgs := "-literals -tiny -seed=myrandomseed"
+	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal", "-obfuscated", "-garbleargs", grableArgs)
 }
 
 func packageMacOS(appPath, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notorize bool) error {
