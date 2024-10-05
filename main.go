@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"embed"
 	"fmt"
 	"os"
@@ -44,14 +43,14 @@ func run(args []string) error {
 		return err
 	}
 
-	if len(os.Args) > 1 {
-		if err := app.Open(context.Background(), os.Args[1]); err == nil {
-			// If we successfully launched a project, we're done.
-			return nil
-		}
+	// if len(os.Args) > 1 {
+	// 	if err := app.Open(context.Background(), os.Args[1]); err == nil {
+	// 		// If we successfully launched a project, we're done.
+	// 		return nil
+	// 	}
 
-		// If we failed to launch a project directly, open with application.
-	}
+	// 	// If we failed to launch a project directly, open with application.
+	// }
 
 	if err := app.Execute(); err != nil {
 		return err
