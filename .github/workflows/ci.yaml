@@ -17,6 +17,3 @@ jobs:
     permissions:
       contents: read
       packages: write
-    # Just for testing.
-    with:
-      notorize: true
