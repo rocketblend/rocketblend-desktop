@@ -17,3 +17,5 @@ jobs:
     permissions:
       contents: read
       packages: write
+    with:
+      notorize: true
