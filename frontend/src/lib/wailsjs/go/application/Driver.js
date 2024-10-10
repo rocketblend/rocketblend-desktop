@@ -106,6 +106,10 @@ export function RunProject(arg1) {
   return window['go']['application']['Driver']['RunProject'](arg1);
 }
 
+export function SaveFileDialog(arg1) {
+  return window['go']['application']['Driver']['SaveFileDialog'](arg1);
+}
+
 export function UninstallPackage(arg1) {
   return window['go']['application']['Driver']['UninstallPackage'](arg1);
 }
