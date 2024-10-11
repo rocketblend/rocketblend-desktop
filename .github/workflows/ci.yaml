@@ -5,6 +5,12 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      notarize:
+        type: boolean
+        description: "Enable notarization"
+        required: false
+        default: false
 
 concurrency:
   group: rocketblend-desktop-ci
@@ -18,4 +24,4 @@ jobs:
       contents: read
       packages: write
     with:
-      notorize: true
+      notarize: ${{ github.event.inputs.notarize }}
