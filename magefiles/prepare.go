@@ -7,7 +7,7 @@ const (
 	entitlementsPath = "./build/darwin/entitlements.plist"
 )
 
-func Prepare(version, timestamp, commitSha, link, buildtype string, notorize bool) error {
+func Prepare(version, timestamp, commitSha, link, buildtype string, notarize bool) error {
 	cleannedVersion, err := getCleannedVersion(version)
 	if err != nil {
 		return err
@@ -17,7 +17,7 @@ func Prepare(version, timestamp, commitSha, link, buildtype string, notorize boo
 		return err
 	}
 
-	if err := Package(appPath, cleannedVersion, appIdentifier, buildBinDir, entitlementsPath, notorize); err != nil {
+	if err := Package(appPath, cleannedVersion, appIdentifier, buildBinDir, entitlementsPath, notarize); err != nil {
 		return err
 	}
 

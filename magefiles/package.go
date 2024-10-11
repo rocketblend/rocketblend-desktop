@@ -15,7 +15,7 @@ type (
 	}
 )
 
-func Package(path, version, bundleID, outputDir, entitlements string, notorize bool) error {
+func Package(path, version, bundleID, outputDir, entitlements string, notarize bool) error {
 	if runtime.GOOS != "darwin" {
 		return nil
 	}
@@ -25,7 +25,7 @@ func Package(path, version, bundleID, outputDir, entitlements string, notorize b
 		return err
 	}
 
-	return packageMacOS(path, version, bundleID, outputDir, variables.DeveloperID, variables.AppleID, variables.Password, variables.TeamID, entitlements, notorize)
+	return packageMacOS(path, version, bundleID, outputDir, variables.DeveloperID, variables.AppleID, variables.Password, variables.TeamID, entitlements, notarize)
 }
 
 func getNotarizeVariables() (*NotarizeVariables, error) {

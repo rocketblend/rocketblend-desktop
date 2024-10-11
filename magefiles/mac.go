@@ -14,7 +14,7 @@ func buildMacOS(name, version, timestamp, commitSha, link, buildType string) err
 	return sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", "darwin/universal")
 }
 
-func packageMacOS(appPath, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notorize bool) error {
+func packageMacOS(appPath, version, bundleID, outputDir, developerID, appleID, password, teamID, entitlementsPath string, notarize bool) error {
 	if err := signMacOSFile(appPath, developerID, bundleID, entitlementsPath); err != nil {
 		return err
 	}
@@ -30,7 +30,7 @@ func packageMacOS(appPath, version, bundleID, outputDir, developerID, appleID, p
 		return err
 	}
 
-	if notorize {
+	if notarize {
 		if err := notarizeMacOSFile(dmgOutputPath, appleID, password, teamID); err != nil {
 			return err
 		}

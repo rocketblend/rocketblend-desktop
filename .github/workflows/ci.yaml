@@ -24,4 +24,4 @@ jobs:
       contents: read
       packages: write
     with:
-      notarize: ${{ github.event.inputs.notarize != 'false' }}
+      notarize: ${{ github.event.inputs.notarize}}
