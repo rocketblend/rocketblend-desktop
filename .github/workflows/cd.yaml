@@ -8,7 +8,7 @@ on:
     inputs:
         dry:
           type: boolean
-          description: "Will do everything except publish a release"
+          description: "Dry run release (Will not publish)"
           required: false
           default: true
         # cosign_windows:
