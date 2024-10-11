@@ -2,7 +2,7 @@ ARG BASE_IMAGE=ghcr.io/rocketblend/cross-wails:v2.8.0
 
 FROM ${BASE_IMAGE} as builder
 
-# RUN apt-get install -y osslsigncode
+RUN go install mvdan.cc/garble@latest
 
 WORKDIR /usr/src/app
 
