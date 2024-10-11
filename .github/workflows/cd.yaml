@@ -78,27 +78,27 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Download Darwin Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: release_bins_darwin
           path: bins/darwin
       - name: Download Windows/Linux Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: release_bins_windows_linux
           path: bins/windows_linux
-      - name: Download Signed Windows Artifacts
-        if: ${{ github.event.inputs.cosign_windows == 'true' }}
-        uses: actions/download-artifact@v3
-        with:
-          name: release_bins_signed
-          path: bins_signed
-      - name: Replace Unsigned Windows Executables with Signed Versions
-        if: ${{ github.event.inputs.cosign_windows == 'true' }}
-        run: |
-          cp -r bins_signed/* bins/windows_linux/
+      # - name: Download Signed Windows Artifacts
+      #   if: ${{ github.event.inputs.cosign_windows == 'true' }}
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: release_bins_signed
+      #     path: bins_signed
+      # - name: Replace Unsigned Windows Executables with Signed Versions
+      #   if: ${{ github.event.inputs.cosign_windows == 'true' }}
+      #   run: |
+      #     cp -r bins_signed/* bins/windows_linux/
       - name: Upload Release Artifacts and Create Draft Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: ./bins/**/*
           token: ${{ secrets.GITHUB_TOKEN }}
