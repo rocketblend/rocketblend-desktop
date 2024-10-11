@@ -20,8 +20,7 @@ https://github.com/user-attachments/assets/e9f28195-8ff1-4a1f-9a93-a3fe99d1acc6
 </details>
 
 > [!WARNING]
-> The application is currently **not code-signed**, so your operating system may display a security warning upon opening.
-> For updates, check [Issue #96](https://github.com/rocketblend/rocketblend-desktop/issues/96).
+> The application is currently **not code-signed** on Windows and Linux, so may display a security warning upon opening.
 
 ## Features
 
