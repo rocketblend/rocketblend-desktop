@@ -42,13 +42,6 @@ on:
         required: false
         type: string
         default: 'http://timestamp.acs.microsoft.com'
-    secrets:
-      azure-tenant-id:
-        required: true
-      azure-client-id:
-        required: true
-      azure-client-secret:
-        required: true
 
 jobs:
   sign-windows-executables:
@@ -63,7 +56,7 @@ jobs:
       - name: Sign Windows Executables
         uses: azure/trusted-signing-action@v0.4.0
         with:
-          azure-tenant-id: ${{ secrets.azure-tenant-id }}
+          azure-tenant-id: ${{ secrets.azure-tenant-id }} # Move these to inputs
           azure-client-id: ${{ secrets.azure-client-id }}
           azure-client-secret: ${{ secrets.azure-client-secret }}
           endpoint: ${{ inputs.endpoint }}
