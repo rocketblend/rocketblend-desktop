@@ -13,11 +13,11 @@ func Prepare(version, timestamp, commitSha, link, buildtype string, notarize boo
 		return err
 	}
 
-	if err := Build(cleannedVersion, timestamp, commitSha, link, buildtype); err != nil {
+	if err := build(cleannedVersion, timestamp, commitSha, link, buildtype, notarize); err != nil {
 		return err
 	}
 
-	if err := Package(appPath, cleannedVersion, appIdentifier, buildBinDir, entitlementsPath, notarize); err != nil {
+	if err := pack(appPath, cleannedVersion, appIdentifier, buildBinDir, entitlementsPath, notarize); err != nil {
 		return err
 	}
 

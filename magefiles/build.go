@@ -6,7 +6,11 @@ import (
 )
 
 func Build(version, timestamp, commitSha, link, buildtype string) error {
-	config, err := configureWailsProject(version)
+	return build(version, timestamp, commitSha, link, buildtype, false)
+}
+
+func build(version, timestamp, commitSha, link, buildtype string, obfuscate bool) error {
+	config, err := configureWailsProject(version, obfuscate)
 	if err != nil {
 		return err
 	}

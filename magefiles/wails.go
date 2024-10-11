@@ -49,12 +49,13 @@ type (
 )
 
 // configureWailsProject configures the Wails project config based on release information.
-func configureWailsProject(version string) (*WailsConfig, error) {
+func configureWailsProject(version string, obfuscated bool) (*WailsConfig, error) {
 	wailsConfig, err := readAndParseWailsConfig("wails.json")
 	if err != nil {
 		return nil, err
 	}
 
+	wailsConfig.Obfuscated = obfuscated
 	wailsConfig.Info.ProductVersion = version
 	if err := writeWailsConfig("wails.json", wailsConfig); err != nil {
 		return nil, err

@@ -15,7 +15,7 @@ type (
 	}
 )
 
-func Package(path, version, bundleID, outputDir, entitlements string, notarize bool) error {
+func pack(path, version, bundleID, outputDir, entitlements string, notarize bool) error {
 	if runtime.GOOS != "darwin" {
 		return nil
 	}
