@@ -2,7 +2,7 @@ ARG BASE_IMAGE=ghcr.io/rocketblend/cross-wails:v2.8.0
 
 FROM ${BASE_IMAGE} as builder
 
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y git-all
 RUN go install mvdan.cc/garble@v0.12.1
 
 WORKDIR /usr/src/app
