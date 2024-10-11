@@ -6,11 +6,11 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+
   workflow_dispatch:
     inputs:
-        dry:
-          type: boolean
-          description: "Dry run release (Will not publish)"
-          required: false
-          default: false
+      skip_publish:
+        type: boolean
+        description: "Skip publishing the release (if true)"
+        required: false
+        default: false
         # cosign_windows:
         #   type: boolean
         #   description: "Run Windows codesigning"
@@ -68,7 +68,7 @@ jobs:
           tag: ${{ github.ref_name }}
 
   publish:
-    if: ${{ github.event.inputs.dry == 'false' }}
+    if: ${{ github.event.inputs.skip_publish != 'true' }}
     runs-on: ubuntu-latest
     needs:
       - prepare-release-notes
