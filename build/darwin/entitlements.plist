@@ -15,7 +15,11 @@
         <!-- File access permissions -->
         <key>com.apple.security.files.user-selected.read-write</key>
         <true/>
+        <key>com.apple.security.files.documents.read-write</key>
+        <true/>
         <key>com.apple.security.files.downloads.read-write</key>
+        <true/>
+        <key>com.apple.security.files.desktop.read-write</key>
         <true/>
         <key>com.apple.security.files.removable-volumes</key>
         <true/>

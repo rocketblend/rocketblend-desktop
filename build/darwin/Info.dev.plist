@@ -78,6 +78,12 @@
         <key>NSFileWriteUsageDescription</key>
         <string>{{.Info.ProductName}} needs permission to write to user files.</string>
 
+        <key>NSDocumentsFolderUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to the Documents folder to manage files.</string>
+
+        <key>NSDesktopFolderUsageDescription</key>
+        <string>{{.Info.ProductName}} needs access to the Desktop folder to manage files.</string>
+
         <key>NSDownloadsFolderUsageDescription</key>
         <string>T{{.Info.ProductName}} needs access to the Downloads folder to download files.</string>
 
