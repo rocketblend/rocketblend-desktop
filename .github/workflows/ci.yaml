@@ -25,21 +25,3 @@ jobs:
       packages: write
     with:
       notarize: ${{ github.event.inputs.notarize != 'false' }}
-  
-  # Testings
-  download:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: write
-    steps:
-      - name: Download Darwin Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: release_bins_darwin
-          path: bins/darwin
-      - name: Download Windows/Linux Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: release_bins_windows_linux
-          path: bins/windows_linux
