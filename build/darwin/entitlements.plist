@@ -4,7 +4,7 @@
     <dict>
         <!-- Enable sandboxing -->
         <key>com.apple.security.app-sandbox</key>
-        <true/>
+        <false/>
 
         <!-- Network permissions -->
         <key>com.apple.security.network.client</key>
