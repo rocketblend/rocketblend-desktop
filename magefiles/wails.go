@@ -43,6 +43,8 @@ type (
 		WailsJSDir           string `json:"wailsjsdir"`
 		Author               Author `json:"author"`
 		Info                 Info   `json:"info"`
+		Obfuscated           bool   `json:"obfuscated"`
+		GarbleARGS           string `json:"garbleargs"`
 	}
 )
 
