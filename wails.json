@@ -9,6 +9,8 @@
   "author": {
     "name": "LazerCube"
   },
+  "obfuscated": false,
+  "garbleargs": "-tiny -seed=myrandomseed",
   "info": {
     "companyName": "RocketBlend",
     "productVersion": "0.0.0",

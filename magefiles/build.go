@@ -6,7 +6,11 @@ import (
 )
 
 func Build(version, timestamp, commitSha, link, buildtype string) error {
-	config, err := configureWailsProject(version)
+	return build(version, timestamp, commitSha, link, buildtype, false)
+}
+
+func build(version, timestamp, commitSha, link, buildtype string, obfuscate bool) error {
+	config, err := configureWailsProject(version, obfuscate)
 	if err != nil {
 		return err
 	}
@@ -31,8 +35,4 @@ func Build(version, timestamp, commitSha, link, buildtype string) error {
 
 func buildFlags(version, timestamp, commitSha, link, buildType string) string {
 	return fmt.Sprintf("-X 'main.BuildType=%s' -X 'main.Version=%s' -X 'main.BuildTimestamp=%s' -X 'main.CommitSha=%s' -X 'main.BuildLink=%s'", buildType, version, timestamp, commitSha, link)
-}
-
-func garbleFlags() string {
-	return "-tiny -seed=myrandomseed"
 }

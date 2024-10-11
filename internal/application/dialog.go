@@ -24,6 +24,13 @@ type (
 		Filters          []FileFilter `json:"filters,omitempty"`
 	}
 
+	SaveDialogOptions struct {
+		DefaultDirectory string       `json:"defaultDirectory,omitempty"`
+		DefaultFilename  string       `json:"defaultFilename,omitempty"`
+		Title            string       `json:"title,omitempty"`
+		Filters          []FileFilter `json:"filters,omitempty"`
+	}
+
 	OpenExplorerOptions struct {
 		Path string `json:"path"`
 	}
@@ -31,6 +38,15 @@ type (
 
 func (d *Driver) OpenDirectoryDialog(opts OpenDialogOptions) (string, error) {
 	path, err := runtime.OpenDirectoryDialog(d.ctx, convertOpenDialogOptions(opts))
+	if err != nil {
+		return "", err
+	}
+
+	return path, nil
+}
+
+func (d *Driver) SaveFileDialog(opts SaveDialogOptions) (string, error) {
+	path, err := runtime.SaveFileDialog(d.ctx, convertSaveDialogOptions(opts))
 	if err != nil {
 		return "", err
 	}
@@ -71,12 +87,23 @@ func determinePath(path string) (string, error) {
 	return path, nil
 }
 
+func convertSaveDialogOptions(opts SaveDialogOptions) runtime.SaveDialogOptions {
+	return runtime.SaveDialogOptions{
+		DefaultDirectory:     opts.DefaultDirectory,
+		DefaultFilename:      opts.DefaultFilename,
+		Title:                opts.Title,
+		Filters:              convertFileFilters(opts.Filters),
+		CanCreateDirectories: true,
+	}
+}
+
 func convertOpenDialogOptions(opts OpenDialogOptions) runtime.OpenDialogOptions {
 	return runtime.OpenDialogOptions{
-		DefaultDirectory: opts.DefaultDirectory,
-		DefaultFilename:  opts.DefaultFilename,
-		Title:            opts.Title,
-		Filters:          convertFileFilters(opts.Filters),
+		DefaultDirectory:     opts.DefaultDirectory,
+		DefaultFilename:      opts.DefaultFilename,
+		CanCreateDirectories: true,
+		Title:                opts.Title,
+		Filters:              convertFileFilters(opts.Filters),
 	}
 }
 

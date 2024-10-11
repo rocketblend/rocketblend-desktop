@@ -55,6 +55,8 @@ export function RenderProject(arg1:application.RenderProjectOpts):Promise<void>;
 
 export function RunProject(arg1:application.RunProjectOpts):Promise<void>;
 
+export function SaveFileDialog(arg1:application.SaveDialogOptions):Promise<string>;
+
 export function UninstallPackage(arg1:application.UninstallPackageOpts):Promise<void>;
 
 export function UpdatePreferences(arg1:application.UpdatePreferencesOpts):Promise<void>;
