@@ -10,7 +10,7 @@ on:
           type: boolean
           description: "Dry run release (Will not publish)"
           required: false
-          default: true
+          default: false
         # cosign_windows:
         #   type: boolean
         #   description: "Run Windows codesigning"
