@@ -183,27 +183,36 @@ func New(opts ...Option) (*Repository, error) {
 
 			return false
 		}),
-		watcher.WithResolveObjectPathFunc(func(path string) string {
-			indexes, err := options.Store.List(context.Background(), listoption.WithReferences(path))
-			if err == nil {
-				for _, index := range indexes {
-					if strings.HasPrefix(path, index.Reference) {
-						options.Logger.Debug("found project index", map[string]interface{}{
-							"id":        index.ID,
-							"reference": index.Reference,
-						})
+		watcher.WithResolveObjectPathFunc(func(filePath string) string {
+			reference := path.Clean(filepath.Dir(filePath))
+			indexes, _ := options.Store.List(
+				context.Background(),
+				listoption.WithReferences(reference),
+				// listoption.WithType(indextype.Project),
+				// listoption.WithSize(1),
+			)
+			if len(indexes) > 0 {
+				index := indexes[0]
+				options.Logger.Debug("found project index", map[string]interface{}{
+					"id":        index.ID,
+					"reference": index.Reference,
+				})
 
-						return index.Reference
-					}
+				if strings.HasPrefix(filePath, index.Reference) {
+					return index.Reference
 				}
 			}
 
-			rootPath := resolveRootPath(path, config.Project.Paths)
+			options.Logger.Debug("unable to resolve project path via store", map[string]interface{}{
+				"filePath": filePath,
+			})
+
+			rootPath := resolveRootPath(filePath, config.Project.Paths)
 			if rootPath == "" {
 				return ""
 			}
 
-			return findProjectRoot(path, rootPath)
+			return findProjectRoot(filePath, rootPath)
 		}),
 		watcher.WithUpdateObjectFunc(func(path string) error {
 			project, err := load(options.Validator, options.RBConfigurator, path)
