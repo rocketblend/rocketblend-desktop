@@ -14,7 +14,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store"
-	"github.com/rocketblend/rocketblend-desktop/internal/application/store/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
 	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
@@ -184,29 +183,7 @@ func New(opts ...Option) (*Repository, error) {
 			return false
 		}),
 		watcher.WithResolveObjectPathFunc(func(filePath string) string {
-			reference := path.Clean(filepath.Dir(filePath))
-			indexes, _ := options.Store.List(
-				context.Background(),
-				listoption.WithReferences(reference),
-				// listoption.WithType(indextype.Project),
-				// listoption.WithSize(1),
-			)
-			if len(indexes) > 0 {
-				index := indexes[0]
-				options.Logger.Debug("found project index", map[string]interface{}{
-					"id":        index.ID,
-					"reference": index.Reference,
-				})
-
-				if strings.HasPrefix(filePath, index.Reference) {
-					return index.Reference
-				}
-			}
-
-			options.Logger.Debug("unable to resolve project path via store", map[string]interface{}{
-				"filePath": filePath,
-			})
-
+			// TODO: This is a bit of a mess. We should probably just use the store to resolve the project path.
 			rootPath := resolveRootPath(filePath, config.Project.Paths)
 			if rootPath == "" {
 				return ""
@@ -355,6 +332,34 @@ func findProjectRoot(filePath, rootPath string) string {
 
 	return ""
 }
+
+// func findProjectViaStore(filePath string, store types.Store, logger types.Logger) string {
+// 	reference := path.Clean(filepath.Dir(filePath))
+// 	indexes, _ := store.List(
+// 		context.Background(),
+// 		listoption.WithReferences(reference),
+// 		// listoption.WithType(indextype.Project),
+// 		// listoption.WithSize(1),
+// 	)
+
+// 	if len(indexes) > 0 {
+// 		index := indexes[0]
+// 		logger.Debug("found project index", map[string]interface{}{
+// 			"id":        index.ID,
+// 			"reference": index.Reference,
+// 		})
+
+// 		if strings.HasPrefix(filePath, index.Reference) {
+// 			return index.Reference
+// 		}
+// 	}
+
+// 	logger.Debug("unable to resolve project path via store", map[string]interface{}{
+// 		"filePath": filePath,
+// 	})
+
+// 	return ""
+// }
 
 func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild reference.Reference) (*rbtypes.Profile, error) {
 	profileFilePath := profileFilePath(path)
