@@ -7,12 +7,14 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/store/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
 	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
@@ -167,6 +169,7 @@ func New(opts ...Option) (*Repository, error) {
 		return nil, err
 	}
 
+	// TODO: This whole watcher thing is a bit of a mess.
 	watcher, err := watcher.New(
 		watcher.WithLogger(options.Logger),
 		watcher.WithEventDebounceDuration(options.WatcherDebounceDuration),
@@ -181,7 +184,26 @@ func New(opts ...Option) (*Repository, error) {
 			return false
 		}),
 		watcher.WithResolveObjectPathFunc(func(path string) string {
-			return filepath.Dir(path)
+			indexes, err := options.Store.List(context.Background(), listoption.WithReferences(path))
+			if err == nil {
+				for _, index := range indexes {
+					if strings.HasPrefix(path, index.Reference) {
+						options.Logger.Debug("found project index", map[string]interface{}{
+							"id":        index.ID,
+							"reference": index.Reference,
+						})
+
+						return index.Reference
+					}
+				}
+			}
+
+			rootPath := resolveRootPath(path, config.Project.Paths)
+			if rootPath == "" {
+				return ""
+			}
+
+			return findProjectRoot(path, rootPath)
 		}),
 		watcher.WithUpdateObjectFunc(func(path string) error {
 			project, err := load(options.Validator, options.RBConfigurator, path)
@@ -231,8 +253,8 @@ func (r *Repository) Close() error {
 	return r.watcher.Close()
 }
 
-func (r *Repository) saveDetail(path string, detail *types.Detail) error {
-	if err := rbhelpers.Save(r.validator, filepath.Join(path, types.DetailFileName), detail); err != nil {
+func (r *Repository) saveDetail(path string, detail *types.Detail, ensurePath bool) error {
+	if err := rbhelpers.Save(r.validator, detailFilePath(path), ensurePath, detail); err != nil {
 		return err
 	}
 
@@ -293,8 +315,40 @@ func load(validator rbtypes.Validator, configurator rbtypes.Configurator, path s
 	}, nil
 }
 
+func resolveRootPath(filePath string, rootPaths []string) string {
+	for _, rootPath := range rootPaths {
+		if strings.HasPrefix(filePath, rootPath) {
+			return rootPath
+		}
+	}
+
+	return ""
+}
+
+func findProjectRoot(filePath, rootPath string) string {
+	if !strings.HasPrefix(filePath, rootPath) {
+		return ""
+	}
+
+	currentPath := filepath.Dir(filePath)
+
+	for {
+		if _, err := os.Stat(filepath.Join(currentPath, rbtypes.ProfileDirName)); err == nil {
+			return currentPath
+		}
+
+		if currentPath == rootPath {
+			break
+		}
+
+		currentPath = filepath.Dir(currentPath)
+	}
+
+	return ""
+}
+
 func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild reference.Reference) (*rbtypes.Profile, error) {
-	profileFilePath := filepath.Join(path, rbtypes.ProfileFileName)
+	profileFilePath := profileFilePath(path)
 	_, err := os.Stat(profileFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -302,7 +356,7 @@ func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild 
 				Dependencies: []*rbtypes.Dependency{{Reference: defaultBuild, Type: rbtypes.PackageBuild}},
 			}
 
-			if err := rbhelpers.Save(validator, profileFilePath, profile); err != nil {
+			if err := rbhelpers.Save(validator, profileFilePath, true, profile); err != nil {
 				return nil, err
 			}
 
@@ -321,7 +375,7 @@ func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild 
 }
 
 func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath string) (*types.Detail, error) {
-	detailFilePath := filepath.Join(path, types.DetailFileName)
+	detailFilePath := detailFilePath(path)
 	_, err := os.Stat(detailFilePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -331,7 +385,7 @@ func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath 
 				MediaPath: DefaultMediaPath,
 			}
 
-			if err := rbhelpers.Save(validator, detailFilePath, detail); err != nil {
+			if err := rbhelpers.Save(validator, detailFilePath, true, detail); err != nil {
 				return nil, err
 			}
 
@@ -377,4 +431,12 @@ func findFilePathForExtension(dir string, ext string) ([]string, error) {
 	}
 
 	return files, nil
+}
+
+func detailFilePath(path string) string {
+	return filepath.Join(path, rbtypes.ProfileDirName, types.DetailFileName)
+}
+
+func profileFilePath(path string) string {
+	return filepath.Join(path, rbtypes.ProfileDirName, rbtypes.ProfileFileName)
 }

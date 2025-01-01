@@ -22,7 +22,7 @@ func (r *Repository) UpdateProject(ctx context.Context, opts *types.UpdateProjec
 		detail.Tags = *opts.Tags
 	}
 
-	if err := r.saveDetail(project.Path, detail); err != nil {
+	if err := r.saveDetail(project.Path, detail, false); err != nil {
 		return err
 	}
 
