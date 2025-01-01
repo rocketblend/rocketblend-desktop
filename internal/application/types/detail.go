@@ -2,7 +2,7 @@ package types
 
 import "github.com/google/uuid"
 
-const DetailFileName = "rocketdesk.json"
+const DetailFileName = "meta.json"
 
 type (
 	// ThumbnailSettings struct {
