@@ -13,6 +13,7 @@ import (
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/fileserver"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/watcher"
@@ -174,7 +175,7 @@ func New(opts ...Option) (*Repository, error) {
 		watcher.WithEventDebounceDuration(options.WatcherDebounceDuration),
 		watcher.WithPaths(config.Project.Paths...),
 		watcher.WithIsWatchableFileFunc(func(path string) bool {
-			for _, ext := range config.Project.Watcher.FileExtensions {
+			for _, ext := range ValidExtensions() {
 				if filepath.Ext(path) == ext {
 					return true
 				}
@@ -237,6 +238,16 @@ func New(opts ...Option) (*Repository, error) {
 
 func (r *Repository) Close() error {
 	return r.watcher.Close()
+}
+
+func ValidExtensions() []string {
+	extensions := make([]string, 0, len(fileserver.ValidExtensions)+2)
+	for ext := range fileserver.ValidExtensions {
+		extensions = append(extensions, ext)
+	}
+
+	extensions = append(extensions, ".blend", ".json", types.IgnoreFileName)
+	return extensions
 }
 
 func (r *Repository) saveDetail(path string, detail *types.Detail, ensurePath bool) error {

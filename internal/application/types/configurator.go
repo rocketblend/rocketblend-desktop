@@ -1,18 +1,12 @@
 package types
 
 type (
-	WatcherConfig struct {
-		FileExtensions []string `mapstructure:"fileExtensions"`
-	}
-
 	ProjectConfig struct {
-		Paths   []string      `mapstructure:"paths"`
-		Watcher WatcherConfig `mapstructure:"watcher"`
+		Paths []string `mapstructure:"paths"`
 	}
 
 	PackageConfig struct {
-		Watcher  WatcherConfig `mapstructure:"watcher"`
-		AutoPull bool          `mapstructure:"autoPull"`
+		AutoPull bool `mapstructure:"autoPull"`
 	}
 
 	FeatureConfig struct {

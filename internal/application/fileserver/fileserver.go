@@ -13,15 +13,15 @@ import (
 
 const DynamicResourcePath = "system/"
 
-var validExtensions = map[string]bool{
-	".jpg":  true,
-	".jpeg": true,
-	".png":  true,
-	".gif":  true,
-	".bmp":  true,
-	".svg":  true,
-	".webp": true,
-	".webm": true,
+var ValidExtensions = map[string]struct{}{
+	".jpg":  {},
+	".jpeg": {},
+	".png":  {},
+	".gif":  {},
+	".bmp":  {},
+	".svg":  {},
+	".webp": {},
+	".webm": {},
 }
 
 type (
@@ -94,7 +94,7 @@ func (h *Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 
 	path = ensureAbsolutePath(filepath.ToSlash(strings.TrimPrefix(path, DynamicResourcePath)))
-	if !isValidWebImage(path) {
+	if !isValidFile(path) {
 		h.respondWithError(res, http.StatusBadRequest, "Invalid resource file type", fmt.Errorf("invalid file type: %s", path))
 		return
 	}
@@ -139,9 +139,10 @@ func (h *Handler) respondWithError(w http.ResponseWriter, statusCode int, messag
 	w.Write([]byte(fmt.Sprintf("%s: %v", message, err)))
 }
 
-func isValidWebImage(filePath string) bool {
+func isValidFile(filePath string) bool {
 	ext := strings.ToLower(filepath.Ext(filePath))
-	return validExtensions[ext]
+	_, exists := ValidExtensions[ext]
+	return exists
 }
 
 // ensureAbsolutePath makes sure the path starts with a '/'.
