@@ -6,7 +6,7 @@ on:
       base_image:
         type: string
         description: 'Base Docker image for cross-platform builds'
-        default: 'ghcr.io/rocketblend/cross-wails:v2.8.0'
+        default: 'ghcr.io/rocketblend/cross-wails:v2.9.2'
         required: false
       go_version:
         type: string
@@ -21,7 +21,7 @@ on:
       wails_version:
         type: string
         description: 'Wails version for Darwin builds'
-        default: 'v2.8.0'
+        default: 'v2.9.2'
         required: false
       build_type:
         type: string
