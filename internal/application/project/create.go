@@ -41,7 +41,7 @@ func (r *Repository) CreateProject(ctx context.Context, opts *types.CreateProjec
 		ID:        id,
 		Name:      opts.DisplayName,
 		MediaPath: DefaultMediaPath,
-	}, true); err != nil {
+	}, true, true); err != nil {
 		return nil, err
 	}
 
