@@ -6,12 +6,12 @@ on:
       base_image:
         type: string
         description: 'Base Docker image for cross-platform builds'
-        default: 'ghcr.io/rocketblend/cross-wails:v2.8.0'
+        default: 'ghcr.io/rocketblend/cross-wails:v2.10.1'
         required: false
       go_version:
         type: string
         description: 'Go version for Darwin builds'
-        default: 'v1.22.1'
+        default: 'v1.23.7'
         required: false
       node_version:
         type: string
@@ -21,7 +21,7 @@ on:
       wails_version:
         type: string
         description: 'Wails version for Darwin builds'
-        default: 'v2.8.0'
+        default: 'v2.10.1'
         required: false
       build_type:
         type: string

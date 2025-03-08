@@ -50,7 +50,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -64,7 +64,36 @@ export namespace application {
 		    return a;
 		}
 	}
+	export class AggregateMetricsResult {
+	    Aggregate?: types.Aggregate;
 	
+	    static createFrom(source: any = {}) {
+	        return new AggregateMetricsResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Aggregate = this.convertValues(source["Aggregate"], types.Aggregate);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class CancelOperationOpts {
 	    id: number[];
 	
@@ -191,7 +220,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -233,7 +262,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -263,7 +292,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -325,7 +354,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -339,7 +368,36 @@ export namespace application {
 		    return a;
 		}
 	}
+	export class ListMetricsResult {
+	    Metrics: types.Metric[];
 	
+	    static createFrom(source: any = {}) {
+	        return new ListMetricsResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Metrics = this.convertValues(source["Metrics"], types.Metric);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class ListOperationsResult {
 	    operations: types.Operation[];
 	
@@ -356,7 +414,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -404,7 +462,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -446,7 +504,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -482,7 +540,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -526,7 +584,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -600,7 +658,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -644,7 +702,7 @@ export namespace application {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -691,6 +749,27 @@ export namespace enums {
 
 }
 
+export namespace semver {
+	
+	export class Version {
+	    Major: number;
+	    Minor: number;
+	    Patch: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Version(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Major = source["Major"];
+	        this.Minor = source["Minor"];
+	        this.Patch = source["Patch"];
+	    }
+	}
+
+}
+
 export namespace types {
 	
 	export class Aggregate {
@@ -716,6 +795,77 @@ export namespace types {
 	        this.min = source["min"];
 	        this.max = source["max"];
 	    }
+	}
+	export class Dependency {
+	    reference: string;
+	    type: enums.PackageType;
+	
+	    static createFrom(source: any = {}) {
+	        return new Dependency(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.reference = source["reference"];
+	        this.type = source["type"];
+	    }
+	}
+	export class Media {
+	    filePath: string;
+	    url: string;
+	    splash: boolean;
+	    thumbnail: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Media(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.filePath = source["filePath"];
+	        this.url = source["url"];
+	        this.splash = source["splash"];
+	        this.thumbnail = source["thumbnail"];
+	    }
+	}
+	export class Metric {
+	    id: number[];
+	    domain: string;
+	    name: string;
+	    value: number;
+	    // Go type: time
+	    recordedAt: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new Metric(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.domain = source["domain"];
+	        this.name = source["name"];
+	        this.value = source["value"];
+	        this.recordedAt = this.convertValues(source["recordedAt"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 	export class Operation {
 	    id: number[];
@@ -751,6 +901,57 @@ export namespace types {
 	        this.bytesPerSecond = source["bytesPerSecond"];
 	    }
 	}
+	export class URI {
+	    Scheme: string;
+	    Opaque: string;
+	    // Go type: url
+	    User?: any;
+	    Host: string;
+	    Path: string;
+	    RawPath: string;
+	    OmitHost: boolean;
+	    ForceQuery: boolean;
+	    RawQuery: string;
+	    Fragment: string;
+	    RawFragment: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new URI(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Scheme = source["Scheme"];
+	        this.Opaque = source["Opaque"];
+	        this.User = this.convertValues(source["User"], null);
+	        this.Host = source["Host"];
+	        this.Path = source["Path"];
+	        this.RawPath = source["RawPath"];
+	        this.OmitHost = source["OmitHost"];
+	        this.ForceQuery = source["ForceQuery"];
+	        this.RawQuery = source["RawQuery"];
+	        this.Fragment = source["Fragment"];
+	        this.RawFragment = source["RawFragment"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Package {
 	    id: number[];
 	    type: enums.PackageType;
@@ -764,10 +965,8 @@ export namespace types {
 	    installationPath: string;
 	    operations: string[];
 	    platform: string;
-	    // Go type: URI
-	    uri?: any;
-	    // Go type: semver
-	    version?: any;
+	    uri?: URI;
+	    version?: semver.Version;
 	    progress?: Progress;
 	    // Go type: time
 	    updatedAt: any;
@@ -790,8 +989,8 @@ export namespace types {
 	        this.installationPath = source["installationPath"];
 	        this.operations = source["operations"];
 	        this.platform = source["platform"];
-	        this.uri = this.convertValues(source["uri"], null);
-	        this.version = this.convertValues(source["version"], null);
+	        this.uri = this.convertValues(source["uri"], URI);
+	        this.version = this.convertValues(source["version"], semver.Version);
 	        this.progress = this.convertValues(source["progress"], Progress);
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }
@@ -800,7 +999,7 @@ export namespace types {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
@@ -815,38 +1014,6 @@ export namespace types {
 		}
 	}
 	
-	export class Media {
-	    filePath: string;
-	    url: string;
-	    splash: boolean;
-	    thumbnail: boolean;
-	
-	    static createFrom(source: any = {}) {
-	        return new Media(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.filePath = source["filePath"];
-	        this.url = source["url"];
-	        this.splash = source["splash"];
-	        this.thumbnail = source["thumbnail"];
-	    }
-	}
-	export class Dependency {
-	    reference: string;
-	    type: enums.PackageType;
-	
-	    static createFrom(source: any = {}) {
-	        return new Dependency(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.reference = source["reference"];
-	        this.type = source["type"];
-	    }
-	}
 	export class Project {
 	    id: number[];
 	    name: string;
@@ -884,7 +1051,7 @@ export namespace types {
 		    if (!a) {
 		        return a;
 		    }
-		    if (a.slice) {
+		    if (a.slice && a.map) {
 		        return (a as any[]).map(elem => this.convertValues(elem, classs));
 		    } else if ("object" === typeof a) {
 		        if (asMap) {
