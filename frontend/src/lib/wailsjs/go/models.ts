@@ -796,6 +796,77 @@ export namespace types {
 	        this.max = source["max"];
 	    }
 	}
+	export class Dependency {
+	    reference: string;
+	    type: enums.PackageType;
+	
+	    static createFrom(source: any = {}) {
+	        return new Dependency(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.reference = source["reference"];
+	        this.type = source["type"];
+	    }
+	}
+	export class Media {
+	    filePath: string;
+	    url: string;
+	    splash: boolean;
+	    thumbnail: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Media(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.filePath = source["filePath"];
+	        this.url = source["url"];
+	        this.splash = source["splash"];
+	        this.thumbnail = source["thumbnail"];
+	    }
+	}
+	export class Metric {
+	    id: number[];
+	    domain: string;
+	    name: string;
+	    value: number;
+	    // Go type: time
+	    recordedAt: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new Metric(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.domain = source["domain"];
+	        this.name = source["name"];
+	        this.value = source["value"];
+	        this.recordedAt = this.convertValues(source["recordedAt"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Operation {
 	    id: number[];
 	    completed: boolean;
@@ -943,38 +1014,6 @@ export namespace types {
 		}
 	}
 	
-	export class Media {
-	    filePath: string;
-	    url: string;
-	    splash: boolean;
-	    thumbnail: boolean;
-	
-	    static createFrom(source: any = {}) {
-	        return new Media(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.filePath = source["filePath"];
-	        this.url = source["url"];
-	        this.splash = source["splash"];
-	        this.thumbnail = source["thumbnail"];
-	    }
-	}
-	export class Dependency {
-	    reference: string;
-	    type: enums.PackageType;
-	
-	    static createFrom(source: any = {}) {
-	        return new Dependency(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.reference = source["reference"];
-	        this.type = source["type"];
-	    }
-	}
 	export class Project {
 	    id: number[];
 	    name: string;
