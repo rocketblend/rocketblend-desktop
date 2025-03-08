@@ -250,8 +250,8 @@ func ValidExtensions() []string {
 	return extensions
 }
 
-func (r *Repository) saveDetail(path string, detail *types.Detail, ensurePath bool) error {
-	if err := rbhelpers.Save(r.validator, detailFilePath(path), ensurePath, detail); err != nil {
+func (r *Repository) saveDetail(path string, detail *types.Detail, ensurePath bool, override bool) error {
+	if err := rbhelpers.Save(r.validator, detailFilePath(path), detail, ensurePath, override); err != nil {
 		return err
 	}
 
@@ -381,7 +381,7 @@ func loadOrCreateProfile(validator rbtypes.Validator, path string, defaultBuild 
 				Dependencies: []*rbtypes.Dependency{{Reference: defaultBuild, Type: rbtypes.PackageBuild}},
 			}
 
-			if err := rbhelpers.Save(validator, profileFilePath, true, profile); err != nil {
+			if err := rbhelpers.Save(validator, profileFilePath, profile, true, false); err != nil {
 				return nil, err
 			}
 
@@ -410,7 +410,7 @@ func loadOrCreateDetail(validator rbtypes.Validator, path string, blendFilePath 
 				MediaPath: DefaultMediaPath,
 			}
 
-			if err := rbhelpers.Save(validator, detailFilePath, true, detail); err != nil {
+			if err := rbhelpers.Save(validator, detailFilePath, detail, true, false); err != nil {
 				return nil, err
 			}
 
