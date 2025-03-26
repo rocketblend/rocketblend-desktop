@@ -43,6 +43,7 @@ func (r *Repository) addPackage(ctx context.Context, id uuid.UUID, reference ref
 		Profiles: map[string]*rbtypes.Profile{
 			project.Path: profile,
 		},
+		Overwrite: true,
 	}); err != nil {
 		return err
 	}
