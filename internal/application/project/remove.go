@@ -37,6 +37,7 @@ func (r *Repository) removePackage(ctx context.Context, id uuid.UUID, reference 
 		Profiles: map[string]*rbtypes.Profile{
 			project.Path: profile,
 		},
+		Overwrite: true,
 	}); err != nil {
 		return err
 	}
