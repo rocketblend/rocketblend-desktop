@@ -2,38 +2,21 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/magefile/mage/sh"
 )
 
+// buildWindows builds the Windows binary and NSIS installer for the host architecture.
 func buildWindows(name, version, timestamp, commitSha, link, buildType string) error {
+	arch := runtime.GOARCH
+	fmt.Printf("Building Windows %s binary for %s\n", arch, name)
+
 	ldFlags := buildFlags(version, timestamp, commitSha, link, buildType)
-	if err := buildWindowsAMD64(name, version, ldFlags, true); err != nil {
-		return fmt.Errorf("error building Windows AMD64: %s", err)
-	}
+	outputFile := fmt.Sprintf("%s-windows-%s-%s.exe", name, arch, version)
 
-	return nil
-}
-
-// buildWindowsAMD64 builds the Windows AMD64 version of the project.
-func buildWindowsAMD64(name, version, ldFlags string, skipFrontend bool) error {
-	fmt.Printf("Building Windows AMD64 binary for %s\n", name)
-	outputFile := fmt.Sprintf("%s-windows-amd64-%s.exe", name, version)
-	skipBindingsFlag, skipFrontendFlag := "", ""
-	if skipFrontend {
-		skipBindingsFlag, skipFrontendFlag = "-skipbindings", "-s"
-	}
-
-	crossCompileFlags := map[string]string{
-		"GOOS":   "windows",
-		"GOARCH": "amd64",
-		"CC":     "x86_64-w64-mingw32-gcc",
-		"CXX":    "x86_64-w64-mingw32-g++",
-	}
-
-	err := sh.RunWithV(crossCompileFlags, "wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-nsis", "-platform", "windows/amd64", "-o", outputFile, skipBindingsFlag, skipFrontendFlag)
-	if err != nil {
-		return fmt.Errorf("error building Windows AMD64: %v", err)
+	if err := sh.RunV("wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-nsis", "-platform", fmt.Sprintf("windows/%s", arch), "-o", outputFile); err != nil {
+		return fmt.Errorf("error building Windows %s: %w", arch, err)
 	}
 
 	return nil

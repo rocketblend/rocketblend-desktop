@@ -2,43 +2,23 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/magefile/mage/sh"
 )
 
+// buildLinux builds the Linux binary for the host architecture.
 func buildLinux(name, version, timestamp, commitSha, link, buildtype string) error {
+	arch := runtime.GOARCH
+	fmt.Printf("Building Linux %s binary for %s\n", arch, name)
+
 	ldFlags := buildFlags(version, timestamp, commitSha, link, buildtype)
-	nativeArch := "amd64"
-	if err := buildLinuxTarget(name, version, ldFlags, nativeArch, false); err != nil {
-		return fmt.Errorf("error building Linux %s: %s", nativeArch, err)
+	outputFile := fmt.Sprintf("%s-linux-%s-%s", name, arch, version)
+
+	// webkit2_41 links against webkit2gtk-4.1, as current distros no longer ship webkit2gtk-4.0.
+	if err := sh.RunV("wails", "build", "-m", "-nosyncgomod", "-tags", "webkit2_41", "-ldflags", ldFlags, "-platform", fmt.Sprintf("linux/%s", arch), "-o", outputFile); err != nil {
+		return fmt.Errorf("error building Linux %s: %w", arch, err)
 	}
 
 	return nil
-}
-
-func buildLinuxTarget(name, version, ldFlags, arch string, skipFrontend bool) error {
-	fmt.Printf("Building Linux %s binary for %s\n", arch, name)
-	outputFile := fmt.Sprintf("%s-linux-%s-%s", name, arch, version)
-	skipBindingsFlag, skipFrontendFlag := "", ""
-	if skipFrontend {
-		skipBindingsFlag, skipFrontendFlag = "-skipbindings", "-s"
-	}
-
-	cc, cxx := getCompilerFlags(arch)
-	crossCompileFlags := map[string]string{
-		"GOOS":   "linux",
-		"GOARCH": arch,
-		"CC":     cc,
-		"CXX":    cxx,
-	}
-
-	return sh.RunWithV(crossCompileFlags, "wails", "build", "-m", "-nosyncgomod", "-ldflags", ldFlags, "-platform", fmt.Sprintf("linux/%s", arch), "-o", outputFile, skipBindingsFlag, skipFrontendFlag)
-}
-
-func getCompilerFlags(arch string) (cc, cxx string) {
-	if arch == "arm64" {
-		return "aarch64-linux-gnu-gcc", "aarch64-linux-gnu-g++"
-	}
-
-	return "x86_64-linux-gnu-gcc", "x86_64-linux-gnu-g++"
 }

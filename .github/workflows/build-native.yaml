@@ -1,0 +1,116 @@
+name: Build Native (Linux/Windows)
+
+on:
+  workflow_call:
+    inputs:
+      RUNNER:
+        type: string
+        description: "Runner to build on, e.g. ubuntu-22.04, ubuntu-22.04-arm, windows-latest"
+        required: true
+      ARTIFACT_NAME:
+        type: string
+        description: "Name of the uploaded build artifact"
+        required: true
+      NODE_VERSION:
+        type: string
+        description: "Node version to use, e.g. 22"
+        required: true
+      WAILS_VERSION:
+        type: string
+        description: "Wails version to use, e.g. v2.16.0"
+        required: true
+      BUILD_TYPE:
+        type: string
+        description: "Build type: release or debug"
+        required: true
+    outputs:
+      ReleaseTag:
+        value: ${{ jobs.build-native.outputs.releaseTag }}
+
+jobs:
+  build-native:
+    runs-on: ${{ inputs.RUNNER }}
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      releaseTag: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # Built against webkit2gtk-4.1 (see the webkit2_41 tag in magefiles/linux.go).
+      - name: Install Linux Dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      - name: Install NSIS
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not (Get-Command makensis -ErrorAction SilentlyContinue)) {
+            choco install nsis -y --no-progress
+          }
+          "${env:ProgramFiles(x86)}\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+      - name: Install Wails
+        env:
+          WAILS_VERSION: ${{ inputs.WAILS_VERSION }}
+        run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@$WAILS_VERSION
+
+      - name: Generate Build Timestamp ISO 8601
+        id: generateBuildTimestamp
+        run: |
+          BUILD_TIMESTAMP=$(date +'%Y-%m-%dT%H:%M:%S') && echo "BUILD_TIMESTAMP=$BUILD_TIMESTAMP" >> $GITHUB_OUTPUT
+
+      - name: Calculate Release Tag
+        id: calculateReleaseTag
+        run: |
+          RELEASE_TAG=$(git describe --tags 2>/dev/null || echo "v0.0.0")
+          echo "Found release tag: $RELEASE_TAG"
+          echo "releaseTag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Build Application
+        env:
+          RELEASE_TAG: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
+          BUILD_TYPE: ${{ inputs.BUILD_TYPE }}
+          BUILD_TIMESTAMP: ${{ steps.generateBuildTimestamp.outputs.BUILD_TIMESTAMP }}
+          BUILD_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          go run mage.go prepare $RELEASE_TAG $BUILD_TIMESTAMP $COMMIT_SHA $BUILD_LINK $BUILD_TYPE false
+
+      - name: Run Go Tests
+        run: |
+          go test -v -tags webkit2_41 ./...
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.ARTIFACT_NAME }}
+          path: ./build/bin/*
+          if-no-files-found: error
+          retention-days: 1

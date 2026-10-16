@@ -744,13 +744,13 @@ export namespace enums {
 	export enum PackageState {
 	    AVAILABLE = "available",
 	    DOWNLOADING = "downloading",
+	    ERROR = "error",
 	    INCOMPLETE = "incomplete",
 	    INSTALLED = "installed",
-	    ERROR = "error",
 	}
 	export enum PackageType {
-	    BUILD = "build",
 	    ADDON = "addon",
+	    BUILD = "build",
 	}
 
 }

@@ -33,17 +33,16 @@ jobs:
     secrets: inherit
     permissions:
       contents: read
-      packages: write 
     with:
       notarize: true
 
   # cosign-windows:
   #   if: ${{ github.event.inputs.cosign_windows == 'true' }}
   #   uses: ./.github/workflows/cosign-windows.yaml
-  #   needs: build-cross-platform
+  #   needs: build
   #   secrets: inherit
   #   with:
-  #     artifact-name: release_bins_windows_linux
+  #     artifact-name: release_bins_windows_amd64
   #     artifact-path: bins
   #     endpoint: 'https://uksouth.codesigning.azure.net/'
   #     trusted-signing-account-name: ${{ secrets.TRUSTED_SIGNING_ACCOUNT_NAME }}
@@ -57,6 +56,8 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build
+    outputs:
+      changes: ${{ steps.changelog.outputs.changes }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -77,16 +78,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Download Darwin Artifacts
+      - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release_bins_darwin
-          path: bins/darwin
-      - name: Download Windows/Linux Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: release_bins_windows_linux
-          path: bins/windows_linux
+          pattern: release_bins_*
+          path: bins
       # - name: Download Signed Windows Artifacts
       #   if: ${{ github.event.inputs.cosign_windows == 'true' }}
       #   uses: actions/download-artifact@v4
@@ -96,7 +92,7 @@ jobs:
       # - name: Replace Unsigned Windows Executables with Signed Versions
       #   if: ${{ github.event.inputs.cosign_windows == 'true' }}
       #   run: |
-      #     cp -r bins_signed/* bins/windows_linux/
+      #     cp -r bins_signed/* bins/release_bins_windows_amd64/
       - name: Upload Release Artifacts and Create Draft Release
         uses: softprops/action-gh-release@v2
         with:
@@ -104,6 +100,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
-          body: ${{ needs.prepare-release-notes.steps.changelog.outputs.changes }}
+          body: ${{ needs.prepare-release-notes.outputs.changes }}
           draft: true
           generate_release_notes: false

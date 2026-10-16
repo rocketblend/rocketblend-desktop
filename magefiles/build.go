@@ -15,22 +15,17 @@ func build(version, timestamp, commitSha, link, buildtype string, obfuscate bool
 		return err
 	}
 
+	// Each platform is built natively on its own runner, so only the host target is built.
 	switch runtime.GOOS {
-	case "linux", "windows":
-		if err := buildLinux(config.Name, version, timestamp, commitSha, link, buildtype); err != nil {
-			return err
-		}
-
-		if err := buildWindows(config.Name, version, timestamp, commitSha, link, buildtype); err != nil {
-			return err
-		}
+	case "linux":
+		return buildLinux(config.Name, version, timestamp, commitSha, link, buildtype)
+	case "windows":
+		return buildWindows(config.Name, version, timestamp, commitSha, link, buildtype)
 	case "darwin":
 		return buildMacOS(config.Name, version, timestamp, commitSha, link, buildtype)
 	default:
 		return fmt.Errorf("unsupported OS/architecture: %s/%s", runtime.GOOS, runtime.GOARCH)
 	}
-
-	return nil
 }
 
 func buildFlags(version, timestamp, commitSha, link, buildType string) string {
