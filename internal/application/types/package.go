@@ -64,7 +64,8 @@ type (
 	}
 
 	InstallPackageOpts struct {
-		ID uuid.UUID `json:"id"`
+		ID                         uuid.UUID `json:"id"`
+		BypassUntrustedDomainCheck bool      `json:"bypassUntrustedDomainCheck"`
 	}
 
 	UninstallPackageOpts struct {

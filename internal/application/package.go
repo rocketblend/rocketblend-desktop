@@ -2,11 +2,14 @@ package application
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/store/listoption"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
+	"github.com/rocketblend/rocketblend/pkg/downloader"
+	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
 )
 
 type (
@@ -30,11 +33,14 @@ type (
 	}
 
 	InstallPackageOpts struct {
-		ID uuid.UUID `json:"id"`
+		ID                   uuid.UUID `json:"id"`
+		AllowUntrustedDomain bool      `json:"allowUntrustedDomain"`
 	}
 
 	InstallPackageResult struct {
-		OperationID uuid.UUID `json:"operationID"`
+		OperationID          uuid.UUID `json:"operationID"`
+		RequiresConfirmation bool      `json:"requiresConfirmation"`
+		Domain               string    `json:"domain,omitempty"`
 	}
 
 	AddPackageOpts struct {
@@ -106,6 +112,27 @@ func (d *Driver) AddPackage(opts AddPackageOpts) error {
 }
 
 func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult, error) {
+	domain, err := d.checkPackageDomain(opts.ID, opts.AllowUntrustedDomain)
+	if err != nil {
+		d.logger.Error("package download domain not allowed", map[string]interface{}{
+			"error": err.Error(),
+			"id":    opts.ID,
+		})
+		return nil, err
+	}
+
+	if domain != "" {
+		d.logger.Info("package download requires domain confirmation", map[string]interface{}{
+			"domain": domain,
+			"id":     opts.ID,
+		})
+
+		return &InstallPackageResult{
+			RequiresConfirmation: true,
+			Domain:               domain,
+		}, nil
+	}
+
 	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
 		if err := d.catalog.AddPackageOperation(d.ctx, &types.AddPackageOperationOpts{
 			ID:          opts.ID,
@@ -132,7 +159,8 @@ func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult,
 		}()
 
 		if err := d.catalog.InstallPackage(ctx, &types.InstallPackageOpts{
-			ID: opts.ID,
+			ID:                         opts.ID,
+			BypassUntrustedDomainCheck: opts.AllowUntrustedDomain,
 		}); err != nil {
 			d.logger.Error("failed to install package", map[string]interface{}{
 				"error": err.Error(),
@@ -155,6 +183,28 @@ func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult,
 	return &InstallPackageResult{
 		OperationID: opid,
 	}, nil
+}
+
+func (d *Driver) checkPackageDomain(id uuid.UUID, allowUntrusted bool) (string, error) {
+	result, err := d.catalog.GetPackage(d.ctx, &types.GetPackageOpts{
+		ID: id,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	config, err := d.rbConfigurator.Get()
+	if err != nil {
+		return "", err
+	}
+
+	uri := result.Package.URI
+	err = downloader.CheckDomain(uri, config.TrustedDomains, config.UntrustedDomainPolicy, allowUntrusted)
+	if errors.Is(err, rbtypes.ErrUntrustedDomain) {
+		return uri.Host, nil
+	}
+
+	return "", err
 }
 
 func (d *Driver) RefreshPackages() error {

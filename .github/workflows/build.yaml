@@ -11,7 +11,7 @@ on:
       go_version:
         type: string
         description: 'Go version for Darwin builds'
-        default: 'v1.23.7'
+        default: '1.27.2'
         required: false
       node_version:
         type: string

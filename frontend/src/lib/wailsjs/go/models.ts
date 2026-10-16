@@ -308,6 +308,7 @@ export namespace application {
 	}
 	export class InstallPackageOpts {
 	    id: number[];
+	    allowUntrustedDomain: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new InstallPackageOpts(source);
@@ -316,10 +317,13 @@ export namespace application {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
+	        this.allowUntrustedDomain = source["allowUntrustedDomain"];
 	    }
 	}
 	export class InstallPackageResult {
 	    operationID: number[];
+	    requiresConfirmation: boolean;
+	    domain?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new InstallPackageResult(source);
@@ -328,6 +332,8 @@ export namespace application {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.operationID = source["operationID"];
+	        this.requiresConfirmation = source["requiresConfirmation"];
+	        this.domain = source["domain"];
 	    }
 	}
 	export class ListMetricsOpts {
@@ -908,12 +914,12 @@ export namespace types {
 	    User?: any;
 	    Host: string;
 	    Path: string;
-	    RawPath: string;
-	    OmitHost: boolean;
-	    ForceQuery: boolean;
-	    RawQuery: string;
 	    Fragment: string;
+	    RawQuery: string;
+	    RawPath: string;
 	    RawFragment: string;
+	    ForceQuery: boolean;
+	    OmitHost: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new URI(source);
@@ -926,12 +932,12 @@ export namespace types {
 	        this.User = this.convertValues(source["User"], null);
 	        this.Host = source["Host"];
 	        this.Path = source["Path"];
-	        this.RawPath = source["RawPath"];
-	        this.OmitHost = source["OmitHost"];
-	        this.ForceQuery = source["ForceQuery"];
-	        this.RawQuery = source["RawQuery"];
 	        this.Fragment = source["Fragment"];
+	        this.RawQuery = source["RawQuery"];
+	        this.RawPath = source["RawPath"];
 	        this.RawFragment = source["RawFragment"];
+	        this.ForceQuery = source["ForceQuery"];
+	        this.OmitHost = source["OmitHost"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
