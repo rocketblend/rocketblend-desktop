@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"sync"
 
 	"github.com/flowshot-io/x/pkg/logger"
 	"github.com/mitchellh/mapstructure"
@@ -31,7 +32,10 @@ type (
 	Configurator struct {
 		logger    types.Logger
 		validator types.Validator
-		viper     *viper.Viper
+
+		mu    sync.Mutex
+		viper *viper.Viper
+
 		path      string
 		extension string
 		name      string
@@ -95,6 +99,13 @@ func New(opts ...Option) (*Configurator, error) {
 }
 
 func (c *Configurator) Get() (*types.Config, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	return c.get()
+}
+
+func (c *Configurator) get() (*types.Config, error) {
 	var config types.Config
 	if err := c.viper.Unmarshal(&config); err != nil {
 		return nil, err
@@ -108,24 +119,30 @@ func (c *Configurator) Get() (*types.Config, error) {
 }
 
 func (c *Configurator) GetAllValues() map[string]interface{} {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	return c.viper.AllSettings()
 }
 
 func (c *Configurator) GetValueByString(key string) string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	return fmt.Sprint(c.viper.Get(key))
 }
 
 func (c *Configurator) SetValueByString(key string, value string) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	c.viper.Set(key, value)
 
-	_, err := c.Get()
-	if err != nil {
+	if _, err := c.get(); err != nil {
 		return err
 	}
 
-	c.viper.WriteConfig()
-
-	return nil
+	return c.viper.WriteConfig()
 }
 
 func (c *Configurator) Save(config *types.Config) error {
@@ -134,9 +151,16 @@ func (c *Configurator) Save(config *types.Config) error {
 	}
 
 	var m map[string]interface{}
-	mapstructure.Decode(config, &m)
+	if err := mapstructure.Decode(config, &m); err != nil {
+		return err
+	}
 
-	c.viper.MergeConfigMap(m)
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if err := c.viper.MergeConfigMap(m); err != nil {
+		return err
+	}
 
 	return c.viper.WriteConfig()
 }
