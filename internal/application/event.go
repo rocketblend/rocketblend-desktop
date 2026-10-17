@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application/events"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
@@ -103,14 +102,13 @@ func (l *lifecycle) listenToLogEvents() {
 		select {
 		case <-l.ctx.Done():
 			return
-		default:
-			data, ok := l.events.GetNextData()
-			if ok {
-				if logEvent, isLogEvent := data.(eventwriter.Event); isLogEvent {
-					l.ui.Emit(ApplicationLogChannel, logEvent)
-				}
-			} else {
-				time.Sleep(time.Millisecond * 100)
+		case data, ok := <-l.events.Channel():
+			if !ok {
+				return
+			}
+
+			if logEvent, isLogEvent := data.(eventwriter.Event); isLogEvent {
+				l.ui.Emit(ApplicationLogChannel, logEvent)
 			}
 		}
 	}
