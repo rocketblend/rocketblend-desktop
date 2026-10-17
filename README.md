@@ -37,9 +37,10 @@ https://github.com/user-attachments/assets/18bfb929-78c3-4fc1-8aff-59507abaf9ff
 
 ## Development Requirements
 
-- [Golang 1.21.x](https://go.dev/dl/)
-- [NodeJS 20.x.x](https://nodejs.org/en/) Recommended to use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) or [windows-nvm](https://github.com/coreybutler/nvm-windows#installation--upgrades) to manage NodeJS versions.
-- [Wails 2.10.1](https://wails.io/docs/gettingstarted/installation#platform-specific-dependencies)
+- [Golang 1.26.x](https://go.dev/dl/) or later (the project builds with the toolchain set in `go.mod`)
+- [NodeJS 22.x.x](https://nodejs.org/en/) Recommended to use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) or [windows-nvm](https://github.com/coreybutler/nvm-windows#installation--upgrades) to manage NodeJS versions.
+- [Wails 2.16.0](https://wails.io/docs/gettingstarted/installation#platform-specific-dependencies)
+  - On Linux, install `libwebkit2gtk-4.1-dev` and build with `-tags webkit2_41`.
   - Then run `wails doctor` to ensure you have all the correct system-level dependencies installed.
 - [Git LFS](https://git-lfs.com/) to manage binary files (images/fonts).
 - [Mage](https://magefile.org/)

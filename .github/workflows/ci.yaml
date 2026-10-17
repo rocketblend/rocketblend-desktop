@@ -22,6 +22,5 @@ jobs:
     secrets: inherit
     permissions:
       contents: read
-      packages: write
     with:
       notarize: ${{ github.event.inputs.notarize != 'false' }}

@@ -30,6 +30,5 @@ jobs:
     secrets: inherit
     permissions:
       contents: read
-      packages: write 
     with:
       build_type: "debug"

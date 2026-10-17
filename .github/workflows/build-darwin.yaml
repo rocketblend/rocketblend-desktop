@@ -7,17 +7,13 @@ on:
         type: string
         description: "Build type: debug or release"
         required: true
-      GO_VERSION:
-        type: string
-        description: "Full Go version to use, e.g. 1.21.1"
-        required: true
       NODE_VERSION:
         type: string
         description: "Node version to use, e.g. 18, 20 etc"
         required: true
       WAILS_VERSION:
         type: string
-        description: "Wails version to use, e.g. v2.7.0"
+        description: "Wails version to use, e.g. v2.16.0"
         required: true
       NOTARIZE:
         type: boolean
@@ -25,7 +21,7 @@ on:
         default: false
     outputs:
       ReleaseTag:
-        value: ${{ jobs.Build.outputs.releaseTag }}
+        value: ${{ jobs.build-darwin.outputs.releaseTag }}
 
 jobs:
   build-darwin:
@@ -33,7 +29,6 @@ jobs:
     timeout-minutes: 30 # Notizing can sometimes take a long time:/
     permissions:
       contents: read
-      packages: write
     outputs:
       releaseTag: ${{ steps.calculateReleaseTag.outputs.releaseTag }}
 
@@ -47,7 +42,8 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ inputs.GO_VERSION }}
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
 
       - name: Install Wails
         env:

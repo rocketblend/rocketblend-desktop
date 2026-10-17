@@ -3,25 +3,15 @@ name: Build
 on:
   workflow_call:
     inputs:
-      base_image:
-        type: string
-        description: 'Base Docker image for cross-platform builds'
-        default: 'ghcr.io/rocketblend/cross-wails:v2.10.1'
-        required: false
-      go_version:
-        type: string
-        description: 'Go version for Darwin builds'
-        default: 'v1.23.7'
-        required: false
       node_version:
         type: string
-        description: 'Node version for Darwin builds'
-        default: '20'
+        description: 'Node version for all builds'
+        default: '22'
         required: false
       wails_version:
         type: string
-        description: 'Wails version for Darwin builds'
-        default: 'v2.10.1'
+        description: 'Wails CLI version for all builds'
+        default: 'v2.16.0'
         required: false
       build_type:
         type: string
@@ -33,19 +23,32 @@ on:
         description: "Whether to notarize the MacOS application (Darwin builds only)"
         default: false
 
+# Each platform builds natively on its own runner. Go is read from go.mod.
 jobs:
-  build-windows-linux:
-    uses: ./.github/workflows/build-windows-linux.yaml
+  build-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            artifact: release_bins_linux_amd64
+          - runner: ubuntu-22.04-arm
+            artifact: release_bins_linux_arm64
+          - runner: windows-latest
+            artifact: release_bins_windows_amd64
+    uses: ./.github/workflows/build-native.yaml
     secrets: inherit
     with:
-      BASE_IMAGE: ${{ inputs.base_image }}
+      RUNNER: ${{ matrix.runner }}
+      ARTIFACT_NAME: ${{ matrix.artifact }}
+      NODE_VERSION: ${{ inputs.node_version }}
+      WAILS_VERSION: ${{ inputs.wails_version }}
       BUILD_TYPE: ${{ inputs.build_type }}
 
   build-darwin:
     uses: ./.github/workflows/build-darwin.yaml
     secrets: inherit
     with:
-      GO_VERSION: ${{ inputs.go_version }}
       NODE_VERSION: ${{ inputs.node_version }}
       WAILS_VERSION: ${{ inputs.wails_version }}
       BUILD_TYPE: ${{ inputs.build_type }}

@@ -11,14 +11,14 @@ import (
 )
 
 func (r *Repository) InstallPackage(ctx context.Context, opts *types.InstallPackageOpts) (err error) {
-	if err := r.install(ctx, opts.ID); err != nil {
+	if err := r.install(ctx, opts.ID, opts.BypassUntrustedDomainCheck); err != nil {
 		return fmt.Errorf("error installing package: %w", err)
 	}
 
 	return nil
 }
 
-func (r *Repository) install(ctx context.Context, id uuid.UUID) error {
+func (r *Repository) install(ctx context.Context, id uuid.UUID, bypassUntrustedDomainCheck bool) error {
 	item, err := r.get(ctx, id)
 	if err != nil {
 		return err
@@ -44,7 +44,8 @@ func (r *Repository) install(ctx context.Context, id uuid.UUID) error {
 				Type:      results.Packs[item.Reference].Type,
 			},
 		},
-		Fetch: true,
+		Fetch:                      true,
+		BypassUntrustedDomainCheck: bypassUntrustedDomainCheck,
 	})
 	if err != nil {
 		return err
