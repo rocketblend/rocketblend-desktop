@@ -90,9 +90,7 @@ func newProject(ctx context.Context, deps *dependencies) *Project {
 }
 
 func (s *Project) GetProject(opts GetPackageOpts) (*GetProjectResult, error) {
-	ctx := context.Background()
-
-	project, err := s.portfolio.GetProject(ctx, &types.GetProjectOpts{
+	project, err := s.portfolio.GetProject(s.ctx, &types.GetProjectOpts{
 		ID: opts.ID,
 	})
 	if err != nil {
@@ -106,9 +104,7 @@ func (s *Project) GetProject(opts GetPackageOpts) (*GetProjectResult, error) {
 }
 
 func (s *Project) ListProjects(opts ListProjectsOpts) (*ListProjectsResult, error) {
-	ctx := context.Background()
-
-	response, err := s.portfolio.ListProjects(ctx, listoption.WithQuery(opts.Query))
+	response, err := s.portfolio.ListProjects(s.ctx, listoption.WithQuery(opts.Query))
 	if err != nil {
 		s.logger.Error("failed to list projects", map[string]interface{}{
 			"error": err.Error(),
@@ -238,7 +234,8 @@ func (s *Project) DeleteProject(opts DeleteProjectOpts) error {
 }
 
 func (s *Project) RunProject(opts RunProjectOpts) error {
-	ctx := context.Background()
+	// Blender is started with this context and must outlive the app.
+	ctx := context.WithoutCancel(s.ctx)
 
 	if err := s.portfolio.RunProject(ctx, &types.RunProjectOpts{
 		ID: opts.ID,

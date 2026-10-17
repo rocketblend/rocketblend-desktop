@@ -1,7 +1,6 @@
 package application
 
 import (
-	"context"
 	"errors"
 
 	"github.com/rocketblend/rocketblend-desktop/internal/application/events"
@@ -66,7 +65,7 @@ func (l *lifecycle) handleProjectRunEvent(e types.Eventer) error {
 	}
 
 	// TODO: Move the metric creation into the portfolio functions???
-	if err := l.tracker.CreateMetric(context.Background(), &types.CreateMetricOpts{
+	if err := l.tracker.CreateMetric(l.ctx, &types.CreateMetricOpts{
 		Domain: ev.ID.String(),
 		Name:   ProjectRunMetric,
 		Value:  1,

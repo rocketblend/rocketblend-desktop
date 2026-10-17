@@ -74,9 +74,7 @@ func newPackage(ctx context.Context, deps *dependencies) *Package {
 }
 
 func (s *Package) GetPackage(opts GetPackageOpts) (*GetPackageResult, error) {
-	ctx := context.Background()
-
-	result, err := s.catalog.GetPackage(ctx, &types.GetPackageOpts{
+	result, err := s.catalog.GetPackage(s.ctx, &types.GetPackageOpts{
 		ID: opts.ID,
 	})
 	if err != nil {
@@ -90,8 +88,6 @@ func (s *Package) GetPackage(opts GetPackageOpts) (*GetPackageResult, error) {
 }
 
 func (s *Package) ListPackages(opts ListPackagesOpts) (*ListPackagesResult, error) {
-	ctx := context.Background()
-
 	s.logger.Debug("finding all packages", map[string]interface{}{
 		"query": opts.Query,
 		"type":  opts.Type,
@@ -99,7 +95,7 @@ func (s *Package) ListPackages(opts ListPackagesOpts) (*ListPackagesResult, erro
 		"refs":  opts.References,
 	})
 
-	response, err := s.catalog.ListPackages(ctx, []listoption.ListOption{
+	response, err := s.catalog.ListPackages(s.ctx, []listoption.ListOption{
 		listoption.WithQuery(opts.Query),
 		listoption.WithReferences(opts.References...),
 		listoption.WithCategory(string(opts.Type)),
