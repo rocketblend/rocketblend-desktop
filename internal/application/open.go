@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	rbtypes "github.com/rocketblend/rocketblend/pkg/types"
@@ -20,6 +21,10 @@ func openWithRocketBlend(ctx context.Context, driver rbtypes.Driver, blender rbt
 	})
 	if err != nil {
 		return err
+	}
+
+	if len(resolve.Installations) == 0 {
+		return fmt.Errorf("no rocketblend profile found for %s", blendFilePath)
 	}
 
 	if err := blender.Run(ctx, &rbtypes.RunOpts{

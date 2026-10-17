@@ -81,7 +81,9 @@
         </div>
         {/if}
         <div class="flex-wrap gap-2 space-y-1 w-full">
-            <PackageHostBadge uri={pack.uri}/>
+            {#if pack.uri }
+                <PackageHostBadge uri={pack.uri}/>
+            {/if}
             <PackageBadge label={pack.platform.toString()}/>
             {#if pack.version }
                 <PackageBadge label={pack.version}/>

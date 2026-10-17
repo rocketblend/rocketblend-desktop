@@ -276,6 +276,18 @@ export namespace application {
 		    return a;
 		}
 	}
+	export class GetProjectOpts {
+	    id: number[];
+	
+	    static createFrom(source: any = {}) {
+	        return new GetProjectOpts(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	    }
+	}
 	export class GetProjectResult {
 	    project?: types.Project;
 	
@@ -907,57 +919,6 @@ export namespace types {
 	        this.bytesPerSecond = source["bytesPerSecond"];
 	    }
 	}
-	export class URI {
-	    Scheme: string;
-	    Opaque: string;
-	    // Go type: url
-	    User?: any;
-	    Host: string;
-	    Path: string;
-	    Fragment: string;
-	    RawQuery: string;
-	    RawPath: string;
-	    RawFragment: string;
-	    ForceQuery: boolean;
-	    OmitHost: boolean;
-	
-	    static createFrom(source: any = {}) {
-	        return new URI(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.Scheme = source["Scheme"];
-	        this.Opaque = source["Opaque"];
-	        this.User = this.convertValues(source["User"], null);
-	        this.Host = source["Host"];
-	        this.Path = source["Path"];
-	        this.Fragment = source["Fragment"];
-	        this.RawQuery = source["RawQuery"];
-	        this.RawPath = source["RawPath"];
-	        this.RawFragment = source["RawFragment"];
-	        this.ForceQuery = source["ForceQuery"];
-	        this.OmitHost = source["OmitHost"];
-	    }
-	
-		convertValues(a: any, classs: any, asMap: boolean = false): any {
-		    if (!a) {
-		        return a;
-		    }
-		    if (a.slice && a.map) {
-		        return (a as any[]).map(elem => this.convertValues(elem, classs));
-		    } else if ("object" === typeof a) {
-		        if (asMap) {
-		            for (const key of Object.keys(a)) {
-		                a[key] = new classs(a[key]);
-		            }
-		            return a;
-		        }
-		        return new classs(a);
-		    }
-		    return a;
-		}
-	}
 	export class Package {
 	    id: number[];
 	    type: enums.PackageType;
@@ -971,8 +932,8 @@ export namespace types {
 	    installationPath: string;
 	    operations: string[];
 	    platform: string;
-	    uri?: URI;
-	    version?: semver.Version;
+	    uri?: string;
+	    version?: string;
 	    progress?: Progress;
 	    // Go type: time
 	    updatedAt: any;
@@ -995,8 +956,8 @@ export namespace types {
 	        this.installationPath = source["installationPath"];
 	        this.operations = source["operations"];
 	        this.platform = source["platform"];
-	        this.uri = this.convertValues(source["uri"], URI);
-	        this.version = this.convertValues(source["version"], semver.Version);
+	        this.uri = source["uri"];
+	        this.version = source["version"];
 	        this.progress = this.convertValues(source["progress"], Progress);
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
 	    }
@@ -1051,6 +1012,57 @@ export namespace types {
 	        this.strict = source["strict"];
 	        this.version = source["version"];
 	        this.updatedAt = this.convertValues(source["updatedAt"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class URI {
+	    Scheme: string;
+	    Opaque: string;
+	    // Go type: url
+	    User?: any;
+	    Host: string;
+	    Path: string;
+	    Fragment: string;
+	    RawQuery: string;
+	    RawPath: string;
+	    RawFragment: string;
+	    ForceQuery: boolean;
+	    OmitHost: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new URI(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Scheme = source["Scheme"];
+	        this.Opaque = source["Opaque"];
+	        this.User = this.convertValues(source["User"], null);
+	        this.Host = source["Host"];
+	        this.Path = source["Path"];
+	        this.Fragment = source["Fragment"];
+	        this.RawQuery = source["RawQuery"];
+	        this.RawPath = source["RawPath"];
+	        this.RawFragment = source["RawFragment"];
+	        this.ForceQuery = source["ForceQuery"];
+	        this.OmitHost = source["OmitHost"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

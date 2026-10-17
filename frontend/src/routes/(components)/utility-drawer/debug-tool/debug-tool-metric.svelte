@@ -4,7 +4,7 @@
 
     let domain: string = "";
     let name: string= "";;
-    let aggregate: types.Aggregate;
+    let aggregate: types.Aggregate | undefined;
 
     const fetchMetrics = async () => {
         const request = application.AggregateMetricsOpts.createFrom({
@@ -13,7 +13,7 @@
         });
 
         AggregateMetrics(request).then((response) => {
-            aggregate = response;
+            aggregate = response.Aggregate;
         }).catch((error) => {
             console.error(error);
         });

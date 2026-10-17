@@ -7,8 +7,7 @@ import (
 
 type (
 	dependencies struct {
-		logger    types.Logger
-		validator types.Validator
+		logger types.Logger
 
 		dispatcher types.Dispatcher
 		tracker    types.Tracker
@@ -24,11 +23,6 @@ type (
 
 func setupDependencies(container types.Container) (*dependencies, error) {
 	logger, err := container.GetLogger()
-	if err != nil {
-		return nil, err
-	}
-
-	validator, err := container.GetValidator()
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +64,6 @@ func setupDependencies(container types.Container) (*dependencies, error) {
 
 	return &dependencies{
 		logger:         logger,
-		validator:      validator,
 		dispatcher:     dispatcher,
 		tracker:        tracker,
 		operator:       operator,

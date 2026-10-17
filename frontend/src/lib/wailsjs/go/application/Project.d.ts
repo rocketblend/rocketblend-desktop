@@ -8,7 +8,7 @@ export function CreateProject(arg1:application.CreateProjectOpts):Promise<applic
 
 export function DeleteProject(arg1:application.DeleteProjectOpts):Promise<void>;
 
-export function GetProject(arg1:application.GetPackageOpts):Promise<application.GetProjectResult>;
+export function GetProject(arg1:application.GetProjectOpts):Promise<application.GetProjectResult>;
 
 export function ListProjects(arg1:application.ListProjectsOpts):Promise<application.ListProjectsResult>;
 

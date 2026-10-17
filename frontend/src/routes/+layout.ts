@@ -24,7 +24,7 @@ export const load: LayoutLoad = async ({ url, depends }) => {
 
     let project: types.Project | undefined;
     if (selectedId) {
-        await GetProject(application.GetPackageOpts.createFrom({
+        await GetProject(application.GetProjectOpts.createFrom({
             id: selectedId,
         })).then((result) => {
             project = result.project;

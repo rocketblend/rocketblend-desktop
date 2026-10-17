@@ -7,7 +7,7 @@ import { ListPackages } from '$lib/wailsjs/go/application/Package'
 import { application, types } from '$lib/wailsjs/go/models';
 
 export const load: PageLoad = async ({ params }) => {
-    const result = await GetProject(application.GetPackageOpts.createFrom({
+    const result = await GetProject(application.GetProjectOpts.createFrom({
         id: params.id,
     }))
 

@@ -89,7 +89,7 @@ func newProject(ctx context.Context, deps *dependencies) *Project {
 	}
 }
 
-func (s *Project) GetProject(opts GetPackageOpts) (*GetProjectResult, error) {
+func (s *Project) GetProject(opts GetProjectOpts) (*GetProjectResult, error) {
 	project, err := s.portfolio.GetProject(s.ctx, &types.GetProjectOpts{
 		ID: opts.ID,
 	})

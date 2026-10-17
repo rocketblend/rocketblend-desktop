@@ -40,8 +40,8 @@ type (
 		InstallationPath string              `json:"installationPath"`
 		Operations       []string            `json:"operations"`
 		Platform         types.Platform      `json:"platform"`
-		URI              *types.URI          `json:"uri"`
-		Version          *semver.Version     `json:"version"`
+		URI              *types.URI          `json:"uri" ts_type:"string"`
+		Version          *semver.Version     `json:"version" ts_type:"string"`
 		Progress         *Progress           `json:"progress,omitempty"`
 		UpdatedAt        time.Time           `json:"updatedAt"`
 	}
