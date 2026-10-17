@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/rocketblend/rocketblend-desktop/internal/helpers"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type (
@@ -36,40 +35,25 @@ type (
 	}
 )
 
-func (d *Driver) OpenDirectoryDialog(opts OpenDialogOptions) (string, error) {
-	path, err := runtime.OpenDirectoryDialog(d.ctx, convertOpenDialogOptions(opts))
-	if err != nil {
-		return "", err
-	}
-
-	return path, nil
+func (s *System) OpenDirectoryDialog(opts OpenDialogOptions) (string, error) {
+	return s.ui.OpenDirectoryDialog(opts)
 }
 
-func (d *Driver) SaveFileDialog(opts SaveDialogOptions) (string, error) {
-	path, err := runtime.SaveFileDialog(d.ctx, convertSaveDialogOptions(opts))
-	if err != nil {
-		return "", err
-	}
-
-	return path, nil
+func (s *System) SaveFileDialog(opts SaveDialogOptions) (string, error) {
+	return s.ui.SaveFileDialog(opts)
 }
 
-func (d *Driver) OpenFileDialog(opts OpenDialogOptions) (string, error) {
-	path, err := runtime.OpenFileDialog(d.ctx, convertOpenDialogOptions(opts))
-	if err != nil {
-		return "", err
-	}
-
-	return path, nil
+func (s *System) OpenFileDialog(opts OpenDialogOptions) (string, error) {
+	return s.ui.OpenFileDialog(opts)
 }
 
-func (d *Driver) OpenExplorer(opts OpenExplorerOptions) error {
+func (s *System) OpenExplorer(opts OpenExplorerOptions) error {
 	path, err := determinePath(opts.Path)
 	if err != nil {
 		return err
 	}
 
-	if err := helpers.Explore(d.ctx, path); err != nil {
+	if err := helpers.Explore(s.ctx, path); err != nil {
 		return err
 	}
 
@@ -85,36 +69,4 @@ func determinePath(path string) (string, error) {
 	}
 
 	return path, nil
-}
-
-func convertSaveDialogOptions(opts SaveDialogOptions) runtime.SaveDialogOptions {
-	return runtime.SaveDialogOptions{
-		DefaultDirectory:     opts.DefaultDirectory,
-		DefaultFilename:      opts.DefaultFilename,
-		Title:                opts.Title,
-		Filters:              convertFileFilters(opts.Filters),
-		CanCreateDirectories: true,
-	}
-}
-
-func convertOpenDialogOptions(opts OpenDialogOptions) runtime.OpenDialogOptions {
-	return runtime.OpenDialogOptions{
-		DefaultDirectory:     opts.DefaultDirectory,
-		DefaultFilename:      opts.DefaultFilename,
-		CanCreateDirectories: true,
-		Title:                opts.Title,
-		Filters:              convertFileFilters(opts.Filters),
-	}
-}
-
-func convertFileFilters(filters []FileFilter) []runtime.FileFilter {
-	result := make([]runtime.FileFilter, 0, len(filters))
-	for _, filter := range filters {
-		result = append(result, runtime.FileFilter{
-			DisplayName: filter.DisplayName,
-			Pattern:     filter.Pattern,
-		})
-	}
-
-	return result
 }

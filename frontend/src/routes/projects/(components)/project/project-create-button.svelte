@@ -2,7 +2,7 @@
     import { getModalStore, getToastStore } from "@skeletonlabs/skeleton";
     import type { ModalSettings, ToastSettings } from "@skeletonlabs/skeleton";
 
-    import { CreateProject } from "$lib/wailsjs/go/application/Driver";
+    import { CreateProject } from "$lib/wailsjs/go/application/Project";
     import { application } from "$lib/wailsjs/go/models"
 			
     const modalStore = getModalStore();

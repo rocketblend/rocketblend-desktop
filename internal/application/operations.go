@@ -9,6 +9,14 @@ import (
 )
 
 type (
+	Operation struct {
+		logger types.Logger
+
+		operator types.Operator
+
+		ctx context.Context
+	}
+
 	GetOperationOpts struct {
 		ID uuid.UUID `json:"id"`
 	}
@@ -29,10 +37,18 @@ type (
 	}
 )
 
-func (d *Driver) GetOperation(opts GetOperationOpts) (*GetOperationResult, error) {
-	operation, err := d.operator.Get(d.ctx, opts.ID)
+func newOperation(ctx context.Context, deps *dependencies) *Operation {
+	return &Operation{
+		logger:   deps.logger,
+		operator: deps.operator,
+		ctx:      ctx,
+	}
+}
+
+func (s *Operation) GetOperation(opts GetOperationOpts) (*GetOperationResult, error) {
+	operation, err := s.operator.Get(s.ctx, opts.ID)
 	if err != nil {
-		d.logger.Error("failed to get operation", map[string]interface{}{
+		s.logger.Error("failed to get operation", map[string]interface{}{
 			"error": err.Error(),
 			"id":    opts.ID,
 		})
@@ -44,10 +60,10 @@ func (d *Driver) GetOperation(opts GetOperationOpts) (*GetOperationResult, error
 	}, nil
 }
 
-func (d *Driver) ListOperations() (*ListOperationsResult, error) {
-	operations, err := d.operator.List(d.ctx)
+func (s *Operation) ListOperations() (*ListOperationsResult, error) {
+	operations, err := s.operator.List(s.ctx)
 	if err != nil {
-		d.logger.Error("failed to list operations", map[string]interface{}{
+		s.logger.Error("failed to list operations", map[string]interface{}{
 			"error": err.Error(),
 		})
 		return nil, err
@@ -58,9 +74,9 @@ func (d *Driver) ListOperations() (*ListOperationsResult, error) {
 	}, nil
 }
 
-func (d *Driver) CancelOperation(opts CancelOperationOpts) error {
-	if err := d.operator.Cancel(opts.ID); err != nil {
-		d.logger.Error("failed to cancel operation", map[string]interface{}{
+func (s *Operation) CancelOperation(opts CancelOperationOpts) error {
+	if err := s.operator.Cancel(opts.ID); err != nil {
+		s.logger.Error("failed to cancel operation", map[string]interface{}{
 			"error": err.Error(),
 			"id":    opts.ID,
 		})
@@ -70,13 +86,13 @@ func (d *Driver) CancelOperation(opts CancelOperationOpts) error {
 	return nil
 }
 
-func (d *Driver) LongRunningOperation() (uuid.UUID, error) {
-	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
+func (s *Operation) LongRunningOperation() (uuid.UUID, error) {
+	opid, err := s.operator.Create(s.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
 		// Simulate a long-running operation
 		for i := 0; i < 10; i++ {
 			select {
 			case <-ctx.Done():
-				d.logger.Debug("long running operation canceled", map[string]interface{}{"opid": opid})
+				s.logger.Debug("long running operation canceled", map[string]interface{}{"opid": opid})
 				return nil, ctx.Err()
 			default:
 				time.Sleep(2 * time.Second)

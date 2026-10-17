@@ -5,7 +5,7 @@
 
     import { EventsOn } from '$lib/wailsjs/runtime';
     import { application, enums, types } from '$lib/wailsjs/go/models';
-    import { ListPackages } from '$lib/wailsjs/go/application/Driver';
+    import { ListPackages } from '$lib/wailsjs/go/application/Package';
 
     import { t } from '$lib/translations/translations';
     import { createPackageStore } from '$lib/stores';

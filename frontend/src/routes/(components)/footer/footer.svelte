@@ -4,7 +4,8 @@
     import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
     import { type types, application, enums } from '$lib/wailsjs/go/models';
-    import { RunProject, OpenExplorer } from '$lib/wailsjs/go/application/Driver';
+    import { RunProject } from '$lib/wailsjs/go/application/Project';
+    import { OpenExplorer } from '$lib/wailsjs/go/application/System';
 
     import FooterContent from './footer-content.svelte';
 

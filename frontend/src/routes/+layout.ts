@@ -2,7 +2,9 @@ import { locale, loadTranslations } from '$lib/translations/translations';
 import type { LayoutLoad } from './$types';
 
 import { getSelectedProjectStore } from '$lib/stores';
-import { GetDetails, GetPreferences, GetProject, ListPackages } from '$lib/wailsjs/go/application/Driver'
+import { GetDetails, GetPreferences } from '$lib/wailsjs/go/application/System'
+import { GetProject } from '$lib/wailsjs/go/application/Project'
+import { ListPackages } from '$lib/wailsjs/go/application/Package'
 import { application, types } from '$lib/wailsjs/go/models';
 
 export const ssr = false;

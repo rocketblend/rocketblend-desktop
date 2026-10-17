@@ -14,6 +14,18 @@ import (
 )
 
 type (
+	Project struct {
+		logger types.Logger
+
+		operator  types.Operator
+		portfolio types.Portfolio
+
+		configurator   types.Configurator
+		rbConfigurator rbtypes.Configurator
+
+		ctx context.Context
+	}
+
 	GetProjectOpts struct {
 		ID uuid.UUID `json:"id"`
 	}
@@ -66,14 +78,25 @@ type (
 	}
 )
 
-func (d *Driver) GetProject(opts GetPackageOpts) (*GetProjectResult, error) {
+func newProject(ctx context.Context, deps *dependencies) *Project {
+	return &Project{
+		logger:         deps.logger,
+		operator:       deps.operator,
+		portfolio:      deps.portfolio,
+		configurator:   deps.configurator,
+		rbConfigurator: deps.rbConfigurator,
+		ctx:            ctx,
+	}
+}
+
+func (s *Project) GetProject(opts GetPackageOpts) (*GetProjectResult, error) {
 	ctx := context.Background()
 
-	project, err := d.portfolio.GetProject(ctx, &types.GetProjectOpts{
+	project, err := s.portfolio.GetProject(ctx, &types.GetProjectOpts{
 		ID: opts.ID,
 	})
 	if err != nil {
-		d.logger.Error("failed to find project by id", map[string]interface{}{"error": err.Error()})
+		s.logger.Error("failed to find project by id", map[string]interface{}{"error": err.Error()})
 		return nil, err
 	}
 
@@ -82,19 +105,19 @@ func (d *Driver) GetProject(opts GetPackageOpts) (*GetProjectResult, error) {
 	}, nil
 }
 
-func (d *Driver) ListProjects(opts ListProjectsOpts) (*ListProjectsResult, error) {
+func (s *Project) ListProjects(opts ListProjectsOpts) (*ListProjectsResult, error) {
 	ctx := context.Background()
 
-	response, err := d.portfolio.ListProjects(ctx, listoption.WithQuery(opts.Query))
+	response, err := s.portfolio.ListProjects(ctx, listoption.WithQuery(opts.Query))
 	if err != nil {
-		d.logger.Error("failed to list projects", map[string]interface{}{
+		s.logger.Error("failed to list projects", map[string]interface{}{
 			"error": err.Error(),
 			"query": opts.Query,
 		})
 		return nil, err
 	}
 
-	d.logger.Debug("found projects", map[string]interface{}{
+	s.logger.Debug("found projects", map[string]interface{}{
 		"total": len(response.Projects),
 	})
 
@@ -103,34 +126,34 @@ func (d *Driver) ListProjects(opts ListProjectsOpts) (*ListProjectsResult, error
 	}, nil
 }
 
-func (d *Driver) CreateProject(opts CreateProjectOpts) (*CreateProjectResult, error) {
-	projectPath, err := d.getProjectPath()
+func (s *Project) CreateProject(opts CreateProjectOpts) (*CreateProjectResult, error) {
+	projectPath, err := s.getProjectPath()
 	if err != nil {
 		return nil, err
 	}
 
-	defaultBuild, err := d.getDefaultBuild()
+	defaultBuild, err := s.getDefaultBuild()
 	if err != nil {
 		return nil, err
 	}
 
 	fileName := helpers.DisplayNameToFilename(opts.Name)
-	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
-		result, err := d.portfolio.CreateProject(ctx, &types.CreateProjectOpts{
+	opid, err := s.operator.Create(s.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
+		result, err := s.portfolio.CreateProject(ctx, &types.CreateProjectOpts{
 			DisplayName:   opts.Name,
 			BlendFileName: fileName + rbtypes.BlendFileExtension,
 			Path:          filepath.Join(projectPath, fileName),
 			Build:         defaultBuild,
 		})
 		if err != nil {
-			d.logger.Error("failed to create project", map[string]interface{}{
+			s.logger.Error("failed to create project", map[string]interface{}{
 				"error": err.Error(),
 				"opid":  opid,
 			})
 			return nil, err
 		}
 
-		d.logger.Debug("project created", map[string]interface{}{
+		s.logger.Debug("project created", map[string]interface{}{
 			"id":   result.ID,
 			"opid": opid,
 		})
@@ -146,12 +169,12 @@ func (d *Driver) CreateProject(opts CreateProjectOpts) (*CreateProjectResult, er
 	}, nil
 }
 
-func (d *Driver) AddProjectPackage(opts AddProjectPackageOpts) error {
-	if err := d.portfolio.AddProjectPackage(d.ctx, &types.AddProjectPackageOpts{
+func (s *Project) AddProjectPackage(opts AddProjectPackageOpts) error {
+	if err := s.portfolio.AddProjectPackage(s.ctx, &types.AddProjectPackageOpts{
 		ID:        opts.ID,
 		Reference: opts.Reference,
 	}); err != nil {
-		d.logger.Error("failed to add package to project", map[string]interface{}{
+		s.logger.Error("failed to add package to project", map[string]interface{}{
 			"error":     err.Error(),
 			"id":        opts.ID,
 			"reference": opts.Reference,
@@ -159,7 +182,7 @@ func (d *Driver) AddProjectPackage(opts AddProjectPackageOpts) error {
 		return err
 	}
 
-	d.logger.Debug("package added to project", map[string]interface{}{
+	s.logger.Debug("package added to project", map[string]interface{}{
 		"id":        opts.ID,
 		"reference": opts.Reference,
 	})
@@ -167,12 +190,12 @@ func (d *Driver) AddProjectPackage(opts AddProjectPackageOpts) error {
 	return nil
 }
 
-func (d *Driver) RemoveProjectPackage(opts RemoveProjectPackageOpts) error {
-	if err := d.portfolio.RemoveProjectPackage(d.ctx, &types.RemoveProjectPackageOpts{
+func (s *Project) RemoveProjectPackage(opts RemoveProjectPackageOpts) error {
+	if err := s.portfolio.RemoveProjectPackage(s.ctx, &types.RemoveProjectPackageOpts{
 		ID:        opts.ID,
 		Reference: opts.Reference,
 	}); err != nil {
-		d.logger.Error("failed to remove package from project", map[string]interface{}{
+		s.logger.Error("failed to remove package from project", map[string]interface{}{
 			"error":     err.Error(),
 			"id":        opts.ID,
 			"reference": opts.Reference,
@@ -180,7 +203,7 @@ func (d *Driver) RemoveProjectPackage(opts RemoveProjectPackageOpts) error {
 		return err
 	}
 
-	d.logger.Debug("package removed from project", map[string]interface{}{
+	s.logger.Debug("package removed from project", map[string]interface{}{
 		"id":        opts.ID,
 		"reference": opts.Reference,
 	})
@@ -189,12 +212,12 @@ func (d *Driver) RemoveProjectPackage(opts RemoveProjectPackageOpts) error {
 }
 
 // UpdateProject updates a project
-func (d *Driver) UpdateProject(opts UpdateProjectOpts) error {
-	if err := d.portfolio.UpdateProject(d.ctx, &types.UpdateProjectOpts{
+func (s *Project) UpdateProject(opts UpdateProjectOpts) error {
+	if err := s.portfolio.UpdateProject(s.ctx, &types.UpdateProjectOpts{
 		ID:   opts.ID,
 		Name: opts.Name,
 	}); err != nil {
-		d.logger.Error("failed to update project", map[string]interface{}{
+		s.logger.Error("failed to update project", map[string]interface{}{
 			"error": err.Error(),
 			"id":    opts.ID,
 			"name":  opts.Name,
@@ -202,45 +225,45 @@ func (d *Driver) UpdateProject(opts UpdateProjectOpts) error {
 		return err
 	}
 
-	d.logger.Debug("project updated", map[string]interface{}{
+	s.logger.Debug("project updated", map[string]interface{}{
 		"id": opts.ID,
 	})
 
 	return nil
 }
 
-func (d *Driver) DeleteProject(opts DeleteProjectOpts) error {
-	d.logger.Debug("deleting project", map[string]interface{}{"id": opts.ID})
+func (s *Project) DeleteProject(opts DeleteProjectOpts) error {
+	s.logger.Debug("deleting project", map[string]interface{}{"id": opts.ID})
 	return types.ErrNotImplement
 }
 
-func (d *Driver) RunProject(opts RunProjectOpts) error {
+func (s *Project) RunProject(opts RunProjectOpts) error {
 	ctx := context.Background()
 
-	if err := d.portfolio.RunProject(ctx, &types.RunProjectOpts{
+	if err := s.portfolio.RunProject(ctx, &types.RunProjectOpts{
 		ID: opts.ID,
 	}); err != nil {
-		d.logger.Error("failed to run project", map[string]interface{}{
+		s.logger.Error("failed to run project", map[string]interface{}{
 			"error": err.Error(),
 			"id":    opts.ID,
 		})
 		return err
 	}
 
-	d.logger.Debug("project started", map[string]interface{}{
+	s.logger.Debug("project started", map[string]interface{}{
 		"id": opts.ID,
 	})
 
 	return nil
 }
 
-func (d *Driver) RenderProject(opts RenderProjectOpts) error {
-	d.logger.Debug("project rendered", map[string]interface{}{"id": opts.ID})
+func (s *Project) RenderProject(opts RenderProjectOpts) error {
+	s.logger.Debug("project rendered", map[string]interface{}{"id": opts.ID})
 	return types.ErrNotImplement
 }
 
-func (d *Driver) getDefaultBuild() (reference.Reference, error) {
-	config, err := d.rbConfigurator.Get()
+func (s *Project) getDefaultBuild() (reference.Reference, error) {
+	config, err := s.rbConfigurator.Get()
 	if err != nil {
 		return "", err
 	}
@@ -248,8 +271,8 @@ func (d *Driver) getDefaultBuild() (reference.Reference, error) {
 	return config.DefaultBuild, nil
 }
 
-func (d *Driver) getProjectPath() (string, error) {
-	config, err := d.configurator.Get()
+func (s *Project) getProjectPath() (string, error) {
+	config, err := s.configurator.Get()
 	if err != nil {
 		return "", err
 	}

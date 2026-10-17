@@ -1,7 +1,7 @@
 import type { PageLoad } from './$types';
 import { error} from '@sveltejs/kit';
 
-import { GetPackage } from '$lib/wailsjs/go/application/Driver'
+import { GetPackage } from '$lib/wailsjs/go/application/Package'
 import { application } from '$lib/wailsjs/go/models';
 
 export const load: PageLoad = async ({ params }) => {

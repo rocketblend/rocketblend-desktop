@@ -6,7 +6,7 @@
 
     import { t } from '$lib/translations/translations';
     import { application } from "$lib/wailsjs/go/models";
-    import { OpenDirectoryDialog, OpenExplorer, UpdatePreferences } from '$lib/wailsjs/go/application/Driver';
+    import { OpenDirectoryDialog, OpenExplorer, UpdatePreferences } from '$lib/wailsjs/go/application/System';
 
     export let data: PageData;
 

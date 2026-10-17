@@ -6,7 +6,7 @@
     import { type ToastSettings, type ModalSettings, getToastStore, getModalStore  } from '@skeletonlabs/skeleton';
 
     import { type application, type types, enums } from '$lib/wailsjs/go/models';
-	import { UpdateProject } from '$lib/wailsjs/go/application/Driver';
+	import { UpdateProject } from '$lib/wailsjs/go/application/Project';
 
     import { t } from '$lib/translations/translations';
     import { getSelectedProjectStore } from '$lib/stores';

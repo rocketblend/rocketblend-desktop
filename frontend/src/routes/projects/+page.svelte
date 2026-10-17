@@ -5,7 +5,7 @@
 
     import { t } from '$lib/translations/translations';
     
-    import { RunProject } from '$lib/wailsjs/go/application/Driver';
+    import { RunProject } from '$lib/wailsjs/go/application/Project';
     import { application } from '$lib/wailsjs/go/models';
 
     import { getSelectedProjectStore } from '$lib/stores';

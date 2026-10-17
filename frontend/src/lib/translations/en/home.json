@@ -69,16 +69,6 @@
         }
     },
     "debug":{
-        "request" : {
-            "start": "Start Slow Request",
-            "cancel": "Cancel Request",
-            "status": "Status",
-            "notStarted": "Not Started",
-            "running": "Running...",
-            "completed": "Completed",
-            "cancelled": "Cancelled",
-            "failed": "Failed"
-        },
         "operation" : {
             "start": "Start Operation",
             "cancel": "Cancel Operation",

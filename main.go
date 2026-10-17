@@ -44,8 +44,8 @@ func run(args []string) error {
 		return err
 	}
 
-	if len(os.Args) > 1 {
-		if err := app.Open(context.Background(), os.Args[1]); err == nil {
+	if len(args) > 1 {
+		if err := app.Open(context.Background(), args[1]); err == nil {
 			// If we successfully launched a project, we're done.
 			return nil
 		}

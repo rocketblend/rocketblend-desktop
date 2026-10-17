@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { AggregateMetrics } from '$lib/wailsjs/go/application/Driver';
+    import { AggregateMetrics } from '$lib/wailsjs/go/application/System';
     import { application, types } from '$lib/wailsjs/go/models';
 
     let domain: string = "";

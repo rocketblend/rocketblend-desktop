@@ -12,6 +12,7 @@ import (
 	"github.com/rocketblend/rocketblend-desktop/internal/application/container"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/enums"
 	"github.com/rocketblend/rocketblend-desktop/internal/application/fileserver"
+	"github.com/rocketblend/rocketblend-desktop/internal/application/types"
 	"github.com/rocketblend/rocketblend-desktop/internal/buffer"
 	"github.com/rocketblend/rocketblend-desktop/internal/eventwriter"
 	"github.com/rocketblend/rocketblend/pkg/runtime"
@@ -39,11 +40,21 @@ type (
 	Application struct {
 		id          uuid.UUID
 		platform    runtime.Platform
-		driver      *Driver
 		rocketblend rbtypes.Driver
 		blender     rbtypes.Blender
 		handler     http.Handler
 		assets      fs.FS
+		logger      types.Logger
+
+		cancel context.CancelFunc
+
+		ui        *wailsUI
+		lifecycle *lifecycle
+
+		project   *Project
+		pkg       *Package
+		operation *Operation
+		system    *System
 	}
 )
 
@@ -93,15 +104,9 @@ func New(opts ApplicationOpts) (*Application, error) {
 		return nil, err
 	}
 
-	driver, err := NewDriver(
-		WithContainer(container),
-		WithWriter(events),
-		WithPlatform(platform),
-		WithVersion(opts.Version),
-		WithArgs(opts.Args...),
-	)
+	deps, err := setupDependencies(container)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to setup dependencies: %w", err)
 	}
 
 	rocketblend, err := container.GetRBDriver()
@@ -114,14 +119,24 @@ func New(opts ApplicationOpts) (*Application, error) {
 		return nil, err
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	ui := newWailsUI()
+
 	return &Application{
 		id:          id,
 		platform:    platform,
 		assets:      opts.Assets,
-		driver:      driver,
 		rocketblend: rocketblend,
 		blender:     blender,
 		handler:     handler,
+		logger:      deps.logger,
+		cancel:      cancel,
+		ui:          ui,
+		lifecycle:   newLifecycle(ctx, deps, ui, events, opts.Args),
+		project:     newProject(ctx, deps),
+		pkg:         newPackage(ctx, deps),
+		operation:   newOperation(ctx, deps),
+		system:      newSystem(ctx, deps, ui, opts.Version, platform),
 	}, nil
 }
 
@@ -154,13 +169,15 @@ func (a *Application) Execute() error {
 			},
 			OnFileOpen: func(filePath string) {
 				if err := a.Open(context.Background(), filePath); err != nil {
-					a.driver.logger.Error("failed to open blend file", map[string]interface{}{"error": err})
+					a.logger.Error("failed to open blend file", map[string]interface{}{"error": err})
 				}
 			},
 		},
 		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId:               a.id.String(),
-			OnSecondInstanceLaunch: a.driver.onSecondInstanceLaunch,
+			UniqueId: a.id.String(),
+			OnSecondInstanceLaunch: func(data options.SecondInstanceData) {
+				a.lifecycle.onSecondInstanceLaunch(data.Args, data.WorkingDirectory)
+			},
 		},
 		EnumBind: []interface{}{
 			enums.PackageStates,
@@ -169,14 +186,31 @@ func (a *Application) Execute() error {
 		MinHeight:        580,
 		MinWidth:         800,
 		BackgroundColour: &options.RGBA{R: 00, G: 00, B: 00, A: 1},
-		OnStartup:        a.driver.startup,
-		OnShutdown:       a.driver.shutdown,
-		OnDomReady:       a.driver.onDomReady,
+		OnStartup:        a.startup,
+		OnShutdown:       a.shutdown,
+		OnDomReady:       a.domReady,
 		Frameless:        frameless,
 		Bind: []interface{}{
-			a.driver,
+			a.project,
+			a.pkg,
+			a.operation,
+			a.system,
 		},
 	})
+}
+
+func (a *Application) startup(ctx context.Context) {
+	a.ui.startup(ctx)
+	a.lifecycle.startup()
+}
+
+func (a *Application) shutdown(ctx context.Context) {
+	a.cancel()
+	a.lifecycle.shutdown()
+}
+
+func (a *Application) domReady(ctx context.Context) {
+	a.lifecycle.onDomReady()
 }
 
 func (a *Application) Open(ctx context.Context, filePath string) error {

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { OpenExplorer } from '$lib/wailsjs/go/application/Driver';
+    import { OpenExplorer } from '$lib/wailsjs/go/application/System';
     import { application } from '$lib/wailsjs/go/models';
 
     import { AlertAction } from '$lib/components/ui/alert';

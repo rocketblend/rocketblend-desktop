@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getToastStore, getModalStore, type ToastSettings, type ModalSettings } from '@skeletonlabs/skeleton';
 
-    import { UninstallPackage } from '$lib/wailsjs/go/application/Driver';
+    import { UninstallPackage } from '$lib/wailsjs/go/application/Package';
     import { application } from '$lib/wailsjs/go/models';
 
     import { AlertAction } from '$lib/components/ui/alert';

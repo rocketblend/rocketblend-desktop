@@ -1,7 +1,7 @@
 import type { PageLoad } from './$types';
 
 import { application } from '$lib/wailsjs/go/models';
-import { ListProjects } from '$lib/wailsjs/go/application/Driver'
+import { ListProjects } from '$lib/wailsjs/go/application/Project'
 
 export const load : PageLoad = (async ({ url }) => {
     const query = url.searchParams.get('query') || '';

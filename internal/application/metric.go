@@ -33,8 +33,8 @@ type (
 	}
 )
 
-func (d *Driver) ListMetrics(opts ListMetricsOpts) (*ListMetricsResult, error) {
-	result, err := d.tracker.ListMetrics(d.ctx, &types.FilterMetricsOpts{
+func (s *System) ListMetrics(opts ListMetricsOpts) (*ListMetricsResult, error) {
+	result, err := s.tracker.ListMetrics(s.ctx, &types.FilterMetricsOpts{
 		Domain:    opts.Domain,
 		Name:      opts.Name,
 		StartTime: opts.StartTime,
@@ -49,8 +49,8 @@ func (d *Driver) ListMetrics(opts ListMetricsOpts) (*ListMetricsResult, error) {
 	}, nil
 }
 
-func (d *Driver) AggregateMetrics(opts AggregateMetricsOpts) (*AggregateMetricsResult, error) {
-	result, err := d.tracker.AggregateMetrics(d.ctx, &types.FilterMetricsOpts{
+func (s *System) AggregateMetrics(opts AggregateMetricsOpts) (*AggregateMetricsResult, error) {
+	result, err := s.tracker.AggregateMetrics(s.ctx, &types.FilterMetricsOpts{
 		Domain:    opts.Domain,
 		Name:      opts.Name,
 		StartTime: opts.StartTime,
@@ -65,12 +65,12 @@ func (d *Driver) AggregateMetrics(opts AggregateMetricsOpts) (*AggregateMetricsR
 	}, nil
 }
 
-func (d *Driver) addApplicationMetrics() error {
-	if err := d.ctx.Err(); err != nil {
+func (l *lifecycle) addApplicationMetrics() error {
+	if err := l.ctx.Err(); err != nil {
 		return err
 	}
 
-	if err := d.tracker.CreateMetric(d.ctx, &types.CreateMetricOpts{
+	if err := l.tracker.CreateMetric(l.ctx, &types.CreateMetricOpts{
 		Domain: Domain,
 		Name:   StartupMetric,
 		Value:  1,
@@ -78,11 +78,11 @@ func (d *Driver) addApplicationMetrics() error {
 		return err
 	}
 
-	if err := d.addProjectMetrics(); err != nil {
+	if err := l.addProjectMetrics(); err != nil {
 		return err
 	}
 
-	if err := d.addPackageMetrics(); err != nil {
+	if err := l.addPackageMetrics(); err != nil {
 		return err
 	}
 
@@ -90,34 +90,34 @@ func (d *Driver) addApplicationMetrics() error {
 }
 
 // TODO: Create a track function in portfolio and catalog and call it from startup instead.
-func (d *Driver) addProjectMetrics() error {
-	if err := d.ctx.Err(); err != nil {
+func (l *lifecycle) addProjectMetrics() error {
+	if err := l.ctx.Err(); err != nil {
 		return err
 	}
 
-	result, err := d.portfolio.ListProjects(d.ctx)
+	result, err := l.portfolio.ListProjects(l.ctx)
 	if err != nil {
 		return err
 	}
 
-	return d.tracker.CreateMetric(d.ctx, &types.CreateMetricOpts{
+	return l.tracker.CreateMetric(l.ctx, &types.CreateMetricOpts{
 		Domain: Domain,
 		Name:   ProjectCountMetric,
 		Value:  len(result.Projects),
 	})
 }
 
-func (d *Driver) addPackageMetrics() error {
-	if err := d.ctx.Err(); err != nil {
+func (l *lifecycle) addPackageMetrics() error {
+	if err := l.ctx.Err(); err != nil {
 		return err
 	}
 
-	result, err := d.catalog.ListPackages(d.ctx)
+	result, err := l.catalog.ListPackages(l.ctx)
 	if err != nil {
 		return err
 	}
 
-	if err := d.tracker.CreateMetric(d.ctx, &types.CreateMetricOpts{
+	if err := l.tracker.CreateMetric(l.ctx, &types.CreateMetricOpts{
 		Domain: Domain,
 		Name:   PackageCountMetric,
 		Value:  len(result.Packages),

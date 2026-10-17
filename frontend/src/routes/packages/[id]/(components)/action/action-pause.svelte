@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
-    import { CancelOperation } from '$lib/wailsjs/go/application/Driver';
+    import { CancelOperation } from '$lib/wailsjs/go/application/Operation';
     import { application } from '$lib/wailsjs/go/models';
 
     import { AlertAction } from '$lib/components/ui/alert';

@@ -28,8 +28,8 @@ type (
 	UpdatePreferencesOpts Preferences
 )
 
-func (d *Driver) GetPreferences() (*Preferences, error) {
-	_, aConfig, err := d.getApplicationConfig()
+func (s *System) GetPreferences() (*Preferences, error) {
+	_, aConfig, err := s.getApplicationConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +48,8 @@ func (d *Driver) GetPreferences() (*Preferences, error) {
 	}, nil
 }
 
-func (d *Driver) UpdatePreferences(opts UpdatePreferencesOpts) error {
-	config, err := d.configurator.Get()
+func (s *System) UpdatePreferences(opts UpdatePreferencesOpts) error {
+	config, err := s.configurator.Get()
 	if err != nil {
 		return err
 	}
@@ -58,31 +58,31 @@ func (d *Driver) UpdatePreferences(opts UpdatePreferencesOpts) error {
 	config.Feature.Addon = opts.Feature.Addon
 	config.Feature.Developer = opts.Feature.Developer
 
-	if err := d.configurator.Save(config); err != nil {
+	if err := s.configurator.Save(config); err != nil {
 		return err
 	}
 
-	if err := d.portfolio.Refresh(d.ctx); err != nil {
+	if err := s.portfolio.Refresh(s.ctx); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (d *Driver) GetDetails() (*Details, error) {
-	aConfigPath, _, err := d.getApplicationConfig()
+func (s *System) GetDetails() (*Details, error) {
+	aConfigPath, _, err := s.getApplicationConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	rbConfigPath, rbConfig, err := d.getRocketBlendConfig()
+	rbConfigPath, rbConfig, err := s.getRocketBlendConfig()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Details{
-		Version:               d.version,
-		Platform:              d.platform.String(), // TODO: Convert to wails enum.
+		Version:               s.version,
+		Platform:              s.platform.String(), // TODO: Convert to wails enum.
 		InstallationPath:      rbConfig.InstallationsPath,
 		PackagePath:           rbConfig.PackagesPath,
 		ApplicationConfigPath: aConfigPath,
@@ -90,22 +90,22 @@ func (d *Driver) GetDetails() (*Details, error) {
 	}, nil
 }
 
-func (d *Driver) getApplicationConfig() (string, *types.Config, error) {
+func (s *System) getApplicationConfig() (string, *types.Config, error) {
 	// TODO: create new struct that just includes the path and the config.
-	config, err := d.configurator.Get()
+	config, err := s.configurator.Get()
 	if err != nil {
 		return "", nil, err
 	}
 
-	return d.configurator.Path(), config, nil
+	return s.configurator.Path(), config, nil
 }
 
-func (d *Driver) getRocketBlendConfig() (string, *rbtypes.Config, error) {
+func (s *System) getRocketBlendConfig() (string, *rbtypes.Config, error) {
 	// TODO: create new struct that just includes the path and the config.
-	config, err := d.rbConfigurator.Get()
+	config, err := s.rbConfigurator.Get()
 	if err != nil {
 		return "", nil, err
 	}
 
-	return d.rbConfigurator.Path(), config, nil
+	return s.rbConfigurator.Path(), config, nil
 }

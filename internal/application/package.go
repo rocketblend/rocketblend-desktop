@@ -13,6 +13,17 @@ import (
 )
 
 type (
+	Package struct {
+		logger types.Logger
+
+		operator types.Operator
+		catalog  types.Catalog
+
+		rbConfigurator rbtypes.Configurator
+
+		ctx context.Context
+	}
+
 	GetPackageOpts struct {
 		ID uuid.UUID `json:"id"`
 	}
@@ -52,14 +63,24 @@ type (
 	}
 )
 
-func (d *Driver) GetPackage(opts GetPackageOpts) (*GetPackageResult, error) {
+func newPackage(ctx context.Context, deps *dependencies) *Package {
+	return &Package{
+		logger:         deps.logger,
+		operator:       deps.operator,
+		catalog:        deps.catalog,
+		rbConfigurator: deps.rbConfigurator,
+		ctx:            ctx,
+	}
+}
+
+func (s *Package) GetPackage(opts GetPackageOpts) (*GetPackageResult, error) {
 	ctx := context.Background()
 
-	result, err := d.catalog.GetPackage(ctx, &types.GetPackageOpts{
+	result, err := s.catalog.GetPackage(ctx, &types.GetPackageOpts{
 		ID: opts.ID,
 	})
 	if err != nil {
-		d.logger.Error("failed to find package by id", map[string]interface{}{"error": err.Error()})
+		s.logger.Error("failed to find package by id", map[string]interface{}{"error": err.Error()})
 		return nil, err
 	}
 
@@ -68,53 +89,53 @@ func (d *Driver) GetPackage(opts GetPackageOpts) (*GetPackageResult, error) {
 	}, nil
 }
 
-func (d *Driver) ListPackages(opts ListPackagesOpts) (*ListPackagesResult, error) {
+func (s *Package) ListPackages(opts ListPackagesOpts) (*ListPackagesResult, error) {
 	ctx := context.Background()
 
-	d.logger.Debug("finding all packages", map[string]interface{}{
+	s.logger.Debug("finding all packages", map[string]interface{}{
 		"query": opts.Query,
 		"type":  opts.Type,
 		"state": opts.State,
 		"refs":  opts.References,
 	})
 
-	response, err := d.catalog.ListPackages(ctx, []listoption.ListOption{
+	response, err := s.catalog.ListPackages(ctx, []listoption.ListOption{
 		listoption.WithQuery(opts.Query),
 		listoption.WithReferences(opts.References...),
 		listoption.WithCategory(string(opts.Type)),
 		listoption.WithState(string(opts.State)),
 	}...)
 	if err != nil {
-		d.logger.Error("failed to find all packages", map[string]interface{}{"error": err.Error()})
+		s.logger.Error("failed to find all packages", map[string]interface{}{"error": err.Error()})
 		return nil, err
 	}
 
-	d.logger.Debug("found packages", map[string]interface{}{"packages": len(response.Packages)})
+	s.logger.Debug("found packages", map[string]interface{}{"packages": len(response.Packages)})
 
 	return &ListPackagesResult{
 		Packages: response.Packages,
 	}, nil
 }
 
-func (d *Driver) AddPackage(opts AddPackageOpts) error {
+func (s *Package) AddPackage(opts AddPackageOpts) error {
 	// ref, err := reference.Parse(opts.Reference)
 	// if err != nil {
-	// 	d.logger.Error("failed to parse reference", map[string]interface{}{"error": err.Error()})
+	// 	s.logger.Error("failed to parse reference", map[string]interface{}{"error": err.Error()})
 	// 	return err
 	// }
 
-	// if err := d.catalog.AddPackage(d.ctx, ref); err != nil {
-	// 	d.logger.Error("failed to add package", map[string]interface{}{"error": err.Error()})
+	// if err := s.catalog.AddPackage(s.ctx, ref); err != nil {
+	// 	s.logger.Error("failed to add package", map[string]interface{}{"error": err.Error()})
 	// 	return err
 	// }
 
 	return nil
 }
 
-func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult, error) {
-	domain, err := d.checkPackageDomain(opts.ID, opts.AllowUntrustedDomain)
+func (s *Package) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult, error) {
+	domain, err := s.checkPackageDomain(opts.ID, opts.AllowUntrustedDomain)
 	if err != nil {
-		d.logger.Error("package download domain not allowed", map[string]interface{}{
+		s.logger.Error("package download domain not allowed", map[string]interface{}{
 			"error": err.Error(),
 			"id":    opts.ID,
 		})
@@ -122,7 +143,7 @@ func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult,
 	}
 
 	if domain != "" {
-		d.logger.Info("package download requires domain confirmation", map[string]interface{}{
+		s.logger.Info("package download requires domain confirmation", map[string]interface{}{
 			"domain": domain,
 			"id":     opts.ID,
 		})
@@ -133,12 +154,12 @@ func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult,
 		}, nil
 	}
 
-	opid, err := d.operator.Create(d.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
-		if err := d.catalog.AddPackageOperation(d.ctx, &types.AddPackageOperationOpts{
+	opid, err := s.operator.Create(s.ctx, func(ctx context.Context, opid uuid.UUID) (interface{}, error) {
+		if err := s.catalog.AddPackageOperation(s.ctx, &types.AddPackageOperationOpts{
 			ID:          opts.ID,
 			OperationID: opid,
 		}); err != nil {
-			d.logger.Error("failed to append operation to package", map[string]interface{}{
+			s.logger.Error("failed to append operation to package", map[string]interface{}{
 				"error": err.Error(),
 				"opid":  opid,
 			})
@@ -147,29 +168,29 @@ func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult,
 		}
 
 		defer func() {
-			if err := d.catalog.RemovePackageOperation(d.ctx, &types.RemovePackageOperationOpts{
+			if err := s.catalog.RemovePackageOperation(s.ctx, &types.RemovePackageOperationOpts{
 				ID:          opts.ID,
 				OperationID: opid,
 			}); err != nil {
-				d.logger.Error("failed to remove operation from package", map[string]interface{}{
+				s.logger.Error("failed to remove operation from package", map[string]interface{}{
 					"error": err.Error(),
 					"opid":  opid,
 				})
 			}
 		}()
 
-		if err := d.catalog.InstallPackage(ctx, &types.InstallPackageOpts{
+		if err := s.catalog.InstallPackage(ctx, &types.InstallPackageOpts{
 			ID:                         opts.ID,
 			BypassUntrustedDomainCheck: opts.AllowUntrustedDomain,
 		}); err != nil {
-			d.logger.Error("failed to install package", map[string]interface{}{
+			s.logger.Error("failed to install package", map[string]interface{}{
 				"error": err.Error(),
 				"opid":  opid,
 			})
 			return nil, err
 		}
 
-		d.logger.Debug("package installed", map[string]interface{}{
+		s.logger.Debug("package installed", map[string]interface{}{
 			"id":   opts.ID,
 			"opid": opid,
 		})
@@ -185,15 +206,15 @@ func (d *Driver) InstallPackage(opts InstallPackageOpts) (*InstallPackageResult,
 	}, nil
 }
 
-func (d *Driver) checkPackageDomain(id uuid.UUID, allowUntrusted bool) (string, error) {
-	result, err := d.catalog.GetPackage(d.ctx, &types.GetPackageOpts{
+func (s *Package) checkPackageDomain(id uuid.UUID, allowUntrusted bool) (string, error) {
+	result, err := s.catalog.GetPackage(s.ctx, &types.GetPackageOpts{
 		ID: id,
 	})
 	if err != nil {
 		return "", err
 	}
 
-	config, err := d.rbConfigurator.Get()
+	config, err := s.rbConfigurator.Get()
 	if err != nil {
 		return "", err
 	}
@@ -207,41 +228,23 @@ func (d *Driver) checkPackageDomain(id uuid.UUID, allowUntrusted bool) (string, 
 	return "", err
 }
 
-func (d *Driver) RefreshPackages() error {
-	if err := d.catalog.RefreshPackages(d.ctx); err != nil {
-		d.logger.Error("failed to refresh packages", map[string]interface{}{"error": err.Error()})
+func (s *Package) RefreshPackages() error {
+	if err := s.catalog.RefreshPackages(s.ctx); err != nil {
+		s.logger.Error("failed to refresh packages", map[string]interface{}{"error": err.Error()})
 		return err
 	}
 
 	return nil
 }
 
-func (d *Driver) UninstallPackage(opts UninstallPackageOpts) error {
-	if err := d.catalog.UninstallPackage(d.ctx, &types.UninstallPackageOpts{
+func (s *Package) UninstallPackage(opts UninstallPackageOpts) error {
+	if err := s.catalog.UninstallPackage(s.ctx, &types.UninstallPackageOpts{
 		ID: opts.ID,
 	}); err != nil {
-		d.logger.Error("failed to uninstall package", map[string]interface{}{"error": err.Error()})
+		s.logger.Error("failed to uninstall package", map[string]interface{}{"error": err.Error()})
 		return err
 	}
 
-	d.logger.Debug("package uninstalled", map[string]interface{}{"id": opts.ID})
-	return nil
-}
-
-// autoRefreshPackages refreshes the packages, if auto pull is enabled.
-func (d *Driver) autoRefreshPackages(ctx context.Context) error {
-	config, err := d.configurator.Get()
-	if err != nil {
-		return err
-	}
-
-	if !config.Package.AutoPull {
-		return nil
-	}
-
-	if err := d.catalog.RefreshPackages(ctx); err != nil {
-		return err
-	}
-
+	s.logger.Debug("package uninstalled", map[string]interface{}{"id": opts.ID})
 	return nil
 }

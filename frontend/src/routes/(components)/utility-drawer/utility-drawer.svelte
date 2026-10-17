@@ -5,8 +5,7 @@
     import { LogFeed } from "./log-feed"
     import {
         DebugToolMetrics,
-        DebugToolOperations,
-        DebugToolRequests
+        DebugToolOperations
     } from "./debug-tool";
 
     export let developer: boolean = false;
@@ -42,9 +41,6 @@
             </div>
             <div class="h-full" hidden={!(drawTabSet == 2)}>
                 <div class="overflow-auto grid grid-cols-2 md:grid-cols-3 gap-4 h-full">
-                    <div>
-                        <DebugToolRequests/>
-                    </div>
                     <div>
                         <DebugToolOperations/>
                     </div>

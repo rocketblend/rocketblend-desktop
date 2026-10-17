@@ -10,7 +10,7 @@
         CancelOperation,
         ListOperations,
         GetOperation
-    } from '$lib/wailsjs/go/application/Driver';
+    } from '$lib/wailsjs/go/application/Operation';
 
     import { t } from '$lib/translations/translations';
     import { createOperationStore } from '$lib/stores';

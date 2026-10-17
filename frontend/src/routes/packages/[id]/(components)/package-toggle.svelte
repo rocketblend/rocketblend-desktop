@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { AddProjectPackage, RemoveProjectPackage } from '$lib/wailsjs/go/application/Driver'
+    import { AddProjectPackage, RemoveProjectPackage } from '$lib/wailsjs/go/application/Project'
     import { enums, application, } from '$lib/wailsjs/go/models';
 
     import { AlertEnabled, AlertDisabled, AlertNotReady } from './alert';
